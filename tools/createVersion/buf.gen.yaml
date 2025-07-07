@@ -2,7 +2,7 @@ version: v1
 plugins:
   - name: ts
     strategy: all
-    path: "/Users/spehlivan/Documents/REACT-PROJECT/elchi/tools/createVersion/ts-proto-debug.sh"
+    path: "/Users/spehlivan/Documents/CloudNativeWorks/elchi/tools/createVersion/ts-proto-debug.sh"
     out: models
     opt:
       - stringEnums=true

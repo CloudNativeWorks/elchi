@@ -40,10 +40,10 @@ jobs:
     - name: Update config.js for demo environment
       run: |
         echo 'window.APP_CONFIG = {
-            API_URL: "https://bigbang.elchi.io",
+            API_URL: "https://backend.elchi.io",
             API_URL_LOCAL: "http://localhost:8010",
             ENABLE_DEMO: true,
-            AVAILABLE_VERSIONS: ["v1.32.3", "v1.33.2"],
+            AVAILABLE_VERSIONS: ["v1.33.2", "v1.34.1"],
             VERSION: "0.1.0"
         };' > public/config.js
 
