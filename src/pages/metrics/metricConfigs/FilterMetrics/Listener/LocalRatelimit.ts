@@ -1,0 +1,36 @@
+import { MetricConfig } from "../../MetricConfig";
+
+const defaultWindowSecs = {
+    default: 15,
+    ranges: [
+        { threshold: 2 * 24 * 60 * 60, value: 300 }, // 2 days
+        { threshold: 24 * 60 * 60, value: 60 },      // 1 day
+        { threshold: 1 * 60 * 60, value: 30 },       // 1 hour
+    ]
+}
+
+export const LOCAL_RATELIMIT_METRICS: MetricConfig[] = [
+    {
+        section: 'Listener Filter - Local Ratelimit Metrics',
+        title: 'Rate Limited',
+        metric: 'listener_local_ratelimit_rate_limited_total',
+        description: '',
+        groups: ['all', 'filters', 'errors'],
+        queryTemplate: `
+            sum by (envoy_local_listener_ratelimit_prefix) (
+                ceil(
+                    rate(
+                        {__name__=~"%{name}_%{project}_%{metric}"}[%{window}s]
+                    )
+                )
+            )
+        `,
+        span: 12,
+        formatType: 'number',
+        windowSecs: defaultWindowSecs,
+        legendMapping: [{
+            template: '%s',
+            labelKeys: ['envoy_local_listener_ratelimit_prefix']
+        }]
+    },
+];

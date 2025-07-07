@@ -1,0 +1,63 @@
+name: Deploy to GitHub Pages
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release tag to build (e.g. v0.1.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: 'pages'
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+
+    steps:
+    - name: Checkout specific release
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.release_tag }}
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Update config.js for demo environment
+      run: |
+        echo 'window.APP_CONFIG = {
+            API_URL: "https://bigbang.elchi.io",
+            API_URL_LOCAL: "http://localhost:8010",
+            ENABLE_DEMO: true,
+            AVAILABLE_VERSIONS: ["v1.32.3", "v1.33.2"],
+            VERSION: "0.1.0"
+        };' > public/config.js
+
+    - name: Build project
+      run: NODE_OPTIONS="--max-old-space-size=4096" npm run build
+
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: './dist'
+        name: github-pages-${{ github.run_id }}
+
+    - name: Deploy to GitHub Pages
+      uses: actions/deploy-pages@v4
+      with:
+        token: ${{ secrets.GH_PAT }}
+        artifact_name: github-pages-${{ github.run_id }}

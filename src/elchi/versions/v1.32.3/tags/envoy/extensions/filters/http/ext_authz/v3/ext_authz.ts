@@ -1,0 +1,514 @@
+import {OutType} from '@/elchi/tags/tagsType';
+
+
+export const BufferSettings: OutType = { "BufferSettings": [
+  {
+    "name": "max_request_bytes",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "number",
+    "enums": null,
+    "comment": "Sets the maximum size of a message body that the filter will hold in memory. Envoy will return ``HTTP 413`` and will *not* initiate the authorization process when buffer reaches the number set in this field. Note that this setting will have precedence over `failure_mode_allow`.",
+    "notImp": false
+  },
+  {
+    "name": "allow_partial_message",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "boolean",
+    "enums": null,
+    "comment": "When this field is true, Envoy will buffer the message until ``max_request_bytes`` is reached. The authorization request will be dispatched and no 413 HTTP error will be returned by the filter.",
+    "notImp": false
+  },
+  {
+    "name": "pack_as_bytes",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "boolean",
+    "enums": null,
+    "comment": "If true, the body sent to the external authorization service is set with raw bytes, it sets the `raw_body` field of HTTP request attribute context. Otherwise, `body` will be filled with UTF-8 string request body.\n\nThis field only affects configurations using a `grpc_service`. In configurations that use an `http_service`, this has no effect.",
+    "notImp": false
+  }
+] };
+
+export const BufferSettings_SingleFields = [
+  "max_request_bytes",
+  "allow_partial_message",
+  "pack_as_bytes"
+];
+
+export const ExtAuthz: OutType = { "ExtAuthz": [
+  {
+    "name": "services.grpc_service",
+    "isUnion": true,
+    "isDeprecated": false,
+    "fieldType": "GrpcService",
+    "enums": null,
+    "comment": "gRPC service configuration (default timeout: 200ms).",
+    "notImp": false
+  },
+  {
+    "name": "services.http_service",
+    "isUnion": true,
+    "isDeprecated": false,
+    "fieldType": "HttpService",
+    "enums": null,
+    "comment": "HTTP service configuration (default timeout: 200ms).",
+    "notImp": false
+  },
+  {
+    "name": "transport_api_version",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "ApiVersion",
+    "enums": [
+      "AUTO",
+      "V2",
+      "V3"
+    ],
+    "comment": "API version for ext_authz transport protocol. This describes the ext_authz gRPC endpoint and version of messages used on the wire.",
+    "notImp": false
+  },
+  {
+    "name": "failure_mode_allow",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "boolean",
+    "enums": null,
+    "comment": "Changes filter's behaviour on errors:\n\n 1. When set to true, the filter will ``accept`` client request even if the communication with the authorization service has failed, or if the authorization service has returned a HTTP 5xx error.\n\n 2. When set to false, ext-authz will ``reject`` client requests and return a ``Forbidden`` response if the communication with the authorization service has failed, or if the authorization service has returned a HTTP 5xx error.\n\nNote that errors can be ``always`` tracked in the `stats`.",
+    "notImp": false
+  },
+  {
+    "name": "failure_mode_allow_header_add",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "boolean",
+    "enums": null,
+    "comment": "When ``failure_mode_allow`` and ``failure_mode_allow_header_add`` are both set to true, ``x-envoy-auth-failure-mode-allowed: true`` will be added to request headers if the communication with the authorization service has failed, or if the authorization service has returned a HTTP 5xx error.",
+    "notImp": false
+  },
+  {
+    "name": "with_request_body",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "BufferSettings",
+    "enums": null,
+    "comment": "Enables filter to buffer the client request body and send it within the authorization request. A ``x-envoy-auth-partial-body: false|true`` metadata header will be added to the authorization request message indicating if the body data is partial.",
+    "notImp": false
+  },
+  {
+    "name": "clear_route_cache",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "boolean",
+    "enums": null,
+    "comment": "Clears route cache in order to allow the external authorization service to correctly affect routing decisions. Filter clears all cached routes when:\n\n1. The field is set to ``true``.\n\n2. The status returned from the authorization service is a HTTP 200 or gRPC 0.\n\n3. At least one ``authorization response header`` is added to the client request, or is used for altering another client request header.",
+    "notImp": false
+  },
+  {
+    "name": "status_on_error",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "HttpStatus",
+    "enums": null,
+    "comment": "Sets the HTTP status that is returned to the client when the authorization server returns an error or cannot be reached. The default status is HTTP 403 Forbidden.",
+    "notImp": false
+  },
+  {
+    "name": "validate_mutations",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "boolean",
+    "enums": null,
+    "comment": "When this is set to true, the filter will check the `ext_authz response` for invalid header & query parameter mutations. If the side stream response is invalid, it will send a local reply to the downstream request with status HTTP 500 Internal Server Error.\n\nNote that headers_to_remove & query_parameters_to_remove are validated, but invalid elements in those fields should not affect any headers & thus will not cause the filter to send a local reply.\n\nWhen set to false, any invalid mutations will be visible to the rest of envoy and may cause unexpected behavior.\n\nIf you are using ext_authz with an untrusted ext_authz server, you should set this to true.",
+    "notImp": false
+  },
+  {
+    "name": "metadata_context_namespaces",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "string[]",
+    "enums": null,
+    "comment": "Specifies a list of metadata namespaces whose values, if present, will be passed to the ext_authz service. The `filter_metadata` is passed as an opaque ``protobuf::Struct``.\n\nPlease note that this field exclusively applies to the gRPC ext_authz service and has no effect on the HTTP service.\n\nFor example, if the ``jwt_authn`` filter is used and `payload_in_metadata` is set, then the following will pass the jwt payload to the authorization server.\n\n```yaml\n\n   metadata_context_namespaces:\n   - envoy.filters.http.jwt_authn",
+    "notImp": false
+  },
+  {
+    "name": "typed_metadata_context_namespaces",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "string[]",
+    "enums": null,
+    "comment": "Specifies a list of metadata namespaces whose values, if present, will be passed to the ext_authz service. `typed_filter_metadata` is passed as a ``protobuf::Any``.\n\nPlease note that this field exclusively applies to the gRPC ext_authz service and has no effect on the HTTP service.\n\nIt works in a way similar to ``metadata_context_namespaces`` but allows Envoy and ext_authz server to share the protobuf message definition in order to do a safe parsing.",
+    "notImp": false
+  },
+  {
+    "name": "route_metadata_context_namespaces",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "string[]",
+    "enums": null,
+    "comment": "Specifies a list of route metadata namespaces whose values, if present, will be passed to the ext_authz service at `route_metadata_context` in `CheckRequest`. `filter_metadata` is passed as an opaque ``protobuf::Struct``.",
+    "notImp": false
+  },
+  {
+    "name": "route_typed_metadata_context_namespaces",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "string[]",
+    "enums": null,
+    "comment": "Specifies a list of route metadata namespaces whose values, if present, will be passed to the ext_authz service at `route_metadata_context` in `CheckRequest`. `typed_filter_metadata` is passed as an ``protobuf::Any``.",
+    "notImp": false
+  },
+  {
+    "name": "filter_enabled",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "RuntimeFractionalPercent",
+    "enums": null,
+    "comment": "Specifies if the filter is enabled.\n\nIf `runtime_key` is specified, Envoy will lookup the runtime key to get the percentage of requests to filter.\n\nIf this field is not specified, the filter will be enabled for all requests.",
+    "notImp": false
+  },
+  {
+    "name": "filter_enabled_metadata",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "MetadataMatcher",
+    "enums": null,
+    "comment": "Specifies if the filter is enabled with metadata matcher. If this field is not specified, the filter will be enabled for all requests.",
+    "notImp": false
+  },
+  {
+    "name": "deny_at_disable",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "RuntimeFeatureFlag",
+    "enums": null,
+    "comment": "Specifies whether to deny the requests, when the filter is disabled. If `runtime_key` is specified, Envoy will lookup the runtime key to determine whether to deny request for filter protected path at filter disabling. If filter is disabled in typed_per_filter_config for the path, requests will not be denied.\n\nIf this field is not specified, all requests will be allowed when disabled.\n\nIf a request is denied due to this setting, the response code in `status_on_error` will be returned.",
+    "notImp": false
+  },
+  {
+    "name": "include_peer_certificate",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "boolean",
+    "enums": null,
+    "comment": "Specifies if the peer certificate is sent to the external service.\n\nWhen this field is true, Envoy will include the peer X.509 certificate, if available, in the `certificate`.",
+    "notImp": false
+  },
+  {
+    "name": "stat_prefix",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "string",
+    "enums": null,
+    "comment": "Optional additional prefix to use when emitting statistics. This allows to distinguish emitted statistics between configured ``ext_authz`` filters in an HTTP filter chain. For example:\n\n```yaml\n\n  http_filters:\n    - name: envoy.filters.http.ext_authz\n      typed_config:\n        \"@type\": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthz\n        stat_prefix: waf # This emits ext_authz.waf.ok, ext_authz.waf.denied, etc.\n    - name: envoy.filters.http.ext_authz\n      typed_config:\n        \"@type\": type.googleapis.com/envoy.extensions.filters.http.ext_authz.v3.ExtAuthz\n        stat_prefix: blocker # This emits ext_authz.blocker.ok, ext_authz.blocker.denied, etc.",
+    "notImp": false
+  },
+  {
+    "name": "bootstrap_metadata_labels_key",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "string",
+    "enums": null,
+    "comment": "Optional labels that will be passed to `labels` in `destination`. The labels will be read from `metadata` with the specified key.",
+    "notImp": false
+  },
+  {
+    "name": "allowed_headers",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "ListStringMatcher",
+    "enums": null,
+    "comment": "Check request to authorization server will include the client request headers that have a correspondent match in the `list`. If this option isn't specified, then all client request headers are included in the check request to a gRPC authorization server, whereas no client request headers (besides the ones allowed by default - see note below) are included in the check request to an HTTP authorization server. This inconsistency between gRPC and HTTP servers is to maintain backwards compatibility with legacy behavior.\n\n:::note\n\n1. For requests to an HTTP authorization server: in addition to the the user's supplied matchers, ``Host``, ``Method``, ``Path``, ``Content-Length``, and ``Authorization`` are **additionally included** in the list. \n:::\n\n:::note\n\n2. For requests to an HTTP authorization server: *Content-Length* will be set to 0 and the request to the authorization server will not have a message body. However, the check request can include the buffered client request body (controlled by `with_request_body` setting), consequently the value of *Content-Length* of the authorization request reflects the size of its payload size. \n:::\n\n:::note\n\n3. This can be overridden by the field ``disallowed_headers`` below. That is, if a header matches for both ``allowed_headers`` and ``disallowed_headers``, the header will NOT be sent.",
+    "notImp": false
+  },
+  {
+    "name": "disallowed_headers",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "ListStringMatcher",
+    "enums": null,
+    "comment": "If set, specifically disallow any header in this list to be forwarded to the external authentication server. This overrides the above ``allowed_headers`` if a header matches both.",
+    "notImp": false
+  },
+  {
+    "name": "include_tls_session",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "boolean",
+    "enums": null,
+    "comment": "Specifies if the TLS session level details like SNI are sent to the external service.\n\nWhen this field is true, Envoy will include the SNI name used for TLSClientHello, if available, in the `tls_session`.",
+    "notImp": false
+  },
+  {
+    "name": "charge_cluster_response_stats",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "boolean",
+    "enums": null,
+    "comment": "Whether to increment cluster statistics (e.g. cluster.<cluster_name>.upstream_rq_*) on authorization failure. Defaults to true.",
+    "notImp": false
+  },
+  {
+    "name": "encode_raw_headers",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "boolean",
+    "enums": null,
+    "comment": "Whether to encode the raw headers (i.e. unsanitized values & unconcatenated multi-line headers) in authentication request. Works with both HTTP and GRPC clients.\n\nWhen this is set to true, header values are not sanitized. Headers with the same key will also not be combined into a single, comma-separated header. Requests to GRPC services will populate the field `header_map`. Requests to HTTP services will be constructed with the unsanitized header values and preserved multi-line headers with the same key.\n\nIf this field is set to false, header values will be sanitized, with any non-UTF-8-compliant bytes replaced with '!'. Headers with the same key will have their values concatenated into a single comma-separated header value. Requests to GRPC services will populate the field `headers`. Requests to HTTP services will have their header values sanitized and will not preserve multi-line headers with the same key.\n\nIt's recommended you set this to true unless you already rely on the old behavior. False is the default only for backwards compatibility.",
+    "notImp": false
+  },
+  {
+    "name": "decoder_header_mutation_rules",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "HeaderMutationRules",
+    "enums": null,
+    "comment": "Rules for what modifications an ext_authz server may make to the request headers before continuing decoding / forwarding upstream.\n\nIf set to anything, enables header mutation checking against configured rules. Note that `HeaderMutationRules` has defaults that change ext_authz behavior. Also note that if this field is set to anything, ext_authz can no longer append to :-prefixed headers.\n\nIf empty, header mutation rule checking is completely disabled.\n\nRegardless of what is configured here, ext_authz cannot remove :-prefixed headers.\n\nThis field and ``validate_mutations`` have different use cases. ``validate_mutations`` enables correctness checks for all header / query parameter mutations (e.g. for invalid characters). This field allows the filter to reject mutations to specific headers.",
+    "notImp": false
+  },
+  {
+    "name": "enable_dynamic_metadata_ingestion",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "boolean",
+    "enums": null,
+    "comment": "Enable / disable ingestion of dynamic metadata from ext_authz service.\n\nIf false, the filter will ignore dynamic metadata injected by the ext_authz service. If the ext_authz service tries injecting dynamic metadata, the filter will log, increment the ``ignored_dynamic_metadata`` stat, then continue handling the response.\n\nIf true, the filter will ingest dynamic metadata entries as normal.\n\nIf unset, defaults to true.",
+    "notImp": false
+  },
+  {
+    "name": "filter_metadata",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "{ [key: string]: any; }",
+    "enums": null,
+    "comment": "Additional metadata to be added to the filter state for logging purposes. The metadata will be added to StreamInfo's filter state under the namespace corresponding to the ext_authz filter name.",
+    "notImp": false
+  },
+  {
+    "name": "emit_filter_state_stats",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "boolean",
+    "enums": null,
+    "comment": "When set to true, the filter will emit per-stream stats for access logging. The filter state key will be the same as the filter name.\n\nIf using Envoy GRPC, emits latency, bytes sent / received, upstream info, and upstream cluster info. If not using Envoy GRPC, emits only latency. Note that stats are ONLY added to filter state if a check request is actually made to an ext_authz service.\n\nIf this is false the filter will not emit stats, but filter_metadata will still be respected if it has a value.",
+    "notImp": false
+  }
+] };
+
+export const ExtAuthz_SingleFields = [
+  "transport_api_version",
+  "failure_mode_allow",
+  "failure_mode_allow_header_add",
+  "clear_route_cache",
+  "validate_mutations",
+  "metadata_context_namespaces",
+  "typed_metadata_context_namespaces",
+  "route_metadata_context_namespaces",
+  "route_typed_metadata_context_namespaces",
+  "include_peer_certificate",
+  "stat_prefix",
+  "bootstrap_metadata_labels_key",
+  "include_tls_session",
+  "charge_cluster_response_stats",
+  "encode_raw_headers",
+  "enable_dynamic_metadata_ingestion",
+  "emit_filter_state_stats"
+];
+
+export const AuthorizationRequest: OutType = { "AuthorizationRequest": [
+  {
+    "name": "allowed_headers",
+    "isUnion": false,
+    "isDeprecated": true,
+    "fieldType": "ListStringMatcher",
+    "enums": null,
+    "comment": "Authorization request includes the client request headers that have a correspondent match in the `list`. This field has been deprecated in favor of `allowed_headers`.\n\n:::note\n\nIn addition to the the user's supplied matchers, ``Host``, ``Method``, ``Path``, ``Content-Length``, and ``Authorization`` are **automatically included** to the list. \n:::\n\n:::note\n\nBy default, ``Content-Length`` header is set to ``0`` and the request to the authorization service has no message body. However, the authorization request *may* include the buffered client request body (controlled by `with_request_body` setting) hence the value of its ``Content-Length`` reflects the size of its payload size. \n:::",
+    "notImp": false
+  },
+  {
+    "name": "headers_to_add",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "HeaderValue[]",
+    "enums": null,
+    "comment": "Sets a list of headers that will be included to the request to authorization service. Note that client request of the same key will be overridden.",
+    "notImp": false
+  }
+] };
+
+export const AuthorizationResponse: OutType = { "AuthorizationResponse": [
+  {
+    "name": "allowed_upstream_headers",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "ListStringMatcher",
+    "enums": null,
+    "comment": "When this `list` is set, authorization response headers that have a correspondent match will be added to the original client request. Note that coexistent headers will be overridden.",
+    "notImp": false
+  },
+  {
+    "name": "allowed_upstream_headers_to_append",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "ListStringMatcher",
+    "enums": null,
+    "comment": "When this `list` is set, authorization response headers that have a correspondent match will be added to the original client request. Note that coexistent headers will be appended.",
+    "notImp": false
+  },
+  {
+    "name": "allowed_client_headers",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "ListStringMatcher",
+    "enums": null,
+    "comment": "When this `list` is set, authorization response headers that have a correspondent match will be added to the client's response. Note that when this list is *not* set, all the authorization response headers, except ``Authority (Host)`` will be in the response to the client. When a header is included in this list, ``Path``, ``Status``, ``Content-Length``, ``WWWAuthenticate`` and ``Location`` are automatically added.",
+    "notImp": false
+  },
+  {
+    "name": "allowed_client_headers_on_success",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "ListStringMatcher",
+    "enums": null,
+    "comment": "When this `list` is set, authorization response headers that have a correspondent match will be added to the client's response when the authorization response itself is successful, i.e. not failed or denied. When this list is *not* set, no additional headers will be added to the client's response on success.",
+    "notImp": false
+  },
+  {
+    "name": "dynamic_metadata_from_headers",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "ListStringMatcher",
+    "enums": null,
+    "comment": "When this `list` is set, authorization response headers that have a correspondent match will be emitted as dynamic metadata to be consumed by the next filter. This metadata lives in a namespace specified by the canonical name of extension filter that requires it:\n\n- `envoy.filters.http.ext_authz` for HTTP filter. - `envoy.filters.network.ext_authz` for network filter.",
+    "notImp": false
+  }
+] };
+
+export const HttpService: OutType = { "HttpService": [
+  {
+    "name": "server_uri",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "HttpUri",
+    "enums": null,
+    "comment": "Sets the HTTP server URI which the authorization requests must be sent to.",
+    "notImp": false
+  },
+  {
+    "name": "path_prefix",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "string",
+    "enums": null,
+    "comment": "Sets a prefix to the value of authorization request header ``Path``.",
+    "notImp": false
+  },
+  {
+    "name": "authorization_request",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "AuthorizationRequest",
+    "enums": null,
+    "comment": "Settings used for controlling authorization request metadata.",
+    "notImp": false
+  },
+  {
+    "name": "authorization_response",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "AuthorizationResponse",
+    "enums": null,
+    "comment": "Settings used for controlling authorization response metadata.",
+    "notImp": false
+  }
+] };
+
+export const HttpService_SingleFields = [
+  "path_prefix"
+];
+
+export const ExtAuthzPerRoute: OutType = { "ExtAuthzPerRoute": [
+  {
+    "name": "override.disabled",
+    "isUnion": true,
+    "isDeprecated": false,
+    "fieldType": "boolean",
+    "enums": null,
+    "comment": "Disable the ext auth filter for this particular vhost or route. If disabled is specified in multiple per-filter-configs, the most specific one will be used.",
+    "notImp": false
+  },
+  {
+    "name": "override.check_settings",
+    "isUnion": true,
+    "isDeprecated": false,
+    "fieldType": "CheckSettings",
+    "enums": null,
+    "comment": "Check request settings for this route.",
+    "notImp": false
+  }
+] };
+
+export const ExtAuthzPerRoute_SingleFields = [
+  "override.disabled"
+];
+
+export const CheckSettings: OutType = { "CheckSettings": [
+  {
+    "name": "context_extensions",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "Map<string, string>",
+    "enums": null,
+    "comment": "Context extensions to set on the CheckRequest's `AttributeContext.context_extensions`\n\nYou can use this to provide extra context for the external authorization server on specific virtual hosts/routes. For example, adding a context extension on the virtual host level can give the ext-authz server information on what virtual host is used without needing to parse the host header. If CheckSettings is specified in multiple per-filter-configs, they will be merged in order, and the result will be used.\n\nMerge semantics for this field are such that keys from more specific configs override.\n\n:::note\n\nThese settings are only applied to a filter configured with a `grpc_service`.",
+    "notImp": false
+  },
+  {
+    "name": "disable_request_body_buffering",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "boolean",
+    "enums": null,
+    "comment": "When set to true, disable the configured `with_request_body` for a specific route.\n\nPlease note that only one of *disable_request_body_buffering* or `with_request_body` may be specified.",
+    "notImp": false
+  },
+  {
+    "name": "with_request_body",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "BufferSettings",
+    "enums": null,
+    "comment": "Enable or override request body buffering, which is configured using the `with_request_body` option for a specific route.\n\nPlease note that only only one of *with_request_body* or `disable_request_body_buffering` may be specified.",
+    "notImp": false
+  }
+] };
+
+export const CheckSettings_SingleFields = [
+  "disable_request_body_buffering"
+];
+
+export const CheckSettings_ContextExtensionsEntry: OutType = { "CheckSettings_ContextExtensionsEntry": [
+  {
+    "name": "key",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "string",
+    "enums": null,
+    "comment": "",
+    "notImp": false
+  },
+  {
+    "name": "value",
+    "isUnion": false,
+    "isDeprecated": false,
+    "fieldType": "string",
+    "enums": null,
+    "comment": "",
+    "notImp": false
+  }
+] };
+
+export const CheckSettings_ContextExtensionsEntry_SingleFields = [
+  "key",
+  "value"
+];

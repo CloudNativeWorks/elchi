@@ -1,0 +1,41 @@
+buf generate yapmadan önce aşağıdaki değişiklikleri ts-proto dosyasının type.ts içerisinde yap.
+
+
+aşağıdaki satırı ->
+case ts_proto_descriptors_1.FieldDescriptorProto_Type.TYPE_BOOL:
+    return (0, ts_poet_1.code) `${place} === true`;
+
+
+bununla değiştir ->
+case ts_proto_descriptors_1.FieldDescriptorProto_Type.TYPE_BOOL:
+    return (0, ts_poet_1.code) `${place} !== undefined`;
+
+-----------------------------------------------------------------------------------------------
+
+aşağıdaki satırı -->
+if (options.stringEnums) {
+    const enumType = messageToTypeName(ctx, field.typeName);
+    const enumValue = (0, enums_1.getMemberName)(ctx, enumProto, zerothValue);
+    return (0, ts_poet_1.code) `${maybeNotUndefinedAnd} ${place} !== ${enumType}.${enumValue}`;
+}
+else {
+    return (0, ts_poet_1.code) `${maybeNotUndefinedAnd} ${place} !== ${zerothValue.number}`;
+}
+
+
+bununla değiştir -->
+if (options.stringEnums) {
+    // const enumType = messageToTypeName(ctx, field.typeName);
+    // const enumValue = (0, enums_1.getMemberName)(ctx, enumProto, zerothValue);
+    return (0, ts_poet_1.code) `${maybeNotUndefinedAnd.replace(" && ", "")}`;
+}
+else {
+    return (0, ts_poet_1.code) `${maybeNotUndefinedAnd} ${place} !== ${zerothValue.number}`;
+}
+
+
+
+
+envoy/api altına buf.gen.yaml kopyalanacak ts-proto node_modules içerisinde olmalı ts-proto yolu buf.gen.yaml da düzenlenecek aşağıdakiler çalıştıralacak.
+buf mod update
+buf generate 
