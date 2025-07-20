@@ -3,7 +3,6 @@ import { useParams } from 'react-router-dom';
 import { Card, Typography, Spin, Alert, Tabs } from 'antd';
 import { useCustomGetQuery } from '@/common/api';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
-import ServiceLogs from '@components/services/ServiceLogs';
 import { InfoCircleOutlined, FileTextOutlined, ClusterOutlined } from '@ant-design/icons';
 import { useServiceStatus, useServiceAction } from '@/hooks/useServiceActions';
 import { OperationsSubType, OperationsType } from '@/common/types';
@@ -210,21 +209,6 @@ const Service: React.FC = () => {
                             children: (
                                 <EnvoysCard
                                     envoys={serviceData?.envoys}
-                                    name={serviceData?.service?.name}
-                                    project={project}
-                                />
-                            )
-                        },
-                        {
-                            key: 'logs',
-                            label: (
-                                <span className="tabLabel">
-                                    <FileTextOutlined style={{ fontSize: 17 }} />
-                                    Logs
-                                </span>
-                            ),
-                            children: (
-                                <ServiceLogs
                                     name={serviceData?.service?.name}
                                     project={project}
                                 />

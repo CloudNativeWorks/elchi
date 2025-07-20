@@ -1,8 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Spin, Alert } from 'antd';
 import { useOperationsApiMutation } from '@/common/operations-api';
 import { OperationsType } from '@/common/types';
 import LogToolbar from '../../common/LogToolBar';
+
+function wrapWithIndent(line: string, indent: string, maxLen: number) {
+    if (!line) return [indent];
+    if (maxLen <= 0) maxLen = 100;
+
+    const content = line.slice(indent.length);
+    const result = [];
+
+    if (!content) {
+        result.push(indent);
+        return result;
+    }
+
+    let i = 0;
+    const safeMaxLen = Math.min(maxLen, 1000);
+
+    while (i < content.length && result.length < 1000) {
+        result.push(indent + content.slice(i, i + safeMaxLen));
+        i += safeMaxLen;
+    }
+
+    return result;
+}
 
 interface BgpLogProps {
     clientId: string;
@@ -26,14 +49,19 @@ const BgpLogs: React.FC<BgpLogProps> = ({ clientId }) => {
     const [logLineCount, setLogLineCount] = useState(100);
     const [pendingLogLineCount, setPendingLogLineCount] = useState(100);
     const [refreshKey, setRefreshKey] = useState(0);
+    const [maxLineLength, setMaxLineLength] = useState(100);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const logListRef = useRef<HTMLDivElement>(null);
+    const [activeLevels, setActiveLevels] = useState<string[]>([]);
+    
     const logLevels = [
         { key: 'info', label: 'Info', color: '#40a9ff' },
         { key: 'warning', label: 'Warning', color: '#faad14' },
         { key: 'error', label: 'Error', color: '#ff4d4f' },
         { key: 'debug', label: 'Debug', color: '#b37feb' },
+        { key: 'trace', label: 'Trace', color: '#13c2c2' },
+        { key: 'critical', label: 'Critical', color: '#d4380d' },
     ];
-    const [activeLevels, setActiveLevels] = useState<string[]>([]);
-    const logListRef = React.useRef<HTMLDivElement>(null);
 
     const toggleLevel = (level: string) => {
         setActiveLevels(prev =>
@@ -42,6 +70,21 @@ const BgpLogs: React.FC<BgpLogProps> = ({ clientId }) => {
                 : [...prev, level]
         );
     };
+
+    useEffect(() => {
+        function updateMaxLineLength() {
+            if (containerRef.current) {
+                const width = containerRef.current.offsetWidth;
+                const charWidth = 7.2;
+                const padding = 220;
+                const usableWidth = Math.max(width - padding, 40);
+                setMaxLineLength(Math.floor(usableWidth / charWidth));
+            }
+        }
+        updateMaxLineLength();
+        window.addEventListener('resize', updateMaxLineLength);
+        return () => window.removeEventListener('resize', updateMaxLineLength);
+    }, []);
 
     useEffect(() => {
         let isMounted = true;
@@ -94,13 +137,32 @@ const BgpLogs: React.FC<BgpLogProps> = ({ clientId }) => {
             case 'warning': return '#faad14';
             case 'info': return '#40a9ff';
             case 'debug': return '#b37feb';
+            case 'trace': return '#13c2c2';
+            case 'critical': return '#d4380d';
             default: return '#bfbfbf';
+        }
+    };
+
+    const formatTimestamp = (timestamp: string) => {
+        try {
+            const date = new Date(timestamp);
+            return date.toLocaleString('tr-TR', {
+                day: '2-digit',
+                month: '2-digit', 
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
+        } catch {
+            return timestamp;
         }
     };
 
     return (
         <div>
-            <div style={{ marginBottom: 8 }}>
+            <div ref={containerRef} style={{ marginBottom: 8 }}>
                 <LogToolbar
                     searchText={searchText}
                     onSearchTextChange={setSearchText}
@@ -116,20 +178,18 @@ const BgpLogs: React.FC<BgpLogProps> = ({ clientId }) => {
                 />
             </div>
 
+            {/* Compact Kibana-style Log Display */}
             <div
                 ref={logListRef}
                 style={{
-                    background: '#181c20',
+                    background: '#fff',
                     borderRadius: 8,
-                    padding: 16,
-                    fontFamily: 'monospace',
-                    fontSize: 13,
-                    minHeight: 650,
-                    maxHeight: 650,
+                    minHeight: 700,
+                    maxHeight: 700,
                     overflowY: 'auto',
                     textAlign: 'left',
                     position: 'relative',
-                    marginTop: 12
+                    border: '1px solid #e8e8e8'
                 }}
             >
                 {error ? (
@@ -142,61 +202,152 @@ const BgpLogs: React.FC<BgpLogProps> = ({ clientId }) => {
                     </div>
                 ) : (
                     <div style={{ opacity: loading ? 0.5 : 1, transition: 'opacity 0.2s' }}>
-                                                {filteredLogs.map((log, idx) => {
-                            const lineNumber = idx + 1;
-                            const lines = log.message.split('\n');
-                            
-                            return (
-                                <div
-                                    key={idx}
-                                    style={{
-                                        marginBottom: 10,
-                                        display: 'flex',
-                                        alignItems: 'flex-start',
-                                        fontFamily: 'monospace',
-                                        fontSize: 13,
-                                        lineHeight: '1.4'
-                                    }}
-                                >
-                                    <span style={{ color: '#666', minWidth: 32, textAlign: 'right', marginRight: 8, marginLeft: -5 }}>
-                                        {lineNumber}
-                                    </span>
-                                    <span style={{ color: '#888', marginRight: 4 }}>[{log.timestamp}]</span>
-                                    <span style={{ color: levelColor(log.level), fontWeight: 700, marginRight: 4 }}>[{log.level?.toUpperCase()}]</span>
-                                    {log.module && (
-                                        <span style={{ color: '#bfbfbf', marginRight: 4 }}>[{log.module}]</span>
-                                    )}
-                                    {log.file && (
-                                        <span style={{ color: '#bfbfbf', marginRight: 4 }}>[{log.file}]</span>
-                                    )}
+                        {/* Sticky Header */}
+                        <div style={{
+                            position: 'sticky',
+                            top: 0,
+                            zIndex: 10,
+                            background: '#f8f9fa',
+                            borderBottom: '2px solid #dee2e6',
+                            display: 'flex',
+                            alignItems: 'center',
+                            padding: '12px 16px',
+                            fontSize: 12,
+                            fontWeight: 600,
+                            color: '#495057',
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px'
+                        }}>
+                            {/* Line Number Header */}
+                            <div style={{ 
+                                minWidth: 40, 
+                                textAlign: 'right', 
+                                marginRight: 12,
+                                color: '#6c757d'
+                            }}>
+                                #
+                            </div>
 
-                                    <span
-                                        style={{
-                                            flex: 1,
-                                            minWidth: 0,
-                                            paddingLeft: 8,
-                                            display: 'block',
-                                            color: '#fff',
-                                        }}
-                                    >
-                                        {lines.map((line, i) => (
+                            {/* Timestamp Header */}
+                            <div style={{ 
+                                minWidth: 140, 
+                                marginRight: 12,
+                                color: '#495057'
+                            }}>
+                                Timestamp
+                            </div>
+
+                            {/* Level Header */}
+                            <div style={{ 
+                                minWidth: 60, 
+                                marginRight: 12,
+                                color: '#495057'
+                            }}>
+                                Level
+                            </div>
+
+                            {/* Message Header */}
+                            <div style={{
+                                flex: 1,
+                                paddingLeft: 8,
+                                color: '#495057'
+                            }}>
+                                Message
+                            </div>
+                        </div>
+
+                        {/* Log Rows */}
+                        {filteredLogs.map((log, idx) => (
+                            <div
+                                key={idx}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    padding: '8px 16px',
+                                    borderBottom: '1px solid #f0f0f0',
+                                    background: idx % 2 === 0 ? '#fafafa' : '#fff',
+                                    transition: 'background-color 0.15s ease',
+                                    cursor: 'pointer',
+                                    fontSize: 13
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.backgroundColor = '#e6f7ff';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.backgroundColor = idx % 2 === 0 ? '#fafafa' : '#fff';
+                                }}
+                            >
+                                {/* Line Number */}
+                                <div style={{ 
+                                    minWidth: 40, 
+                                    textAlign: 'right', 
+                                    marginRight: 12, 
+                                    color: '#bfbfbf',
+                                    fontSize: 12,
+                                    lineHeight: '20px'
+                                }}>
+                                    {idx + 1}
+                                </div>
+
+                                {/* Timestamp */}
+                                <div style={{ 
+                                    minWidth: 140, 
+                                    color: '#666',
+                                    fontSize: 12,
+                                    marginRight: 12,
+                                    lineHeight: '20px'
+                                }}>
+                                    {formatTimestamp(log.timestamp)}
+                                </div>
+
+                                {/* Level Badge */}
+                                <div style={{ 
+                                    minWidth: 60, 
+                                    marginRight: 12,
+                                    lineHeight: '20px'
+                                }}>
+                                    <span style={{
+                                        background: levelColor(log.level),
+                                        color: '#fff',
+                                        padding: '2px 6px',
+                                        borderRadius: 3,
+                                        fontSize: 10,
+                                        fontWeight: 600,
+                                        textTransform: 'uppercase'
+                                    }}>
+                                        {log.level}
+                                    </span>
+                                </div>
+
+                                {/* Log Message */}
+                                <div style={{
+                                    flex: 1,
+                                    fontFamily: "'Fira Code', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace",
+                                    fontSize: 12,
+                                    lineHeight: '20px',
+                                    color: '#2c3e50',
+                                    paddingLeft: 8
+                                }}>
+                                    {log.message.split('\n').map((line, i) => {
+                                        const match = line.match(/^(\s*)(.*)$/);
+                                        const spaces = match ? match[1] : '';
+                                        const wrapped = wrapWithIndent(line, spaces, maxLineLength - 20);
+                                        return wrapped.map((wrappedLine, j) => (
                                             <div
-                                                key={i}
+                                                key={i + '-' + j}
                                                 style={{
-                                                    whiteSpace: 'pre-wrap',
-                                                    wordBreak: 'break-word',
-                                                    overflowWrap: 'break-word',
+                                                    whiteSpace: 'pre',
+                                                    wordBreak: 'break-all',
                                                     display: 'block',
                                                 }}
                                             >
-                                                {line}
+                                                {wrappedLine}
                                             </div>
-                                        ))}
-                                        
-                                    </span>
+                                        ));
+                                    })}
                                 </div>
-                            );
-                        })}
+                            </div>
+                        ))}
                     </div>
                 )}
                 {loading && (
@@ -205,9 +356,10 @@ const BgpLogs: React.FC<BgpLogProps> = ({ clientId }) => {
                         top: '50%',
                         left: '50%',
                         transform: 'translate(-50%, -50%)',
-                        background: 'rgba(24, 28, 32, 0.7)',
+                        background: 'rgba(255, 255, 255, 0.9)',
                         padding: '20px',
                         borderRadius: '8px',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
                         backdropFilter: 'blur(2px)'
                     }}>
                         <Spin size="large" />

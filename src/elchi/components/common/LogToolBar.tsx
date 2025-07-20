@@ -2,6 +2,7 @@
 import React from 'react';
 import { Input, Button, InputNumber, Tooltip, Select, Tag } from 'antd';
 import { ReloadOutlined } from '@ant-design/icons';
+import { useServices } from '@/hooks/useServices';
 
 interface LogLevel {
     key: string;
@@ -18,6 +19,9 @@ interface LogToolbarProps {
     pendingLogLineCount: number;
     onPendingLogLineCountChange: (v: number) => void;
     onRefresh: () => void;
+    serviceLog?: boolean;
+    selectedService?: string;
+    onServiceChange?: (service: string) => void;
 }
 
 const LogToolbar: React.FC<LogToolbarProps> = ({
@@ -29,7 +33,11 @@ const LogToolbar: React.FC<LogToolbarProps> = ({
     pendingLogLineCount,
     onPendingLogLineCountChange,
     onRefresh,
+    serviceLog = false,
+    selectedService,
+    onServiceChange,
 }) => {
+    const { data: services, isLoading: isLoadingServices } = useServices();
     const handleLevelChange = (values: string[]) => {
         const changedLevel = values.find(v => !activeLevels.includes(v)) || activeLevels.find(v => !values.includes(v));
         if (changedLevel) {
@@ -38,7 +46,25 @@ const LogToolbar: React.FC<LogToolbarProps> = ({
     };
 
     return (
-        <div style={{ marginBottom: 0, display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div style={{ marginBottom: 0, display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+            {serviceLog && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <Select
+                        placeholder="Select a service to view logs"
+                        loading={isLoadingServices}
+                        value={selectedService}
+                        onChange={onServiceChange}
+                        showSearch
+                        allowClear
+                        optionFilterProp="children"
+                        style={{ minWidth: 250 }}
+                        options={services?.map((service: string) => ({
+                            label: service,
+                            value: service
+                        }))}
+                    />
+                </div>
+            )}
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <Input.Search
                     placeholder="Search in logs..."

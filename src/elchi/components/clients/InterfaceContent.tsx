@@ -2,15 +2,16 @@ import React, { useState } from 'react';
 import { Row, Col, Spin, Card, Button, Descriptions } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 import EditInterfaceCard from './EditInterfaceCard';
+import { EthernetIcon } from '@/assets/svg/icons';
 
 const InterfaceCard: React.FC<{ entry: any; onEdit: () => void }> = ({ entry, onEdit }) => {
     const state = entry.interface.state?.toLowerCase();
     const stateColor = state === 'up' ? '#52c41a' : state === 'down' ? '#ff4d4f' : '#bfbfbf';
-    
+
     return (
-        <Card 
+        <Card
             size="small"
-            style={{ 
+            style={{
                 borderRadius: 12,
                 boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
                 height: '100%',
@@ -19,7 +20,7 @@ const InterfaceCard: React.FC<{ entry: any; onEdit: () => void }> = ({ entry, on
             }}
             styles={{ body: { padding: '16px' } }}
         >
-            <div style={{ 
+            <div style={{
                 position: 'absolute',
                 top: 12,
                 right: 12,
@@ -39,7 +40,7 @@ const InterfaceCard: React.FC<{ entry: any; onEdit: () => void }> = ({ entry, on
                     type="text"
                     icon={<EditOutlined style={{ color: '#1677ff', fontSize: 16 }} />}
                     onClick={onEdit}
-                    style={{ 
+                    style={{
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -49,16 +50,26 @@ const InterfaceCard: React.FC<{ entry: any; onEdit: () => void }> = ({ entry, on
                     }}
                 />
             </div>
-            
+
             <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 16, fontWeight: 600, color: '#1f1f1f', marginBottom: 4 }}>
+                <div style={{ 
+                    fontSize: 16, 
+                    fontWeight: 600, 
+                    color: '#1f1f1f', 
+                    marginBottom: 4,
+                    display: 'flex',
+                    alignItems: 'center'
+                }}>
+                    <span style={{ marginRight: 4, display: 'flex', alignItems: 'center' }}>
+                        <EthernetIcon />
+                    </span>
                     {entry.ifname}
                 </div>
                 <div style={{ fontSize: 14, color: '#595959' }}>
                     {entry.interface.addresses?.[0] || '-'}
                 </div>
             </div>
-            
+
             <Descriptions size="small" column={1} style={{ fontSize: 13 }}>
                 <Descriptions.Item label="DHCP">
                     {entry.interface.dhcp4 ? 'Enabled' : 'Disabled'}
@@ -87,22 +98,22 @@ interface InterfaceContentProps {
     routingTables: { name: string; table: number; }[];
 }
 
-const InterfaceContent: React.FC<InterfaceContentProps> = ({ 
-    interfaces, 
-    loading, 
-    error, 
-    clientId, 
-    routingTables 
+const InterfaceContent: React.FC<InterfaceContentProps> = ({
+    interfaces,
+    loading,
+    error,
+    clientId,
+    routingTables
 }) => {
     const [editIndex, setEditIndex] = useState<number | null>(null);
 
     const handleEdit = (idx: number) => setEditIndex(idx);
     const handleCancel = () => setEditIndex(null);
-    
+
     if (editIndex !== null) {
-        return <EditInterfaceCard 
+        return <EditInterfaceCard
             entry={interfaces[editIndex]}
-            onCancel={handleCancel} 
+            onCancel={handleCancel}
             setEditIndex={setEditIndex}
             clientId={clientId}
             routingTables={routingTables}
@@ -111,11 +122,11 @@ const InterfaceContent: React.FC<InterfaceContentProps> = ({
 
     if (loading) {
         return (
-            <div style={{ 
-                display: 'flex', 
-                justifyContent: 'center', 
-                alignItems: 'center', 
-                height: 200 
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: 200
             }}>
                 <Spin size="large" />
             </div>
@@ -130,9 +141,9 @@ const InterfaceContent: React.FC<InterfaceContentProps> = ({
         <Row gutter={[16, 16]}>
             {interfaces.map((entry: any, idx: number) => (
                 <Col key={idx} xs={24} sm={12} lg={8}>
-                    <InterfaceCard 
-                        entry={entry} 
-                        onEdit={() => handleEdit(idx)} 
+                    <InterfaceCard
+                        entry={entry}
+                        onEdit={() => handleEdit(idx)}
                     />
                 </Col>
             ))}

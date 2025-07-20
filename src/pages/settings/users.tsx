@@ -135,7 +135,7 @@ const Users: React.FC = () => {
             render: (_, record) => (
                 <Dropdown menu={{ items: listenerActions, onClick: (e) => onClick(record, e.key) }} trigger={['contextMenu']}>
                     <div>
-                        <Link to={`${record.username}?user_id=${record.user_id}`}>
+                        <Link to={`users/${record.username}?user_id=${record.user_id}`}>
                             <Text strong>{`${record.username}`}</Text>
                         </Link>
                     </div>
@@ -146,7 +146,7 @@ const Users: React.FC = () => {
             title: 'Role',
             dataIndex: 'role',
             key: 'role',
-            width: '30%',
+            width: '20%',
             fixed: 'left',
             render: (_, record) => (
                 <Dropdown menu={{ items: listenerActions, onClick: (e) => onClick(record, e.key) }} trigger={['contextMenu']}>

@@ -27,6 +27,7 @@ import Services from './pages/operations/services';
 import Client from './pages/operations/client';
 import Service from './pages/operations/service';
 import Metrics from './pages/metrics/metrics';
+import Logs from './pages/logs/Logs';
 
 
 const AppRoutes: React.FC = () => (
@@ -84,6 +85,9 @@ const AppRoutes: React.FC = () => (
 
                 {/* Metrics Routes */}
                 <Route path="/observability/metrics" element={<Metrics />} />
+
+                {/* Logs Routes */}
+                <Route path="/observability/logs" element={<Logs />} />
 
                 {/* Catch-All Route */}
                 <Route path="*" element={<Dashboard />} />

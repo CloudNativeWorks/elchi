@@ -126,12 +126,12 @@ const Groups: React.FC = () => {
             title: 'Name',
             dataIndex: 'name',
             key: 'name',
-            width: '30%',
+            width: '40%',
             fixed: 'left',
             render: (_, record) => (
                 <Dropdown menu={{ items: listenerActions, onClick: (e) => onClick(record, e.key) }} trigger={['contextMenu']}>
                     <div>
-                        <Link to={`${record.groupname}?group_id=${record._id}`}>
+                        <Link to={`groups/${record.groupname}?group_id=${record._id}`}>
                             <Text strong>{`${record.groupname}`}</Text>
                         </Link>
                     </div>
@@ -142,7 +142,7 @@ const Groups: React.FC = () => {
             title: 'Created AT',
             dataIndex: 'created_at',
             key: 'created_at',
-            width: '25%',
+            width: '30%',
             sorter: (a, b) => a.created_at.length - b.created_at.length,
             sortDirections: ['descend', 'ascend'],
             render: (record) => (
@@ -157,7 +157,7 @@ const Groups: React.FC = () => {
             title: 'Updated AT',
             dataIndex: 'updated_at',
             key: 'updated_at',
-            width: '25%',
+            width: '30%',
             sorter: (a, b) => a.updated_at.length - b.updated_at.length,
             sortDirections: ['descend', 'ascend'],
             render: (record) => (

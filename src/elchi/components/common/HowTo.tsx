@@ -107,7 +107,7 @@ spec:
     spec:
       containers:
         - name: envoy
-          image: envoyproxy/envoy:v1.33.2 # Update version as needed
+          image: envoyproxy/envoy:v1.33.5 # Update version as needed
           args:
             - "-c"
             - "/etc/envoy/bootstrap.yaml"

@@ -20,8 +20,6 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
 
     steps:
     - name: Checkout specific release
@@ -43,7 +41,7 @@ jobs:
             API_URL: "https://backend.elchi.io",
             API_URL_LOCAL: "http://localhost:8010",
             ENABLE_DEMO: true,
-            AVAILABLE_VERSIONS: ["v1.33.2", "v1.34.1"],
+            AVAILABLE_VERSIONS: ["v1.33.5", "v1.34.2"],
             VERSION: "0.1.0"
         };' > public/config.js
 

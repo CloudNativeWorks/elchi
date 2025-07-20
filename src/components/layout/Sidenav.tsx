@@ -132,23 +132,6 @@ const menuConfig = [
 		to: "/settings",
 		icon: "SETSVG",
 		label: "Settings",
-		items: [
-			{
-				"key": "/settings/users",
-				"to": "/settings/users",
-				"label": "Users"
-			},
-			{
-				"key": "/settings/groups",
-				"to": "/settings/groups",
-				"label": "Groups"
-			},
-			{
-				"key": "/settings/projects",
-				"to": "/settings/projects",
-				"label": "Projects"
-			}
-		]
 	},
 ];
 
@@ -177,17 +160,12 @@ function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
 	const page = pathname.replace("/", "");
 	const { project, setProject } = useProjectVariable();
 
-	const findBestMatchKey = (path) => {
+	const findBestMatchKey = (path: string) => {
 		let bestMatch = "";
 		menuConfig.forEach((item) => {
 			if (path.startsWith(item.key) && item.key.length > bestMatch.length) {
 				bestMatch = item.key;
 			}
-			item.items?.forEach((subItem) => {
-				if (path.startsWith(subItem.key) && subItem.key.length > bestMatch.length) {
-					bestMatch = subItem.key;
-				}
-			});
 		});
 		return bestMatch;
 	};
