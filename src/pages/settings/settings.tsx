@@ -1,10 +1,11 @@
 import React from 'react';
 import { Card, Tabs, Typography } from 'antd';
-import { UserOutlined, TeamOutlined, ProjectOutlined, SettingOutlined, AppstoreOutlined } from '@ant-design/icons';
+import { UserOutlined, TeamOutlined, ProjectOutlined, SettingOutlined, AppstoreOutlined, KeyOutlined } from '@ant-design/icons';
 import General from './General';
 import Users from './users';
 import Groups from './Groups';
 import Projects from './Projects';
+import Tokens from './Tokens';
 
 const { Title } = Typography;
 
@@ -49,6 +50,16 @@ const Settings: React.FC = () => {
                 </span>
             ),
             children: <Projects />
+        },
+        {
+            key: 'tokens',
+            label: (
+                <span className="tabLabel">
+                    <KeyOutlined style={{ fontSize: 18 }} />
+                    Tokens
+                </span>
+            ),
+            children: <Tokens />
         }
     ];
 

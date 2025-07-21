@@ -151,23 +151,6 @@ const Logs: React.FC = () => {
         }
     };
 
-    const formatTimestamp = (timestamp: string) => {
-        try {
-            const date = new Date(timestamp);
-            return date.toLocaleString('tr-TR', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false
-            });
-        } catch {
-            return timestamp;
-        }
-    };
-
     return (
         <div style={{ width: '100%', marginTop: '0px', padding: 0 }}>
             <Card style={{ borderRadius: 12, boxShadow: '0 2px 8px rgba(5,117,230,0.06)', margin: '0 auto' }}>
@@ -475,7 +458,7 @@ const Logs: React.FC = () => {
                                         marginRight: 12,
                                         lineHeight: '20px'
                                     }}>
-                                        {formatTimestamp(log.timestamp)}
+                                        {log.timestamp}
                                     </div>
 
                                     {/* Level Badge */}

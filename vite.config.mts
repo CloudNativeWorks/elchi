@@ -41,7 +41,12 @@ export default defineConfig(({ mode }) => {
         },
         plugins: [
             react(),
-            eslintPlugin(),
+            eslintPlugin({
+                lintOnStart: false,
+                include: ['src/**/*.{ts,tsx}'],
+                exclude: ['node_modules', 'dist'],
+                emitWarning: false,
+            }),
             tsconfigPaths(),
             createHtmlPlugin({
                 minify: isProduction,

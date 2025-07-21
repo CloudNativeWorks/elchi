@@ -4,8 +4,9 @@ import { NavLink } from "react-router-dom";
 import CountUp from 'react-countup';
 import { useProjectVariable } from "@/hooks/useProjectVariable";
 import { useCustomGetQuery } from "@/common/api";
-import { 
-    InfoCircleOutlined, 
+import TrafficOverview from "@/components/dashboard/TrafficOverview";
+import {
+    InfoCircleOutlined,
     GlobalOutlined,
     ShareAltOutlined,
     CloudOutlined,
@@ -15,8 +16,10 @@ import {
     KeyOutlined,
     FilterOutlined,
     AppstoreOutlined,
-    RightOutlined
+    RightOutlined,
 } from '@ant-design/icons';
+import { D_CLUSTER, D_ENDPOINT, D_EXTENSION, D_FILTER, D_LISTENER, D_ROUTE, D_SECRET, D_TLS, D_VIRTUAL_HOST } from "@/common/statics/ResourceDescriptions";
+import ReactMarkdown from 'react-markdown';
 
 const { Title, Text } = Typography;
 
@@ -26,74 +29,74 @@ const formatter = (value: number | string) => {
 };
 
 const resources = [
-    { 
-        name: 'Listeners', 
-        path: '/resource/listener', 
-        data: "Listeners are the primary network interface for Envoy. They handle incoming connections and manage the lifecycle of network connections. Each listener can be configured with various filters and protocols.",
+    {
+        name: 'Listeners',
+        path: '/resource/listener',
+        data: D_LISTENER,
         canonical_name: "listeners",
         icon: <GlobalOutlined />,
         color: '#056ccd'
     },
-    { 
-        name: 'Routes', 
-        path: '/resource/route', 
-        data: "Routes define how incoming requests are matched and forwarded to upstream services. They provide flexible routing rules based on various criteria such as path, headers, and query parameters.",
+    {
+        name: 'Routes',
+        path: '/resource/route',
+        data: D_ROUTE,
         canonical_name: "routes",
         icon: <ShareAltOutlined />,
         color: '#056ccd'
     },
-    { 
-        name: 'Virtual Hosts', 
-        path: '/resource/virtual_host', 
-        data: "Virtual Hosts enable hosting multiple domains on a single listener. They provide domain-based routing and allow different routing rules for different domains.",
+    {
+        name: 'Virtual Hosts',
+        path: '/resource/virtual_host',
+        data: D_VIRTUAL_HOST,
         canonical_name: "virtual_hosts",
         icon: <CloudOutlined />,
         color: '#056ccd'
     },
-    { 
-        name: 'Clusters', 
-        path: '/resource/cluster', 
-        data: "Clusters represent groups of upstream hosts that provide the same service. They handle load balancing, health checking, and connection management for upstream services.",
+    {
+        name: 'Clusters',
+        path: '/resource/cluster',
+        data: D_CLUSTER,
         canonical_name: "clusters",
         icon: <ClusterOutlined />,
         color: '#056ccd'
     },
-    { 
-        name: 'Endpoints', 
-        path: '/resource/endpoint', 
-        data: "Endpoints represent individual instances of upstream services. They provide detailed information about service instances and their health status.",
+    {
+        name: 'Endpoints',
+        path: '/resource/endpoint',
+        data: D_ENDPOINT,
         canonical_name: "endpoints",
         icon: <AimOutlined />,
         color: '#056ccd'
     },
-    { 
-        name: 'TLS', 
-        path: '/resource/tls', 
-        data: "TLS configuration manages secure communication settings. It handles certificate management, cipher suites, and other security-related parameters for encrypted connections.",
+    {
+        name: 'TLS',
+        path: '/resource/tls',
+        data: D_TLS,
         canonical_name: "tls",
         icon: <SafetyOutlined />,
         color: '#056ccd'
     },
-    { 
-        name: 'Secrets', 
-        path: '/resource/secret', 
-        data: "Secrets manage sensitive information such as TLS certificates and keys. They provide secure storage and distribution of confidential data.",
+    {
+        name: 'Secrets',
+        path: '/resource/secret',
+        data: D_SECRET,
         canonical_name: "secrets",
         icon: <KeyOutlined />,
         color: '#056ccd'
     },
-    { 
-        name: 'Filters', 
-        path: '/filters', 
-        data: "Filters provide modular processing capabilities for requests and responses. They enable various features like authentication, rate limiting, and request transformation.",
+    {
+        name: 'Filters',
+        path: '/filters',
+        data: D_FILTER,
         canonical_name: "filters",
         icon: <FilterOutlined />,
         color: '#056ccd'
     },
-    { 
-        name: 'Extensions', 
-        path: '/extensions', 
-        data: "Extensions add additional functionality to Envoy. They provide custom features and integrations with external systems and services.",
+    {
+        name: 'Extensions',
+        path: '/extensions',
+        data: D_EXTENSION,
         canonical_name: "extensions",
         icon: <AppstoreOutlined />,
         color: '#056ccd'
@@ -123,11 +126,13 @@ const Dashboard: React.FC = () => {
     };
 
     return (
-        <div style={{ 
+        <div style={{
             padding: '20px',
             background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
             minHeight: '100vh'
         }}>
+            {/* Traffic Overview Section */}
+            <TrafficOverview />
 
             {/* Resources Inline Grid */}
             <div style={{
@@ -180,14 +185,14 @@ const Dashboard: React.FC = () => {
                                     {filter.icon}
                                 </div>
                                 <div>
-                                    <NavLink 
+                                    <NavLink
                                         to={filter.path}
                                         style={{ textDecoration: 'none' }}
                                     >
-                                        <Title 
-                                            level={5} 
-                                            style={{ 
-                                                color: '#2c3e50', 
+                                        <Title
+                                            level={5}
+                                            style={{
+                                                color: '#2c3e50',
                                                 margin: 0,
                                                 fontSize: 14,
                                                 fontWeight: 600,
@@ -199,12 +204,12 @@ const Dashboard: React.FC = () => {
                                     </NavLink>
                                 </div>
                             </Space>
-                            
+
                             <Button
                                 type="text"
                                 icon={<InfoCircleOutlined />}
                                 size="small"
-                                style={{ 
+                                style={{
                                     color: '#8c8c8c',
                                     border: 'none',
                                     width: 28,
@@ -214,7 +219,7 @@ const Dashboard: React.FC = () => {
                             />
                         </div>
 
-                        <NavLink 
+                        <NavLink
                             to={filter.path}
                             style={{ textDecoration: 'none', display: 'block' }}
                         >
@@ -229,17 +234,17 @@ const Dashboard: React.FC = () => {
                                 cursor: 'pointer',
                                 transition: 'all 0.2s ease'
                             }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.background = filter.color + '08';
-                                e.currentTarget.style.borderColor = filter.color + '30';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.background = '#fafbfc';
-                                e.currentTarget.style.borderColor = '#f0f0f0';
-                            }}>
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.background = filter.color + '08';
+                                    e.currentTarget.style.borderColor = filter.color + '30';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.background = '#fafbfc';
+                                    e.currentTarget.style.borderColor = '#f0f0f0';
+                                }}>
                                 <div>
-                                    <Statistic 
-                                        value={dataQuery?.[filter?.canonical_name] || 0} 
+                                    <Statistic
+                                        value={dataQuery?.[filter?.canonical_name] || 0}
                                         formatter={formatter}
                                         valueStyle={{
                                             fontSize: 20,
@@ -248,7 +253,7 @@ const Dashboard: React.FC = () => {
                                             lineHeight: 1
                                         }}
                                     />
-                                    <Text style={{ 
+                                    <Text style={{
                                         color: '#8c8c8c',
                                         fontSize: 11,
                                         textTransform: 'uppercase',
@@ -258,9 +263,9 @@ const Dashboard: React.FC = () => {
                                         Resources
                                     </Text>
                                 </div>
-                                <RightOutlined style={{ 
-                                    color: '#bfbfbf', 
-                                    fontSize: 12 
+                                <RightOutlined style={{
+                                    color: '#bfbfbf',
+                                    fontSize: 12
                                 }} />
                             </div>
                         </NavLink>
@@ -270,31 +275,10 @@ const Dashboard: React.FC = () => {
 
             {/* Enhanced Modal */}
             <Modal
-                title={
-                    <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 12,
-                        padding: '6px 0'
-                    }}>
-                        <div style={{
-                            padding: 8,
-                            borderRadius: 8,
-                            background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
-                            color: 'white',
-                            boxShadow: '0 2px 8px rgba(5, 108, 205, 0.3)'
-                        }}>
-                            <InfoCircleOutlined />
-                        </div>
-                        <span style={{ fontSize: 17, fontWeight: 600, color: '#2c3e50' }}>
-                            {modalTitle} Details
-                        </span>
-                    </div>
-                }
                 open={isModalVisible}
                 onCancel={handleModalClose}
                 footer={null}
-                width={650}
+                width={1300}
                 style={{ top: 60 }}
                 styles={{
                     body: {
@@ -306,7 +290,6 @@ const Dashboard: React.FC = () => {
                     background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
                     margin: '14px -20px',
                     borderRadius: 10,
-                    border: '1px solid #e2e8f0',
                     overflow: 'hidden'
                 }}>
                     {/* Header Section */}
@@ -366,65 +349,49 @@ const Dashboard: React.FC = () => {
                             border: '1px solid #e2e8f0',
                             boxShadow: '0 1px 3px rgba(0, 0, 0, 0.06)'
                         }}>
-                            <Typography.Paragraph style={{ 
+                            <div style={{ 
                                 margin: 0,
                                 lineHeight: 1.7,
                                 fontSize: 14,
-                                color: '#374151',
-                                textAlign: 'justify'
+                                color: '#374151'
                             }}>
-                                {modalContent}
-                            </Typography.Paragraph>
-                        </div>
-
-                        {/* Key Features */}
-                        <div style={{
-                            marginTop: 16,
-                            padding: '14px 18px',
-                            background: 'rgba(5, 108, 205, 0.05)',
-                            borderRadius: 8,
-                            border: '1px solid rgba(5, 108, 205, 0.1)'
-                        }}>
-                            <div style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 6,
-                                marginBottom: 6
-                            }}>
-                                <div style={{
-                                    width: 5,
-                                    height: 5,
-                                    borderRadius: '50%',
-                                    background: '#056ccd'
-                                }}></div>
-                                <span style={{
-                                    fontSize: 12,
-                                    fontWeight: 600,
-                                    color: '#056ccd',
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.5px'
-                                }}>
-                                    Key Component
-                                </span>
+                                <ReactMarkdown
+                                    components={{
+                                        h1: ({ node, ...props }) => <h1 style={{ color: '#056ccd', fontSize: '18px', fontWeight: 700, margin: '20px 0 12px 0' }} {...props} />,
+                                        h2: ({ node, ...props }) => <h2 style={{ color: '#056ccd', fontSize: '16px', fontWeight: 600, margin: '20px 0 12px 0' }} {...props} />,
+                                        h3: ({ node, ...props }) => <h3 style={{ color: '#056ccd', fontSize: '15px', fontWeight: 600, margin: '18px 0 10px 0' }} {...props} />,
+                                        p: ({ node, ...props }) => <p style={{ margin: '12px 0', lineHeight: 1.7, color: '#374151' }} {...props} />,
+                                        ul: ({ node, ...props }) => <ul style={{ margin: '12px 0', paddingLeft: '20px', listStyleType: 'disc' }} {...props} />,
+                                        ol: ({ node, ...props }) => <ol style={{ margin: '12px 0', paddingLeft: '20px', listStyleType: 'decimal' }} {...props} />,
+                                        li: ({ node, ...props }) => <li style={{ margin: '6px 0', color: '#4a5568', lineHeight: 1.6 }} {...props} />,
+                                        strong: ({ node, ...props }) => <strong style={{ color: '#2d3748', fontWeight: 600 }} {...props} />,
+                                        em: ({ node, ...props }) => <em style={{ color: '#4a5568', fontStyle: 'italic' }} {...props} />,
+                                        code: ({ node, ...props }) => <code style={{ background: '#f7fafc', border: '1px solid #e2e8f0', borderRadius: '4px', padding: '2px 6px', fontFamily: 'Monaco, Consolas, monospace', fontSize: '13px', color: '#e53e3e' }} {...props} />,
+                                        blockquote: ({ node, ...props }) => (
+                                            <blockquote style={{
+                                                margin: '16px 0',
+                                                padding: '12px 16px',
+                                                background: 'rgba(5, 108, 205, 0.05)',
+                                                borderLeft: '4px solid #056ccd',
+                                                borderRadius: '0 8px 8px 0',
+                                                color: '#2d3748'
+                                            }} {...props} />
+                                        )
+                                    }}
+                                >
+                                    {modalContent}
+                                </ReactMarkdown>
                             </div>
-                            <p style={{
-                                margin: 0,
-                                fontSize: 12,
-                                color: '#056ccd',
-                                lineHeight: 1.5
-                            }}>
-                                This is a core component of Envoy's architecture that enables advanced traffic management and service communication.
-                            </p>
                         </div>
                     </div>
                 </div>
-                
+
                 <div style={{
                     display: 'flex',
                     justifyContent: 'flex-end',
                     marginTop: 14
                 }}>
-                    <Button 
+                    <Button
                         onClick={handleModalClose}
                         type="primary"
                         size="middle"

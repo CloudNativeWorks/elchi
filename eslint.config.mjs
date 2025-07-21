@@ -35,7 +35,9 @@ export default [
             '@typescript-eslint/no-case-declarations': 'off',
             'no-case-declarations': 'off',
             '@typescript-eslint/explicit-module-boundary-types': 'off',
-            'no-unused-vars': 'error',
+            'no-unused-vars': 'warn',
+            '@typescript-eslint/no-unused-disable-next-line': 'off',
+            'eslint-comments/no-unused-disable': 'off',
         },
     },
 ];

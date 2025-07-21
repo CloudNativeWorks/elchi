@@ -5,7 +5,7 @@ import { BGPNeighborRequest, useBGPOperations } from '@/hooks/useBGPOperations';
 interface EditBGPNeighborDrawerProps {
     open: boolean;
     onClose: () => void;
-    onSubmit: (values: BGPNeighborRequest) => Promise<void>;//eslint-disable-line
+    onSubmit: (values: BGPNeighborRequest) => Promise<void>;
     neighbor?: { peer_ip: string; remote_as: number } | null;
     clientId: string;
 }

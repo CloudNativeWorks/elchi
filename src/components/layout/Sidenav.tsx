@@ -17,7 +17,10 @@ import {
     FileTextOutlined,
     SettingOutlined,
     UserOutlined,
-    BarChartOutlined
+    BarChartOutlined,
+    CloudServerOutlined,
+    CodeOutlined,
+    ApiOutlined
 } from '@ant-design/icons';
 import { useProjectVariable } from "@/hooks/useProjectVariable";
 import { UserDetail } from "@/common/types";
@@ -129,19 +132,19 @@ const menuConfig = [
 	{
 		key: "/resource/bootstrap",
 		to: "/resource/bootstrap",
-		icon: "DashboardOutlined",
+		icon: "CodeOutlined",
 		label: "Bootstrap",
 	},
 	{
 		key: "/services",
 		to: "/services",
-		icon: "AppstoreOutlined",
+		icon: "ApiOutlined",
 		label: "Services",
 	},
 	{
 		key: "/clients",
 		to: "/clients",
-		icon: "UserOutlined",
+		icon: "CloudServerOutlined",
 		label: "Clients",
 	},
 	{
@@ -169,6 +172,9 @@ const iconMap = {
 	SettingOutlined: SettingOutlined,
 	UserOutlined: UserOutlined,
 	BarChartOutlined: BarChartOutlined,
+	CloudServerOutlined: CloudServerOutlined,
+	CodeOutlined: CodeOutlined,
+	ApiOutlined: ApiOutlined,
 };
 
 function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
@@ -177,12 +183,26 @@ function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
 	const { project, setProject } = useProjectVariable();
 
 	const findBestMatchKey = (path: string) => {
+		if (path === "/" || path === "") {
+			return "/home";
+		}
+		
 		let bestMatch = "";
 		menuConfig.forEach((item) => {
-			if (path.startsWith(item.key) && item.key.length > bestMatch.length) {
+			if (item.key === "/home" && (path === "/" || path === "")) {
+				bestMatch = "/home";
+				return;
+			}
+			
+			if (path.startsWith(item.key) && item.key.length > bestMatch.length && item.key !== "/home") {
 				bestMatch = item.key;
 			}
 		});
+		
+		if (!bestMatch && (path === "/" || path === "")) {
+			bestMatch = "/home";
+		}
+		
 		return bestMatch;
 	};
 

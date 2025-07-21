@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { Card, Typography, Statistic, Button, Modal, Badge, Space } from "antd";
 import { NavLink } from "react-router-dom";
 import CountUp from 'react-countup';
-import { 
+import ReactMarkdown from 'react-markdown';
+import {
     InfoCircleOutlined,
     EyeOutlined,
     GlobalOutlined,
@@ -25,6 +26,7 @@ import {
 } from '@ant-design/icons';
 import { useCustomGetQuery } from "@/common/api";
 import { useProjectVariable } from "@/hooks/useProjectVariable";
+import { D_HTTP_ADAPTIVE_CONCURRENCY, D_HTTP_ADMISSION_CONTROL, D_HTTP_BANDWIDTH_LIMIT, D_HTTP_BASIC_AUTH, D_HTTP_BUFFER, D_HTTP_COMPRESSOR, D_HTTP_CORS, D_HTTP_CSRF_POLICY, D_HTTP_LOCAL_RATE_LIMIT, D_HTTP_LUA, D_HTTP_OAUTH2, D_HTTP_RBAC, D_HTTP_ROUTER, D_HTTP_STATEFUL_SESSION, D_L_HTTP_INSPECTOR, D_L_LOCAL_RATE_LIMIT, D_L_ORIGINAL_DST, D_L_ORIGINAL_SRC, D_L_PROXY_PROTOCOL, D_L_TLS_INSPECTOR, D_N_CONNECTION_LIMIT, D_N_HTTP_CONNECTION_MANAGER, D_N_LOCAL_RATE_LIMIT, D_N_NETWORK_RBAC, D_N_TCP_PROXY, D_UDP_DNS_FILTER } from "@/common/statics/ResourceDescriptions";
 
 const { Title, Text } = Typography;
 
@@ -75,43 +77,43 @@ const filters = [
                 name: 'Http Inspector',
                 path: '/filters/listener/l_http_inspector',
                 value: 225,
-                data: "The HTTP Inspector filter detects whether incoming connections are using the HTTP protocol. This filter analyzes incoming traffic to identify HTTP requests and ensures proper routing. It plays a critical role in correctly processing HTTP and HTTPS traffic.",
+                data: D_L_HTTP_INSPECTOR,
                 canonical_name: "envoy.filters.listener.http_inspector"
             },
-            { 
-                name: 'Local Rate Limit', 
-                path: '/filters/listener/l_local_ratelimit', 
-                value: 225, 
-                data: "The Local Rate Limit filter restricts the connection rate on a specific listener. This filter is used to prevent overload and ensure fair resource usage. Custom limits can be defined for each IP address or connection.",
-                canonical_name: "envoy.filters.listener.local_ratelimit" 
+            {
+                name: 'Local Rate Limit',
+                path: '/filters/listener/l_local_ratelimit',
+                value: 225,
+                data: D_L_LOCAL_RATE_LIMIT,
+                canonical_name: "envoy.filters.listener.local_ratelimit"
             },
-            { 
-                name: 'Original Dst', 
-                path: '/filters/listener/l_original_dst', 
-                value: 225, 
-                data: "The Original Destination filter preserves the original destination address of incoming connections and uses this information to route traffic correctly. This is particularly useful in proxy scenarios and NAT (Network Address Translation) situations.",
-                canonical_name: "envoy.filters.listener.original_dst" 
+            {
+                name: 'Original Dst',
+                path: '/filters/listener/l_original_dst',
+                value: 225,
+                data: D_L_ORIGINAL_DST,
+                canonical_name: "envoy.filters.listener.original_dst"
             },
-            { 
-                name: 'Original Src', 
-                path: '/filters/listener/l_original_src', 
-                value: 225, 
-                data: "The Original Source filter preserves the source IP address of incoming connections and uses this information to route traffic correctly. This filter is particularly important for security and monitoring scenarios.",
-                canonical_name: "envoy.filters.listener.original_src" 
+            {
+                name: 'Original Src',
+                path: '/filters/listener/l_original_src',
+                value: 225,
+                data: D_L_ORIGINAL_SRC,
+                canonical_name: "envoy.filters.listener.original_src"
             },
-            { 
-                name: 'Proxy Protocol', 
-                path: '/filters/listener/l_proxy_protocol', 
-                value: 225, 
-                data: "The Proxy Protocol filter enables the transmission of client information (IP address, port, etc.) between proxy servers. This protocol is used to preserve client information between load balancers and proxy chains.",
-                canonical_name: "envoy.filters.listener.proxy_protocol" 
+            {
+                name: 'Proxy Protocol',
+                path: '/filters/listener/l_proxy_protocol',
+                value: 225,
+                data: D_L_PROXY_PROTOCOL,
+                canonical_name: "envoy.filters.listener.proxy_protocol"
             },
-            { 
-                name: 'TLS Inspector', 
-                path: '/filters/listener/l_tls_inspector', 
-                value: 225, 
-                data: "The TLS Inspector filter detects whether incoming connections are using the TLS protocol. This filter identifies SSL/TLS connections and ensures they are processed appropriately. It is a critical component for secure communication.",
-                canonical_name: "envoy.filters.listener.tls_inspector" 
+            {
+                name: 'TLS Inspector',
+                path: '/filters/listener/l_tls_inspector',
+                value: 225,
+                data: D_L_TLS_INSPECTOR,
+                canonical_name: "envoy.filters.listener.tls_inspector"
             },
         ]
     },
@@ -121,40 +123,40 @@ const filters = [
         color: '#f093fb',
         bgColor: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
         filters: [
-            { 
-                name: 'Connection Limit', 
-                path: '/filters/network/connection_limit', 
-                value: 225, 
-                data: "The Connection Limit filter restricts the number of concurrent connections to a specific network endpoint. This helps prevent resource exhaustion and ensures service availability under high load conditions.",
-                canonical_name: "envoy.filters.network.connection_limit" 
+            {
+                name: 'Connection Limit',
+                path: '/filters/network/connection_limit',
+                value: 225,
+                data: D_N_CONNECTION_LIMIT,
+                canonical_name: "envoy.filters.network.connection_limit"
             },
-            { 
-                name: 'Http Connection Manager', 
-                path: '/filters/network/hcm', 
-                value: 225, 
-                data: "The HTTP Connection Manager is a core component that handles HTTP/1.1 and HTTP/2 traffic. It manages connection lifecycle, request/response processing, and provides a foundation for HTTP-based features.",
-                canonical_name: "envoy.filters.network.http_connection_manager" 
+            {
+                name: 'Http Connection Manager',
+                path: '/filters/network/hcm',
+                value: 225,
+                data: D_N_HTTP_CONNECTION_MANAGER,
+                canonical_name: "envoy.filters.network.http_connection_manager"
             },
-            { 
-                name: 'Local Ratelimit', 
-                path: '/filters/network/n_local_ratelimit', 
-                value: 225, 
-                data: "The Network Local Rate Limit filter controls the rate of network connections. It helps prevent service overload and ensures fair resource distribution across different clients and connections.",
-                canonical_name: "envoy.filters.network.local_ratelimit" 
+            {
+                name: 'Local Ratelimit',
+                path: '/filters/network/n_local_ratelimit',
+                value: 225,
+                data: D_N_LOCAL_RATE_LIMIT,
+                canonical_name: "envoy.filters.network.local_ratelimit"
             },
-            { 
-                name: 'RBAC', 
-                path: '/filters/network/network_rbac', 
-                value: 225, 
-                data: "The Network RBAC (Role-Based Access Control) filter enforces access control policies at the network level. It allows or denies connections based on configured rules and policies.",
-                canonical_name: "envoy.filters.network.rbac" 
+            {
+                name: 'RBAC',
+                path: '/filters/network/network_rbac',
+                value: 225,
+                data: D_N_NETWORK_RBAC,
+                canonical_name: "envoy.filters.network.rbac"
             },
-            { 
-                name: 'Tcp Proxy', 
-                path: '/filters/network/tcp_proxy', 
-                value: 225, 
-                data: "The TCP Proxy filter enables TCP connection forwarding and load balancing. It provides essential functionality for TCP-based services and applications.",
-                canonical_name: "envoy.filters.network.tcp_proxy" 
+            {
+                name: 'Tcp Proxy',
+                path: '/filters/network/tcp_proxy',
+                value: 225,
+                data: D_N_TCP_PROXY,
+                canonical_name: "envoy.filters.network.tcp_proxy"
             },
         ]
     },
@@ -164,12 +166,12 @@ const filters = [
         color: '#4facfe',
         bgColor: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
         filters: [
-            { 
-                name: 'DNS Filter', 
-                path: '/filters/udp/l_dns_filter', 
-                value: 225, 
-                data: "The DNS Filter processes DNS queries and responses. It provides DNS-specific functionality and can be used for DNS-based routing and filtering.",
-                canonical_name: "envoy.filters.udp.dns_filter" 
+            {
+                name: 'DNS Filter',
+                path: '/filters/udp/l_dns_filter',
+                value: 225,
+                data: D_UDP_DNS_FILTER,
+                canonical_name: "envoy.filters.udp.dns_filter"
             },
         ]
     },
@@ -179,103 +181,103 @@ const filters = [
         color: '#43e97b',
         bgColor: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
         filters: [
-            { 
-                name: 'Adaptive Concurrency', 
-                path: '/filters/http/adaptive_concurrency', 
-                value: 50, 
-                data: "The Adaptive Concurrency filter dynamically adjusts the number of concurrent requests based on system load and response times. It helps maintain optimal performance under varying conditions.",
-                canonical_name: "envoy.filters.http.adaptive_concurrency" 
+            {
+                name: 'Adaptive Concurrency',
+                path: '/filters/http/adaptive_concurrency',
+                value: 50,
+                data: D_HTTP_ADAPTIVE_CONCURRENCY,
+                canonical_name: "envoy.filters.http.adaptive_concurrency"
             },
-            { 
-                name: 'Admission Control', 
-                path: '/filters/http/admission_control', 
-                value: 50, 
-                data: "The Admission Control filter manages request admission based on system health and load. It helps prevent service degradation during high traffic periods.",
-                canonical_name: "envoy.filters.http.admission_control" 
+            {
+                name: 'Admission Control',
+                path: '/filters/http/admission_control',
+                value: 50,
+                data: D_HTTP_ADMISSION_CONTROL,
+                canonical_name: "envoy.filters.http.admission_control"
             },
-            { 
-                name: 'Bandwidth Limit', 
-                path: '/filters/http/bandwidth_limit', 
-                value: 50, 
-                data: "The Bandwidth Limit filter controls the rate of data transfer for HTTP requests and responses. It helps manage network resources and prevent bandwidth exhaustion.",
-                canonical_name: "envoy.filters.http.bandwidth_limit" 
+            {
+                name: 'Bandwidth Limit',
+                path: '/filters/http/bandwidth_limit',
+                value: 50,
+                data: D_HTTP_BANDWIDTH_LIMIT,
+                canonical_name: "envoy.filters.http.bandwidth_limit"
             },
-            { 
-                name: 'Basic Auth', 
-                path: '/filters/http/basic_auth', 
-                value: 125, 
-                data: "The Basic Auth filter implements HTTP Basic Authentication. It validates user credentials and controls access to protected resources.",
-                canonical_name: "envoy.filters.http.basic_auth" 
+            {
+                name: 'Basic Auth',
+                path: '/filters/http/basic_auth',
+                value: 125,
+                data: D_HTTP_BASIC_AUTH,
+                canonical_name: "envoy.filters.http.basic_auth"
             },
-            { 
-                name: 'Buffer', 
-                path: '/filters/http/buffer', 
-                value: 50, 
-                data: "The Buffer filter manages request and response buffering. It helps handle large payloads and provides control over memory usage.",
-                canonical_name: "envoy.filters.http.buffer" 
+            {
+                name: 'Buffer',
+                path: '/filters/http/buffer',
+                value: 50,
+                data: D_HTTP_BUFFER,
+                canonical_name: "envoy.filters.http.buffer"
             },
-            { 
-                name: 'Compressor', 
-                path: '/filters/http/compressor', 
-                value: 50, 
-                data: "The Compressor filter provides HTTP compression capabilities. It reduces bandwidth usage by compressing response bodies.",
-                canonical_name: "envoy.filters.http.compressor" 
+            {
+                name: 'Compressor',
+                path: '/filters/http/compressor',
+                value: 50,
+                data: D_HTTP_COMPRESSOR,
+                canonical_name: "envoy.filters.http.compressor"
             },
-            { 
-                name: 'Cors', 
-                path: '/filters/http/cors', 
-                value: 50, 
-                data: "The CORS filter implements Cross-Origin Resource Sharing policies. It enables secure cross-origin requests and responses.",
-                canonical_name: "envoy.filters.http.cors" 
+            {
+                name: 'Cors',
+                path: '/filters/http/cors',
+                value: 50,
+                data: D_HTTP_CORS,
+                canonical_name: "envoy.filters.http.cors"
             },
-            { 
-                name: 'Csrf Policy', 
-                path: '/filters/http/csrf_policy', 
-                value: 50, 
-                data: "The CSRF Policy filter protects against Cross-Site Request Forgery attacks. It validates request origins and tokens to prevent unauthorized actions.",
-                canonical_name: "envoy.filters.http.csrf" 
+            {
+                name: 'Csrf Policy',
+                path: '/filters/http/csrf_policy',
+                value: 50,
+                data: D_HTTP_CSRF_POLICY,
+                canonical_name: "envoy.filters.http.csrf"
             },
-            { 
-                name: 'Local Ratelimit', 
-                path: '/filters/http/h_local_ratelimit', 
-                value: 50, 
-                data: "The HTTP Local Rate Limit filter controls the rate of HTTP requests. It helps prevent service overload and ensures fair resource usage.",
-                canonical_name: "envoy.filters.http.local_ratelimit" 
+            {
+                name: 'Local Ratelimit',
+                path: '/filters/http/h_local_ratelimit',
+                value: 50,
+                data: D_HTTP_LOCAL_RATE_LIMIT,
+                canonical_name: "envoy.filters.http.local_ratelimit"
             },
-            { 
-                name: 'Lua', 
-                path: '/filters/http/lua', 
-                value: 50, 
-                data: "The Lua filter enables custom request/response processing using Lua scripts. It provides flexibility for implementing custom logic and transformations.",
-                canonical_name: "envoy.filters.http.lua" 
+            {
+                name: 'Lua',
+                path: '/filters/http/lua',
+                value: 50,
+                data: D_HTTP_LUA,
+                canonical_name: "envoy.filters.http.lua"
             },
-            { 
-                name: 'OAuth2', 
-                path: '/filters/http/oauth2', 
-                value: 500, 
-                data: "The OAuth2 filter implements OAuth 2.0 authentication and authorization. It handles token validation and access control for OAuth2-protected resources.",
-                canonical_name: "adaptive_concurrency" 
+            {
+                name: 'OAuth2',
+                path: '/filters/http/oauth2',
+                value: 500,
+                data: D_HTTP_OAUTH2,
+                canonical_name: "envoy.filters.http.oauth2"
             },
-            { 
-                name: 'RBAC', 
-                path: '/filters/http/http_rbac', 
-                value: 500, 
-                data: "The HTTP RBAC filter enforces role-based access control for HTTP requests. It allows or denies access based on configured policies and user roles.",
-                canonical_name: "envoy.filters.http.rbac" 
+            {
+                name: 'RBAC',
+                path: '/filters/http/http_rbac',
+                value: 500,
+                data: D_HTTP_RBAC,
+                canonical_name: "envoy.filters.http.rbac"
             },
-            { 
-                name: 'Router', 
-                path: '/filters/http/http_router', 
-                value: 225, 
-                data: "The HTTP Router filter handles request routing and load balancing. It's a core component that determines how requests are forwarded to upstream services.",
-                canonical_name: "envoy.filters.http.router" 
+            {
+                name: 'Router',
+                path: '/filters/http/http_router',
+                value: 225,
+                data: D_HTTP_ROUTER,
+                canonical_name: "envoy.filters.http.router"
             },
-            { 
-                name: 'Stateful Session', 
-                path: '/filters/http/stateful_session', 
-                value: 50, 
-                data: "The Stateful Session filter maintains session state across requests. It enables session-based routing and load balancing.",
-                canonical_name: "envoy.filters.http.stateful_session" 
+            {
+                name: 'Stateful Session',
+                path: '/filters/http/stateful_session',
+                value: 50,
+                data: D_HTTP_STATEFUL_SESSION,
+                canonical_name: "envoy.filters.http.stateful_session"
             },
         ]
     },
@@ -304,7 +306,7 @@ const FilterMain: React.FC = () => {
     });
 
     return (
-        <div style={{ 
+        <div style={{
             padding: '20px',
             background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
             minHeight: '100vh'
@@ -338,21 +340,21 @@ const FilterMain: React.FC = () => {
                             {categoryItem.icon}
                         </div>
                         <div style={{ flex: 1 }}>
-                            <Title level={4} style={{ 
-                                margin: 0, 
+                            <Title level={4} style={{
+                                margin: 0,
                                 color: '#1a202c',
                                 fontSize: 18
                             }}>
                                 {categoryItem.category}
                             </Title>
                         </div>
-                        <Badge 
-                            count={categoryItem.filters.length} 
-                            style={{ 
+                        <Badge
+                            count={categoryItem.filters.length}
+                            style={{
                                 background: categoryItem.color,
                                 fontSize: 12,
                                 fontWeight: 600
-                            }} 
+                            }}
                         />
                     </div>
 
@@ -407,14 +409,14 @@ const FilterMain: React.FC = () => {
                                             {getFilterIcon(filter.name)}
                                         </div>
                                         <div>
-                                            <NavLink 
+                                            <NavLink
                                                 to={filter.path}
                                                 style={{ textDecoration: 'none' }}
                                             >
-                                                <Title 
-                                                    level={5} 
-                                                    style={{ 
-                                                        color: '#2c3e50', 
+                                                <Title
+                                                    level={5}
+                                                    style={{
+                                                        color: '#2c3e50',
                                                         margin: 0,
                                                         fontSize: 14,
                                                         fontWeight: 600,
@@ -426,12 +428,12 @@ const FilterMain: React.FC = () => {
                                             </NavLink>
                                         </div>
                                     </Space>
-                                    
+
                                     <Button
                                         type="text"
                                         icon={<InfoCircleOutlined />}
                                         size="small"
-                                        style={{ 
+                                        style={{
                                             color: '#8c8c8c',
                                             border: 'none',
                                             width: 28,
@@ -441,7 +443,7 @@ const FilterMain: React.FC = () => {
                                     />
                                 </div>
 
-                                <NavLink 
+                                <NavLink
                                     to={filter.path}
                                     style={{ textDecoration: 'none', display: 'block' }}
                                 >
@@ -456,17 +458,17 @@ const FilterMain: React.FC = () => {
                                         cursor: 'pointer',
                                         transition: 'all 0.2s ease'
                                     }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.background = categoryItem.color + '08';
-                                        e.currentTarget.style.borderColor = categoryItem.color + '30';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.background = '#fafbfc';
-                                        e.currentTarget.style.borderColor = '#f0f0f0';
-                                    }}>
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.background = categoryItem.color + '08';
+                                            e.currentTarget.style.borderColor = categoryItem.color + '30';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.background = '#fafbfc';
+                                            e.currentTarget.style.borderColor = '#f0f0f0';
+                                        }}>
                                         <div>
-                                            <Statistic 
-                                                value={dataQuery?.[filter?.canonical_name] || 0} 
+                                            <Statistic
+                                                value={dataQuery?.[filter?.canonical_name] || 0}
                                                 formatter={formatter}
                                                 valueStyle={{
                                                     fontSize: 20,
@@ -475,7 +477,7 @@ const FilterMain: React.FC = () => {
                                                     lineHeight: 1
                                                 }}
                                             />
-                                            <Text style={{ 
+                                            <Text style={{
                                                 color: '#8c8c8c',
                                                 fontSize: 11,
                                                 textTransform: 'uppercase',
@@ -485,9 +487,9 @@ const FilterMain: React.FC = () => {
                                                 Resources
                                             </Text>
                                         </div>
-                                        <RightOutlined style={{ 
-                                            color: '#bfbfbf', 
-                                            fontSize: 12 
+                                        <RightOutlined style={{
+                                            color: '#bfbfbf',
+                                            fontSize: 12
                                         }} />
                                     </div>
                                 </NavLink>
@@ -499,31 +501,10 @@ const FilterMain: React.FC = () => {
 
             {/* Enhanced Modal */}
             <Modal
-                title={
-                    <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 12,
-                        padding: '6px 0'
-                    }}>
-                        <div style={{
-                            padding: 8,
-                            borderRadius: 8,
-                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                            color: 'white',
-                            boxShadow: '0 2px 8px rgba(102, 126, 234, 0.3)'
-                        }}>
-                            <FilterOutlined />
-                        </div>
-                        <span style={{ fontSize: 17, fontWeight: 600, color: '#2c3e50' }}>
-                            {modalTitle} Filter Details
-                        </span>
-                    </div>
-                }
                 open={isModalVisible}
                 onCancel={handleModalClose}
                 footer={null}
-                width={650}
+                width={1300}
                 style={{ top: 60 }}
                 styles={{
                     body: {
@@ -535,7 +516,6 @@ const FilterMain: React.FC = () => {
                     background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
                     margin: '14px -20px',
                     borderRadius: 10,
-                    border: '1px solid #e2e8f0',
                     overflow: 'hidden'
                 }}>
                     {/* Header Section */}
@@ -553,15 +533,15 @@ const FilterMain: React.FC = () => {
                                 minWidth: 48,
                                 height: 48,
                                 borderRadius: 12,
-                                background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+                                background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 color: 'white',
                                 fontSize: 20,
-                                boxShadow: '0 6px 20px rgba(79, 172, 254, 0.25)'
+                                boxShadow: '0 6px 20px rgba(5, 108, 205, 0.25)'
                             }}>
-                                <FilterOutlined />
+                                <InfoCircleOutlined />
                             </div>
                             <div>
                                 <h3 style={{
@@ -571,7 +551,7 @@ const FilterMain: React.FC = () => {
                                     color: '#1a202c',
                                     marginBottom: 3
                                 }}>
-                                    {modalTitle} Filter
+                                    {modalTitle}
                                 </h3>
                                 <p style={{
                                     margin: 0,
@@ -595,70 +575,54 @@ const FilterMain: React.FC = () => {
                             border: '1px solid #e2e8f0',
                             boxShadow: '0 1px 3px rgba(0, 0, 0, 0.06)'
                         }}>
-                            <Typography.Paragraph style={{ 
+                            <div style={{
                                 margin: 0,
                                 lineHeight: 1.7,
                                 fontSize: 14,
-                                color: '#374151',
-                                textAlign: 'justify'
+                                color: '#374151'
                             }}>
-                                {modalContent}
-                            </Typography.Paragraph>
-                        </div>
-
-                        {/* Key Features */}
-                        <div style={{
-                            marginTop: 16,
-                            padding: '14px 18px',
-                            background: 'rgba(79, 172, 254, 0.05)',
-                            borderRadius: 8,
-                            border: '1px solid rgba(79, 172, 254, 0.1)'
-                        }}>
-                            <div style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 6,
-                                marginBottom: 6
-                            }}>
-                                <div style={{
-                                    width: 5,
-                                    height: 5,
-                                    borderRadius: '50%',
-                                    background: '#4facfe'
-                                }}></div>
-                                <span style={{
-                                    fontSize: 12,
-                                    fontWeight: 600,
-                                    color: '#1e40af',
-                                    textTransform: 'uppercase',
-                                    letterSpacing: '0.5px'
-                                }}>
-                                    Filter Component
-                                </span>
+                                <ReactMarkdown
+                                    components={{
+                                        h1: ({ node, ...props }) => <h1 style={{ color: '#056ccd', fontSize: '18px', fontWeight: 700, margin: '20px 0 12px 0' }} {...props} />,
+                                        h2: ({ node, ...props }) => <h2 style={{ color: '#056ccd', fontSize: '16px', fontWeight: 600, margin: '20px 0 12px 0' }} {...props} />,
+                                        h3: ({ node, ...props }) => <h3 style={{ color: '#056ccd', fontSize: '15px', fontWeight: 600, margin: '18px 0 10px 0' }} {...props} />,
+                                        p: ({ node, ...props }) => <p style={{ margin: '12px 0', lineHeight: 1.7, color: '#374151' }} {...props} />,
+                                        ul: ({ node, ...props }) => <ul style={{ margin: '12px 0', paddingLeft: '20px', listStyleType: 'disc' }} {...props} />,
+                                        ol: ({ node, ...props }) => <ol style={{ margin: '12px 0', paddingLeft: '20px', listStyleType: 'decimal' }} {...props} />,
+                                        li: ({ node, ...props }) => <li style={{ margin: '6px 0', color: '#4a5568', lineHeight: 1.6 }} {...props} />,
+                                        strong: ({ node, ...props }) => <strong style={{ color: '#2d3748', fontWeight: 600 }} {...props} />,
+                                        em: ({ node, ...props }) => <em style={{ color: '#4a5568', fontStyle: 'italic' }} {...props} />,
+                                        code: ({ node, ...props }) => <code style={{ background: '#f7fafc', border: '1px solid #e2e8f0', borderRadius: '4px', padding: '2px 6px', fontFamily: 'Monaco, Consolas, monospace', fontSize: '13px', color: '#e53e3e' }} {...props} />,
+                                        blockquote: ({ node, ...props }) => (
+                                            <blockquote style={{
+                                                margin: '16px 0',
+                                                padding: '12px 16px',
+                                                background: 'rgba(5, 108, 205, 0.05)',
+                                                borderLeft: '4px solid #056ccd',
+                                                borderRadius: '0 8px 8px 0',
+                                                color: '#2d3748'
+                                            }} {...props} />
+                                        )
+                                    }}
+                                >
+                                    {modalContent}
+                                </ReactMarkdown>
                             </div>
-                            <p style={{
-                                margin: 0,
-                                fontSize: 12,
-                                color: '#1e40af',
-                                lineHeight: 1.5
-                            }}>
-                                This filter provides essential functionality for Envoy's request/response processing pipeline.
-                            </p>
                         </div>
                     </div>
                 </div>
-                
+
                 <div style={{
                     display: 'flex',
                     justifyContent: 'flex-end',
                     marginTop: 14
                 }}>
-                    <Button 
+                    <Button
                         onClick={handleModalClose}
                         type="primary"
-                        size="middle"
+                        size="large"
                         style={{
-                            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                            background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
                             border: 'none',
                             borderRadius: 6,
                             fontWeight: 500,

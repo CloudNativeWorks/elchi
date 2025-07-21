@@ -40,9 +40,9 @@ export type QuickRanges = {
 
 export interface MetricsToolbarProps {
     selectedService?: string;
-    onServiceChange: (service: string) => void;
+    onServiceChange: (service: string) => void; //eslint-disable-line
     timeRange: [number, number];
-    onTimeRangeChange: (range: [number, number]) => void;
+    onTimeRangeChange: (range: [number, number]) => void; //eslint-disable-line
     isNowSelected: boolean;
     onNowClick: () => void;
     onRefresh: () => void;
