@@ -1,6 +1,6 @@
-import React from 'react';
-import { Card, Typography, Spin, Alert, Descriptions, Tag, Space, Divider } from 'antd';
-import { DatabaseOutlined, ClusterOutlined, NodeIndexOutlined, ControlOutlined } from '@ant-design/icons';
+import React, { useState } from 'react';
+import { Card, Typography, Spin, Alert, Tag, Space, Collapse, Badge, Table, Input } from 'antd';
+import { DatabaseOutlined, ClusterOutlined, ControlOutlined, NodeIndexOutlined, UserOutlined, SearchOutlined } from '@ant-design/icons';
 import { useCustomGetQuery } from '@/common/api';
 
 const { Text } = Typography;
@@ -9,7 +9,7 @@ interface RegistryData {
     data: {
         client_info: {
             controller_id: string;
-            grpc_address: string;
+            http_address: string;
             version: string;
         };
         control_plane_data: {
@@ -50,7 +50,7 @@ interface RegistryData {
             controllers: Array<{
                 controller_id: string;
                 version: string;
-                grpc_address: string;
+                http_address: string;
                 last_seen: {
                     seconds: number;
                     nanos: number;
@@ -67,10 +67,13 @@ interface RegistryData {
 
 const formatTimestamp = (seconds: number, nanos: number) => {
     const date = new Date(seconds * 1000 + nanos / 1000000);
-    return date.toLocaleString('tr-TR');
+    return date.toLocaleString('en-US');
 };
 
 const RegistryInfo: React.FC = () => {
+    const [controlPlaneSearchTerm, setControlPlaneSearchTerm] = useState('');
+    const [controllerSearchTerm, setControllerSearchTerm] = useState('');
+    
     const { isLoading, error, data } = useCustomGetQuery({
         queryKey: 'registry_info',
         enabled: true,
@@ -100,145 +103,257 @@ const RegistryInfo: React.FC = () => {
 
     const registryData: RegistryData = data;
 
+    // Filter function
+    const filterControlPlanes = () => {
+        if (!controlPlaneSearchTerm) return registryData.data.control_plane_data.control_planes;
+        
+        return registryData.data.control_plane_data.control_planes.filter(cp => {
+            // Check control plane ID
+            if (cp.control_plane_id.toLowerCase().includes(controlPlaneSearchTerm.toLowerCase())) {
+                return true;
+            }
+            
+            // Check node IDs
+            const nodes = registryData.data.control_plane_data.nodes_by_control_plane[cp.control_plane_id]?.nodes || [];
+            return nodes.some(node => 
+                node.node_id.toLowerCase().includes(controlPlaneSearchTerm.toLowerCase())
+            );
+        });
+    };
+
+    const filterControllers = () => {
+        if (!controllerSearchTerm) return registryData.data.controller_data.controllers;
+        
+        return registryData.data.controller_data.controllers.filter(controller => {
+            // Check controller ID
+            if (controller.controller_id.toLowerCase().includes(controllerSearchTerm.toLowerCase())) {
+                return true;
+            }
+            
+            // Check client IDs
+            const clients = registryData.data.controller_data.clients_by_controller[controller.controller_id]?.clients || [];
+            return clients.some(client => 
+                client.client_id.toLowerCase().includes(controllerSearchTerm.toLowerCase())
+            );
+        });
+    };
+
+    const filteredControlPlanes = filterControlPlanes();
+    const filteredControllers = filterControllers();
+
+    // Prepare collapse items for detailed view
+    const controlPlaneItems = filteredControlPlanes.map((cp, index) => {
+        const nodes = registryData.data.control_plane_data.nodes_by_control_plane[cp.control_plane_id]?.nodes || [];
+        
+                 const nodeColumns = [
+             {
+                 title: 'Node ID',
+                 dataIndex: 'node_id',
+                 key: 'node_id',
+                 render: (text: string) => <Text code style={{ fontSize: '12px' }}>{text}</Text>
+             },
+             {
+                 title: 'Version',
+                 dataIndex: 'version',
+                 key: 'version',
+                 render: (version: string) => <Tag color="blue">{version}</Tag>
+             },
+            {
+                title: 'Last Seen',
+                dataIndex: 'last_seen',
+                key: 'last_seen',
+                render: (lastSeen: any) => <Text style={{ fontSize: '12px' }}>{formatTimestamp(lastSeen.seconds, lastSeen.nanos)}</Text>
+            }
+        ];
+
+        return {
+            key: index.toString(),
+            label: (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                    <Space>
+                        <NodeIndexOutlined style={{ color: '#fa8c16' }} />
+                        <Text strong>{cp.control_plane_id}</Text>
+                        <Tag color="blue">{cp.version}</Tag>
+                        <Text type="secondary" style={{ fontSize: '12px' }}>
+                            Last seen: {formatTimestamp(cp.last_seen.seconds, cp.last_seen.nanos)}
+                        </Text>
+                    </Space>
+                    <Badge count={nodes.length} style={{ backgroundColor: '#52c41a' }} title={`${nodes.length} nodes`} />
+                </div>
+            ),
+            children: (
+                <Table
+                    columns={nodeColumns}
+                    dataSource={controlPlaneSearchTerm ? nodes.filter(node => 
+                        node.node_id.toLowerCase().includes(controlPlaneSearchTerm.toLowerCase())
+                    ) : nodes}
+                    rowKey="node_id"
+                    size="small"
+                    pagination={false}
+                    scroll={{ x: true }}
+                />
+            )
+        };
+    });
+
+    const controllerItems = filteredControllers.map((controller, index) => {
+        const clients = registryData.data.controller_data.clients_by_controller[controller.controller_id]?.clients || [];
+        
+                 const clientColumns = [
+             {
+                 title: 'Client ID',
+                 dataIndex: 'client_id',
+                 key: 'client_id',
+                 render: (text: string) => <Text code style={{ fontSize: '12px' }}>{text}</Text>
+             },
+             {
+                 title: 'Version',
+                 dataIndex: 'version',
+                 key: 'version',
+                 render: (version: string) => <Tag color="blue">{version}</Tag>
+             },
+            {
+                title: 'Last Seen',
+                dataIndex: 'last_seen',
+                key: 'last_seen',
+                render: (lastSeen: any) => <Text style={{ fontSize: '12px' }}>{formatTimestamp(lastSeen.seconds, lastSeen.nanos)}</Text>
+            }
+        ];
+
+        return {
+            key: index.toString(),
+            label: (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                    <Space>
+                        <UserOutlined style={{ color: '#722ed1' }} />
+                        <Text strong>{controller.controller_id}</Text>
+                        <Tag color="blue">{controller.version}</Tag>
+                        <Text type="secondary">{controller.http_address}</Text>
+                        <Text type="secondary" style={{ fontSize: '12px' }}>
+                            Last seen: {formatTimestamp(controller.last_seen.seconds, controller.last_seen.nanos)}
+                        </Text>
+                    </Space>
+                    <Badge count={clients.length} style={{ backgroundColor: '#1890ff' }} title={`${clients.length} clients`} />
+                </div>
+            ),
+            children: (
+                <Table
+                    columns={clientColumns}
+                    dataSource={controllerSearchTerm ? clients.filter(client => 
+                        client.client_id.toLowerCase().includes(controllerSearchTerm.toLowerCase())
+                    ) : clients}
+                    rowKey="client_id"
+                    size="small"
+                    pagination={false}
+                    scroll={{ x: true }}
+                />
+            )
+        };
+    });
+
     return (
         <div style={{ width: '100%' }}>
-            <Space direction="vertical" size="large" style={{ width: '100%' }}>
-                {/* Registry Status */}
-                <Card 
-                    title={
-                        <Space>
-                            <DatabaseOutlined style={{ color: '#1890ff' }} />
-                            <span>Registry Status</span>
+            <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                {/* Registry Status - Compact */}
+                <Card size="small">
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+                        <Space size="large">
+                            <Space>
+                                <DatabaseOutlined style={{ color: '#1890ff', fontSize: '16px' }} />
+                                <Text strong>Registry Status:</Text>
+                                <Tag color={registryData.data.status === 'connected' ? 'green' : 'red'}>
+                                    {registryData.data.status}
+                                </Tag>
+                            </Space>
+                            <Space>
+                                <Text type="secondary">Address:</Text>
+                                <Text code>{registryData.data.registry_address}</Text>
+                            </Space>
                         </Space>
-                    }
-                    size="small"
-                >
-                    <Descriptions column={2} size="small">
-                        <Descriptions.Item label="Status">
-                            <Tag color={registryData.data.status === 'connected' ? 'green' : 'red'}>
-                                {registryData.data.status}
-                            </Tag>
-                        </Descriptions.Item>
-                        <Descriptions.Item label="Registry Address">
-                            {registryData.data.registry_address}
-                        </Descriptions.Item>
-                        <Descriptions.Item label="Message">
-                            {registryData.data.message}
-                        </Descriptions.Item>
-                        <Descriptions.Item label="Timestamp">
-                            {new Date(registryData.data.timestamp).toLocaleString('en-US')}
-                        </Descriptions.Item>
-                    </Descriptions>
+                        <Space>
+                            <Text type="secondary">Updated:</Text>
+                            <Text style={{ fontSize: '12px' }}>
+                                {new Date(registryData.data.timestamp).toLocaleString('en-US')}
+                            </Text>
+                        </Space>
+                    </div>
+                    {registryData.data.message && (
+                        <div style={{ marginTop: '8px', padding: '8px', backgroundColor: '#f6ffed', borderRadius: '4px' }}>
+                            <Text style={{ fontSize: '12px', color: '#52c41a' }}>{registryData.data.message}</Text>
+                        </div>
+                    )}
                 </Card>
 
-                {/* Control Planes */}
+                                 {/* Control Planes - Expandable Details */}
                 <Card 
                     title={
-                        <Space>
-                            <ClusterOutlined style={{ color: '#fa8c16' }} />
-                            <span>Control Plane Information</span>
-                        </Space>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                            <Space>
+                                <ClusterOutlined style={{ color: '#fa8c16' }} />
+                                <span>Control Planes</span>
+                                <Badge count={filteredControlPlanes.length} style={{ backgroundColor: '#fa8c16' }} />
+                                {controlPlaneSearchTerm && <Text type="secondary" style={{ fontSize: '12px' }}>({registryData.data.control_plane_data.control_planes.length} total)</Text>}
+                            </Space>
+                            <Input
+                                placeholder="Search control planes and nodes..."
+                                prefix={<SearchOutlined />}
+                                value={controlPlaneSearchTerm}
+                                onChange={(e) => setControlPlaneSearchTerm(e.target.value)}
+                                style={{ width: 300 }}
+                                allowClear
+                            />
+                        </div>
                     }
                     size="small"
                 >
-                    <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                        {registryData.data.control_plane_data.control_planes.map((cp, index) => (
-                            <Card key={index} type="inner" size="small">
-                                <Descriptions column={2} size="small">
-                                    <Descriptions.Item label="Control Plane ID">
-                                        {cp.control_plane_id}
-                                    </Descriptions.Item>
-                                    <Descriptions.Item label="Version">
-                                        <Tag color="blue">{cp.version}</Tag>
-                                    </Descriptions.Item>
-                                    <Descriptions.Item label="Last Seen">
-                                        {formatTimestamp(cp.last_seen.seconds, cp.last_seen.nanos)}
-                                    </Descriptions.Item>
-                                </Descriptions>
-                                
-                                {/* Nodes for this control plane */}
-                                {registryData.data.control_plane_data.nodes_by_control_plane[cp.control_plane_id] && (
-                                    <>
-                                        <Divider style={{ margin: '12px 0' }} />
-                                        <Text strong>Nodes:</Text>
-                                        <div style={{ marginTop: 8 }}>
-                                            {registryData.data.control_plane_data.nodes_by_control_plane[cp.control_plane_id].nodes?.map((node, nodeIndex) => (
-                                                <Card key={nodeIndex} type="inner" size="small" style={{ marginBottom: 8 }}>
-                                                    <Descriptions column={1} size="small">
-                                                        <Descriptions.Item label="Node ID">
-                                                            <Text code>{node.node_id}</Text>
-                                                        </Descriptions.Item>
-                                                        <Descriptions.Item label="Version">
-                                                            <Tag color="blue">{node.version}</Tag>
-                                                        </Descriptions.Item>
-                                                        <Descriptions.Item label="Last Seen">
-                                                            {formatTimestamp(node.last_seen.seconds, node.last_seen.nanos)}
-                                                        </Descriptions.Item>
-                                                    </Descriptions>
-                                                </Card>
-                                            ))}
-                                        </div>
-                                    </>
-                                )}
-                            </Card>
-                        ))}
-                    </Space>
+                    {controlPlaneItems.length > 0 ? (
+                        <Collapse
+                            items={controlPlaneItems}
+                            size="small"
+                            ghost
+                        />
+                    ) : (
+                        <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
+                            <SearchOutlined style={{ fontSize: '24px', marginBottom: '8px' }} />
+                            <div>No control planes found matching "{controlPlaneSearchTerm}"</div>
+                        </div>
+                    )}
                 </Card>
 
-                {/* Controllers */}
+                                 {/* Controllers - Expandable Details */}
                 <Card 
                     title={
-                        <Space>
-                            <ControlOutlined style={{ color: '#722ed1' }} />
-                            <span>Controller Information</span>
-                        </Space>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                            <Space>
+                                <ControlOutlined style={{ color: '#722ed1' }} />
+                                <span>Controllers</span>
+                                <Badge count={filteredControllers.length} style={{ backgroundColor: '#722ed1' }} />
+                                {controllerSearchTerm && <Text type="secondary" style={{ fontSize: '12px' }}>({registryData.data.controller_data.controllers.length} total)</Text>}
+                            </Space>
+                            <Input
+                                placeholder="Search controllers and clients..."
+                                prefix={<SearchOutlined />}
+                                value={controllerSearchTerm}
+                                onChange={(e) => setControllerSearchTerm(e.target.value)}
+                                style={{ width: 300 }}
+                                allowClear
+                            />
+                        </div>
                     }
                     size="small"
                 >
-                    <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                        {registryData.data.controller_data.controllers.map((controller, index) => (
-                            <Card key={index} type="inner" size="small">
-                                <Descriptions column={2} size="small">
-                                    <Descriptions.Item label="Controller ID">
-                                        {controller.controller_id}
-                                    </Descriptions.Item>
-                                    <Descriptions.Item label="Version">
-                                        <Tag color="blue">{controller.version}</Tag>
-                                    </Descriptions.Item>
-                                    <Descriptions.Item label="GRPC Address">
-                                        {controller.grpc_address}
-                                    </Descriptions.Item>
-                                    <Descriptions.Item label="Last Seen">
-                                        {formatTimestamp(controller.last_seen.seconds, controller.last_seen.nanos)}
-                                    </Descriptions.Item>
-                                </Descriptions>
-
-                                {registryData.data.controller_data.clients_by_controller[controller.controller_id] && (
-                                    <>
-                                        <Divider style={{ margin: '12px 0' }} />
-                                        <Text strong>Clients:</Text>
-                                        <div style={{ marginTop: 8 }}>
-                                            {registryData.data.controller_data.clients_by_controller[controller.controller_id].clients?.map((client, clientIndex) => (
-                                                <Card key={clientIndex} type="inner" size="small" style={{ marginBottom: 8 }}>
-                                                    <Descriptions column={1} size="small">
-                                                        <Descriptions.Item label="Client ID">
-                                                            <Text code>{client.client_id}</Text>
-                                                        </Descriptions.Item>
-                                                        <Descriptions.Item label="Version">
-                                                            <Tag color="blue">{client.version}</Tag>
-                                                        </Descriptions.Item>
-                                                        <Descriptions.Item label="Last Seen">
-                                                            {formatTimestamp(client.last_seen.seconds, client.last_seen.nanos)}
-                                                        </Descriptions.Item>
-                                                    </Descriptions>
-                                                </Card>
-                                            ))}
-                                        </div>
-                                    </>
-                                )}
-                            </Card>
-                        ))}
-                    </Space>
+                    {controllerItems.length > 0 ? (
+                        <Collapse
+                            items={controllerItems}
+                            size="small"
+                            ghost
+                        />
+                    ) : (
+                        <div style={{ textAlign: 'center', padding: '20px', color: '#999' }}>
+                            <SearchOutlined style={{ fontSize: '24px', marginBottom: '8px' }} />
+                            <div>No controllers found matching "{controllerSearchTerm}"</div>
+                        </div>
+                    )}
                 </Card>
             </Space>
         </div>
