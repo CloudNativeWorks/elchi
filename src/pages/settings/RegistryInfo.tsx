@@ -138,8 +138,8 @@ const RegistryInfo: React.FC = () => {
         });
     };
 
-    const filteredControlPlanes = filterControlPlanes();
-    const filteredControllers = filterControllers();
+    const filteredControlPlanes = filterControlPlanes().sort((a, b) => a.control_plane_id.localeCompare(b.control_plane_id));
+    const filteredControllers = filterControllers().sort((a, b) => a.controller_id.localeCompare(b.controller_id));
 
     // Prepare collapse items for detailed view
     const controlPlaneItems = filteredControlPlanes?.map((cp, index) => {
