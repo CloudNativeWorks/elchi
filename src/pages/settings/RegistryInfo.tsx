@@ -73,7 +73,7 @@ const formatTimestamp = (seconds: number, nanos: number) => {
 const RegistryInfo: React.FC = () => {
     const [controlPlaneSearchTerm, setControlPlaneSearchTerm] = useState('');
     const [controllerSearchTerm, setControllerSearchTerm] = useState('');
-    
+
     const { isLoading, error, data } = useCustomGetQuery({
         queryKey: 'registry_info',
         enabled: true,
@@ -106,16 +106,16 @@ const RegistryInfo: React.FC = () => {
     // Filter function
     const filterControlPlanes = () => {
         if (!controlPlaneSearchTerm) return registryData.data.control_plane_data.control_planes;
-        
+
         return registryData.data.control_plane_data.control_planes.filter(cp => {
             // Check control plane ID
             if (cp.control_plane_id.toLowerCase().includes(controlPlaneSearchTerm.toLowerCase())) {
                 return true;
             }
-            
+
             // Check node IDs
             const nodes = registryData.data.control_plane_data.nodes_by_control_plane[cp.control_plane_id]?.nodes || [];
-            return nodes.some(node => 
+            return nodes.some(node =>
                 node.node_id.toLowerCase().includes(controlPlaneSearchTerm.toLowerCase())
             );
         });
@@ -123,16 +123,16 @@ const RegistryInfo: React.FC = () => {
 
     const filterControllers = () => {
         if (!controllerSearchTerm) return registryData.data.controller_data.controllers;
-        
+
         return registryData.data.controller_data.controllers.filter(controller => {
             // Check controller ID
             if (controller.controller_id.toLowerCase().includes(controllerSearchTerm.toLowerCase())) {
                 return true;
             }
-            
+
             // Check client IDs
             const clients = registryData.data.controller_data.clients_by_controller[controller.controller_id]?.clients || [];
-            return clients.some(client => 
+            return clients.some(client =>
                 client.client_id.toLowerCase().includes(controllerSearchTerm.toLowerCase())
             );
         });
@@ -142,27 +142,31 @@ const RegistryInfo: React.FC = () => {
     const filteredControllers = filterControllers();
 
     // Prepare collapse items for detailed view
-    const controlPlaneItems = filteredControlPlanes.map((cp, index) => {
+    const controlPlaneItems = filteredControlPlanes?.map((cp, index) => {
         const nodes = registryData.data.control_plane_data.nodes_by_control_plane[cp.control_plane_id]?.nodes || [];
-        
-                 const nodeColumns = [
-             {
-                 title: 'Node ID',
-                 dataIndex: 'node_id',
-                 key: 'node_id',
-                 render: (text: string) => <Text code style={{ fontSize: '12px' }}>{text}</Text>
-             },
-             {
-                 title: 'Version',
-                 dataIndex: 'version',
-                 key: 'version',
-                 render: (version: string) => <Tag color="blue">{version}</Tag>
-             },
+
+        const nodeColumns = [
+            {
+                title: 'Node ID',
+                dataIndex: 'node_id',
+                key: 'node_id',
+                render: (text: string) => <Text code style={{ fontSize: '12px' }}>{text}</Text>,
+                sorter: (a: any, b: any) => a.node_id.localeCompare(b.node_id),
+                defaultSortOrder: 'ascend' as const
+            },
+            {
+                title: 'Version',
+                dataIndex: 'version',
+                key: 'version',
+                render: (version: string) => <Tag color="blue">{version}</Tag>,
+                sorter: (a: any, b: any) => a.version.localeCompare(b.version)
+            },
             {
                 title: 'Last Seen',
                 dataIndex: 'last_seen',
                 key: 'last_seen',
-                render: (lastSeen: any) => <Text style={{ fontSize: '12px' }}>{formatTimestamp(lastSeen.seconds, lastSeen.nanos)}</Text>
+                render: (lastSeen: any) => <Text style={{ fontSize: '12px' }}>{formatTimestamp(lastSeen.seconds, lastSeen.nanos)}</Text>,
+                sorter: (a: any, b: any) => a.last_seen.seconds - b.last_seen.seconds
             }
         ];
 
@@ -184,9 +188,9 @@ const RegistryInfo: React.FC = () => {
             children: (
                 <Table
                     columns={nodeColumns}
-                    dataSource={controlPlaneSearchTerm ? nodes.filter(node => 
+                    dataSource={(controlPlaneSearchTerm ? nodes.filter(node =>
                         node.node_id.toLowerCase().includes(controlPlaneSearchTerm.toLowerCase())
-                    ) : nodes}
+                    ) : nodes).sort((a, b) => a.node_id.localeCompare(b.node_id))}
                     rowKey="node_id"
                     size="small"
                     pagination={false}
@@ -198,25 +202,29 @@ const RegistryInfo: React.FC = () => {
 
     const controllerItems = filteredControllers.map((controller, index) => {
         const clients = registryData.data.controller_data.clients_by_controller[controller.controller_id]?.clients || [];
-        
-                 const clientColumns = [
-             {
-                 title: 'Client ID',
-                 dataIndex: 'client_id',
-                 key: 'client_id',
-                 render: (text: string) => <Text code style={{ fontSize: '12px' }}>{text}</Text>
-             },
-             {
-                 title: 'Version',
-                 dataIndex: 'version',
-                 key: 'version',
-                 render: (version: string) => <Tag color="blue">{version}</Tag>
-             },
+
+        const clientColumns = [
+            {
+                title: 'Client ID',
+                dataIndex: 'client_id',
+                key: 'client_id',
+                render: (text: string) => <Text code style={{ fontSize: '12px' }}>{text}</Text>,
+                sorter: (a: any, b: any) => a.client_id.localeCompare(b.client_id),
+                defaultSortOrder: 'ascend' as const
+            },
+            {
+                title: 'Version',
+                dataIndex: 'version',
+                key: 'version',
+                render: (version: string) => <Tag color="blue">{version}</Tag>,
+                sorter: (a: any, b: any) => a.version.localeCompare(b.version)
+            },
             {
                 title: 'Last Seen',
                 dataIndex: 'last_seen',
                 key: 'last_seen',
-                render: (lastSeen: any) => <Text style={{ fontSize: '12px' }}>{formatTimestamp(lastSeen.seconds, lastSeen.nanos)}</Text>
+                render: (lastSeen: any) => <Text style={{ fontSize: '12px' }}>{formatTimestamp(lastSeen.seconds, lastSeen.nanos)}</Text>,
+                sorter: (a: any, b: any) => a.last_seen.seconds - b.last_seen.seconds
             }
         ];
 
@@ -228,7 +236,6 @@ const RegistryInfo: React.FC = () => {
                         <UserOutlined style={{ color: '#722ed1' }} />
                         <Text strong>{controller.controller_id}</Text>
                         <Tag color="blue">{controller.version}</Tag>
-                        <Text type="secondary">{controller.http_address}</Text>
                         <Text type="secondary" style={{ fontSize: '12px' }}>
                             Last seen: {formatTimestamp(controller.last_seen.seconds, controller.last_seen.nanos)}
                         </Text>
@@ -237,16 +244,20 @@ const RegistryInfo: React.FC = () => {
                 </div>
             ),
             children: (
-                <Table
-                    columns={clientColumns}
-                    dataSource={controllerSearchTerm ? clients.filter(client => 
-                        client.client_id.toLowerCase().includes(controllerSearchTerm.toLowerCase())
-                    ) : clients}
-                    rowKey="client_id"
-                    size="small"
-                    pagination={false}
-                    scroll={{ x: true }}
-                />
+                <>
+                    <Text type="secondary"><b>HTTP Address:</b> {controller.http_address}</Text>
+                    <Table
+                        columns={clientColumns}
+                        dataSource={(controllerSearchTerm ? clients.filter(client =>
+                            client.client_id.toLowerCase().includes(controllerSearchTerm.toLowerCase())
+                        ) : clients).sort((a, b) => a.client_id.localeCompare(b.client_id))}
+                        rowKey="client_id"
+                        size="small"
+                        pagination={false}
+                        scroll={{ x: true }}
+                        style={{ marginTop: 6 }}
+                    />
+                </>
             )
         };
     });
@@ -284,14 +295,14 @@ const RegistryInfo: React.FC = () => {
                     )}
                 </Card>
 
-                                 {/* Control Planes - Expandable Details */}
-                <Card 
+                {/* Control Planes - Expandable Details */}
+                <Card
                     title={
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
                             <Space>
                                 <ClusterOutlined style={{ color: '#fa8c16' }} />
                                 <span>Control Planes</span>
-                                <Badge count={filteredControlPlanes.length} style={{ backgroundColor: '#fa8c16' }} />
+                                <Badge count={filteredControlPlanes?.length || 0} style={{ backgroundColor: '#fa8c16' }} />
                                 {controlPlaneSearchTerm && <Text type="secondary" style={{ fontSize: '12px' }}>({registryData.data.control_plane_data.control_planes.length} total)</Text>}
                             </Space>
                             <Input
@@ -320,8 +331,8 @@ const RegistryInfo: React.FC = () => {
                     )}
                 </Card>
 
-                                 {/* Controllers - Expandable Details */}
-                <Card 
+                {/* Controllers - Expandable Details */}
+                <Card
                     title={
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
                             <Space>
