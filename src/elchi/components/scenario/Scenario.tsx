@@ -96,7 +96,7 @@ const Scenario: React.FC = () => {
     }
 
     const navigateService = () => {
-        navigate(`/service/${serviceId}?resource_id=${serviceId}`);
+        navigate(`/services/${serviceId}?resource_id=${serviceId}`);
     }
 
     const renderSuccessCard = () => (
