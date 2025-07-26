@@ -66,8 +66,29 @@ interface RegistryData {
 }
 
 const formatTimestamp = (seconds: number, nanos: number) => {
-    const date = new Date(seconds * 1000 + nanos / 1000000);
-    return date.toLocaleString('en-US');
+    if (seconds == null || nanos == null || isNaN(seconds) || isNaN(nanos)) {
+        return 'N/A';
+    }
+    try {
+        const date = new Date(seconds * 1000 + nanos / 1000000);
+        return date.toLocaleString('en-US');
+    } catch (error) {
+        return 'Invalid Date';
+    }
+};
+
+// Güvenli string karşılaştırma fonksiyonu
+const safeStringCompare = (a: string | null | undefined, b: string | null | undefined): number => {
+    const safeA = a || '';
+    const safeB = b || '';
+    return safeA.localeCompare(safeB);
+};
+
+// Güvenli number karşılaştırma fonksiyonu
+const safeNumberCompare = (a: number | null | undefined, b: number | null | undefined): number => {
+    const safeA = a || 0;
+    const safeB = b || 0;
+    return safeA - safeB;
 };
 
 const RegistryInfo: React.FC = () => {
@@ -101,72 +122,91 @@ const RegistryInfo: React.FC = () => {
         );
     }
 
+    if (!data?.data) {
+        return (
+            <Alert
+                message="No Data"
+                description="Registry bilgisi bulunamadı."
+                type="warning"
+                showIcon
+            />
+        );
+    }
+
     const registryData: RegistryData = data;
 
     // Filter function
     const filterControlPlanes = () => {
-        if (!controlPlaneSearchTerm) return registryData.data.control_plane_data.control_planes;
+        const controlPlanes = registryData?.data?.control_plane_data?.control_planes || [];
+        if (!controlPlaneSearchTerm) return controlPlanes;
 
-        return registryData.data.control_plane_data.control_planes.filter(cp => {
+        return controlPlanes.filter(cp => {
+            if (!cp) return false;
+            
             // Check control plane ID
-            if (cp.control_plane_id.toLowerCase().includes(controlPlaneSearchTerm.toLowerCase())) {
+            if (cp.control_plane_id?.toLowerCase()?.includes(controlPlaneSearchTerm.toLowerCase())) {
                 return true;
             }
 
             // Check node IDs
-            const nodes = registryData.data.control_plane_data.nodes_by_control_plane[cp.control_plane_id]?.nodes || [];
+            const nodes = registryData?.data?.control_plane_data?.nodes_by_control_plane?.[cp.control_plane_id]?.nodes || [];
             return nodes.some(node =>
-                node.node_id.toLowerCase().includes(controlPlaneSearchTerm.toLowerCase())
+                node?.node_id?.toLowerCase()?.includes(controlPlaneSearchTerm.toLowerCase())
             );
         });
     };
 
     const filterControllers = () => {
-        if (!controllerSearchTerm) return registryData.data.controller_data.controllers;
+        const controllers = registryData?.data?.controller_data?.controllers || [];
+        if (!controllerSearchTerm) return controllers;
 
-        return registryData.data.controller_data.controllers.filter(controller => {
+        return controllers.filter(controller => {
+            if (!controller) return false;
+            
             // Check controller ID
-            if (controller.controller_id.toLowerCase().includes(controllerSearchTerm.toLowerCase())) {
+            if (controller.controller_id?.toLowerCase()?.includes(controllerSearchTerm.toLowerCase())) {
                 return true;
             }
 
             // Check client IDs
-            const clients = registryData.data.controller_data.clients_by_controller[controller.controller_id]?.clients || [];
+            const clients = registryData?.data?.controller_data?.clients_by_controller?.[controller.controller_id]?.clients || [];
             return clients.some(client =>
-                client.client_id.toLowerCase().includes(controllerSearchTerm.toLowerCase())
+                client?.client_id?.toLowerCase()?.includes(controllerSearchTerm.toLowerCase())
             );
         });
     };
 
-    const filteredControlPlanes = filterControlPlanes().sort((a, b) => a.control_plane_id.localeCompare(b.control_plane_id));
-    const filteredControllers = filterControllers().sort((a, b) => a.controller_id.localeCompare(b.controller_id));
+    const filteredControlPlanes = filterControlPlanes().sort((a, b) => safeStringCompare(a?.control_plane_id, b?.control_plane_id));
+    const filteredControllers = filterControllers().sort((a, b) => safeStringCompare(a?.controller_id, b?.controller_id));
 
     // Prepare collapse items for detailed view
     const controlPlaneItems = filteredControlPlanes?.map((cp, index) => {
-        const nodes = registryData.data.control_plane_data.nodes_by_control_plane[cp.control_plane_id]?.nodes || [];
+        if (!cp) return null;
+        
+        const nodes = registryData?.data?.control_plane_data?.nodes_by_control_plane?.[cp.control_plane_id]?.nodes || [];
 
         const nodeColumns = [
             {
                 title: 'Node ID',
                 dataIndex: 'node_id',
                 key: 'node_id',
-                render: (text: string) => <Text code style={{ fontSize: '12px' }}>{text}</Text>,
-                sorter: (a: any, b: any) => a.node_id.localeCompare(b.node_id),
+                render: (text: string) => <Text code style={{ fontSize: '12px' }}>{text || 'N/A'}</Text>,
+                sorter: (a: any, b: any) => safeStringCompare(a?.node_id, b?.node_id),
                 defaultSortOrder: 'ascend' as const
             },
             {
                 title: 'Version',
                 dataIndex: 'version',
                 key: 'version',
-                render: (version: string) => <Tag color="blue">{version}</Tag>,
-                sorter: (a: any, b: any) => a.version.localeCompare(b.version)
+                render: (version: string) => <Tag color="blue">{version || 'N/A'}</Tag>,
+                sorter: (a: any, b: any) => safeStringCompare(a?.version, b?.version)
             },
             {
                 title: 'Last Seen',
                 dataIndex: 'last_seen',
                 key: 'last_seen',
-                render: (lastSeen: any) => <Text style={{ fontSize: '12px' }}>{formatTimestamp(lastSeen.seconds, lastSeen.nanos)}</Text>,
-                sorter: (a: any, b: any) => a.last_seen.seconds - b.last_seen.seconds
+                render: (lastSeen: any) => <Text style={{ fontSize: '12px' }}>{formatTimestamp(lastSeen?.seconds, lastSeen?.nanos)}</Text>,
+                sorter: (a: any, b: any) => safeNumberCompare(a?.last_seen?.seconds, b?.last_seen?.seconds)
             }
         ];
 
@@ -176,10 +216,10 @@ const RegistryInfo: React.FC = () => {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
                     <Space>
                         <NodeIndexOutlined style={{ color: '#fa8c16' }} />
-                        <Text strong>{cp.control_plane_id}</Text>
-                        <Tag color="blue">{cp.version}</Tag>
+                        <Text strong>{cp.control_plane_id || 'N/A'}</Text>
+                        <Tag color="blue">{cp.version || 'N/A'}</Tag>
                         <Text type="secondary" style={{ fontSize: '12px' }}>
-                            Last seen: {formatTimestamp(cp.last_seen.seconds, cp.last_seen.nanos)}
+                            Last seen: {formatTimestamp(cp.last_seen?.seconds, cp.last_seen?.nanos)}
                         </Text>
                     </Space>
                     <Badge count={nodes.length} style={{ backgroundColor: '#52c41a' }} title={`${nodes.length} nodes`} />
@@ -189,42 +229,44 @@ const RegistryInfo: React.FC = () => {
                 <Table
                     columns={nodeColumns}
                     dataSource={(controlPlaneSearchTerm ? nodes.filter(node =>
-                        node.node_id.toLowerCase().includes(controlPlaneSearchTerm.toLowerCase())
-                    ) : nodes).sort((a, b) => a.node_id.localeCompare(b.node_id))}
-                    rowKey="node_id"
+                        node?.node_id?.toLowerCase()?.includes(controlPlaneSearchTerm.toLowerCase())
+                    ) : nodes).sort((a, b) => safeStringCompare(a?.node_id, b?.node_id))}
+                    rowKey={(record) => record?.node_id || Math.random().toString()}
                     size="small"
                     pagination={false}
                     scroll={{ x: true }}
                 />
             )
         };
-    });
+    }).filter(Boolean);
 
     const controllerItems = filteredControllers.map((controller, index) => {
-        const clients = registryData.data.controller_data.clients_by_controller[controller.controller_id]?.clients || [];
+        if (!controller) return null;
+        
+        const clients = registryData?.data?.controller_data?.clients_by_controller?.[controller.controller_id]?.clients || [];
 
         const clientColumns = [
             {
                 title: 'Client ID',
                 dataIndex: 'client_id',
                 key: 'client_id',
-                render: (text: string) => <Text code style={{ fontSize: '12px' }}>{text}</Text>,
-                sorter: (a: any, b: any) => a.client_id.localeCompare(b.client_id),
+                render: (text: string) => <Text code style={{ fontSize: '12px' }}>{text || 'N/A'}</Text>,
+                sorter: (a: any, b: any) => safeStringCompare(a?.client_id, b?.client_id),
                 defaultSortOrder: 'ascend' as const
             },
             {
                 title: 'Version',
                 dataIndex: 'version',
                 key: 'version',
-                render: (version: string) => <Tag color="blue">{version}</Tag>,
-                sorter: (a: any, b: any) => a.version.localeCompare(b.version)
+                render: (version: string) => <Tag color="blue">{version || 'N/A'}</Tag>,
+                sorter: (a: any, b: any) => safeStringCompare(a?.version, b?.version)
             },
             {
                 title: 'Last Seen',
                 dataIndex: 'last_seen',
                 key: 'last_seen',
-                render: (lastSeen: any) => <Text style={{ fontSize: '12px' }}>{formatTimestamp(lastSeen.seconds, lastSeen.nanos)}</Text>,
-                sorter: (a: any, b: any) => a.last_seen.seconds - b.last_seen.seconds
+                render: (lastSeen: any) => <Text style={{ fontSize: '12px' }}>{formatTimestamp(lastSeen?.seconds, lastSeen?.nanos)}</Text>,
+                sorter: (a: any, b: any) => safeNumberCompare(a?.last_seen?.seconds, b?.last_seen?.seconds)
             }
         ];
 
@@ -234,10 +276,10 @@ const RegistryInfo: React.FC = () => {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
                     <Space>
                         <UserOutlined style={{ color: '#722ed1' }} />
-                        <Text strong>{controller.controller_id}</Text>
-                        <Tag color="blue">{controller.version}</Tag>
+                        <Text strong>{controller.controller_id || 'N/A'}</Text>
+                        <Tag color="blue">{controller.version || 'N/A'}</Tag>
                         <Text type="secondary" style={{ fontSize: '12px' }}>
-                            Last seen: {formatTimestamp(controller.last_seen.seconds, controller.last_seen.nanos)}
+                            Last seen: {formatTimestamp(controller.last_seen?.seconds, controller.last_seen?.nanos)}
                         </Text>
                     </Space>
                     <Badge count={clients.length} style={{ backgroundColor: '#1890ff' }} title={`${clients.length} clients`} />
@@ -245,13 +287,13 @@ const RegistryInfo: React.FC = () => {
             ),
             children: (
                 <>
-                    <Text type="secondary"><b>HTTP Address:</b> {controller.http_address}</Text>
+                    <Text type="secondary"><b>HTTP Address:</b> {controller.http_address || 'N/A'}</Text>
                     <Table
                         columns={clientColumns}
                         dataSource={(controllerSearchTerm ? clients.filter(client =>
-                            client.client_id.toLowerCase().includes(controllerSearchTerm.toLowerCase())
-                        ) : clients).sort((a, b) => a.client_id.localeCompare(b.client_id))}
-                        rowKey="client_id"
+                            client?.client_id?.toLowerCase()?.includes(controllerSearchTerm.toLowerCase())
+                        ) : clients).sort((a, b) => safeStringCompare(a?.client_id, b?.client_id))}
+                        rowKey={(record) => record?.client_id || Math.random().toString()}
                         size="small"
                         pagination={false}
                         scroll={{ x: true }}
@@ -260,7 +302,7 @@ const RegistryInfo: React.FC = () => {
                 </>
             )
         };
-    });
+    }).filter(Boolean);
 
     return (
         <div style={{ width: '100%' }}>
@@ -272,23 +314,26 @@ const RegistryInfo: React.FC = () => {
                             <Space>
                                 <DatabaseOutlined style={{ color: '#1890ff', fontSize: '16px' }} />
                                 <Text strong>Registry Status:</Text>
-                                <Tag color={registryData.data.status === 'connected' ? 'green' : 'red'}>
-                                    {registryData.data.status}
+                                <Tag color={registryData?.data?.status === 'connected' ? 'green' : 'red'}>
+                                    {registryData?.data?.status || 'Unknown'}
                                 </Tag>
                             </Space>
                             <Space>
                                 <Text type="secondary">Address:</Text>
-                                <Text code>{registryData.data.registry_address}</Text>
+                                <Text code>{registryData?.data?.registry_address || 'N/A'}</Text>
                             </Space>
                         </Space>
                         <Space>
                             <Text type="secondary">Updated:</Text>
                             <Text style={{ fontSize: '12px' }}>
-                                {new Date(registryData.data.timestamp).toLocaleString('en-US')}
+                                {registryData?.data?.timestamp ? 
+                                    new Date(registryData.data.timestamp).toLocaleString('en-US') : 
+                                    'N/A'
+                                }
                             </Text>
                         </Space>
                     </div>
-                    {registryData.data.message && (
+                    {registryData?.data?.message && (
                         <div style={{ marginTop: '8px', padding: '8px', backgroundColor: '#f6ffed', borderRadius: '4px' }}>
                             <Text style={{ fontSize: '12px', color: '#52c41a' }}>{registryData.data.message}</Text>
                         </div>
@@ -303,7 +348,7 @@ const RegistryInfo: React.FC = () => {
                                 <ClusterOutlined style={{ color: '#fa8c16' }} />
                                 <span>Control Planes</span>
                                 <Badge count={filteredControlPlanes?.length || 0} style={{ backgroundColor: '#fa8c16' }} />
-                                {controlPlaneSearchTerm && <Text type="secondary" style={{ fontSize: '12px' }}>({registryData.data.control_plane_data.control_planes.length} total)</Text>}
+                                {controlPlaneSearchTerm && <Text type="secondary" style={{ fontSize: '12px' }}>({registryData?.data?.control_plane_data?.control_planes?.length || 0} total)</Text>}
                             </Space>
                             <Input
                                 placeholder="Search control planes and nodes..."
@@ -339,7 +384,7 @@ const RegistryInfo: React.FC = () => {
                                 <ControlOutlined style={{ color: '#722ed1' }} />
                                 <span>Controllers</span>
                                 <Badge count={filteredControllers.length} style={{ backgroundColor: '#722ed1' }} />
-                                {controllerSearchTerm && <Text type="secondary" style={{ fontSize: '12px' }}>({registryData.data.controller_data.controllers.length} total)</Text>}
+                                {controllerSearchTerm && <Text type="secondary" style={{ fontSize: '12px' }}>({registryData?.data?.controller_data?.controllers?.length || 0} total)</Text>}
                             </Space>
                             <Input
                                 placeholder="Search controllers and clients..."

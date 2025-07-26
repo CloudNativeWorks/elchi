@@ -94,7 +94,7 @@ const Settings: React.FC = () => {
                     size="large"
                     tabPosition="top"
                     style={{ minHeight: '400px' }}
-                    
+                    destroyOnHidden
                 />
             </Card>
 
