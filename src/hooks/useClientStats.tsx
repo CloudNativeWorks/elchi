@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useOperationsApiMutation } from '@/common/operations-api';
 import { OperationsType } from '@/common/types';
 
@@ -73,7 +73,9 @@ export function useClientStats({ clientId }: { clientId: string }) {
     const [error, setError] = useState<string | null>(null);
     const [statsData, setStatsData] = useState<ClientStatsResponse>();
 
-    const fetchClientStats = async () => {
+    const fetchClientStats = useCallback(async () => {
+        if (!clientId) return;
+        
         setLoading(true);
         setError(null);
         try {
@@ -104,13 +106,13 @@ export function useClientStats({ clientId }: { clientId: string }) {
         } finally {
             setLoading(false);
         }
-    };
+    }, [clientId, mutate]);
 
     useEffect(() => {
         if (clientId) {
             fetchClientStats();
         }
-    }, [clientId]);
+    }, [clientId, fetchClientStats]);
 
     return {
         loading,
