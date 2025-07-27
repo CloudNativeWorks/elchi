@@ -239,7 +239,6 @@ const Metrics: React.FC<MetricsProps> = () => {
 
             // Check if all requests succeeded
             const successCount = results.filter(r => r).length;
-            console.log(`[Fetch] Section ${sectionName}: ${successCount}/${metricIndices.length} metrics fetched successfully`);
 
             // Update section state after successful fetch
             setMetricsState(prev => ({

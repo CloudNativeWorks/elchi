@@ -58,11 +58,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
             const startTime = now - 60; // Son 1 dakika
             const endTime = now;
 
-            console.log('Traffic Overview Time Range (Last 1min):', { startTime, endTime });
-            
-            // Paralel olarak tüm metrikleri çek
             const requests = [
-                // Listener level downstream connections - instant değer
                 metricsApiMutation.mutateAsync({
                     name: '.*',
                     metric: 'listener_downstream_cx_active',
@@ -72,7 +68,6 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         queryTemplate: `sum({__name__=~".*_%{project}_%{metric}"})`
                     }
                 }),
-                // Upstream connections - instant değer  
                 metricsApiMutation.mutateAsync({
                     name: '.*',
                     metric: 'cluster_upstream_cx_active',
@@ -82,7 +77,6 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         queryTemplate: `sum({__name__=~".*_%{project}_%{metric}", envoy_cluster_name!="elchi-control-plane"})`
                     }
                 }),
-                // Gelen trafik - rate with %{window}s placeholder
                 metricsApiMutation.mutateAsync({
                     name: '.*',
                     metric: 'http_downstream_cx_rx_bytes_total',
@@ -100,7 +94,6 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         }
                     }
                 }),
-                // Giden trafik - rate with %{window}s placeholder
                 metricsApiMutation.mutateAsync({
                     name: '.*',
                     metric: 'http_downstream_cx_tx_bytes_total',
@@ -118,7 +111,6 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         }
                     }
                 }),
-                // Toplam requestler - rate with %{window}s placeholder
                 metricsApiMutation.mutateAsync({
                     name: '.*',
                     metric: 'http_downstream_rq_total',
@@ -136,7 +128,6 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         }
                     }
                 }),
-                // Healthy servers - instant değer
                 metricsApiMutation.mutateAsync({
                     name: '.*',
                     metric: 'cluster_membership_healthy',
@@ -146,7 +137,6 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         queryTemplate: `sum({__name__=~".*_%{project}_%{metric}", envoy_cluster_name!="elchi-control-plane"})`
                     }
                 }),
-                // Total servers - instant değer
                 metricsApiMutation.mutateAsync({
                     name: '.*',
                     metric: 'cluster_membership_total',
@@ -156,7 +146,6 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         queryTemplate: `sum({__name__=~".*_%{project}_%{metric}", envoy_cluster_name!="elchi-control-plane"})`
                     }
                 }),
-                // 4xx errors - rate with %{window}s placeholder
                 metricsApiMutation.mutateAsync({
                     name: '.*',
                     metric: 'http_downstream_rq_xx_total',
@@ -174,7 +163,6 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         }
                     }
                 }),
-                // 5xx errors - rate with %{window}s placeholder
                 metricsApiMutation.mutateAsync({
                     name: '.*',
                     metric: 'http_downstream_rq_xx_total',
@@ -196,36 +184,24 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
             
             const results = await Promise.all(requests);
             
-            console.log('Traffic Overview Raw Results:', results);
-            
-            // Son 1 dakika için değer hesaplama - instant query veya rate için en son değer
             const getMetricValue = (result: any, index: number) => {
-                console.log(`Metric ${index}:`, result?.data?.result);
-                
                 if (result?.data?.result?.length > 0) {
                     let totalValue = 0;
                     
-                    // Tüm serilerdeki son değerleri topla
                     result.data.result.forEach((series: any) => {
                         if (series.values && series.values.length > 0) {
-                            // Son değeri al
                             const lastPoint = series.values[series.values.length - 1];
                             const value = parseFloat(lastPoint[1]) || 0;
                             totalValue += value;
-                            console.log(`Series value:`, value);
                         } else if (series.value) {
-                            // Instant query için tek değer
                             const value = parseFloat(series.value[1]) || 0;
                             totalValue += value;
-                            console.log(`Instant value:`, value);
                         }
                     });
                     
-                    console.log(`Metric ${index} total value:`, totalValue);
                     return totalValue;
                 }
                 
-                console.log(`Metric ${index}: No data`);
                 return 0;
             };
 
@@ -266,10 +242,9 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
 
     useEffect(() => {
         fetchOverviewStats();
-        // Her 30 saniyede bir otomatik yenile
         const interval = setInterval(fetchOverviewStats, 30000);
         return () => clearInterval(interval);
-    }, []); // timeRange dependency kaldırıldı
+    }, []);
 
     const formatBytes = (bytes: number) => {
         if (bytes === 0) return '0 B';

@@ -131,21 +131,16 @@ export const BGP_FIELD_MAPPINGS = {
 export const addFieldMapping = (apiField: string, frontendField: string) => {
     BGP_FIELD_MAPPINGS.API_TO_FRONTEND[apiField] = frontendField;
     BGP_FIELD_MAPPINGS.FRONTEND_TO_API[frontendField] = apiField;
-    console.log(`Added field mapping: ${apiField} <-> ${frontendField}`);
 };
 
 // Helper function to remove field mappings
 export const removeFieldMapping = (apiField: string, frontendField: string) => {
     delete BGP_FIELD_MAPPINGS.API_TO_FRONTEND[apiField];
     delete BGP_FIELD_MAPPINGS.FRONTEND_TO_API[frontendField];
-    console.log(`Removed field mapping: ${apiField} <-> ${frontendField}`);
 };
 
 // Helper function to list all current mappings
 export const listFieldMappings = () => {
-    console.log('Current BGP Field Mappings:');
-    console.log('API -> Frontend:', BGP_FIELD_MAPPINGS.API_TO_FRONTEND);
-    console.log('Frontend -> API:', BGP_FIELD_MAPPINGS.FRONTEND_TO_API);
     return BGP_FIELD_MAPPINGS;
 };
 
@@ -155,14 +150,9 @@ export const mapApiToFrontend = (apiData: any, addressFamily?: any): any => {
 
     const mapped = { ...apiData };
 
-    console.log('=== mapApiToFrontend Debug ===');
-    console.log('Input apiData:', apiData);
-    console.log('Input addressFamily:', addressFamily);
-
     // Apply direct field mappings
     Object.entries(BGP_FIELD_MAPPINGS.API_TO_FRONTEND).forEach(([apiField, frontendField]) => {
         if (apiData[apiField] !== undefined) {
-            console.log(`Direct mapping: ${apiField} (${apiData[apiField]}) -> ${frontendField}`);
             mapped[frontendField] = apiData[apiField];
             delete mapped[apiField];
         }
@@ -171,20 +161,15 @@ export const mapApiToFrontend = (apiData: any, addressFamily?: any): any => {
     // Handle address family specific fields
     if (addressFamily?.ipv4_unicast) {
         const af = addressFamily.ipv4_unicast;
-        console.log('Address family ipv4_unicast data:', af);
 
         Object.entries(BGP_FIELD_MAPPINGS.API_TO_FRONTEND).forEach(([apiField, frontendField]) => {
             if (af[apiField] !== undefined) {
-                console.log(`Address family mapping: ${apiField} (${af[apiField]}) -> ${frontendField}`);
                 mapped[frontendField] = af[apiField];
             }
         });
     } else {
         console.log('No address family ipv4_unicast data found');
     }
-
-    console.log('Final mapped result:', mapped);
-    console.log('=== End mapApiToFrontend Debug ===');
 
     return mapped;
 };

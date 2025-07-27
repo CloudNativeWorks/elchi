@@ -16,7 +16,7 @@ if (isProductionEnvironment && typeof window !== 'undefined') {
     delete (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__;
 }
 
-console.log('Redux DevTools durumu:', {
+console.log('Redux DevTools state:', {
     isDevelopment,
     isProductionEnvironment,
     NODE_ENV: process.env.NODE_ENV,

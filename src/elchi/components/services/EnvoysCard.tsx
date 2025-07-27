@@ -65,7 +65,6 @@ const EnvoysCard: React.FC<EnvoysCardProps> = ({ envoys, name, project }) => {
     const memory = selectedEnvoyData?.Result?.EnvoyAdmin?.body?.memory;
     const stats = selectedEnvoyData?.Result?.EnvoyAdmin?.body?.stats?.stats || [];
 
-    console.log(envoyData);
     if (!loading && (!envoyData || Object.keys(envoyData).length === 0)) {
         return (
             <Alert

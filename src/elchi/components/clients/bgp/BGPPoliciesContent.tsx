@@ -174,8 +174,6 @@ const BGPPoliciesContent: React.FC<BGPPoliciesContentProps> = ({ clientId }) => 
     const handleBatchRemove = (type: 'routemap' | 'community' | 'prefix') => {
         if (selectedRowKeys.length === 0) return;
 
-        console.log('Removing policies:', selectedRowKeys, 'for client:', clientId);
-
         const blockedItems: string[] = [];
         if (type === 'prefix') {
             selectedRowKeys.forEach(itemName => {
