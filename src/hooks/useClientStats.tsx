@@ -72,9 +72,15 @@ export function useClientStats({ clientId }: { clientId: string }) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [statsData, setStatsData] = useState<ClientStatsResponse>();
+    const [lastFetchedClientId, setLastFetchedClientId] = useState<string | null>(null);
 
-    const fetchClientStats = async () => {
+    const fetchClientStats = async (forceRefresh = false) => {
         if (!clientId) return;
+        
+        // Aynı clientId için zaten data varsa ve force refresh değilse, yeniden istek atma
+        if (!forceRefresh && lastFetchedClientId === clientId && statsData) {
+            return { success: true, data: statsData };
+        }
         
         setLoading(true);
         setError(null);
@@ -95,6 +101,7 @@ export function useClientStats({ clientId }: { clientId: string }) {
 
             if (Array.isArray(response) && response.length > 0) {
                 setStatsData(response[0]);
+                setLastFetchedClientId(clientId);
                 return { success: true, data: response[0] };
             }
 
@@ -109,15 +116,18 @@ export function useClientStats({ clientId }: { clientId: string }) {
     };
 
     useEffect(() => {
-        if (clientId) {
+        if (clientId && lastFetchedClientId !== clientId) {
             fetchClientStats();
         }
-    }, [clientId]);
+    }, [clientId, lastFetchedClientId]);
+
+    // Manuel refresh için force refresh ekle
+    const handleRefresh = () => fetchClientStats(true);
 
     return {
         loading,
         error,
         statsData,
-        fetchClientStats
+        fetchClientStats: handleRefresh
     };
 } 

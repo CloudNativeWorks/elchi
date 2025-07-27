@@ -14,6 +14,11 @@ export default defineConfig(({ mode }) => {
     const base = '/';
 
     return {
+        define: {
+            'import.meta.env.DEV': !isProduction,
+            'import.meta.env.PROD': isProduction,
+            'process.env.NODE_ENV': JSON.stringify(isProduction ? 'production' : 'development'),
+        },
         esbuild: {
             logOverride: { 'duplicate-case': 'silent' },
         },
