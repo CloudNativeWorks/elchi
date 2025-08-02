@@ -1,0 +1,23 @@
+version: v1
+plugins:
+  - name: ts
+    strategy: all
+    path: "/Users/spehlivan/Documents/CloudNativeWorks/elchi/tools/createVersion/ts-proto-debug.sh"
+    out: models
+    opt:
+      - stringEnums=true
+      - snakeToCamel=false
+      - useOptionals=all
+      - unrecognizedEnum=false
+      - useMapType=true
+      - outputTypeAnnotations=true
+      - esModuleInterop=true
+      - oneof=unions
+      - useExactTypes=true
+      - initializeFieldsAsUndefined=false
+      - unknownFields=false
+      - useJsonWireFormat=false
+      - outputTypeRegistry=true
+      - forceLong=number
+      - emitDefaultValues=json-methods
+      - comments=true

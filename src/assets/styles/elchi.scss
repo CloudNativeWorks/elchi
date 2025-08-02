@@ -1,0 +1,530 @@
+@keyframes smoothAnimation {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        color: #056ccd;
+    }
+}
+
+@keyframes underlineAnimation {
+
+    0%,
+    100% {
+        width: 0%;
+    }
+
+    50% {
+        width: 100%;
+    }
+}
+
+.smoothAnimation {
+    display: inline-block;
+    position: relative;
+    animation: smoothAnimation 2s ease-in-out forwards;
+    overflow: visible;
+    transform-origin: left center;
+}
+
+.smoothAnimation:after {
+    content: "";
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 1px;
+    background-color: #056ccd;
+    animation: underlineAnimation 2s ease-in-out forwards;
+}
+
+.bang_iconwrapper {
+    position: relative;
+    display: inline-flex;
+    border: 1px solid #1890ff;
+    border-radius: 5px;
+    padding: 5px;
+    background-color: #ffffff;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.bang_iconwrapper_disable {
+    position: relative;
+    display: inline-flex;
+    border: none;
+    padding: 5px;
+}
+
+.bang_iconwrapper:hover {
+    background-color: #1890ff;
+    border-color: #1890ff;
+}
+
+.bang_Icon {
+    fill: #1890ff;
+    transition: fill 0.3s;
+}
+
+.bang_iconwrapper:hover .bang_Icon {
+    fill: #ffffff;
+}
+
+.bang_badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: green;
+}
+
+.bang_badge_disable {
+    position: absolute;
+    top: -4px;
+    right: -1px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: rgb(73, 75, 73);
+}
+
+.unchangeable-tag {
+    background-color: #4a4a4a;
+    white-space: nowrap;
+    width: 100%;
+    position: relative;
+    cursor: not-allowed;
+}
+
+.unchangeable-tag:hover {
+    background-color: #4a4a4a;
+}
+
+
+
+
+
+
+
+
+.unsopperted-tags:hover span {
+    padding-right: 10px !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    max-width: none !important;
+}
+
+.unsopperted-tags:hover {
+    padding-right: 10px !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    max-width: none !important;
+}
+
+.unsopperted-tags {
+    border-color: #d9d1d1;
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    color: #d9d9d9;
+    cursor: not-allowed;
+}
+
+
+.ant-tag.ant-tag-checkable.ellipsis-tag {
+    border-color: #d9d1d1;
+    display: block;
+    max-width: 100%;
+    width: 100% !important;
+    white-space: nowrap;
+    overflow: hidden !important;
+    text-overflow: ellipsis;
+    transition: max-width 0.3s ease;
+    position: relative;
+    font-family: sans-serif;
+    line-height: 26px;
+}
+
+.elipsis-tag-main {
+    display: flex !important;
+    align-items: center !important;
+    width: 100% !important
+}
+
+.elipsis-tag-span {
+    display: flex !important;
+    align-items: center !important;
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+}
+
+.ellipsis-tag:hover {
+    white-space: normal !important;
+    overflow: visible !important;
+    max-width: none !important;
+    max-height: none !important;
+
+
+}
+
+.elipsis-tag-badge {
+    display: flex !important;
+    align-items: center !important;
+    flex: 1 1 auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    transform: unset;
+}
+
+.unsupperted-tags-horizon:hover span {
+    white-space: normal !important;
+    overflow: visible !important;
+    max-width: none !important;
+}
+
+.unsupperted-tags-horizon:hover {
+    white-space: normal !important;
+    overflow: visible !important;
+    max-width: none !important;
+}
+
+.unsupperted-tags-horizon {
+    border-color: #d9d1d1;
+    display: inline-block;
+    width: auto;
+    overflow: hidden;
+    white-space: nowrap;
+    color: #d9d9d9;
+    cursor: not-allowed;
+}
+
+
+
+.innerFormIndicator {
+    align-items: center;
+    padding-left: 20px;
+}
+
+.arrowRight {
+    width: 0;
+    height: 0;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 10px solid black;
+    /* Okun rengi */
+    display: inline-block;
+    transform: translateY(-50%);
+    /* Yatay olarak ortala */
+    position: relative;
+    /* relative pozisyon kullanarak */
+    top: 50%;
+    /* elementi dikey olarak ortalarız */
+}
+
+
+.noselect {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+#buttondiv {
+    position: relative;
+    padding: 3px;
+    width: 100%;
+    border-radius: 5px;
+}
+
+#buttondiv button {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    width: 140px;
+    height: 48px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    background: "#1990FF";
+    border: none;
+    border-radius: 5px;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.15);
+    position: relative;
+}
+
+#buttondiv button,
+#buttondiv button span {
+    transition: 200ms;
+}
+
+#buttondiv button .text {
+    transform: translateX(35px);
+    color: white;
+    font-weight: bold;
+}
+
+.secbut {
+    color: white;
+    background: #1990FF;
+    font-weight: bold;
+    width: 140px;
+    height: 48px;
+    border-radius: 5px;
+    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.15);
+    font-size: small;
+}
+
+.menudropdown {
+    height: 48px;
+    background: #1990FF;
+}
+
+#buttondiv button .icon {
+    position: absolute;
+    border-left: 1px solid white;
+    transform: translateX(110px);
+    height: 30px;
+    width: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#buttondiv button svg {
+    width: 15px;
+    fill: #eee;
+}
+
+#buttondiv button:hover {
+    background: "#1990FF";
+}
+
+#buttondiv button:hover .text {
+    color: transparent;
+}
+
+#buttondiv button:hover .icon {
+    width: 150px;
+    border-left: none;
+    transform: translateX(0);
+}
+
+#buttondiv button:focus {
+    outline: none;
+}
+
+.left-buttons,
+.right-buttons {
+    display: flex;
+    gap: 2px;
+    justify-content: flex-end;
+}
+
+#buttondiv button .animationLayer {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    right: 50%;
+    bottom: 0;
+    background-color: darkgreen;
+    pointer-events: none;
+    z-index: -1;
+    transition: left 0.5s, right 0.5s;
+}
+
+#buttondiv button:active .animationLayer {
+    left: 0;
+    right: 0;
+}
+
+#buttondiv .activeButton {
+    background-color: green;
+
+}
+
+#buttondiv button.activeButton:hover {
+    background: green;
+}
+
+#buttondiv button.activeButton .text {
+    color: transparent;
+}
+
+#buttondiv button.activeButton .icon {
+    width: 150px;
+    border-left: none;
+    transform: translateX(0);
+}
+
+.custom-ellipsis {
+    max-width: 200px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+
+// Modern HorizonTags Container Styles
+.ag-courses_box {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    width: 100%;
+    margin: 4px 0;
+}
+
+.ag-courses_item {
+    width: 100%;
+    position: relative;
+    border-radius: 12px;
+    background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+    box-shadow: 
+        0 1px 4px rgba(0, 0, 0, 0.04),
+        0 1px 2px rgba(0, 0, 0, 0.02);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    border: 1px solid rgba(226, 232, 240, 0.6);
+}
+
+.ag-courses_item:hover {
+    transform: translateY(-1px);
+    box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.06),
+        0 2px 6px rgba(0, 0, 0, 0.04);
+    border-color: rgba(5, 108, 205, 0.2);
+}
+
+.ag-courses-item_link {
+    display: block;
+    padding: 4px;
+    background: transparent;
+    position: relative;
+    border-radius: 28px;
+    overflow: hidden;
+}
+
+.ag-courses-item_link:hover {
+    text-decoration: none;
+}
+
+.ag-courses-item_link:hover .ag-courses-item_bg {
+    opacity: 0.6;
+    transform: scale(1.2) rotate(3deg);
+}
+
+.ag-courses-item_bg {
+    position: absolute;
+    top: -30%;
+    right: -30%;
+    width: 160%;
+    height: 160%;
+    background: linear-gradient(
+        135deg, 
+        rgba(5, 108, 205, 0.05) 0%, 
+        rgba(0, 198, 251, 0.08) 50%, 
+        rgba(99, 102, 241, 0.05) 100%
+    );
+    border-radius: 50%;
+    opacity: 0;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 0;
+}
+
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 1px;
+    padding: 1px 1px;
+    position: relative;
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    margin: 2px;
+}
+
+.tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+    padding: 1px 0;
+    min-height: 36px;
+}
+
+.info-button {
+    padding: 6px;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+    background: rgba(248, 250, 252, 0.8);
+    border: 1px solid rgba(226, 232, 240, 0.5);
+}
+
+.info-button:hover {
+    background: rgba(5, 108, 205, 0.08);
+    border-color: rgba(5, 108, 205, 0.2);
+    transform: scale(1.05);
+}
+
+.info-button .ant-btn {
+    border: none;
+    box-shadow: none;
+    color: #64748b;
+    transition: all 0.2s ease;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.info-button .ant-btn:hover {
+    color: #056ccd;
+    background: transparent;
+    transform: rotate(12deg);
+}
+
+.ant-anchor-link {
+    padding-block: 1px !important;
+}
+
+.tags-container .ant-tag,
+.tags-container .ant-badge-status {
+    height: 26px !important;
+    line-height: 26px !important;
+    display: flex;
+    align-items: center;
+}
+
+.ant-tag {
+    font-family: system-ui;
+    min-height: 26px !important;
+    display: flex;
+    align-items: center;
+    margin-bottom: 2px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    transition: all 0.2s;
+}
+
+.ant-tag:hover {
+    color: linear-gradient(90deg, #056ccd 0%, #00c6fb 100%) !important;
+}
+
