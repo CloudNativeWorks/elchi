@@ -32,7 +32,7 @@ COPY --from=build /app/dist /usr/share/nginx/html
 RUN mkdir -p /var/cache/nginx /var/run /var/log/nginx && \
     chmod -R 777 /var/cache/nginx /var/run /var/log/nginx /usr/share/nginx/html
 
-EXPOSE 80
+EXPOSE 8080
 
 # Start Nginx in foreground mode
 CMD ["nginx", "-g", "daemon off;"]
