@@ -609,8 +609,6 @@ const Logs: React.FC = () => {
                     project={project}
                 />
             </Card>
-
-
         </div>
     );
 };
