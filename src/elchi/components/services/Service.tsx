@@ -1,8 +1,8 @@
 import React from 'react';
 import { DeployLineIcon } from "@/assets/svg/icons";
 import { OperationsSubType } from "@/common/types";
-import { InfoCircleOutlined, PlayCircleOutlined, RedoOutlined, ReloadOutlined, StopOutlined } from "@ant-design/icons";
-import { Button, Descriptions, Tag, Tooltip, Typography } from "antd";
+import { InfoCircleOutlined, LoadingOutlined, PlayCircleOutlined, RedoOutlined, ReloadOutlined, StopOutlined } from "@ant-design/icons";
+import { Descriptions, Spin, Tag, Tooltip, Typography } from "antd";
 import { ServiceStatus } from "./ServiceStatus";
 
 const { Text } = Typography;
@@ -208,7 +208,8 @@ const ServiceActionButtons: React.FC<{
     onRefreshStatus: () => void;
     loading: boolean;
     disabled: boolean;
-}> = ({ onAction, onRefreshStatus, loading, disabled }) => (
+}> = ({ onAction, onRefreshStatus, loading, disabled }) => {
+    return (
     <div style={{
         display: 'flex',
         alignItems: 'center',
@@ -258,7 +259,8 @@ const ServiceActionButtons: React.FC<{
                         justifyContent: 'center',
                         fontSize: 16,
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        boxShadow: disabled ? 'none' : '0 4px 12px rgba(16, 185, 129, 0.3)'
+                        boxShadow: disabled ? 'none' : '0 4px 12px rgba(16, 185, 129, 0.3)',
+                        position: 'relative'
                     }}
                     onMouseEnter={e => {
                         if (!disabled && !loading) {
@@ -273,7 +275,11 @@ const ServiceActionButtons: React.FC<{
                         }
                     }}
                 >
-                    <PlayCircleOutlined />
+                    {loading ? (
+                        <Spin indicator={<LoadingOutlined style={{ fontSize: 16, color: '#ffffff' }} spin />} />
+                    ) : (
+                        <PlayCircleOutlined />
+                    )}
                 </button>
             </Tooltip>
             <Tooltip title="Stop" placement="top">
@@ -293,7 +299,8 @@ const ServiceActionButtons: React.FC<{
                         justifyContent: 'center',
                         fontSize: 16,
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        boxShadow: disabled ? 'none' : '0 4px 12px rgba(239, 68, 68, 0.3)'
+                        boxShadow: disabled ? 'none' : '0 4px 12px rgba(239, 68, 68, 0.3)',
+                        position: 'relative'
                     }}
                     onMouseEnter={e => {
                         if (!disabled && !loading) {
@@ -308,7 +315,11 @@ const ServiceActionButtons: React.FC<{
                         }
                     }}
                 >
-                    <StopOutlined />
+                    {loading ? (
+                        <Spin indicator={<LoadingOutlined style={{ fontSize: 16, color: '#ffffff' }} spin />} />
+                    ) : (
+                        <StopOutlined />
+                    )}
                 </button>
             </Tooltip>
             <Tooltip title="Restart" placement="top">
@@ -328,7 +339,8 @@ const ServiceActionButtons: React.FC<{
                         justifyContent: 'center',
                         fontSize: 16,
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        boxShadow: disabled ? 'none' : '0 4px 12px rgba(245, 158, 11, 0.3)'
+                        boxShadow: disabled ? 'none' : '0 4px 12px rgba(245, 158, 11, 0.3)',
+                        position: 'relative'
                     }}
                     onMouseEnter={e => {
                         if (!disabled && !loading) {
@@ -343,7 +355,11 @@ const ServiceActionButtons: React.FC<{
                         }
                     }}
                 >
-                    <RedoOutlined />
+                    {loading ? (
+                        <Spin indicator={<LoadingOutlined style={{ fontSize: 16, color: '#ffffff' }} spin />} />
+                    ) : (
+                        <RedoOutlined />
+                    )}
                 </button>
             </Tooltip>
             <Tooltip title="Reload" placement="top">
@@ -363,7 +379,8 @@ const ServiceActionButtons: React.FC<{
                         justifyContent: 'center',
                         fontSize: 16,
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        boxShadow: disabled ? 'none' : '0 4px 12px rgba(59, 130, 246, 0.3)'
+                        boxShadow: disabled ? 'none' : '0 4px 12px rgba(59, 130, 246, 0.3)',
+                        position: 'relative'
                     }}
                     onMouseEnter={e => {
                         if (!disabled && !loading) {
@@ -378,7 +395,11 @@ const ServiceActionButtons: React.FC<{
                         }
                     }}
                 >
-                    <ReloadOutlined />
+                    {loading ? (
+                        <Spin indicator={<LoadingOutlined style={{ fontSize: 16, color: '#ffffff' }} spin />} />
+                    ) : (
+                        <ReloadOutlined />
+                    )}
                 </button>
             </Tooltip>
             <Tooltip title="Status" placement="top">
@@ -398,7 +419,8 @@ const ServiceActionButtons: React.FC<{
                         justifyContent: 'center',
                         fontSize: 16,
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        boxShadow: disabled ? 'none' : '0 4px 12px rgba(99, 102, 241, 0.3)'
+                        boxShadow: disabled ? 'none' : '0 4px 12px rgba(99, 102, 241, 0.3)',
+                        position: 'relative'
                     }}
                     onMouseEnter={e => {
                         if (!disabled) {
@@ -413,11 +435,16 @@ const ServiceActionButtons: React.FC<{
                         }
                     }}
                 >
-                    <InfoCircleOutlined />
+                    {loading ? (
+                        <Spin indicator={<LoadingOutlined style={{ fontSize: 16, color: '#ffffff' }} spin />} />
+                    ) : (
+                        <InfoCircleOutlined />
+                    )}
                 </button>
             </Tooltip>
         </div>
     </div>
-);
+    );
+};
 
  
