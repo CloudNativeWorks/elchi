@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Button, Input, List, Modal, Typography, Space, message } from 'antd';
-import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Card, Button, Input, List, Modal, Typography, Space, message, Divider } from 'antd';
+import { PlusOutlined, DeleteOutlined, RobotOutlined, SaveOutlined, EditOutlined } from '@ant-design/icons';
 import { useCustomGetQuery } from '@/common/api';
 import { useCustomApiMutation } from '@/common/custom-api';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
+import { useClaudeToken } from '@/hooks/useClaudeToken';
 
 const { Title, Text } = Typography;
 
@@ -17,8 +18,20 @@ const Tokens: React.FC = () => {
     const { project } = useProjectVariable();
     const [messageApi, contextHolder] = message.useMessage();
     const mutate = useCustomApiMutation();
+    
+    const {
+        maskedToken,
+        hasToken,
+        isLoading: isClaudeTokenLoading,
+        error: claudeTokenError,
+        setToken,
+        updateToken,
+        deleteToken: deleteClaudeToken
+    } = useClaudeToken();
+    
+    const [newClaudeToken, setNewClaudeToken] = useState('');
+    const [isEditingClaudeToken, setIsEditingClaudeToken] = useState(false);
 
-    // Tokenları çek
     const { isLoading, data: dataResource, refetch } = useCustomGetQuery({
         queryKey: `tokens_${project}`,
         enabled: true,
@@ -34,7 +47,6 @@ const Tokens: React.FC = () => {
         }
     }, [dataResource]);
 
-    // Token oluştur
     const handleCreateToken = async () => {
         if (!newTokenName.trim()) {
             messageApi.warning('Please enter a name!');
@@ -68,7 +80,6 @@ const Tokens: React.FC = () => {
         setCreating(false);
     };
 
-    // Token sil
     const handleDeleteToken = (tokenName: string, tokenId: string) => {
         setDeleteModal({ visible: true, tokenName, tokenId });
     };
@@ -102,10 +113,150 @@ const Tokens: React.FC = () => {
         setDeleteModal({ visible: false, tokenName: '', tokenId: null });
     };
 
+    const handleSaveClaudeToken = async () => {
+        if (!newClaudeToken.trim()) {
+            messageApi.warning('Please enter Claude API token!');
+            return;
+        }
+        
+        if (!newClaudeToken.startsWith('sk-ant-')) {
+            messageApi.warning('Claude API token must start with "sk-ant-"');
+            return;
+        }
+
+        try {
+            if (hasToken) {
+                await updateToken(newClaudeToken);
+                messageApi.success('Claude API token updated successfully!');
+            } else {
+                await setToken(newClaudeToken);
+                messageApi.success('Claude API token saved successfully!');
+            }
+            setNewClaudeToken('');
+            setIsEditingClaudeToken(false);
+        } catch (error: any) {
+            messageApi.error(error?.message || 'Failed to save Claude API token!');
+        }
+    };
+
+    const handleEditClaudeToken = () => {
+        setIsEditingClaudeToken(true);
+        setNewClaudeToken('');
+    };
+
+    const handleDeleteClaudeToken = async () => {
+        try {
+            await deleteClaudeToken();
+            messageApi.success('Claude API token deleted successfully!');
+            setIsEditingClaudeToken(false);
+            setNewClaudeToken('');
+        } catch (error: any) {
+            messageApi.error(error?.message || 'Failed to delete Claude API token!');
+        }
+    };
+
+    const handleCancelEdit = () => {
+        setIsEditingClaudeToken(false);
+        setNewClaudeToken('');
+    };
+
     return (
         <>
             {contextHolder}
             <Card variant="borderless" style={{ boxShadow: 'none', background: 'transparent' }}>
+                <Title level={5} style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <RobotOutlined style={{ color: '#722ed1' }} />
+                    Claude AI Token
+                </Title>
+                <Space direction="vertical" style={{ width: '100%', marginBottom: 24 }} size={12}>
+                    <Text type="secondary" style={{ fontSize: 13 }}>
+                        Enter your Claude API token here. Required for AI configuration analysis. Token is stored securely in database.
+                    </Text>
+                    
+                    {isClaudeTokenLoading ? (
+                        <div style={{ padding: 16, textAlign: 'center' }}>Loading token...</div>
+                    ) : (
+                        <>
+                            {hasToken && !isEditingClaudeToken ? (
+                                <div style={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    gap: 12, 
+                                    padding: '12px 16px', 
+                                    background: '#f6ffed', 
+                                    border: '1px solid #b7eb8f', 
+                                    borderRadius: 6 
+                                }}>
+                                    <Text 
+                                        style={{ 
+                                            fontFamily: 'monospace', 
+                                            fontSize: 13, 
+                                            color: '#52c41a',
+                                            flex: 1
+                                        }}
+                                    >
+                                        {maskedToken}
+                                    </Text>
+                                    <Button
+                                        type="text"
+                                        size="small"
+                                        icon={<EditOutlined />}
+                                        onClick={handleEditClaudeToken}
+                                        style={{ color: '#722ed1' }}
+                                    >
+                                        Edit
+                                    </Button>
+                                    <Button
+                                        type="text"
+                                        size="small"
+                                        icon={<DeleteOutlined />}
+                                        onClick={handleDeleteClaudeToken}
+                                        style={{ color: '#ff4d4f' }}
+                                        danger
+                                    >
+                                        Delete
+                                    </Button>
+                                </div>
+                            ) : (
+                                <Space.Compact style={{ width: '100%' }}>
+                                    <Input.Password
+                                        style={{ flex: 1, maxWidth: 400 }}
+                                        placeholder="sk-ant-api03-..."
+                                        value={newClaudeToken}
+                                        onChange={(e) => setNewClaudeToken(e.target.value)}
+                                        disabled={isClaudeTokenLoading}
+                                    />
+                                    <Button
+                                        type="primary"
+                                        icon={<SaveOutlined />}
+                                        loading={isClaudeTokenLoading}
+                                        onClick={handleSaveClaudeToken}
+                                        style={{ background: '#722ed1', borderColor: '#722ed1' }}
+                                    >
+                                        {hasToken ? 'Update' : 'Save'}
+                                    </Button>
+                                    {isEditingClaudeToken && (
+                                        <Button
+                                            onClick={handleCancelEdit}
+                                            disabled={isClaudeTokenLoading}
+                                        >
+                                            Cancel
+                                        </Button>
+                                    )}
+                                </Space.Compact>
+                            )}
+                            
+                            {claudeTokenError && (
+                                <Text type="danger" style={{ fontSize: 12 }}>
+                                    {claudeTokenError}
+                                </Text>
+                            )}
+                        </>
+                    )}
+                </Space>
+                
+                <Divider style={{ margin: '24px 0' }} />
+                
                 <Title level={5} style={{ marginBottom: 16 }}>Client Tokens</Title>
                 <Space direction="vertical" style={{ width: '100%' }} size={16}>
                     <Space.Compact>

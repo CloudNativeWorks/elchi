@@ -64,7 +64,7 @@ export const useEnvoyDetails = ({ name, project }: EnvoyDetailsProps) => {
             }
             return { success: true, data: response };
         } catch (err: any) {
-            const errorMessage = err?.response?.data?.message || 'Envoy detayları alınırken bir hata oluştu';
+            const errorMessage = err?.response?.data?.message || 'An error occurred while fetching envoy details';
             setError(errorMessage);
             return { success: false, error: errorMessage };
         } finally {

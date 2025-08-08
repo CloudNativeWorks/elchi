@@ -93,7 +93,6 @@ body {
 .ant-card-head {
     background: linear-gradient(90deg, #056ccd 0%, #00c6fb 100%) !important;
     color: #fff !important;
-    /* Yazı rengini de beyaz yapabilirsin */
 }
 
 .ant-card-head {
@@ -104,9 +103,7 @@ body {
 .ant-menu-inline,
 .ant-menu {
     border-inline-end: none !important;
-    /* Çizgiyi kaldırmak için */
     box-shadow: none !important;
-    /* Ek olarak gölgeleri de kaldırabilirsiniz */
 }
 
 .ant-collapse .ant-collapse-arrow {
@@ -129,9 +126,7 @@ body {
 
 .ADDSVGContainer {
     width: 24px;
-    /* Genişliği artırıyoruz */
     max-width: 24px;
-    /* Genişliği artırıyoruz */
     height: 24px;
     cursor: pointer;
     border: unset;
@@ -155,13 +150,9 @@ body {
 .header-control {
     display: flex;
     flex-direction: row;
-    /* Normal sıralama için */
     justify-content: flex-end;
-    /* Sağ tarafa hizalama */
     align-items: center;
-    /* Dikeyde ortalama */
     gap: 10px;
-    /* Aralarındaki boşluğu ayarlayın */
 }
 
 .brand img {
@@ -183,14 +174,11 @@ body {
 .main-header {
     background-color: #056ccd;
     padding: 0 0px;
-    /* Yatay padding */
     display: flex;
     justify-content: space-between;
     align-items: center;
     height: 64px;
-    /* Sabit yükseklik */
     margin: 0;
-    /* Kenar boşluklarını sıfırla */
     box-sizing: border-box;
 }
 
@@ -206,7 +194,6 @@ body {
     flex: 1;
 
     height: calc(100vh - 64px);
-    /* Header yüksekliğini çıkar */
     margin: 0;
     padding: 0;
 }
@@ -216,21 +203,15 @@ body {
 .main-content {
     padding: 10px;
     flex-grow: 1;
-    /* Esnek genişlik */
     min-width: 0;
-    /* Taşmayı önler */
     overflow-x: hidden;
-    /* Yatay taşmaları gizle */
     overflow-y: auto;
-    /* Dikey kaydırma */
     transition: width 0.3s ease;
-    /* Genişlik geçişi */
 }
 
 @media (max-width: 768px) {
     .main-content {
         margin-left: 60px;
-        /* Dar menü genişliği */
         width: calc(100% - 60px);
     }
 }
@@ -238,20 +219,16 @@ body {
 @media (max-width: 480px) {
     .main-content {
         margin-left: 0;
-        /* Sol menü gizlenmiş */
         width: 100%;
     }
 }
 
 .collapse-button {
     position: relative;
-    /* İkonun konumunu menüye göre ayarlamak için */
     bottom: 10px;
     left: 50%;
     transform: translateX(-50%);
-    /* Ortalamak için */
     transition: all 0.3s ease;
-    /* Geçiş animasyonu */
     background: transparent;
     border: none;
     display: flex;
@@ -260,51 +237,39 @@ body {
     padding: 5px;
 }
 
-/* Menü daraldığında ikonun sağa yaslanması için */
 @media (max-width: 768px) {
     .collapse-button {
         bottom: 20px;
         left: auto;
         right: 10px;
-        /* Sağ tarafa yaslama */
         transform: none;
-        /* Ortalamayı kaldır */
     }
 }
 
 .main-menu {
     height: 100%;
-    /* Parent olan Sider'ın tamamını kapsa */
     max-height: 100vh;
-    /* Sayfa boyutundan taşmasın */
     overflow-y: auto;
-    /* Uzun içerik kaydırılsın */
 
     display: flex;
     flex-direction: column;
     justify-content: space-between;
 
     width: 250px;
-    /* Varsayılan genişlik */
     transition: all 0.3s ease;
-    /* Daha pürüzsüz animasyon */
     background-color: #fff;
-    /* Menü arka plan rengi */
 }
 
 @media (max-width: 768px) {
     .main-menu {
         width: 60px;
-        /* Küçük ekranlarda menü daraltılır */
         overflow: hidden;
-        /* Taşma engellenir */
     }
 }
 
 @media (max-width: 480px) {
     .main-menu {
         display: none;
-        /* Daha küçük ekranlarda tamamen gizlenir */
     }
 }
 
@@ -457,8 +422,6 @@ body {
     height: auto;
     display: block;
     transition: stroke-width 0.3s;
-    /* Çizgi kalınlığı geçişi */
-
 }
 
 .infos-button:hover {
@@ -654,7 +617,6 @@ body {
     display: none !important;
 }
 
-/* Özel tab stilleri için */
 .tabContainer .ant-tabs-tab {
     padding: 0 !important;
     margin: 0 4px !important;
@@ -693,7 +655,6 @@ body {
     background: linear-gradient(to right, #f0f9ff, #e0f2fe) !important;
 }
 
-/* Cluster Details Collapse Styles */
 .ant-collapse-ghost {
     background: transparent !important;
 }

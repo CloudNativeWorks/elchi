@@ -92,11 +92,9 @@ const Metrics: React.FC<MetricsProps> = () => {
         );
     }, [selectedGroup]);
 
-    // Grup değiştirme handler'ı
     const handleGroupChange = useCallback((group: string) => {
         setSelectedGroup(group);
         
-        // Grup değiştiğinde fresh data'yı temizle ki yeni metrikler yüklensin
         if (selectedService) {
             setFreshMetricData({});
             setMetricsState(prev => ({
@@ -107,14 +105,12 @@ const Metrics: React.FC<MetricsProps> = () => {
         }
     }, [selectedService]);
 
-    // useMetricsData - sadece service seçiliyse aktif
     const metricsData = useMetricsData({
-        metrics: selectedService ? filteredMetrics : [], // Service yoksa boş array
+        metrics: selectedService ? filteredMetrics : [],
         selectedService: selectedService || '',
         timeRange: timeRangeObject
     });
 
-    // Combined metrics data - uses fresh data when available, fallback to hook data
     const combinedMetricsData = useMemo(() => {
         return filteredMetrics.map((_, index) => {
             const freshData = freshMetricData[index];
@@ -152,7 +148,6 @@ const Metrics: React.FC<MetricsProps> = () => {
         }, {} as { [key: string]: number[] });
     }, [filteredMetrics]);
 
-    // Fresh metric fetch function with current timeRange
     const fetchMetricWithFreshTimeRange = useCallback(async (
         metricConfig: typeof filteredMetrics[0],
         metricIndex: number,
@@ -180,7 +175,6 @@ const Metrics: React.FC<MetricsProps> = () => {
         try {
             const response = await metricsApiMutation.mutateAsync(options);
 
-            // Update fresh metric data state
             setFreshMetricData(prev => ({
                 ...prev,
                 [metricIndex]: {
@@ -195,7 +189,6 @@ const Metrics: React.FC<MetricsProps> = () => {
             const errorMessage = error?.response?.data?.message || 'Failed to fetch metrics';
             console.error(`[FreshFetch] Error fetching ${metricConfig.metric}:`, errorMessage);
 
-            // Update error state
             setFreshMetricData(prev => ({
                 ...prev,
                 [metricIndex]: {
@@ -209,7 +202,6 @@ const Metrics: React.FC<MetricsProps> = () => {
         }
     }, [metricsApiMutation]);
 
-    // Core fetch function - NO dependencies on changing state
     const fetchMetricsForSection = useCallback(async (
         sectionName: string,
         timeRangeId: string,
@@ -237,10 +229,8 @@ const Metrics: React.FC<MetricsProps> = () => {
 
             const results = await Promise.all(requests);
 
-            // Check if all requests succeeded
             const successCount = results.filter(r => r).length;
 
-            // Update section state after successful fetch
             setMetricsState(prev => ({
                 ...prev,
                 sections: {
@@ -259,9 +249,8 @@ const Metrics: React.FC<MetricsProps> = () => {
         } finally {
             pendingFetches.current.delete(fetchKey);
         }
-    }, [fetchMetricWithFreshTimeRange]); // Only depends on the fresh fetch function
+    }, [fetchMetricWithFreshTimeRange]);
 
-    // Debounced fetch - stable reference
     const debouncedFetchVisibleSections = useCallback(() => {
         if (fetchDebounceTimeout.current) {
             clearTimeout(fetchDebounceTimeout.current);
@@ -367,7 +356,7 @@ const Metrics: React.FC<MetricsProps> = () => {
     const handleServiceChange = useCallback((service: string) => {
         // Clear any pending fetches and fresh data
         pendingFetches.current.clear();
-        setFreshMetricData({}); // Service değişiminde data'yı tamamen temizle
+        setFreshMetricData({});
         if (fetchDebounceTimeout.current) {
             clearTimeout(fetchDebounceTimeout.current);
         }
@@ -406,7 +395,6 @@ const Metrics: React.FC<MetricsProps> = () => {
     // Home button handler
     const handleGoHome = useCallback(() => {
         setSelectedService(undefined);
-        // Fresh data'yı temizle
         setFreshMetricData({});
         setMetricsState(prev => ({
             ...prev,
@@ -415,16 +403,13 @@ const Metrics: React.FC<MetricsProps> = () => {
         }));
     }, []);
 
-    // Navigator için metric'e scroll etme fonksiyonu
     const handleMetricNavigate = useCallback((metricIndex: number, sectionName: string) => {
-        // İlk olarak section'ı aç (Collapse)
         const sectionElement = document.querySelector(`[data-section="${sectionName}"]`);
         if (!sectionElement) {
             console.warn(`Section not found: ${sectionName}`);
             return;
         }
 
-        // Section'ın parent collapse'ını aç
         const collapseHeader = document.querySelector(`[data-section="${sectionName}"]`)?.closest('.ant-collapse-item');
         if (collapseHeader && !collapseHeader.classList.contains('ant-collapse-item-active')) {
             const headerButton = collapseHeader.querySelector('.ant-collapse-header') as HTMLElement;
@@ -433,14 +418,11 @@ const Metrics: React.FC<MetricsProps> = () => {
             }
         }
 
-        // Kısa bir bekleyip scroll et (collapse açılması için)
         setTimeout(() => {
-            // Metriğin bulunduğu card'ı bul
             const metricConfig = filteredMetrics[metricIndex];
             const sectionElement = document.querySelector(`[data-section="${sectionName}"]`);
             
             if (sectionElement) {
-                // Section içindeki tüm metric card'ları bul
                 const metricCards = sectionElement.querySelectorAll('.ant-col');
                 const targetMetrics = filteredMetrics.filter(m => m.section === sectionName);
                 const indexInSection = targetMetrics.findIndex(m => m.metric === metricConfig.metric);
@@ -448,14 +430,12 @@ const Metrics: React.FC<MetricsProps> = () => {
                 if (metricCards[indexInSection]) {
                     const targetCard = metricCards[indexInSection];
                     
-                    // Smooth scroll ile hedefe git
                     targetCard.scrollIntoView({
                         behavior: 'smooth',
                         block: 'center',
                         inline: 'nearest'
                     });
 
-                    // Kısa bir highlight efekti
                     const cardElement = targetCard.querySelector('.ant-card') as HTMLElement;
                     if (cardElement) {
                         cardElement.style.transition = 'all 0.3s ease';
@@ -526,7 +506,6 @@ const Metrics: React.FC<MetricsProps> = () => {
         };
     }, []);
 
-    // Section'da veri olup olmadığını UI için kontrol eden fonksiyon
     const getSectionDataStatus = useCallback((sectionName: string) => {
         const metricIndices = sectionMetrics[sectionName] || [];
         let hasData = false;

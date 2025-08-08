@@ -2,7 +2,6 @@ import { configureStore } from "@reduxjs/toolkit";
 import Reducer from "./reducers/reducers";
 // import protobufMiddleware from "./middleware";
 
-// Production'da Redux DevTools extension'ını da devre dışı bırak
 if ((!import.meta.env.DEV || process.env.NODE_ENV === 'live') && typeof window !== 'undefined') {
     delete (window as any).__REDUX_DEVTOOLS_EXTENSION__;
     delete (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__;

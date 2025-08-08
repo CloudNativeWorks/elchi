@@ -112,12 +112,10 @@ const Dependencies: React.FC<CustomCardProps> = ({ name, collection, gtype, visi
                     } as cytoscape.LayoutOptions;
             }
 
-            // Layout'u çalıştırmadan önce zoom seviyesini sıfırla
             if (cyRef.current) {
                 cyRef.current.zoom(1);
                 cyRef.current.center();
 
-                // Layout'u çalıştır ve tamamlandığında fit yap
                 const layout = cyRef.current.layout(layoutOptions);
                 layout.run();
                 layout.on('layoutstop', () => {

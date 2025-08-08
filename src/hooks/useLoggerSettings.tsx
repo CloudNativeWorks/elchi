@@ -39,10 +39,8 @@ export function useLoggerSettings({ name, project }: { name: string; project: st
             const queries: Record<string, string> = {};
             
             if (updates.component) {
-                // Tek bir komponentin seviyesini değiştir
                 queries[updates.component] = updates.level;
             } else {
-                // Tüm komponentlerin seviyesini değiştir
                 queries['level'] = updates.level;
             }
 
@@ -64,7 +62,7 @@ export function useLoggerSettings({ name, project }: { name: string; project: st
         } catch (error: any) {
             return { 
                 success: false, 
-                error: error?.response?.data?.message || 'Failed to update logger settings' 
+                error: error?.response?.data?.message || 'Failed to update logger settings'
             };
         } finally {
             setLoading(false);

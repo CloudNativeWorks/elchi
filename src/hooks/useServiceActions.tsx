@@ -35,7 +35,7 @@ export function useServiceStatus({ name, project, enabled = true }: { name: stri
         if (enabled && name && project) {
             fetchStatus();
         }
-    }, [name, project, enabled]); // name ve project değiştiğinde veya enabled değiştiğinde çalışacak
+    }, [name, project, enabled]);
 
     return { statusData, loading, error, refresh: fetchStatus };
 }

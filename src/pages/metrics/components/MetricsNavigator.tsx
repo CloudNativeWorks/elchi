@@ -17,7 +17,7 @@ const { Title, Text } = Typography;
 interface MetricsNavigatorProps {
     selectedService?: string;
     onMetricClick: (metricIndex: number, sectionName: string) => void;//eslint-disable-line
-    metrics?: MetricConfig[]; // Filtrelenmiş metrikler
+    metrics?: MetricConfig[];
 }
 
 const MetricsNavigator: React.FC<MetricsNavigatorProps> = ({ 

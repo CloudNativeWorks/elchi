@@ -10,7 +10,7 @@ export interface TypedConfigChangeOptions {
     selectedItem: any;
     customName?: string;
     customKeys?: string;
-    isPerConfig?: boolean; // ObjToBase64Per kullanımı için
+    isPerConfig?: boolean;
     dispatch: any;
 }
 
@@ -22,9 +22,6 @@ export interface FilterAddOptions {
     dispatch: any;
 }
 
-/**
- * Typed config değişikliği için ortak handler
- */
 export const handleTypedConfigChange = (options: TypedConfigChangeOptions) => {
     const { version, keyPrefix, selectedItem, customName, customKeys, isPerConfig = false, dispatch } = options;
 
@@ -37,14 +34,12 @@ export const handleTypedConfigChange = (options: TypedConfigChangeOptions) => {
     let processedValue;
 
     if (isPerConfig) {
-        // Per-config yapısı (örn: TypedExtensionProtocolOptions)
         const perConfig = {
             type_url: selectedItem.gtype,
             value: selectedItem
         };
         processedValue = { [selectedItem.gtype]: ObjToBase64Per(perConfig) };
     } else {
-        // Normal typed_config yapısı
         const typedConfig = {
             name: customName || selectedItem.category,
             typed_config: {
@@ -64,9 +59,6 @@ export const handleTypedConfigChange = (options: TypedConfigChangeOptions) => {
     }, dispatch, ResourceAction);
 };
 
-/**
- * Transport Socket için özel handler
- */
 export const handleTransportSocketChange = (options: TypedConfigChangeOptions) => {
     const { version, keyPrefix, selectedItem, dispatch } = options;
 
@@ -92,9 +84,6 @@ export const handleTransportSocketChange = (options: TypedConfigChangeOptions) =
     }, dispatch, ResourceAction);
 };
 
-/**
- * Filter ekleme için ortak handler
- */
 export const handleFilterAdd = (options: FilterAddOptions) => {
     const { version, keyPrefix, selectedItem, fcName, dispatch } = options;
 
@@ -104,7 +93,6 @@ export const handleFilterAdd = (options: FilterAddOptions) => {
     }
 
     const fullFilterName = `${fcName}-filter${generateUniqueId(6)}`;
-    // Typed config yapısı
     const typedConfig = {
         name: fullFilterName,
         typed_config: {
@@ -113,7 +101,6 @@ export const handleFilterAdd = (options: FilterAddOptions) => {
         }
     };
 
-    // Önce filter'ı ekle
     handleChangeResources({
         version,
         type: ActionType.Append,
@@ -123,9 +110,6 @@ export const handleFilterAdd = (options: FilterAddOptions) => {
     }, dispatch, ResourceAction);
 };
 
-/**
- * Access Log ekleme için ortak handler  
- */
 export const handleAccessLogChange = (options: TypedConfigChangeOptions) => {
     const { version, keyPrefix, selectedItem, dispatch } = options;
 
@@ -151,9 +135,6 @@ export const handleAccessLogChange = (options: TypedConfigChangeOptions) => {
     }, dispatch, ResourceAction);
 };
 
-/**
- * Stats Sink ekleme için ortak handler
- */
 export const handleStatsSinkChange = (options: TypedConfigChangeOptions) => {
     const { version, keyPrefix, selectedItem, dispatch } = options;
 

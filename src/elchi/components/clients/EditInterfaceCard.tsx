@@ -65,12 +65,12 @@ const EditInterfaceCard: React.FC<EditInterfaceCardProps> = ({
         const mainTableDefaultRoute = routes.find((route: any) => 
             route.to === "0.0.0.0/0" && 
             route.table === 254 && 
-            route.via === gateway  // Gateway eşleşmesi de kontrol et
+            route.via === gateway
         );
         
         return {
             gateway: gateway,
-            isDefault: !!mainTableDefaultRoute && !!gateway  // Gateway varsa ve main table'da eşleşen route varsa
+            isDefault: !!mainTableDefaultRoute && !!gateway
         };
     };
 
@@ -85,7 +85,7 @@ const EditInterfaceCard: React.FC<EditInterfaceCardProps> = ({
 
         setLoading(true);
         try {
-            const addresses = [values.address]; // Convert single IP to array for API
+            const addresses = [values.address];
             const firstIP = values.address;
             const gateway = values.gateway;
             const interfaceTable = getInterfaceTable(entry.ifname);

@@ -177,7 +177,7 @@ footer {
   text-align: center;
   color: #ddd;
   font-weight: normal;
-  text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2); /* Aşağıya doğru gölge */
+  text-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
   font-size: 0.8em;
   border-bottom: #2196F3;
 
@@ -189,10 +189,10 @@ footer {
 }
 
 .header {
-  display: flex; /* Flex düzenini kullanın */
-  justify-content: space-between; /* Logo ve kullanıcı bilgisini iki uca yerleştirin */
-  align-items: center; /* İçerikleri dikeyde ortalayın */
-  padding: 0 20px; /* İsteğe bağlı padding */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
   margin: unset;
   box-shadow: inset 0 -6px 8px -4px rgba(0, 0, 0, 0.6);
 }

@@ -1,12 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Spin, Alert, Select, Button, Card } from 'antd';
-import { SettingOutlined } from '@ant-design/icons';
+import { Spin, Alert, Select, Button, Card, Modal, message, Typography, Space } from 'antd';
+import { SettingOutlined, RobotOutlined } from '@ant-design/icons';
 import { useOperationsApiMutation } from '@/common/operations-api';
 import { OperationsSubType, OperationsType } from '@/common/types';
 import { OperationsResponse, ServiceLogsApiResult, ServiceLogItem } from './model';
 import LogToolbar from '@/elchi/components/common/LogToolBar';
 import LoggerSettingsModal from './LoggerSettingsModal';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
+import { useAnalyzeLogsMutation } from '@/ai/hooks/useAIMutations';
+import { LogAnalysisResult, LogAnalyzerRequest } from '@/types/aiConfig';
+import { AIAnalysisRenderer } from '@/ai/AIConfigGenerator';
 
 function wrapWithIndent(line: string, indent: string, maxLen: number) {
     if (!line) return [indent];
@@ -92,6 +95,13 @@ const Logs: React.FC = () => {
     const logListRef = useRef<HTMLDivElement>(null);
     const [activeComponents, setActiveComponents] = useState<string[]>([]);
     const [isLoggerSettingsOpen, setIsLoggerSettingsOpen] = useState(false);
+    
+    // AI Analysis states
+    const [isAIAnalysisOpen, setIsAIAnalysisOpen] = useState(false);
+    const [selectedClientForAI, setSelectedClientForAI] = useState<string>('');
+    const [aiAnalysisResult, setAIAnalysisResult] = useState<LogAnalysisResult | null>(null);
+    const [showAnalysis, setShowAnalysis] = useState(false);
+    const analyzeLogsMutation = useAnalyzeLogsMutation();
 
     const logLevels = [
         { key: 'info', label: 'Info', color: '#40a9ff' },
@@ -198,8 +208,107 @@ const Logs: React.FC = () => {
         }
     };
 
+    // Get unique clients from logs
+    const getUniqueClients = () => {
+        const clientNames = new Set<string>();
+        logs.forEach(log => {
+            if (log.client_name) {
+                clientNames.add(log.client_name);
+            }
+        });
+        return Array.from(clientNames);
+    };
+
+    // Handle AI Analysis
+    const handleAIAnalysis = () => {
+        const uniqueClients = getUniqueClients();
+        
+        if (uniqueClients.length === 0) {
+            message.warning('No logs with client information found');
+            return;
+        }
+
+        if (uniqueClients.length === 1) {
+            // Single client - directly analyze
+            performAIAnalysis(uniqueClients[0]);
+        } else {
+            // Multiple clients - show selection modal
+            setSelectedClientForAI('');
+            setIsAIAnalysisOpen(true);
+        }
+    };
+
+    const performAIAnalysis = async (clientName: string) => {
+        const clientLogs = logs.filter(log => log.client_name === clientName);
+        
+        if (clientLogs.length === 0) {
+            message.warning(`No logs found for client: ${clientName}`);
+            return;
+        }
+
+        const request: LogAnalyzerRequest = {
+            service_name: name || 'unknown',
+            client_name: clientName,
+            project: project,
+            logs: clientLogs.map(log => ({
+                message: log.message,
+                level: log.level,
+                component: log.component,
+                timestamp: log.timestamp
+            })),
+            max_logs: 100
+        };
+
+        try {
+            const result = await analyzeLogsMutation.mutateAsync(request);
+            setAIAnalysisResult(result);
+            setShowAnalysis(true);
+            setIsAIAnalysisOpen(false);
+            message.success('Log analysis completed!');
+        } catch (error: any) {
+            message.error(`AI Analysis failed: ${error.message}`);
+        }
+    };
+
+    const handleClientSelectionConfirm = () => {
+        if (!selectedClientForAI) {
+            message.warning('Please select a client');
+            return;
+        }
+        performAIAnalysis(selectedClientForAI);
+    };
+
     return (
         <div style={{ width: '100%', marginTop: '0px', padding: 0 }}>
+            {/* Toggle Buttons - Outside Card */}
+            {aiAnalysisResult && (
+                <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'flex-end', 
+                    marginBottom: 6, 
+                    gap: 8 
+                }}>
+                    <Button
+                        type={showAnalysis ? "default" : "primary"}
+                        onClick={() => setShowAnalysis(false)}
+                        disabled={!showAnalysis}
+                        size="middle"
+                    >
+                        Show Logs
+                    </Button>
+                    <Button
+                        type={showAnalysis ? "primary" : "default"}
+                        icon={<RobotOutlined />}
+                        onClick={() => setShowAnalysis(true)}
+                        disabled={showAnalysis}
+                        style={showAnalysis ? { backgroundColor: '#722ed1', borderColor: '#722ed1', color: 'white' } : {}}
+                        size="middle"
+                    >
+                        Show Analysis
+                    </Button>
+                </div>
+            )}
+            
             <Card style={{ borderRadius: 12, boxShadow: '0 2px 8px rgba(5,117,230,0.06)', margin: '0 auto' }}>
 
                 {/* Sticky Toolbar */}
@@ -236,6 +345,17 @@ const Logs: React.FC = () => {
                             </div>
                             <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
                                 <Button
+                                    icon={<RobotOutlined />}
+                                    onClick={handleAIAnalysis}
+                                    title="Analyze logs with AI"
+                                    type="primary"
+                                    disabled={!name || filteredLogs.length === 0}
+                                    loading={analyzeLogsMutation.isPending}
+                                    style={{ backgroundColor: '#722ed1', borderColor: '#722ed1', color: 'white' }}
+                                >
+                                    {aiAnalysisResult ? 'New Analysis' : 'AI Analysis'}
+                                </Button>
+                                <Button
                                     icon={<SettingOutlined />}
                                     onClick={() => setIsLoggerSettingsOpen(true)}
                                     title="Manage Log Levels"
@@ -264,7 +384,7 @@ const Logs: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Log Display */}
+                {/* Main Content - Either Logs or AI Analysis */}
                 <div
                     ref={logListRef}
                     style={{
@@ -278,7 +398,22 @@ const Logs: React.FC = () => {
                         border: '1px solid #e8e8e8'
                     }}
                 >
-                    {!name ? (
+                    {showAnalysis && aiAnalysisResult ? (
+                        /* AI Analysis Results Display */
+                        <div style={{ padding: 24 }}>
+                            <div style={{ marginBottom: 16, padding: 12, background: '#f6f8fa', borderRadius: 6 }}>
+                                <Typography.Text strong>Service: </Typography.Text>
+                                <Typography.Text>{aiAnalysisResult.service_name}</Typography.Text>
+                                <br />
+                                <Typography.Text strong>Client: </Typography.Text>
+                                <Typography.Text>{aiAnalysisResult.client_name}</Typography.Text>
+                                <br />
+                                <Typography.Text strong>Analyzed Logs: </Typography.Text>
+                                <Typography.Text>{aiAnalysisResult.log_count}</Typography.Text>
+                            </div>
+                            <AIAnalysisRenderer analysis={aiAnalysisResult.analysis} />
+                        </div>
+                    ) : !name ? (
                         <div style={{
                             display: 'flex',
                             flexDirection: 'column',
@@ -608,6 +743,38 @@ const Logs: React.FC = () => {
                     name={name}
                     project={project}
                 />
+
+                {/* Client Selection Modal - Only for multiple clients */}
+                <Modal
+                    title={
+                        <Space>
+                            <RobotOutlined style={{ color: '#722ed1' }} />
+                            Select Client for AI Analysis
+                        </Space>
+                    }
+                    open={isAIAnalysisOpen}
+                    onOk={handleClientSelectionConfirm}
+                    onCancel={() => setIsAIAnalysisOpen(false)}
+                    confirmLoading={analyzeLogsMutation.isPending}
+                    okText="Analyze Logs"
+                    cancelText="Cancel"
+                >
+                    <div style={{ marginBottom: 16 }}>
+                        <Typography.Text type="secondary">
+                            Multiple clients detected. Please select which client's logs you want to analyze:
+                        </Typography.Text>
+                    </div>
+                    <Select
+                        style={{ width: '100%' }}
+                        placeholder="Select a client"
+                        value={selectedClientForAI}
+                        onChange={setSelectedClientForAI}
+                        options={getUniqueClients().map(client => ({
+                            label: `${client} (${logs.filter(log => log.client_name === client).length} logs)`,
+                            value: client
+                        }))}
+                    />
+                </Modal>
             </Card>
         </div>
     );

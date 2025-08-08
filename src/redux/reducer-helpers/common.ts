@@ -19,9 +19,6 @@ export enum ResourceType {
     Scenario = 'Scenario'
 }
 
-
-
-// VERSIONS nesnesini dinamik olarak oluşturun
 export const VERSIONS = window.APP_CONFIG.AVAILABLE_VERSIONS.reduce((versions, version) => {
     versions[version] = {};
     return versions;

@@ -39,7 +39,7 @@ async function writeToClipboard(data: any, ctype: string, onCPSuccess: any, onCP
 export const CopyPaste = (data: any, index: string, keys: string, Paste: any, ctype: string, onCPSuccess: any, onCPError: any) => {
     switch (index) {
         case "1":
-        case "5": // "1" ve "5" durumları aynı işlem için kullanılıyor
+        case "5":
             writeToClipboard(data, ctype, onCPSuccess, onCPError);
             break;
         case "2":

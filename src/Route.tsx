@@ -28,6 +28,7 @@ import Client from './pages/operations/client';
 import Service from './pages/operations/service';
 import Metrics from './pages/metrics/metrics';
 import Logs from './pages/logs/Logs';
+import AIConfigGenerator from './ai/AIConfigGenerator';
 
 
 const AppRoutes: React.FC = () => (
@@ -88,6 +89,9 @@ const AppRoutes: React.FC = () => (
 
                 {/* Logs Routes */}
                 <Route path="/observability/logs" element={<Logs />} />
+
+                {/* AI Config Analyzer Route */}
+                <Route path="/ai-analyzer" element={<AIConfigGenerator />} />
 
                 {/* Catch-All Route */}
                 <Route path="*" element={<Dashboard />} />

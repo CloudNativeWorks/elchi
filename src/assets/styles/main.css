@@ -3010,15 +3010,15 @@ section.ant-layout.ant-layout-has-sider.layout-dashboard.layout-profile .header-
 
 .custom-message {
     display: flex;
-    align-items: center; /* Çarpı işareti ve başlığı aynı hizada tutar */
+    align-items: center;
 }
 
 .custom-message .ant-message-notice-content {
     display: flex;
-    flex-direction: column; /* İçeriği dikey hizalar */
+    flex-direction: column;
 }
 
 .custom-message .ant-message-notice-content > div:first-child {
     display: flex;
-    align-items: center; /* Resource başlığını çarpı işaretiyle aynı satıra getirir */
+    align-items: center;
 }

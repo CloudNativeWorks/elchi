@@ -48,23 +48,21 @@ export const useDragAndDrop = (initialIds: string[], reduxAction: any) => {
 
 export function moveArrayItemToNewPosition(arr: any[], oldIndex: number, newIndex: number) {
     const updatedArray = [...arr];
-    const [item] = updatedArray.splice(oldIndex, 1);  // Eski index'ten öğeyi çıkart
-    updatedArray.splice(newIndex, 0, item);           // Yeni index'e ekle
+    const [item] = updatedArray.splice(oldIndex, 1);
+    updatedArray.splice(newIndex, 0, item);
     
-    // Router filter kontrolü - her zaman en altta olmalı
     const routerIndex = updatedArray.findIndex(filter => 
         filter.gtype === "envoy.extensions.filters.http.router.v3.Router"
     );
     
     if (routerIndex !== -1 && routerIndex !== updatedArray.length - 1) {
-        // Router filter en altta değilse, en alta taşı
         const routerFilter = updatedArray.splice(routerIndex, 1)[0];
         updatedArray.push(routerFilter);
     }
     
     const updatedResources = updatedArray.map((resource, index) => ({
         ...resource,
-        priority: index  // Yeni sıralamaya göre priority güncelle
+        priority: index
     }));
     return updatedResources;
 }

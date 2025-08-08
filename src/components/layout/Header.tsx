@@ -1,6 +1,8 @@
 // Header.tsx
 import { useEffect } from "react";
-import { Row, Col, Avatar, Space, Dropdown } from "antd";
+import { Row, Col, Avatar, Space, Dropdown, Button, Tooltip } from "antd";
+import { RobotOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
 import { useLogout } from "../../pages/auth/Logout";
 import logoelchi from "../../assets/images/logo_white.png";
 import { UserDetail } from "@/common/types";
@@ -12,6 +14,8 @@ interface HeaderProps {
 
 function Header({ userDetail }: Readonly<HeaderProps>) {
 	const logout = useLogout();
+	const navigate = useNavigate();
+	
 	const items = [
 		{
 			onClick: logout,
@@ -19,6 +23,10 @@ function Header({ userDetail }: Readonly<HeaderProps>) {
 			key: 'logout',
 		},
 	];
+
+	const handleAIClick = () => {
+		navigate('/ai-analyzer');
+	};
 
 	useEffect(() => window.scrollTo(0, 0));
 
@@ -31,16 +39,32 @@ function Header({ userDetail }: Readonly<HeaderProps>) {
 					</div>
 				</Col>
 				<Col className="header-control">
-					<Dropdown menu={{ items }}>
-						<Space>
-							<Avatar style={{ cursor: 'pointer' }}>
-								{userDetail.username.charAt(0).toUpperCase()}
-							</Avatar>
-							<span style={{ color: 'white', cursor: 'pointer' }}>
-								{userDetail.username}
-							</span>
-						</Space>
-					</Dropdown>
+					<Space size="middle">
+						<Tooltip title="AI Configuration Analyzer">
+							<Button
+								type="primary"
+								icon={<RobotOutlined />}
+								onClick={handleAIClick}
+								style={{
+									background: 'linear-gradient(90deg, #722ed1 0%, #1890ff 100%)',
+									border: 'none',
+									boxShadow: '0 2px 4px rgba(114, 46, 209, 0.3)',
+								}}
+							>
+								AI Analyzer
+							</Button>
+						</Tooltip>
+						<Dropdown menu={{ items }}>
+							<Space>
+								<Avatar style={{ cursor: 'pointer' }}>
+									{userDetail.username.charAt(0).toUpperCase()}
+								</Avatar>
+								<span style={{ color: 'white', cursor: 'pointer' }}>
+									{userDetail.username}
+								</span>
+							</Space>
+						</Dropdown>
+					</Space>
 				</Col>
 			</Row>
 		</div>

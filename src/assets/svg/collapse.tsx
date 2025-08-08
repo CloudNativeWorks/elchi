@@ -32,8 +32,8 @@ const CollapseButton: React.FC<CollapseButtonProps> = ({ collapsed, toggleCollap
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 style={{
-                    transform: collapsed ? 'rotate(180deg)' : 'rotate(0deg)', // Ok yönünü değiştir
-                    transition: 'transform 0.3s', // Dönüş animasyonu
+                    transform: collapsed ? 'rotate(180deg)' : 'rotate(0deg)',
+                    transition: 'transform 0.3s',
                 }}
             >
                 <polyline points="15 18 9 12 15 6" />

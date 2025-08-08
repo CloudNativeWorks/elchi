@@ -37,13 +37,11 @@ function rehypeLinkifyCode() {
             if (node.tagName === 'code' && node.children && node.children.length === 1) {
                 const textNode = node.children[0];
                 if (textNode.type === 'text') {
-                    // `` işaretleri içindeki metni tespit et
                     const match = textNode.value.match(/(.+?) <(https?:\/\/[^\s>]+)>/);
                     if (match) {
-                        const description = match[1].trim(); // Açıklama kısmı
-                        const url = match[2]; // URL kısmı
+                        const description = match[1].trim();
+                        const url = match[2];
 
-                        // `code` elementini `a` elementine dönüştür
                         node.tagName = 'span';
                         node.children = [
                             {

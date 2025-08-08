@@ -11,7 +11,7 @@ export const api: AxiosInstanceExtended = axios.create({
         'Content-Type': 'application/json',
         'from-elchi': 'yes'
     },
-    timeout: 15000
+    timeout: 115000
 });
 
 api.interceptors.request.use(
