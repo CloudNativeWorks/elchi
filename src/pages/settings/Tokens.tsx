@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Button, Input, List, Modal, Typography, Space, message, Divider } from 'antd';
-import { PlusOutlined, DeleteOutlined, RobotOutlined, SaveOutlined, EditOutlined } from '@ant-design/icons';
+import { PlusOutlined, DeleteOutlined, RobotOutlined, SaveOutlined, EditOutlined, ApiOutlined, ThunderboltOutlined, EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
 import { useCustomGetQuery } from '@/common/api';
 import { useCustomApiMutation } from '@/common/custom-api';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import { useClaudeToken } from '@/hooks/useClaudeToken';
+import { useDiscoveryToken } from '@/hooks/useDiscoveryToken';
 
 const { Title, Text } = Typography;
 
@@ -29,8 +30,19 @@ const Tokens: React.FC = () => {
         deleteToken: deleteClaudeToken
     } = useClaudeToken();
     
+    const {
+        token: discoveryToken,
+        hasToken: hasDiscoveryToken,
+        isLoading: isDiscoveryTokenLoading,
+        error: discoveryTokenError,
+        deleteToken: deleteDiscoveryTokenFn,
+        generateToken: generateDiscoveryToken
+    } = useDiscoveryToken();
+    
     const [newClaudeToken, setNewClaudeToken] = useState('');
     const [isEditingClaudeToken, setIsEditingClaudeToken] = useState(false);
+    const [showGeneratedToken, setShowGeneratedToken] = useState<string | null>(null);
+    const [showDiscoveryToken, setShowDiscoveryToken] = useState(false);
 
     const { isLoading, data: dataResource, refetch } = useCustomGetQuery({
         queryKey: `tokens_${project}`,
@@ -160,6 +172,33 @@ const Tokens: React.FC = () => {
         setNewClaudeToken('');
     };
 
+    // Discovery Token handlers
+    const handleDeleteDiscoveryToken = async () => {
+        try {
+            await deleteDiscoveryTokenFn();
+            messageApi.success('Discovery token deleted successfully!');
+        } catch (error: any) {
+            messageApi.error(error?.message || 'Failed to delete discovery token!');
+        }
+    };
+
+    const handleGenerateDiscoveryToken = async () => {
+        try {
+            const generatedToken = await generateDiscoveryToken();
+            setShowGeneratedToken(generatedToken);
+            messageApi.success('Discovery token generated successfully!');
+        } catch (error: any) {
+            messageApi.error(error?.message || 'Failed to generate discovery token!');
+        }
+    };
+
+    // Create masked version of discovery token
+    const getMaskedDiscoveryToken = (token: string | null) => {
+        if (!token) return '';
+        if (token.length <= 8) return token;
+        return token.substring(0, 8) + '*'.repeat(Math.min(token.length - 8, 20));
+    };
+
     return (
         <>
             {contextHolder}
@@ -257,12 +296,108 @@ const Tokens: React.FC = () => {
                 
                 <Divider style={{ margin: '24px 0' }} />
                 
-                <Title level={5} style={{ marginBottom: 16 }}>Client Tokens</Title>
-                <Space direction="vertical" style={{ width: '100%' }} size={16}>
-                    <Space.Compact>
+                <Title level={5} style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <ApiOutlined style={{ color: '#13c2c2' }} />
+                    Discovery Token
+                </Title>
+                <Space direction="vertical" style={{ width: '100%', marginBottom: 24 }} size={12}>
+                    <Text type="secondary" style={{ fontSize: 13 }}>
+                        Used by Kubernetes discovery agents to authenticate with Elchi and update endpoint configurations automatically.
+                    </Text>
+                    
+                    {isDiscoveryTokenLoading ? (
+                        <div style={{ padding: 16, textAlign: 'center' }}>Loading token...</div>
+                    ) : (
+                        <>
+                            {hasDiscoveryToken ? (
+                                <div style={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    gap: 12, 
+                                    padding: '12px 16px', 
+                                    background: '#e6fffb', 
+                                    border: '1px solid #87e8de', 
+                                    borderRadius: 6 
+                                }}>
+                                    <Text 
+                                        copyable={showDiscoveryToken ? { text: discoveryToken } : false}
+                                        style={{ 
+                                            fontFamily: 'monospace', 
+                                            fontSize: 12, 
+                                            color: '#13c2c2',
+                                            flex: 1,
+                                            wordBreak: 'break-all'
+                                        }}
+                                    >
+                                        {showDiscoveryToken ? discoveryToken : getMaskedDiscoveryToken(discoveryToken)}
+                                    </Text>
+                                    <Button
+                                        type="text"
+                                        size="small"
+                                        icon={showDiscoveryToken ? <EyeInvisibleOutlined /> : <EyeOutlined />}
+                                        onClick={() => setShowDiscoveryToken(!showDiscoveryToken)}
+                                        style={{ color: '#13c2c2' }}
+                                        title={showDiscoveryToken ? 'Hide token' : 'Show token'}
+                                    >
+                                        {showDiscoveryToken ? 'Hide' : 'Show'}
+                                    </Button>
+                                    <Button
+                                        type="text"
+                                        size="small"
+                                        icon={<DeleteOutlined />}
+                                        onClick={handleDeleteDiscoveryToken}
+                                        style={{ color: '#ff4d4f' }}
+                                        danger
+                                    >
+                                        Delete
+                                    </Button>
+                                </div>
+                            ) : (
+                                <div style={{ 
+                                    padding: '16px', 
+                                    background: '#fafafa', 
+                                    border: '1px solid #f0f0f0', 
+                                    borderRadius: 6,
+                                    textAlign: 'center'
+                                }}>
+                                    <Text type="secondary" style={{ fontSize: 13, marginBottom: 12, display: 'block' }}>
+                                        No discovery token found. Generate one to enable Kubernetes discovery.
+                                    </Text>
+                                    <Button
+                                        type="primary"
+                                        icon={<ThunderboltOutlined />}
+                                        onClick={handleGenerateDiscoveryToken}
+                                        loading={isDiscoveryTokenLoading}
+                                        style={{ background: '#13c2c2', borderColor: '#13c2c2' }}
+                                    >
+                                        Generate Discovery Token
+                                    </Button>
+                                </div>
+                            )}
+                            
+                            {discoveryTokenError && (
+                                <Text type="danger" style={{ fontSize: 12 }}>
+                                    {discoveryTokenError}
+                                </Text>
+                            )}
+                        </>
+                    )}
+                </Space>
+                
+                <Divider style={{ margin: '24px 0' }} />
+                
+                <Title level={5} style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <ThunderboltOutlined style={{ color: '#1890ff' }} />
+                    Client Tokens
+                </Title>
+                <Space direction="vertical" style={{ width: '100%', marginBottom: 24 }} size={12}>
+                    <Text type="secondary" style={{ fontSize: 13 }}>
+                        Create API tokens for client applications to authenticate with Elchi services.
+                    </Text>
+                    <Space.Compact style={{ width: '100%' }}>
                         <Input
-                            style={{ width: 240 }}
-                            placeholder="New token name"
+                            style={{ flex: 1, maxWidth: 400 }}
+                            placeholder="Enter token name..."
                             value={newTokenName}
                             onChange={e => setNewTokenName(e.target.value)}
                             maxLength={32}
@@ -274,101 +409,90 @@ const Tokens: React.FC = () => {
                             loading={creating}
                             onClick={handleCreateToken}
                         >
-                            Create
+                            Create Token
                         </Button>
                     </Space.Compact>
-                    <div style={{ marginTop: 16 }}>
-                        {isLoading ? (
-                            <div style={{ textAlign: 'center', padding: '40px 0' }}>
-                                <div style={{ color: '#8c8c8c' }}>Loading tokens...</div>
-                            </div>
-                        ) : tokens.length === 0 ? (
-                            <div style={{ textAlign: 'center', padding: '40px 0', background: '#fafafa', borderRadius: 8, border: '1px dashed #d9d9d9' }}>
-                                <div style={{ color: '#8c8c8c', fontSize: 14 }}>No tokens yet.</div>
-                                <div style={{ color: '#bfbfbf', fontSize: 12, marginTop: 4 }}>Create your first token to get started</div>
-                            </div>
-                        ) : (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                                {tokens.map((item, index) => (
-                                    <div
-                                        key={index}
-                                        style={{
-                                            background: '#fafafa',
-                                            border: '1px solid #f0f0f0',
-                                            borderRadius: 8,
-                                            padding: '16px 20px',
-                                            transition: 'all 0.2s ease',
-                                            cursor: 'default'
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            e.currentTarget.style.background = '#f5f5f5';
-                                            e.currentTarget.style.borderColor = '#d9d9d9';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            e.currentTarget.style.background = '#fafafa';
-                                            e.currentTarget.style.borderColor = '#f0f0f0';
-                                        }}
-                                    >
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <div style={{ flex: 1 }}>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-                                                    <Text strong style={{ fontSize: 15, color: '#2c3e50' }}>{item.name}</Text>
-                                                    <div style={{
-                                                        background: '#056ccd',
-                                                        color: 'white',
-                                                        fontSize: 10,
-                                                        padding: '2px 6px',
-                                                        borderRadius: 4,
-                                                        fontWeight: 500,
-                                                        textTransform: 'uppercase',
-                                                        letterSpacing: '0.5px'
-                                                    }}>
-                                                        API KEY
-                                                    </div>
-                                                </div>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                                                    <Text 
-                                                        type="secondary" 
-                                                        style={{ 
-                                                            fontFamily: 'monospace', 
-                                                            fontSize: 13, 
-                                                            background: '#fff',
-                                                            padding: '4px 8px',
-                                                            borderRadius: 4,
-                                                            border: '1px solid #e8e8e8',
-                                                            minWidth: 280
-                                                        }}
-                                                    >
-                                                        {item.token}
-                                                    </Text>
-                                                    {item.created_at && (
-                                                        <Text type="secondary" style={{ fontSize: 12, color: '#8c8c8c' }}>
-                                                            Created: {new Date(item.created_at).toLocaleDateString()}
-                                                        </Text>
-                                                    )}
-                                                </div>
-                                            </div>
-                                            <div style={{ marginLeft: 16 }}>
-                                                <Button
-                                                    type="text"
-                                                    icon={<DeleteOutlined />}
-                                                    size="small"
-                                                    danger
-                                                    onClick={() => handleDeleteToken(item.name, item._id || item.id)}
-                                                    style={{
-                                                        color: '#ff4d4f',
-                                                        borderColor: 'transparent',
-                                                        background: 'transparent'
-                                                    }}
-                                                />
+                    
+                    {isLoading ? (
+                        <div style={{ padding: 16, textAlign: 'center' }}>Loading tokens...</div>
+                    ) : tokens.length === 0 ? (
+                        <div style={{ 
+                            padding: '16px', 
+                            background: '#fafafa', 
+                            border: '1px solid #f0f0f0', 
+                            borderRadius: 6,
+                            textAlign: 'center'
+                        }}>
+                            <Text type="secondary" style={{ fontSize: 13, marginBottom: 12, display: 'block' }}>
+                                No client tokens found. Create your first token to get started.
+                            </Text>
+                        </div>
+                    ) : (
+                        <Space direction="vertical" style={{ width: '100%' }} size={12}>
+                            {tokens.map((item, index) => (
+                                <div
+                                    key={index}
+                                    style={{ 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        gap: 12, 
+                                        padding: '12px 16px', 
+                                        background: '#f0f8ff', 
+                                        border: '1px solid #91d5ff', 
+                                        borderRadius: 6 
+                                    }}
+                                >
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                                            <Text strong style={{ fontSize: 14, color: '#1890ff' }}>{item.name}</Text>
+                                            <div style={{
+                                                background: '#1890ff',
+                                                color: 'white',
+                                                fontSize: 10,
+                                                padding: '2px 6px',
+                                                borderRadius: 3,
+                                                fontWeight: 500,
+                                                textTransform: 'uppercase',
+                                                letterSpacing: '0.5px'
+                                            }}>
+                                                CLIENT
                                             </div>
                                         </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                            <Text 
+                                                copyable={{ text: item.token }}
+                                                style={{ 
+                                                    fontFamily: 'monospace', 
+                                                    fontSize: 12, 
+                                                    color: '#1890ff',
+                                                    wordBreak: 'break-all'
+                                                }}
+                                            >
+                                                {item.token}
+                                            </Text>
+                                            {item.created_at && (
+                                                <Text type="secondary" style={{ fontSize: 11 }}>
+                                                    Created: {new Date(item.created_at).toLocaleDateString()}
+                                                </Text>
+                                            )}
+                                        </div>
                                     </div>
-                                ))}
-                            </div>
-                        )}
-                    </div>
+                                    <Button
+                                        type="text"
+                                        size="small"
+                                        icon={<DeleteOutlined />}
+                                        onClick={() => handleDeleteToken(item.name, item._id || item.id)}
+                                        style={{ color: '#ff4d4f' }}
+                                        danger
+                                    >
+                                        Delete
+                                    </Button>
+                                </div>
+                            ))}
+                        </Space>
+                    )}
                 </Space>
+                
                 <Modal
                     open={showTokenModal}
                     onCancel={() => setShowTokenModal(false)}
@@ -394,6 +518,51 @@ const Tokens: React.FC = () => {
                     <p style={{ color: '#ff4d4f', fontSize: 12 }}>
                         <strong>Warning:</strong> This action cannot be undone. Any client using this token will lose access.
                     </p>
+                </Modal>
+                
+                <Modal
+                    title={
+                        <Space>
+                            <ThunderboltOutlined style={{ color: '#13c2c2' }} />
+                            Generated Discovery Token
+                        </Space>
+                    }
+                    open={!!showGeneratedToken}
+                    onCancel={() => setShowGeneratedToken(null)}
+                    footer={[
+                        <Button key="close" onClick={() => setShowGeneratedToken(null)}>
+                            Close
+                        </Button>
+                    ]}
+                    width={600}
+                >
+                    <Space direction="vertical" style={{ width: '100%' }} size={12}>
+                        <Text type="secondary" style={{ fontSize: 13 }}>
+                            Your new discovery token has been generated. You can copy it now:
+                        </Text>
+                        <Input.TextArea
+                            value={showGeneratedToken || ''}
+                            readOnly
+                            autoSize={{ minRows: 2, maxRows: 4 }}
+                            style={{ 
+                                fontFamily: 'monospace', 
+                                fontSize: 12,
+                                background: '#f6ffed',
+                                border: '1px solid #b7eb8f'
+                            }}
+                        />
+                        <div style={{ 
+                            padding: 12, 
+                            background: '#e6fffb', 
+                            border: '1px solid #87e8de', 
+                            borderRadius: 6 
+                        }}>
+                            <Text style={{ fontSize: 12, color: '#13c2c2' }}>
+                                <strong>Note:</strong> This token will be used by Kubernetes discovery agents to authenticate 
+                                and update endpoint configurations. The token format includes your project identifier for security.
+                            </Text>
+                        </div>
+                    </Space>
                 </Modal>
             </Card>
         </>
