@@ -33,65 +33,18 @@ import { useAnalyzeConfigMutation, useAvailableResources, useResourceCollections
 import { COMPONENT_TYPES } from '../types/aiConfig';
 import type { ConfigAnalyzerRequest, ConfigAnalysisResult } from '../types/aiConfig';
 
-// AI Analysis Renderer Component
+// Simple AI Analysis Renderer Component
 export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis }) => {
-  // Add CSS animations
-  React.useEffect(() => {
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes fadeInUp {
-        from {
-          opacity: 0;
-          transform: translateY(30px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      
-      @keyframes pulse {
-        0% {
-          transform: scale(1);
-          opacity: 1;
-        }
-        50% {
-          transform: scale(1.05);
-          opacity: 0.7;
-        }
-        100% {
-          transform: scale(1);
-          opacity: 1;
-        }
-      }
-      
-      @keyframes slideInFromLeft {
-        from {
-          opacity: 0;
-          transform: translateX(-20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateX(0);
-        }
-      }
-    `;
-    document.head.appendChild(style);
-
-    return () => {
-      document.head.removeChild(style);
-    };
-  }, []);
-
+  
   // Parse the analysis text to extract sections
   const parseAnalysisSection = (text: string) => {
     const sections = [];
     const lines = text.split('\n');
     let currentSection: { title: string; content: string; type: string } | null = null;
-
+    
     for (const line of lines) {
       const trimmedLine = line.trim();
-
+      
       // Check for section headers - enhanced for log analysis
       if (trimmedLine.startsWith('**LOG SUMMARY:**')) {
         if (currentSection) sections.push(currentSection);
@@ -131,7 +84,7 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
         currentSection.content += line + '\n';
       }
     }
-
+    
     if (currentSection) sections.push(currentSection);
     return sections;
   };
@@ -155,7 +108,7 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
     }
   };
 
-  const getSectionStyle = (type: string, index: number) => {
+  const getSectionStyle = (type: string) => {
     const baseStyle = {
       borderRadius: 12,
       marginBottom: 16,
@@ -175,14 +128,14 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
       monitoring: '#13c2c2',
       next_steps: '#722ed1',
       answer: '#52c41a',
-      yaml: '#13c2c2',
+      yaml: '#13c2c2', 
       suggestions: '#722ed1',
       warnings: '#fa8c16'
     };
 
     const borderColor = borderColors[type] || '#d9d9d9';
 
-    return {
+    return { 
       ...baseStyle,
       borderLeft: `4px solid ${borderColor}`
     };
@@ -207,20 +160,10 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
             AI Analysis
           </Typography.Title>
         </Space>
-        <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
+        <ReactMarkdown 
+          remarkPlugins={[remarkGfm]} 
           rehypePlugins={[rehypeRaw]}
           components={{
-            p: ({ children }) => (
-              <Typography.Paragraph style={{
-                marginBottom: 8,
-                fontSize: 14,
-                color: '#595959',
-                lineHeight: '1.6'
-              }}>
-                {children}
-              </Typography.Paragraph>
-            ),
             code: ({ children, className }) => {
               const isInline = !className;
               const language = className ? className.replace('language-', '') : '';
@@ -266,7 +209,9 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
                     overflow: 'auto',
                     border: '1px solid #e1e4e8',
                     fontSize: 13,
-                    margin: 0
+                    margin: 0,
+                    fontFamily: 'SFMono-Regular, Monaco, Consolas, monospace',
+                    lineHeight: '1.45'
                   }}>
                     <code>{children}</code>
                   </pre>
@@ -286,389 +231,22 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
       {sections.map((section, index) => (
         <Card
           key={index}
-          style={getSectionStyle(section.type, index)}
+          style={getSectionStyle(section.type)}
           styles={{ body: { padding: 20 } }}
         >
           <Space style={{ marginBottom: 16 }}>
             {getSectionIcon(section.type)}
-            <Typography.Title level={4} style={{
-              margin: 0,
+            <Typography.Title level={4} style={{ 
+              margin: 0, 
               color: '#262626'
             }}>
               {section.title}
             </Typography.Title>
           </Space>
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
+          <ReactMarkdown 
+            remarkPlugins={[remarkGfm]} 
             rehypePlugins={[rehypeRaw]}
             components={{
-              p: ({ children }) => {
-                // Handle different children types properly
-                let childText = '';
-                if (typeof children === 'string') {
-                  childText = children;
-                } else if (Array.isArray(children)) {
-                  childText = children.map(child => {
-                    if (typeof child === 'string') return child;
-                    return String(child);
-                  }).join('');
-                } else {
-                  childText = String(children);
-                }
-
-                // Fix [object Object] and [Filter Name] issues by removing them
-                childText = childText.replace(/\[object Object\]/g, '')
-                  .replace(/\[Filter Name\]/g, '')
-                  .replace(/\[object\s+Object\]/gi, '')
-                  .replace(/\[filter\s+name\]/gi, '')
-                  .trim();
-                const isListHeader = childText.endsWith(':');
-                const isError = childText.startsWith('[HIGH]') || childText.startsWith('[MEDIUM]') || childText.startsWith('[LOW]');
-                const isNumberedHeader = /^\d+\.\s+[^:]*:$/.test(childText); // Like "1. Control Plane Connectivity:"
-                const isSectionHeader = isListHeader && (childText.includes('Plane') || childText.includes('Configuration') || childText.includes('Timing') || childText.includes('Connection') || childText.length > 10); // General section headers
-
-                // Process text to highlight IP addresses and config values
-                const processText = (text: any) => {
-                  // Handle different text types properly
-                  let textString = '';
-                  if (typeof text === 'string') {
-                    textString = text;
-                  } else if (Array.isArray(text)) {
-                    // Convert array of text nodes to string
-                    textString = text.map(item => {
-                      if (typeof item === 'string') return item;
-                      return String(item);
-                    }).join('');
-                  } else {
-                    textString = String(text);
-                  }
-
-                  // Fix [object Object] and [Filter Name] issues by handling them specifically
-                  textString = textString.replace(/\[object Object\]/g, '')
-                    .replace(/\[Filter Name\]/g, '')
-                    .replace(/\[object\s+Object\]/gi, '')
-                    .replace(/\[filter\s+name\]/gi, '');
-
-                  // Split by double spaces or multiple spaces to handle line breaks
-                  const lines = textString.split(/\s{2,}|\n/).filter(line => line.trim());
-
-                  return lines.map((line, lineIndex) => {
-                    // Highlight IP addresses
-                    const ipRegex = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/g;
-                    const parts = line.split(ipRegex);
-
-                    const processedLine = parts.map((part, index) => {
-                      if (ipRegex.test(part)) {
-                        return (
-                          <Typography.Text
-                            key={index}
-                            style={{
-                              backgroundColor: '#f6ffed',
-                              color: '#389e0d',
-                              padding: '1px 4px',
-                              borderRadius: 3,
-                              fontFamily: 'monospace',
-                              fontSize: 13
-                            }}
-                          >
-                            {part}
-                          </Typography.Text>
-                        );
-                      }
-                      return part;
-                    });
-
-                    // Return each line as a separate div to ensure proper line breaks
-                    return (
-                      <div key={lineIndex} style={{ marginBottom: lineIndex < lines.length - 1 ? 8 : 0 }}>
-                        {processedLine}
-                      </div>
-                    );
-                  });
-                };
-
-                // Handle numbered headers and section headers specially
-                if (isNumberedHeader || isSectionHeader) {
-                  return (
-                    <h4 style={{
-                      margin: '0px 0 12px 0',
-                      fontSize: 15,
-                      fontWeight: 600,
-                      color: '#262626',
-                      lineHeight: '1.6',
-                      paddingLeft: 0
-                    }}>
-                      {childText}
-                    </h4>
-                  );
-                }
-
-                return (
-                  <div style={{
-                    marginBottom: isListHeader ? 16 : 8,
-                    fontSize: isListHeader ? 15 : 14,
-                    color: isError ? '#ff4d4f' : (isListHeader ? '#262626' : '#595959'),
-                    fontWeight: isError || isListHeader ? 600 : 400,
-                    marginTop: isListHeader ? 12 : 0,
-                    lineHeight: '1.6',
-                    backgroundColor: isError ? '#fff2f0' : 'transparent',
-                    padding: isError ? '8px 12px' : 0,
-                    borderRadius: isError ? 6 : 0,
-                    border: isError ? '1px solid #ffccc7' : 'none'
-                  }}>
-                    {processText(children)}
-                  </div>
-                );
-              },
-              ul: ({ children }) => (
-                <ul style={{
-                  margin: '8px 0 12px 0',
-                  listStyle: 'none',
-                  paddingLeft: 0,
-                  display: 'block'
-                }}>
-                  {children}
-                </ul>
-              ),
-              ol: ({ children }) => (
-                <ol style={{
-                  margin: '8px 0 12px 0',
-                  paddingLeft: 0,
-                  listStyle: 'none',
-                  display: 'block'
-                }}>
-                  {children}
-                </ol>
-              ),
-              li: ({ children }) => {
-                const childrenText = String(children).trim();
-                const stepMatch = childrenText.match(/^(\d+)\.\s*(.+)/);
-
-                // Handle numbered steps for solutions and next steps
-                if (stepMatch && (section.type === 'solutions' || section.type === 'next_steps' || section.type === 'answer')) {
-                  const stepNumber = stepMatch[1];
-                  const stepText = stepMatch[2];
-
-                  return (
-                    <li style={{
-                      marginBottom: 16,
-                      listStyle: 'none',
-                      paddingLeft: 0,
-                      display: 'block'
-                    }}>
-                      <div style={{
-                        display: 'flex',
-                        gap: 16,
-                        alignItems: 'flex-start'
-                      }}>
-                        <div style={{
-                          width: 32,
-                          height: 32,
-                          borderRadius: '50%',
-                          background: section.type === 'solutions' ? '#52c41a' : '#722ed1',
-                          color: '#fff',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontWeight: 'bold',
-                          fontSize: 14,
-                          flexShrink: 0
-                        }}>
-                          {stepNumber}
-                        </div>
-
-                        <div style={{
-                          flex: 1,
-                          padding: '12px 16px',
-                          background: '#fafafa',
-                          borderRadius: 8,
-                          border: '1px solid #f0f0f0'
-                        }}>
-                          <Typography.Text style={{
-                            fontSize: 14,
-                            color: '#262626',
-                            lineHeight: '1.6'
-                          }}>
-                            {stepText}
-                          </Typography.Text>
-                        </div>
-                      </div>
-                    </li>
-                  );
-                }
-
-                // Handle error entries with color coding
-                const isError = childrenText.startsWith('[HIGH]') || childrenText.startsWith('[MEDIUM]') || childrenText.startsWith('[LOW]');
-                const errorLevel = isError ? childrenText.match(/\[(HIGH|MEDIUM|LOW)\]/)?.[1] : null;
-
-                const getErrorColor = (level: string | null) => {
-                  switch (level) {
-                    case 'HIGH': return '#ff4d4f';
-                    case 'MEDIUM': return '#fa8c16';
-                    case 'LOW': return '#faad14';
-                    default: return '#1890ff';
-                  }
-                };
-
-                // Check if this list item is actually a section header
-                const isListItemHeader = childrenText.endsWith(':') && (
-                  childrenText.includes('Connectivity') ||
-                  childrenText.includes('Configuration') ||
-                  childrenText.includes('Initialization') ||
-                  childrenText.includes('Plane') ||
-                  /^\d+\.\s+[A-Z][^:]*:$/.test(childrenText) || // Numbered headers like "1. Control Plane Connectivity:"
-                  childrenText.length > 15 // Longer text ending with colon is likely a header
-                );
-
-                if (isListItemHeader) {
-                  return (
-                    <li style={{
-                      listStyle: 'none',
-                      paddingLeft: 0,
-                      marginBottom: 8,
-                      marginTop: 12,
-                      display: 'block'
-                    }}>
-                      <div style={{
-                        margin: 0,
-                        fontSize: 15,
-                        fontWeight: 600,
-                        color: '#262626',
-                        paddingLeft: 0,
-                        lineHeight: '1.4'
-                      }}>
-                        {childrenText}
-                      </div>
-                    </li>
-                  );
-                }
-
-                // Regular list items with proper bullet alignment
-                const bulletStyle = {
-                  width: isError ? '8px' : '6px',
-                  height: isError ? '8px' : '6px',
-                  borderRadius: '50%',
-                  backgroundColor: isError ? getErrorColor(errorLevel) :
-                    (section.type === 'warnings' ? '#fa8c16' :
-                      section.type === 'errors' ? '#ff4d4f' : '#1890ff'),
-                  display: 'inline-block',
-                  marginRight: '12px',
-                  marginTop: '0.5em',
-                  verticalAlign: 'top',
-                  flexShrink: 0
-                };
-
-                return (
-                  <li style={{
-                    marginBottom: isError ? 12 : 8,
-                    listStyle: 'none',
-                    paddingLeft: 0,
-                    display: 'block',
-                    background: isError ? '#fafafa' : 'transparent',
-                    padding: isError ? '8px 12px' : '4px 0',
-                    borderRadius: isError ? 6 : 0,
-                    border: isError ? `1px solid ${getErrorColor(errorLevel)}20` : 'none',
-                    lineHeight: '1.6'
-                  }}>
-                    <span style={bulletStyle}></span>
-                    <div style={{
-                      display: 'inline-block',
-                      width: 'calc(100% - 20px)',
-                      verticalAlign: 'top',
-                      color: isError ? '#262626' : '#595959',
-                      fontWeight: isError ? 500 : 400,
-                      fontSize: 14,
-                      lineHeight: '1.6'
-                    }}>
-                      {children}
-                    </div>
-                  </li>
-                );
-              },
-              strong: ({ children }) => {
-                const text = String(children).trim();
-
-                // Check if this is a UI navigation path (contains > or →)
-                if (text.includes('→') || text.includes('>') || text.includes('Sidebar') || text.includes('Tag Navigation')) {
-                  return (
-                    <Typography.Text style={{
-                      backgroundColor: '#f0f5ff',
-                      color: '#722ed1',
-                      padding: '4px 8px',
-                      borderRadius: 4,
-                      fontWeight: 600,
-                      border: '1px solid #d6e4ff',
-                      fontSize: 13,
-                      fontFamily: 'monospace'
-                    }}>
-                      {children}
-                    </Typography.Text>
-                  );
-                }
-
-                // Check if this is a UI button/element (quoted text)
-                if (text.startsWith('"') && text.endsWith('"')) {
-                  return (
-                    <Typography.Text style={{
-                      backgroundColor: '#f0f8ff',
-                      color: '#1890ff',
-                      padding: '2px 6px',
-                      borderRadius: 4,
-                      fontWeight: 600,
-                      border: '1px solid #d6e4ff',
-                      fontSize: 13
-                    }}>
-                      {children}
-                    </Typography.Text>
-                  );
-                }
-
-                // Check if this is a section header that might be inline (ends with :)
-                if (text.endsWith(':') && text.length > 5) {
-                  return (
-                    <div style={{
-                      marginTop: 16,
-                      marginBottom: 8,
-                      paddingTop: 8,
-                      borderTop: '1px solid #f0f0f0'
-                    }}>
-                      <Typography.Text strong style={{
-                        color: '#262626',
-                        fontSize: 15,
-                        display: 'block'
-                      }}>
-                        {children}
-                      </Typography.Text>
-                    </div>
-                  );
-                }
-
-                // Check for error levels
-                if (text.includes('[HIGH]') || text.includes('[MEDIUM]') || text.includes('[LOW]')) {
-                  const level = text.match(/\[(HIGH|MEDIUM|LOW)\]/)?.[1];
-                  const color = level === 'HIGH' ? '#ff4d4f' : level === 'MEDIUM' ? '#fa8c16' : '#faad14';
-
-                  return (
-                    <Typography.Text strong style={{
-                      color: color,
-                      backgroundColor: `${color}15`,
-                      padding: '2px 6px',
-                      borderRadius: 4,
-                      fontSize: 13
-                    }}>
-                      {children}
-                    </Typography.Text>
-                  );
-                }
-
-                return (
-                  <Typography.Text strong style={{
-                    color: '#262626'
-                  }}>
-                    {children}
-                  </Typography.Text>
-                );
-              },
               code: ({ children, className }) => {
                 const isInline = !className;
                 const language = className ? className.replace('language-', '') : '';
@@ -682,8 +260,7 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
                         color: '#d63384',
                         padding: '2px 6px',
                         borderRadius: 4,
-                        fontSize: 13,
-                        fontFamily: 'SFMono-Regular, Monaco, Consolas, monospace'
+                        fontSize: 13
                       }}
                     >
                       {children}
@@ -691,7 +268,6 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
                   );
                 }
 
-                // Handle YAML and other code blocks
                 return (
                   <div style={{ position: 'relative', marginBottom: 16 }}>
                     {language && (
@@ -704,7 +280,6 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
                         padding: '2px 8px',
                         borderRadius: 4,
                         fontSize: 12,
-                        fontWeight: 500,
                         zIndex: 1
                       }}>
                         {language.toUpperCase()}
@@ -717,7 +292,6 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
                       overflow: 'auto',
                       border: '1px solid #e1e4e8',
                       fontSize: 13,
-                      color: '#24292e',
                       margin: 0,
                       fontFamily: 'SFMono-Regular, Monaco, Consolas, monospace',
                       lineHeight: '1.45'
