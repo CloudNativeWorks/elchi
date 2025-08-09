@@ -582,7 +582,6 @@ const Tokens: React.FC = () => {
                                         </div>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                                             <Text 
-                                                copyable={{ text: item.token }}
                                                 style={{ 
                                                     fontFamily: 'monospace', 
                                                     fontSize: 12, 
