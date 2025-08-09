@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Spin, Alert, Select, Button, Card, Modal, message, Typography, Space } from 'antd';
+import { Spin, Alert, Select, Button, Card, Modal, message, Typography, Space, Row, Col, Input } from 'antd';
 import { SettingOutlined, RobotOutlined } from '@ant-design/icons';
 import { useOperationsApiMutation } from '@/common/operations-api';
 import { OperationsSubType, OperationsType } from '@/common/types';
@@ -38,30 +38,30 @@ function parseTimestamp(timestamp: string): number {
     if (!timestamp || typeof timestamp !== 'string') {
         return 0;
     }
-    
+
     const cleanTimestamp = timestamp.trim();
-    
+
     let date = new Date(cleanTimestamp);
     if (!isNaN(date.getTime())) {
         return date.getTime();
     }
-    
+
     const unixSeconds = parseInt(cleanTimestamp);
     if (!isNaN(unixSeconds) && unixSeconds > 1000000000) {
         return unixSeconds * 1000;
     }
-    
+
     const unixMs = parseInt(cleanTimestamp);
     if (!isNaN(unixMs) && unixMs > 1000000000000) {
         return unixMs;
     }
-    
+
     const patterns = [
         /(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})\.?(\d+)?Z?/,
         /(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/,
         /(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2})/
     ];
-    
+
     for (const pattern of patterns) {
         const match = cleanTimestamp.match(pattern);
         if (match) {
@@ -71,7 +71,7 @@ function parseTimestamp(timestamp: string): number {
             }
         }
     }
-    
+
     console.warn('Timestamp parse edilemedi:', timestamp);
     return 0;
 }
@@ -95,10 +95,11 @@ const Logs: React.FC = () => {
     const logListRef = useRef<HTMLDivElement>(null);
     const [activeComponents, setActiveComponents] = useState<string[]>([]);
     const [isLoggerSettingsOpen, setIsLoggerSettingsOpen] = useState(false);
-    
+
     // AI Analysis states
     const [isAIAnalysisOpen, setIsAIAnalysisOpen] = useState(false);
     const [selectedClientForAI, setSelectedClientForAI] = useState<string>('');
+    const [customPrompt, setCustomPrompt] = useState<string>('');
     const [aiAnalysisResult, setAIAnalysisResult] = useState<LogAnalysisResult | null>(null);
     const [showAnalysis, setShowAnalysis] = useState(false);
     const analyzeLogsMutation = useAnalyzeLogsMutation();
@@ -165,7 +166,7 @@ const Logs: React.FC = () => {
                     logsArr.sort((a, b) => {
                         const timeA = parseTimestamp(a.timestamp || '');
                         const timeB = parseTimestamp(b.timestamp || '');
-                        
+
                         return timeA - timeB;
                     });
                     setLogs(logsArr);
@@ -208,10 +209,10 @@ const Logs: React.FC = () => {
         }
     };
 
-    // Get unique clients from logs
+    // Get unique clients from filtered logs
     const getUniqueClients = () => {
         const clientNames = new Set<string>();
-        logs.forEach(log => {
+        filteredLogs.forEach(log => {
             if (log.client_name) {
                 clientNames.add(log.client_name);
             }
@@ -222,15 +223,16 @@ const Logs: React.FC = () => {
     // Handle AI Analysis
     const handleAIAnalysis = () => {
         const uniqueClients = getUniqueClients();
-        
+
         if (uniqueClients.length === 0) {
-            message.warning('No logs with client information found');
+            message.warning('No filtered logs with client information found. Please adjust your filters.');
             return;
         }
 
         if (uniqueClients.length === 1) {
-            // Single client - directly analyze
-            performAIAnalysis(uniqueClients[0]);
+            // Single client - set it and show modal for optional prompt
+            setSelectedClientForAI(uniqueClients[0]);
+            setIsAIAnalysisOpen(true);
         } else {
             // Multiple clients - show selection modal
             setSelectedClientForAI('');
@@ -239,10 +241,11 @@ const Logs: React.FC = () => {
     };
 
     const performAIAnalysis = async (clientName: string) => {
-        const clientLogs = logs.filter(log => log.client_name === clientName);
-        
+        // Use filtered logs instead of all logs to respect user's filtering choices
+        const clientLogs = filteredLogs.filter(log => log.client_name === clientName);
+
         if (clientLogs.length === 0) {
-            message.warning(`No logs found for client: ${clientName}`);
+            message.warning(`No filtered logs found for client: ${clientName}. Please adjust your filters.`);
             return;
         }
 
@@ -256,6 +259,7 @@ const Logs: React.FC = () => {
                 component: log.component,
                 timestamp: log.timestamp
             })),
+            question: customPrompt.trim() || undefined, // Use custom prompt if provided
             max_logs: 100
         };
 
@@ -264,6 +268,8 @@ const Logs: React.FC = () => {
             setAIAnalysisResult(result);
             setShowAnalysis(true);
             setIsAIAnalysisOpen(false);
+            setSelectedClientForAI('');
+            setCustomPrompt('');
             message.success('Log analysis completed!');
         } catch (error: any) {
             message.error(`AI Analysis failed: ${error.message}`);
@@ -282,11 +288,11 @@ const Logs: React.FC = () => {
         <div style={{ width: '100%', marginTop: '0px', padding: 0 }}>
             {/* Toggle Buttons - Outside Card */}
             {aiAnalysisResult && (
-                <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'flex-end', 
-                    marginBottom: 6, 
-                    gap: 8 
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    marginBottom: 6,
+                    gap: 8
                 }}>
                     <Button
                         type={showAnalysis ? "default" : "primary"}
@@ -308,7 +314,7 @@ const Logs: React.FC = () => {
                     </Button>
                 </div>
             )}
-            
+
             <Card style={{ borderRadius: 12, boxShadow: '0 2px 8px rgba(5,117,230,0.06)', margin: '0 auto' }}>
 
                 {/* Sticky Toolbar */}
@@ -412,6 +418,70 @@ const Logs: React.FC = () => {
                                 <Typography.Text>{aiAnalysisResult.log_count}</Typography.Text>
                             </div>
                             <AIAnalysisRenderer analysis={aiAnalysisResult.analysis} />
+
+                            {/* Token Usage Statistics */}
+                            {aiAnalysisResult.token_usage && (
+                                <Card
+                                    size="small"
+                                    style={{ marginTop: 16 }}
+                                    title={
+                                        <Space>
+                                            <RobotOutlined style={{ color: '#fff' }} />
+                                            <Typography.Text strong style={{ color: '#fff' }}>AI Usage for This Log Analysis</Typography.Text>
+                                        </Space>
+                                    }
+                                >
+                                    <Row gutter={16}>
+                                        <Col span={6}>
+                                            <div>
+                                                <Typography.Text type="secondary">Input Tokens:</Typography.Text>
+                                                <br />
+                                                <Typography.Text strong style={{ color: '#1890ff' }}>
+                                                    {aiAnalysisResult.token_usage.input_tokens.toLocaleString()}
+                                                </Typography.Text>
+                                            </div>
+                                        </Col>
+                                        <Col span={6}>
+                                            <div>
+                                                <Typography.Text type="secondary">Output Tokens:</Typography.Text>
+                                                <br />
+                                                <Typography.Text strong style={{ color: '#52c41a' }}>
+                                                    {aiAnalysisResult.token_usage.output_tokens.toLocaleString()}
+                                                </Typography.Text>
+                                            </div>
+                                        </Col>
+                                        <Col span={6}>
+                                            <div>
+                                                <Typography.Text type="secondary">Total Tokens:</Typography.Text>
+                                                <br />
+                                                <Typography.Text strong style={{ color: '#722ed1' }}>
+                                                    {aiAnalysisResult.token_usage.total_tokens.toLocaleString()}
+                                                </Typography.Text>
+                                            </div>
+                                        </Col>
+                                        <Col span={6}>
+                                            <div>
+                                                <Typography.Text type="secondary">Cost (USD):</Typography.Text>
+                                                <br />
+                                                <Typography.Text strong style={{ color: '#fa8c16' }}>
+                                                    ${aiAnalysisResult.token_usage.cost_usd.toFixed(4)}
+                                                </Typography.Text>
+                                            </div>
+                                        </Col>
+                                    </Row>
+                                    <div style={{
+                                        marginTop: 12,
+                                        padding: '6px 12px',
+                                        background: '#f6ffed',
+                                        border: '1px solid #b7eb8f',
+                                        borderRadius: 4,
+                                        fontSize: 12,
+                                        color: '#52c41a'
+                                    }}>
+                                        ✓ Log analysis completed • {aiAnalysisResult.log_count} logs processed
+                                    </div>
+                                </Card>
+                            )}
                         </div>
                     ) : !name ? (
                         <div style={{
@@ -544,9 +614,9 @@ const Logs: React.FC = () => {
                                 letterSpacing: '0.5px'
                             }}>
                                 {/* Line Number Header */}
-                                <div style={{ 
-                                    minWidth: 40, 
-                                    textAlign: 'right', 
+                                <div style={{
+                                    minWidth: 40,
+                                    textAlign: 'right',
                                     marginRight: 12,
                                     color: '#6c757d'
                                 }}>
@@ -554,8 +624,8 @@ const Logs: React.FC = () => {
                                 </div>
 
                                 {/* Timestamp Header */}
-                                <div style={{ 
-                                    minWidth: 140, 
+                                <div style={{
+                                    minWidth: 140,
                                     marginRight: 12,
                                     color: '#495057'
                                 }}>
@@ -563,8 +633,8 @@ const Logs: React.FC = () => {
                                 </div>
 
                                 {/* Level Header */}
-                                <div style={{ 
-                                    minWidth: 60, 
+                                <div style={{
+                                    minWidth: 60,
                                     marginRight: 12,
                                     color: '#495057'
                                 }}>
@@ -572,8 +642,8 @@ const Logs: React.FC = () => {
                                 </div>
 
                                 {/* Component Header */}
-                                <div style={{ 
-                                    minWidth: 80, 
+                                <div style={{
+                                    minWidth: 80,
                                     marginRight: 12,
                                     color: '#495057'
                                 }}>
@@ -581,8 +651,8 @@ const Logs: React.FC = () => {
                                 </div>
 
                                 {/* Client Header */}
-                                <div style={{ 
-                                    minWidth: 100, 
+                                <div style={{
+                                    minWidth: 100,
                                     marginRight: 12,
                                     color: '#495057'
                                 }}>
@@ -749,31 +819,63 @@ const Logs: React.FC = () => {
                     title={
                         <Space>
                             <RobotOutlined style={{ color: '#722ed1' }} />
-                            Select Client for AI Analysis
+                            AI Log Analysis Setup
                         </Space>
                     }
                     open={isAIAnalysisOpen}
                     onOk={handleClientSelectionConfirm}
-                    onCancel={() => setIsAIAnalysisOpen(false)}
+                    onCancel={() => {
+                        setIsAIAnalysisOpen(false);
+                        setSelectedClientForAI('');
+                        setCustomPrompt('');
+                    }}
                     confirmLoading={analyzeLogsMutation.isPending}
                     okText="Analyze Logs"
                     cancelText="Cancel"
                 >
+                    {getUniqueClients().length > 1 ? (
+                        <>
+                            <div style={{ marginBottom: 16 }}>
+                                <Typography.Text type="secondary">
+                                    Multiple clients detected in filtered logs. Please select which client's filtered logs you want to analyze:
+                                </Typography.Text>
+                            </div>
+                            <Select
+                                style={{ width: '100%', marginBottom: 16 }}
+                                placeholder="Select a client"
+                                value={selectedClientForAI}
+                                onChange={setSelectedClientForAI}
+                                options={getUniqueClients().map(client => ({
+                                    label: `${client} (${filteredLogs.filter(log => log.client_name === client).length} filtered logs)`,
+                                    value: client
+                                }))}
+                            />
+                        </>
+                    ) : (
+                        <div style={{ marginBottom: 16 }}>
+                            <Typography.Text type="secondary">
+                                Analyzing logs for client: <strong>{selectedClientForAI}</strong> ({filteredLogs.filter(log => log.client_name === selectedClientForAI).length} filtered logs)
+                            </Typography.Text>
+                        </div>
+                    )}
+                    
                     <div style={{ marginBottom: 16 }}>
-                        <Typography.Text type="secondary">
-                            Multiple clients detected. Please select which client's logs you want to analyze:
+                        <Typography.Text strong style={{ display: 'block', marginBottom: 8 }}>
+                            Custom Analysis Question (Optional)
                         </Typography.Text>
+                        <Typography.Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 8 }}>
+                            Leave empty for general log analysis, or provide a specific question about the logs.
+                        </Typography.Text>
+                        <Input.TextArea
+                            rows={3}
+                            placeholder="e.g., Find all connection errors, Analyze performance issues, Look for security anomalies..."
+                            value={customPrompt}
+                            onChange={(e) => setCustomPrompt(e.target.value)}
+                            maxLength={500}
+                            showCount
+                            style={{ resize: 'none' }}
+                        />
                     </div>
-                    <Select
-                        style={{ width: '100%' }}
-                        placeholder="Select a client"
-                        value={selectedClientForAI}
-                        onChange={setSelectedClientForAI}
-                        options={getUniqueClients().map(client => ({
-                            label: `${client} (${logs.filter(log => log.client_name === client).length} logs)`,
-                            value: client
-                        }))}
-                    />
                 </Modal>
             </Card>
         </div>

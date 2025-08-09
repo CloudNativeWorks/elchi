@@ -20,7 +20,8 @@ import {
     BarChartOutlined,
     CloudServerOutlined,
     CodeOutlined,
-    ApiOutlined
+    ApiOutlined,
+    RadarChartOutlined
 } from '@ant-design/icons';
 import { useProjectVariable } from "@/hooks/useProjectVariable";
 import { UserDetail } from "@/common/types";
@@ -124,6 +125,18 @@ const menuConfig = [
 		label: "Logs",
 	},
 	{
+		key: "/Infrastructure",
+		to: "#",
+		label: "Infrastructure",
+		className: 'menu-item-header',
+	},
+	{
+		key: "/discovery",
+		to: "/discovery",
+		icon: "RadarChartOutlined",
+		label: "Discovery",
+	},
+	{
 		key: "/Administration",
 		to: "#",
 		label: "Administration",
@@ -175,6 +188,7 @@ const iconMap = {
 	CloudServerOutlined: CloudServerOutlined,
 	CodeOutlined: CodeOutlined,
 	ApiOutlined: ApiOutlined,
+	RadarChartOutlined: RadarChartOutlined,
 };
 
 function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {

@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Button, Input, List, Modal, Typography, Space, message, Divider } from 'antd';
-import { PlusOutlined, DeleteOutlined, RobotOutlined, SaveOutlined, EditOutlined, ApiOutlined, ThunderboltOutlined, EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
+import { Card, Button, Input, List, Modal, Typography, Space, message, Divider, Statistic, Row, Col, Progress } from 'antd';
+import { PlusOutlined, DeleteOutlined, RobotOutlined, SaveOutlined, EditOutlined, ApiOutlined, ThunderboltOutlined, EyeOutlined, EyeInvisibleOutlined, BarChartOutlined, CheckCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { useCustomGetQuery } from '@/common/api';
 import { useCustomApiMutation } from '@/common/custom-api';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import { useClaudeToken } from '@/hooks/useClaudeToken';
 import { useDiscoveryToken } from '@/hooks/useDiscoveryToken';
+import { useAIUsageStatus, useAIUsageStats } from '@/hooks/useAIUsage';
 
 const { Title, Text } = Typography;
 
@@ -19,6 +20,10 @@ const Tokens: React.FC = () => {
     const { project } = useProjectVariable();
     const [messageApi, contextHolder] = message.useMessage();
     const mutate = useCustomApiMutation();
+    
+    // AI Usage hooks
+    const { data: aiUsageStatus } = useAIUsageStatus();
+    const { data: aiUsageStats } = useAIUsageStats();
     
     const {
         maskedToken,
@@ -289,6 +294,123 @@ const Tokens: React.FC = () => {
                                 <Text type="danger" style={{ fontSize: 12 }}>
                                     {claudeTokenError}
                                 </Text>
+                            )}
+
+                            {/* AI Usage Statistics */}
+                            {hasToken && (
+                                <Card 
+                                    size="small" 
+                                    style={{ marginTop: 16 }}
+                                    title={
+                                        <Space>
+                                            <BarChartOutlined style={{ color: '#fff' }} />
+                                            <Text strong style={{ color: '#fff' }}>AI Usage Statistics</Text>
+                                        </Space>
+                                    }
+                                >
+                                    {aiUsageStatus?.usage_summary ? (
+                                        <Row gutter={16}>
+                                            <Col span={6}>
+                                                <Statistic
+                                                    title="Total Requests"
+                                                    value={aiUsageStatus.usage_summary.total_requests}
+                                                    prefix={<BarChartOutlined />}
+                                                />
+                                            </Col>
+                                            <Col span={6}>
+                                                <Statistic
+                                                    title="Success Rate"
+                                                    value={aiUsageStatus.usage_summary.success_rate}
+                                                    precision={1}
+                                                    suffix="%"
+                                                    prefix={<CheckCircleOutlined />}
+                                                />
+                                            </Col>
+                                            <Col span={6}>
+                                                <Statistic
+                                                    title="Tokens Today"
+                                                    value={aiUsageStatus.usage_summary.tokens_used_today}
+                                                    prefix={<RobotOutlined />}
+                                                />
+                                            </Col>
+                                            <Col span={6}>
+                                                <Statistic
+                                                    title="Tokens This Month"
+                                                    value={aiUsageStatus.usage_summary.tokens_used_month}
+                                                    prefix={<RobotOutlined />}
+                                                />
+                                            </Col>
+                                        </Row>
+                                    ) : (
+                                        <Space style={{ width: '100%', justifyContent: 'center', padding: '16px 0' }}>
+                                            <ExclamationCircleOutlined style={{ color: '#faad14' }} />
+                                            <Text type="secondary">No usage data available yet</Text>
+                                        </Space>
+                                    )}
+
+                                    {aiUsageStats && (
+                                        <div style={{ marginTop: 16 }}>
+                                            <Row gutter={16}>
+                                                <Col span={12}>
+                                                    <div style={{ marginBottom: 8 }}>
+                                                        <Text type="secondary" style={{ fontSize: 12 }}>Average Response Time</Text>
+                                                    </div>
+                                                    <Progress
+                                                        percent={Math.min((aiUsageStats.average_response_time_ms / 10000) * 100, 100)}
+                                                        format={() => `${aiUsageStats.average_response_time_ms.toFixed(0)}ms`}
+                                                        strokeColor="#722ed1"
+                                                    />
+                                                </Col>
+                                                <Col span={12}>
+                                                    <div style={{ marginBottom: 8 }}>
+                                                        <Text type="secondary" style={{ fontSize: 12 }}>Request Types</Text>
+                                                    </div>
+                                                    <Space wrap>
+                                                        <Text style={{ fontSize: 12 }}>
+                                                            Analysis: {aiUsageStats.analyze_requests}
+                                                        </Text>
+                                                        <Text style={{ fontSize: 12 }}>
+                                                            Log Analysis: {aiUsageStats.log_analyze_requests}
+                                                        </Text>
+                                                    </Space>
+                                                </Col>
+                                            </Row>
+                                            {aiUsageStats.last_used && (
+                                                <div style={{ marginTop: 12, fontSize: 12, color: '#8c8c8c' }}>
+                                                    Last used: {new Date(aiUsageStats.last_used).toLocaleString()}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                </Card>
+                            )}
+
+                            {/* Service Status */}
+                            {hasToken && (
+                                <div style={{ 
+                                    display: 'flex', 
+                                    alignItems: 'center', 
+                                    gap: 8, 
+                                    marginTop: 12,
+                                    padding: '8px 12px',
+                                    background: aiUsageStatus?.status?.service_available ? '#f6ffed' : '#fff2e8',
+                                    border: `1px solid ${aiUsageStatus?.status?.service_available ? '#b7eb8f' : '#ffbb96'}`,
+                                    borderRadius: 6
+                                }}>
+                                    {aiUsageStatus?.status?.service_available ? (
+                                        <CheckCircleOutlined style={{ color: '#52c41a' }} />
+                                    ) : (
+                                        <ExclamationCircleOutlined style={{ color: '#fa8c16' }} />
+                                    )}
+                                    <Text style={{ fontSize: 12 }}>
+                                        AI Service: {aiUsageStatus?.status?.service_available ? 'Available' : 'Unavailable'}
+                                    </Text>
+                                    {aiUsageStatus?.status?.supported_models && (
+                                        <Text type="secondary" style={{ fontSize: 11 }}>
+                                            • {aiUsageStatus.status.supported_models.join(', ')}
+                                        </Text>
+                                    )}
+                                </div>
                             )}
                         </>
                     )}

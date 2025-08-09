@@ -30,12 +30,18 @@ export const useAnalyzeConfigMutation = () => {
       project: project || 'default'
     };
 
-    const response = await api.post<{ analysis_result: ConfigAnalysisResult }>(
+    const response = await api.post<any>(
       `${Config.baseApi}ai/analyze?project=${project}`, 
       requestWithProject
     );
     
-    return response.data.analysis_result;
+    // Store the full response including token_usage
+    const result = response.data.analysis_result;
+    if (response.data.token_usage) {
+      result.token_usage = response.data.token_usage;
+    }
+    
+    return result;
   };
 
   return useMutation({
@@ -46,17 +52,18 @@ export const useAnalyzeConfigMutation = () => {
 // Get AI Status Hook
 export const useAIStatus = (enabled = true) => {
   const { hasToken } = useClaudeToken();
+  const { project } = useProjectVariable();
   
   return useQuery({
-    queryKey: ['ai-status', hasToken],
+    queryKey: ['ai-status', hasToken, project],
     queryFn: async (): Promise<AIStatus> => {
       const response = await api.get<AIStatus>(
-        `${Config.baseApi}ai/status`
+        `${Config.baseApi}ai/status?project=${project}`
       );
       
       return response.data;
     },
-    enabled: enabled && hasToken,
+    enabled: enabled && hasToken && !!project,
     refetchOnWindowFocus: false,
   });
 };
@@ -170,7 +177,7 @@ export const useAnalyzeLogsMutation = () => {
       depth: 3
     };
 
-    const response = await api.post<{ analysis_result: any }>(
+    const response = await api.post<any>(
       `${Config.baseApi}ai/analyze-logs?project=${project}`, 
       backendRequest
     );
@@ -184,7 +191,8 @@ export const useAnalyzeLogsMutation = () => {
       analysis: backendResult.analysis || 'No analysis available',
       suggestions: backendResult.suggestions || [],
       issues_found: backendResult.errors_detected || [],
-      processed_at: backendResult.processed_at || new Date().toISOString()
+      processed_at: backendResult.processed_at || new Date().toISOString(),
+      token_usage: response.data.token_usage // Add token usage from backend
     };
     
     return result;

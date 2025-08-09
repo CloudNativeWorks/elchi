@@ -29,6 +29,7 @@ import Service from './pages/operations/service';
 import Metrics from './pages/metrics/metrics';
 import Logs from './pages/logs/Logs';
 import AIConfigGenerator from './ai/AIConfigGenerator';
+import Discovery from './pages/discovery/Discovery';
 
 
 const AppRoutes: React.FC = () => (
@@ -92,6 +93,9 @@ const AppRoutes: React.FC = () => (
 
                 {/* AI Config Analyzer Route */}
                 <Route path="/ai-analyzer" element={<AIConfigGenerator />} />
+
+                {/* Discovery Route */}
+                <Route path="/discovery" element={<Discovery />} />
 
                 {/* Catch-All Route */}
                 <Route path="*" element={<Dashboard />} />

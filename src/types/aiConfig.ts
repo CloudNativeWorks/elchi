@@ -20,6 +20,12 @@ export interface ConfigAnalysisResult {
   suggestions?: string[];
   warnings?: string[];
   processed_at: string;
+  token_usage?: {
+    input_tokens: number;
+    output_tokens: number;
+    total_tokens: number;
+    cost_usd: number;
+  };
 }
 
 export interface DBResource {
@@ -239,6 +245,12 @@ export interface LogAnalysisResult {
   suggestions?: string[];
   issues_found?: string[];
   processed_at: string;
+  token_usage?: {
+    input_tokens: number;
+    output_tokens: number;
+    total_tokens: number;
+    cost_usd: number;
+  };
 }
 
 export interface ServiceLogItem {

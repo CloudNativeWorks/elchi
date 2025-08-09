@@ -1,24 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Card, 
-  Select, 
+import {
+  Card,
+  Select,
   Input,
-  Button, 
-  message, 
-  Spin, 
+  Button,
+  message,
+  Spin,
   Space,
   Typography,
   Alert,
   Switch,
   List,
   Tag,
-  Collapse
+  Collapse,
+  Statistic,
+  Row,
+  Col
 } from 'antd';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
-import { 
-  RobotOutlined, 
+import {
+  RobotOutlined,
   InfoCircleOutlined,
   BulbOutlined,
   WarningOutlined,
@@ -74,21 +77,21 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
       }
     `;
     document.head.appendChild(style);
-    
+
     return () => {
       document.head.removeChild(style);
     };
   }, []);
-  
+
   // Parse the analysis text to extract sections
   const parseAnalysisSection = (text: string) => {
     const sections = [];
     const lines = text.split('\n');
     let currentSection: { title: string; content: string; type: string } | null = null;
-    
+
     for (const line of lines) {
       const trimmedLine = line.trim();
-      
+
       // Check for section headers - enhanced for log analysis
       if (trimmedLine.startsWith('**LOG SUMMARY:**')) {
         if (currentSection) sections.push(currentSection);
@@ -128,7 +131,7 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
         currentSection.content += line + '\n';
       }
     }
-    
+
     if (currentSection) sections.push(currentSection);
     return sections;
   };
@@ -172,14 +175,14 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
       monitoring: '#13c2c2',
       next_steps: '#722ed1',
       answer: '#52c41a',
-      yaml: '#13c2c2', 
+      yaml: '#13c2c2',
       suggestions: '#722ed1',
       warnings: '#fa8c16'
     };
 
     const borderColor = borderColors[type] || '#d9d9d9';
 
-    return { 
+    return {
       ...baseStyle,
       borderLeft: `4px solid ${borderColor}`
     };
@@ -209,8 +212,8 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
           rehypePlugins={[rehypeRaw]}
           components={{
             p: ({ children }) => (
-              <Typography.Paragraph style={{ 
-                marginBottom: 8, 
+              <Typography.Paragraph style={{
+                marginBottom: 8,
                 fontSize: 14,
                 color: '#595959',
                 lineHeight: '1.6'
@@ -221,13 +224,13 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
             code: ({ children, className }) => {
               const isInline = !className;
               const language = className ? className.replace('language-', '') : '';
-              
+
               if (isInline) {
                 return (
-                  <Typography.Text 
-                    code 
-                    style={{ 
-                      backgroundColor: 'rgba(0, 0, 0, 0.04)', 
+                  <Typography.Text
+                    code
+                    style={{
+                      backgroundColor: 'rgba(0, 0, 0, 0.04)',
                       color: '#d63384',
                       padding: '2px 6px',
                       borderRadius: 4,
@@ -238,7 +241,7 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
                   </Typography.Text>
                 );
               }
-              
+
               return (
                 <div style={{ position: 'relative', marginBottom: 16 }}>
                   {language && (
@@ -256,10 +259,10 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
                       {language.toUpperCase()}
                     </div>
                   )}
-                  <pre style={{ 
-                    backgroundColor: '#f6f8fa', 
-                    padding: 16, 
-                    borderRadius: 8, 
+                  <pre style={{
+                    backgroundColor: '#f6f8fa',
+                    padding: 16,
+                    borderRadius: 8,
                     overflow: 'auto',
                     border: '1px solid #e1e4e8',
                     fontSize: 13,
@@ -288,8 +291,8 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
         >
           <Space style={{ marginBottom: 16 }}>
             {getSectionIcon(section.type)}
-            <Typography.Title level={4} style={{ 
-              margin: 0, 
+            <Typography.Title level={4} style={{
+              margin: 0,
               color: '#262626'
             }}>
               {section.title}
@@ -299,25 +302,61 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
             remarkPlugins={[remarkGfm]}
             rehypePlugins={[rehypeRaw]}
             components={{
-              p: ({ children, ...props }) => {
-                const childText = String(children).trim();
+              p: ({ children }) => {
+                // Handle different children types properly
+                let childText = '';
+                if (typeof children === 'string') {
+                  childText = children;
+                } else if (Array.isArray(children)) {
+                  childText = children.map(child => {
+                    if (typeof child === 'string') return child;
+                    return String(child);
+                  }).join('');
+                } else {
+                  childText = String(children);
+                }
+
+                // Fix [object Object] and [Filter Name] issues by removing them
+                childText = childText.replace(/\[object Object\]/g, '')
+                  .replace(/\[Filter Name\]/g, '')
+                  .replace(/\[object\s+Object\]/gi, '')
+                  .replace(/\[filter\s+name\]/gi, '')
+                  .trim();
                 const isListHeader = childText.endsWith(':');
                 const isError = childText.startsWith('[HIGH]') || childText.startsWith('[MEDIUM]') || childText.startsWith('[LOW]');
                 const isNumberedHeader = /^\d+\.\s+[^:]*:$/.test(childText); // Like "1. Control Plane Connectivity:"
                 const isSectionHeader = isListHeader && (childText.includes('Plane') || childText.includes('Configuration') || childText.includes('Timing') || childText.includes('Connection') || childText.length > 10); // General section headers
-                
+
                 // Process text to highlight IP addresses and config values
                 const processText = (text: any) => {
-                  if (typeof text !== 'string') return text;
-                  
+                  // Handle different text types properly
+                  let textString = '';
+                  if (typeof text === 'string') {
+                    textString = text;
+                  } else if (Array.isArray(text)) {
+                    // Convert array of text nodes to string
+                    textString = text.map(item => {
+                      if (typeof item === 'string') return item;
+                      return String(item);
+                    }).join('');
+                  } else {
+                    textString = String(text);
+                  }
+
+                  // Fix [object Object] and [Filter Name] issues by handling them specifically
+                  textString = textString.replace(/\[object Object\]/g, '')
+                    .replace(/\[Filter Name\]/g, '')
+                    .replace(/\[object\s+Object\]/gi, '')
+                    .replace(/\[filter\s+name\]/gi, '');
+
                   // Split by double spaces or multiple spaces to handle line breaks
-                  const lines = text.split(/\s{2,}|\n/).filter(line => line.trim());
-                  
+                  const lines = textString.split(/\s{2,}|\n/).filter(line => line.trim());
+
                   return lines.map((line, lineIndex) => {
                     // Highlight IP addresses
                     const ipRegex = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/g;
                     const parts = line.split(ipRegex);
-                    
+
                     const processedLine = parts.map((part, index) => {
                       if (ipRegex.test(part)) {
                         return (
@@ -338,7 +377,7 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
                       }
                       return part;
                     });
-                    
+
                     // Return each line as a separate div to ensure proper line breaks
                     return (
                       <div key={lineIndex} style={{ marginBottom: lineIndex < lines.length - 1 ? 8 : 0 }}>
@@ -347,11 +386,11 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
                     );
                   });
                 };
-                
+
                 // Handle numbered headers and section headers specially
                 if (isNumberedHeader || isSectionHeader) {
                   return (
-                    <h4 style={{ 
+                    <h4 style={{
                       margin: '0px 0 12px 0',
                       fontSize: 15,
                       fontWeight: 600,
@@ -363,11 +402,11 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
                     </h4>
                   );
                 }
-                
+
                 return (
-                  <div style={{ 
-                    marginBottom: isListHeader ? 16 : 8, 
-                    fontSize: isListHeader ? 15 : 14, 
+                  <div style={{
+                    marginBottom: isListHeader ? 16 : 8,
+                    fontSize: isListHeader ? 15 : 14,
                     color: isError ? '#ff4d4f' : (isListHeader ? '#262626' : '#595959'),
                     fontWeight: isError || isListHeader ? 600 : 400,
                     marginTop: isListHeader ? 12 : 0,
@@ -382,8 +421,8 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
                 );
               },
               ul: ({ children }) => (
-                <ul style={{ 
-                  margin: '8px 0 12px 0', 
+                <ul style={{
+                  margin: '8px 0 12px 0',
                   listStyle: 'none',
                   paddingLeft: 0,
                   display: 'block'
@@ -392,7 +431,7 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
                 </ul>
               ),
               ol: ({ children }) => (
-                <ol style={{ 
+                <ol style={{
                   margin: '8px 0 12px 0',
                   paddingLeft: 0,
                   listStyle: 'none',
@@ -404,14 +443,14 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
               li: ({ children }) => {
                 const childrenText = String(children).trim();
                 const stepMatch = childrenText.match(/^(\d+)\.\s*(.+)/);
-                
+
                 // Handle numbered steps for solutions and next steps
                 if (stepMatch && (section.type === 'solutions' || section.type === 'next_steps' || section.type === 'answer')) {
                   const stepNumber = stepMatch[1];
                   const stepText = stepMatch[2];
-                  
+
                   return (
-                    <li style={{ 
+                    <li style={{
                       marginBottom: 16,
                       listStyle: 'none',
                       paddingLeft: 0,
@@ -437,7 +476,7 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
                         }}>
                           {stepNumber}
                         </div>
-                        
+
                         <div style={{
                           flex: 1,
                           padding: '12px 16px',
@@ -445,8 +484,8 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
                           borderRadius: 8,
                           border: '1px solid #f0f0f0'
                         }}>
-                          <Typography.Text style={{ 
-                            fontSize: 14, 
+                          <Typography.Text style={{
+                            fontSize: 14,
                             color: '#262626',
                             lineHeight: '1.6'
                           }}>
@@ -457,11 +496,11 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
                     </li>
                   );
                 }
-                
+
                 // Handle error entries with color coding
                 const isError = childrenText.startsWith('[HIGH]') || childrenText.startsWith('[MEDIUM]') || childrenText.startsWith('[LOW]');
                 const errorLevel = isError ? childrenText.match(/\[(HIGH|MEDIUM|LOW)\]/)?.[1] : null;
-                
+
                 const getErrorColor = (level: string | null) => {
                   switch (level) {
                     case 'HIGH': return '#ff4d4f';
@@ -470,27 +509,27 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
                     default: return '#1890ff';
                   }
                 };
-                
+
                 // Check if this list item is actually a section header
                 const isListItemHeader = childrenText.endsWith(':') && (
-                  childrenText.includes('Connectivity') || 
-                  childrenText.includes('Configuration') || 
-                  childrenText.includes('Initialization') || 
+                  childrenText.includes('Connectivity') ||
+                  childrenText.includes('Configuration') ||
+                  childrenText.includes('Initialization') ||
                   childrenText.includes('Plane') ||
                   /^\d+\.\s+[A-Z][^:]*:$/.test(childrenText) || // Numbered headers like "1. Control Plane Connectivity:"
                   childrenText.length > 15 // Longer text ending with colon is likely a header
                 );
-                
+
                 if (isListItemHeader) {
                   return (
-                    <li style={{ 
+                    <li style={{
                       listStyle: 'none',
                       paddingLeft: 0,
                       marginBottom: 8,
                       marginTop: 12,
                       display: 'block'
                     }}>
-                      <div style={{ 
+                      <div style={{
                         margin: 0,
                         fontSize: 15,
                         fontWeight: 600,
@@ -503,24 +542,24 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
                     </li>
                   );
                 }
-                
+
                 // Regular list items with proper bullet alignment
                 const bulletStyle = {
                   width: isError ? '8px' : '6px',
                   height: isError ? '8px' : '6px',
                   borderRadius: '50%',
-                  backgroundColor: isError ? getErrorColor(errorLevel) : 
-                    (section.type === 'warnings' ? '#fa8c16' : 
-                     section.type === 'errors' ? '#ff4d4f' : '#1890ff'),
+                  backgroundColor: isError ? getErrorColor(errorLevel) :
+                    (section.type === 'warnings' ? '#fa8c16' :
+                      section.type === 'errors' ? '#ff4d4f' : '#1890ff'),
                   display: 'inline-block',
                   marginRight: '12px',
                   marginTop: '0.5em',
                   verticalAlign: 'top',
                   flexShrink: 0
                 };
-                
+
                 return (
-                  <li style={{ 
+                  <li style={{
                     marginBottom: isError ? 12 : 8,
                     listStyle: 'none',
                     paddingLeft: 0,
@@ -532,11 +571,11 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
                     lineHeight: '1.6'
                   }}>
                     <span style={bulletStyle}></span>
-                    <div style={{ 
+                    <div style={{
                       display: 'inline-block',
                       width: 'calc(100% - 20px)',
                       verticalAlign: 'top',
-                      color: isError ? '#262626' : '#595959', 
+                      color: isError ? '#262626' : '#595959',
                       fontWeight: isError ? 500 : 400,
                       fontSize: 14,
                       lineHeight: '1.6'
@@ -548,7 +587,7 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
               },
               strong: ({ children }) => {
                 const text = String(children).trim();
-                
+
                 // Check if this is a UI navigation path (contains > or →)
                 if (text.includes('→') || text.includes('>') || text.includes('Sidebar') || text.includes('Tag Navigation')) {
                   return (
@@ -566,7 +605,7 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
                     </Typography.Text>
                   );
                 }
-                
+
                 // Check if this is a UI button/element (quoted text)
                 if (text.startsWith('"') && text.endsWith('"')) {
                   return (
@@ -583,17 +622,17 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
                     </Typography.Text>
                   );
                 }
-                
+
                 // Check if this is a section header that might be inline (ends with :)
                 if (text.endsWith(':') && text.length > 5) {
                   return (
-                    <div style={{ 
-                      marginTop: 16, 
+                    <div style={{
+                      marginTop: 16,
                       marginBottom: 8,
                       paddingTop: 8,
                       borderTop: '1px solid #f0f0f0'
                     }}>
-                      <Typography.Text strong style={{ 
+                      <Typography.Text strong style={{
                         color: '#262626',
                         fontSize: 15,
                         display: 'block'
@@ -603,14 +642,14 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
                     </div>
                   );
                 }
-                
+
                 // Check for error levels
                 if (text.includes('[HIGH]') || text.includes('[MEDIUM]') || text.includes('[LOW]')) {
                   const level = text.match(/\[(HIGH|MEDIUM|LOW)\]/)?.[1];
                   const color = level === 'HIGH' ? '#ff4d4f' : level === 'MEDIUM' ? '#fa8c16' : '#faad14';
-                  
+
                   return (
-                    <Typography.Text strong style={{ 
+                    <Typography.Text strong style={{
                       color: color,
                       backgroundColor: `${color}15`,
                       padding: '2px 6px',
@@ -621,9 +660,9 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
                     </Typography.Text>
                   );
                 }
-                
+
                 return (
-                  <Typography.Text strong style={{ 
+                  <Typography.Text strong style={{
                     color: '#262626'
                   }}>
                     {children}
@@ -633,13 +672,13 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
               code: ({ children, className }) => {
                 const isInline = !className;
                 const language = className ? className.replace('language-', '') : '';
-                
+
                 if (isInline) {
                   return (
-                    <Typography.Text 
-                      code 
-                      style={{ 
-                        backgroundColor: 'rgba(0, 0, 0, 0.04)', 
+                    <Typography.Text
+                      code
+                      style={{
+                        backgroundColor: 'rgba(0, 0, 0, 0.04)',
                         color: '#d63384',
                         padding: '2px 6px',
                         borderRadius: 4,
@@ -651,7 +690,7 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
                     </Typography.Text>
                   );
                 }
-                
+
                 // Handle YAML and other code blocks
                 return (
                   <div style={{ position: 'relative', marginBottom: 16 }}>
@@ -671,10 +710,10 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
                         {language.toUpperCase()}
                       </div>
                     )}
-                    <pre style={{ 
-                      backgroundColor: '#f6f8fa', 
-                      padding: 16, 
-                      borderRadius: 8, 
+                    <pre style={{
+                      backgroundColor: '#f6f8fa',
+                      padding: 16,
+                      borderRadius: 8,
                       overflow: 'auto',
                       border: '1px solid #e1e4e8',
                       fontSize: 13,
@@ -714,13 +753,7 @@ interface ResourceTypeOption {
   filterType?: string;
 }
 
-interface AIConfigAnalyzerProps {
-  onAnalysisComplete?: (result: ConfigAnalysisResult) => void;
-}
-
-const AIConfigAnalyzer: React.FC<AIConfigAnalyzerProps> = ({
-  onAnalysisComplete
-}) => {
+const AIConfigAnalyzer: React.FC = () => {
   const [selectedResourceType, setSelectedResourceType] = useState<string>('');
   const [selectedResource, setSelectedResource] = useState<string>('');
   const [question, setQuestion] = useState('');
@@ -730,11 +763,11 @@ const AIConfigAnalyzer: React.FC<AIConfigAnalyzerProps> = ({
   // API hooks
   const analyzeConfigMutation = useAnalyzeConfigMutation();
   const { data: availableResources, isLoading: resourcesLoading } = useAvailableResources(
-    selectedResourceType, 
+    selectedResourceType,
     !!selectedResourceType
   );
   const { data: aiStatus } = useAIStatus();
-  
+
   // Combine standard collections with component types
   const allResourceTypes: ResourceTypeOption[] = [
     ...(useResourceCollections().data || []).map(col => ({
@@ -766,10 +799,9 @@ const AIConfigAnalyzer: React.FC<AIConfigAnalyzerProps> = ({
 
   useEffect(() => {
     if (analysisResult) {
-      onAnalysisComplete?.(analysisResult);
       message.success('Configuration analysis completed successfully!');
     }
-  }, [analysisResult, onAnalysisComplete]);
+  }, [analysisResult]);
 
   const handleAnalyze = async () => {
     if (!selectedResourceType) {
@@ -792,7 +824,7 @@ const AIConfigAnalyzer: React.FC<AIConfigAnalyzerProps> = ({
       message.error('Selected resource not found');
       return;
     }
-    
+
     const resourceTypeInfo = allResourceTypes.find(rt => rt.key === selectedResourceType);
     if (!resourceTypeInfo) {
       message.error('Resource type information not found');
@@ -884,9 +916,9 @@ const AIConfigAnalyzer: React.FC<AIConfigAnalyzerProps> = ({
                 optionFilterProp="label"
               >
                 {allResourceTypes?.map((resourceType) => (
-                  <Option 
-                    key={resourceType.key} 
-                    value={resourceType.key} 
+                  <Option
+                    key={resourceType.key}
+                    value={resourceType.key}
                     label={resourceType.displayName}
                     title={resourceType.description}
                   >
@@ -979,7 +1011,7 @@ const AIConfigAnalyzer: React.FC<AIConfigAnalyzerProps> = ({
           // Analysis Results
           <Spin spinning={loading} tip="Analyzing configuration...">
             <Space direction="vertical" style={{ width: '100%' }} size="large">
-              
+
               {/* Success Header */}
               <Alert
                 message="Configuration Analysis Complete"
@@ -990,16 +1022,18 @@ const AIConfigAnalyzer: React.FC<AIConfigAnalyzerProps> = ({
               />
 
               {/* AI Analysis with Modern Cards */}
-              <div style={{ marginBottom: 24 }}>
+              <div style={{ marginBottom: 0 }}>
                 <AIAnalysisRenderer analysis={analysisResult.analysis} />
               </div>
+
+
 
               {/* Suggestions */}
               {analysisResult.suggestions && analysisResult.suggestions.length > 0 && (
                 <Card
                   title={
                     <Space>
-                      <BulbOutlined style={{ color: '#1890ff' }} />
+                      <BulbOutlined style={{ color: '#fff' }} />
                       <span>AI Suggestions</span>
                     </Space>
                   }
@@ -1119,6 +1153,70 @@ const AIConfigAnalyzer: React.FC<AIConfigAnalyzerProps> = ({
                   </Panel>
                 )}
               </Collapse>
+
+              {/* Token Usage Statistics */}
+              {analysisResult.token_usage && (
+                <Card
+                  size="small"
+                  style={{ marginBottom: 12 }}
+                  title={
+                    <Space>
+                      <RobotOutlined style={{ color: '#fff' }} />
+                      <Text strong style={{ color: '#fff' }}>AI Usage for This Analysis</Text>
+                    </Space>
+                  }
+                >
+                  <Row gutter={16}>
+                    <Col span={6}>
+                      <Statistic
+                        title="Input Tokens"
+                        value={analysisResult.token_usage.input_tokens}
+                        prefix={<InfoCircleOutlined />}
+                        valueStyle={{ color: '#1890ff' }}
+                      />
+                    </Col>
+                    <Col span={6}>
+                      <Statistic
+                        title="Output Tokens"
+                        value={analysisResult.token_usage.output_tokens}
+                        prefix={<CheckCircleOutlined />}
+                        valueStyle={{ color: '#52c41a' }}
+                      />
+                    </Col>
+                    <Col span={6}>
+                      <Statistic
+                        title="Total Tokens"
+                        value={analysisResult.token_usage.total_tokens}
+                        prefix={<RobotOutlined />}
+                        valueStyle={{ color: '#722ed1' }}
+                      />
+                    </Col>
+                    <Col span={6}>
+                      <Statistic
+                        title="Cost (USD)"
+                        value={analysisResult.token_usage.cost_usd}
+                        precision={4}
+                        prefix="$"
+                        valueStyle={{ color: '#fa8c16' }}
+                      />
+                    </Col>
+                  </Row>
+                  <div style={{
+                    marginTop: 16,
+                    padding: '8px 12px',
+                    background: '#f6ffed',
+                    border: '1px solid #b7eb8f',
+                    borderRadius: 6
+                  }}>
+                    <Space>
+                      <CheckCircleOutlined style={{ color: '#52c41a' }} />
+                      <Text style={{ fontSize: 12 }}>
+                        This analysis consumed {analysisResult.token_usage.total_tokens} tokens from your AI quota
+                      </Text>
+                    </Space>
+                  </div>
+                </Card>
+              )}
             </Space>
           </Spin>
         )}
