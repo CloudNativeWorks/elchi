@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { Dropdown, Table, Pagination, Tag, Typography, Input } from 'antd';
+import { Dropdown, Table, Pagination, Tag, Typography, Input, Space, Card } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { ActionsSVG } from '@/assets/svg/icons';
 import { DateTimeTool } from '@/utils/date-time-tool';
 import { useCustomGetQuery } from '@/common/api';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
-import { DeleteOutlined, EditOutlined, InboxOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, InboxOutlined, CloudServerOutlined, SearchOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 
 
-const { Text } = Typography;
+const { Title, Text } = Typography;
 interface DataType {
     id: string;
     client_id: string;
@@ -220,25 +220,40 @@ const Clients: React.FC = () => {
 
     return (
         <>
-            <div style={{
-                background: '#fff',
-                padding: '12px 12px 24px 12px',
-                borderRadius: 12,
-                boxShadow: '0 2px 8px rgba(5,117,230,0.06)',
-                margin: '4px 0'
-            }}>
-                <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16, justifyContent: 'space-between' }}>
-                    <div />
-                    <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            {/* Header Section - Outside Card */}
+            <div style={{ marginBottom: 16 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                    <Space>
+                        <CloudServerOutlined style={{ color: '#1890ff', fontSize: 24 }} />
+                        <Title level={4} style={{ margin: 0 }}>Clients</Title>
+                    </Space>
+                    <Space>
                         <Input.Search
-                            placeholder="Search Clients..."
+                            placeholder="Search clients..."
                             allowClear
                             value={searchText}
                             onChange={e => setSearchText(e.target.value)}
-                            style={{ width: 220 }}
+                            style={{ width: 250 }}
+                            prefix={<SearchOutlined />}
                         />
-                    </span>
+                    </Space>
                 </div>
+                
+                <Text type="secondary">
+                    Connected clients and their configuration status across your infrastructure.
+                </Text>
+            </div>
+
+            {/* Data Table Card */}
+            <Card 
+                style={{
+                    borderRadius: 12,
+                    boxShadow: '0 2px 8px rgba(5,117,230,0.06)',
+                }}
+                styles={{
+                    body: { padding: 12 }
+                }}
+            >
                 <Table
                     loading={isLoadingResource}
                     rowKey={(record) => record?.groupname || record?.id}
@@ -279,7 +294,7 @@ const Clients: React.FC = () => {
                         showSizeChanger={false}
                     />
                 </div>
-            </div>
+            </Card>
         </>
     );
 };

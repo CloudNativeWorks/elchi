@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Tabs, Typography } from 'antd';
+import { Card, Tabs, Typography, Space } from 'antd';
 import { UserOutlined, TeamOutlined, ProjectOutlined, SettingOutlined, AppstoreOutlined, KeyOutlined, DatabaseOutlined } from '@ant-design/icons';
 import General from './General';
 import Users from './users';
@@ -8,7 +8,7 @@ import Projects from './Projects';
 import Tokens from './Tokens';
 import RegistryInfo from './RegistryInfo';
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
 
 const Settings: React.FC = () => {
     const tabItems = [
@@ -75,19 +75,31 @@ const Settings: React.FC = () => {
     ];
 
     return (
-        <div style={{ width: '100%', marginTop: '3px', padding: 0 }}>
-            <Card style={{ borderRadius: 12, boxShadow: '0 2px 8px rgba(5,117,230,0.06)', margin: '0 auto' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <SettingOutlined 
-                            style={{ 
-                                fontSize: '22px', 
-                                color: '#056ccd'
-                            }} 
-                        />
+        <>
+            {/* Header Section - Outside Card */}
+            <div style={{ marginBottom: 16 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                    <Space>
+                        <SettingOutlined style={{ color: '#1890ff', fontSize: 24 }} />
                         <Title level={4} style={{ margin: 0 }}>Settings</Title>
-                    </div>
+                    </Space>
                 </div>
+                
+                <Text type="secondary">
+                    Manage your application settings, users, groups, projects, API tokens, and registry configuration.
+                </Text>
+            </div>
+
+            {/* Settings Card */}
+            <Card 
+                style={{ 
+                    borderRadius: 12, 
+                    boxShadow: '0 2px 8px rgba(5,117,230,0.06)'
+                }}
+                styles={{
+                    body: { padding: 24 }
+                }}
+            >
                 <Tabs
                     defaultActiveKey="general"
                     items={tabItems}
@@ -97,9 +109,7 @@ const Settings: React.FC = () => {
                     destroyOnHidden
                 />
             </Card>
-
-            <div style={{ height: 32 }} />
-        </div>
+        </>
     );
 };
 
