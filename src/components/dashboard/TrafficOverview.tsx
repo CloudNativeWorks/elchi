@@ -325,21 +325,18 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
     const fetchDomainDetails = async (type: 'requests' | 'connections' | 'traffic') => {
         setModalLoading(true);
         try {
-            const now = Math.floor(Date.now() / 1000);
-            const startTime = now - 60;
-            const endTime = now;
-
-            // First, get all unique domains for this project
-            // Metric names format: {domain}_{projectId}_{metric_name}
+            // Use instant query for latest values - no time range needed
             const domainsResult = await metricsApiMutation.mutateAsync({
                 name: '.*',
                 metric: 'http_downstream_rq_total',
-                start: startTime,
-                end: endTime,
+                start: Math.floor(Date.now() / 1000) - 60,
+                end: Math.floor(Date.now() / 1000),
                 metricConfig: {
-                    queryTemplate: `{__name__=~".*_${project}_http_downstream_rq_total"}`
+                    queryTemplate: `{__name__=~".*_%{project}_http_downstream_rq_total"}`
                 }
             });
+            
+            console.log('Domains result:', domainsResult);
 
             // Extract unique domains from metric names
             const domains = new Set<string>();
@@ -348,84 +345,154 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                     const metricName = series.metric?.__name__;
                     if (metricName) {
                         // Extract domain from metric name: {domain}_{projectId}_{metric_name}
-                        const parts = metricName.split(`_${project}_`);
-                        if (parts.length > 0) {
-                            const domainPart = parts[0];
+                        // Find the project ID in the metric name and extract domain
+                        const projectIndex = metricName.indexOf(`_${project}_`);
+                        if (projectIndex > 0) {
+                            const domainPart = metricName.substring(0, projectIndex);
                             // Convert underscore to dots for domain format
                             const domain = domainPart.replace(/_/g, '.');
                             domains.add(domain);
+                            console.log('Found domain:', domain, 'from metric:', metricName);
                         }
                     }
                 });
             }
 
-            // Now fetch metrics for each domain
+            // Now fetch metrics for each domain using the aggregated queries similar to main dashboard
             const domainMetrics: { [key: string]: DetailedMetric } = {};
             
             for (const domain of domains) {
                 const domainKey = domain.replace(/\./g, '_'); // Convert back to underscore for metric name
+                console.log('Processing domain:', domain, 'with key:', domainKey);
                 
                 if (type === 'requests') {
-                    // Fetch request rate and errors for each domain
+                    // Use instant queries to get latest rate values for domain
                     const [reqRate, errors4xx, errors5xx] = await Promise.all([
                         metricsApiMutation.mutateAsync({
                             name: '.*',
                             metric: 'http_downstream_rq_total',
-                            start: startTime,
-                            end: endTime,
+                            start: Math.floor(Date.now() / 1000) - 60,
+                            end: Math.floor(Date.now() / 1000),
                             metricConfig: {
-                                queryTemplate: `rate(${domainKey}_${project}_http_downstream_rq_total[30s])`
+                                queryTemplate: `sum(rate({__name__=~"${domainKey}_%{project}_http_downstream_rq_total", envoy_http_conn_manager_prefix!="admin"}[%{window}s]))`,
+                                windowSecs: {
+                                    default: 15,
+                                    ranges: [
+                                        { threshold: 2 * 24 * 60 * 60, value: 300 },
+                                        { threshold: 24 * 60 * 60, value: 60 },
+                                        { threshold: 1 * 60 * 60, value: 30 }
+                                    ]
+                                }
                             }
                         }),
                         metricsApiMutation.mutateAsync({
                             name: '.*',
                             metric: 'http_downstream_rq_xx_total',
-                            start: startTime,
-                            end: endTime,
+                            start: Math.floor(Date.now() / 1000) - 60,
+                            end: Math.floor(Date.now() / 1000),
                             metricConfig: {
-                                queryTemplate: `rate(${domainKey}_${project}_http_downstream_rq_xx_total{envoy_response_code_class="4"}[30s])`
+                                queryTemplate: `sum(rate({__name__=~"${domainKey}_%{project}_http_downstream_rq_xx_total", envoy_http_conn_manager_prefix!="admin", envoy_response_code_class="4"}[%{window}s]))`,
+                                windowSecs: {
+                                    default: 15,
+                                    ranges: [
+                                        { threshold: 2 * 24 * 60 * 60, value: 300 },
+                                        { threshold: 24 * 60 * 60, value: 60 },
+                                        { threshold: 1 * 60 * 60, value: 30 }
+                                    ]
+                                }
                             }
                         }),
                         metricsApiMutation.mutateAsync({
                             name: '.*',
                             metric: 'http_downstream_rq_xx_total',
-                            start: startTime,
-                            end: endTime,
+                            start: Math.floor(Date.now() / 1000) - 60,
+                            end: Math.floor(Date.now() / 1000),
                             metricConfig: {
-                                queryTemplate: `rate(${domainKey}_${project}_http_downstream_rq_xx_total{envoy_response_code_class="5"}[30s])`
+                                queryTemplate: `sum(rate({__name__=~"${domainKey}_%{project}_http_downstream_rq_xx_total", envoy_http_conn_manager_prefix!="admin", envoy_response_code_class="5"}[%{window}s]))`,
+                                windowSecs: {
+                                    default: 15,
+                                    ranges: [
+                                        { threshold: 2 * 24 * 60 * 60, value: 300 },
+                                        { threshold: 24 * 60 * 60, value: 60 },
+                                        { threshold: 1 * 60 * 60, value: 30 }
+                                    ]
+                                }
                             }
                         })
                     ]);
                     
+                    console.log('Request results for domain:', domain);
+                    console.log('Request rate result:', reqRate);
+                    console.log('4xx errors result:', errors4xx);
+                    console.log('5xx errors result:', errors5xx);
+                    
+                    const getMetricValue = (result: any) => {
+                        if (result?.data?.result?.length > 0) {
+                            let totalValue = 0;
+                            result.data.result.forEach((series: any) => {
+                                if (series.values && series.values.length > 0) {
+                                    const lastPoint = series.values[series.values.length - 1];
+                                    const value = parseFloat(lastPoint[1]) || 0;
+                                    totalValue += value;
+                                } else if (series.value) {
+                                    const value = parseFloat(series.value[1]) || 0;
+                                    totalValue += value;
+                                }
+                            });
+                            return totalValue;
+                        }
+                        return 0;
+                    };
+                    
                     domainMetrics[domain] = {
                         domain: domain,
-                        requests: reqRate?.data?.result?.[0]?.value?.[1] ? parseFloat(reqRate.data.result[0].value[1]) : 0,
+                        requests: getMetricValue(reqRate),
                         connections: 0,
                         incomingBytes: 0,
                         outgoingBytes: 0,
-                        errors4xx: errors4xx?.data?.result?.[0]?.value?.[1] ? parseFloat(errors4xx.data.result[0].value[1]) : 0,
-                        errors5xx: errors5xx?.data?.result?.[0]?.value?.[1] ? parseFloat(errors5xx.data.result[0].value[1]) : 0,
+                        errors4xx: getMetricValue(errors4xx),
+                        errors5xx: getMetricValue(errors5xx),
                         healthy: 1,
                         total: 1,
                         status: 'healthy'
                     };
                     
                 } else if (type === 'connections') {
-                    // Fetch active connections for each domain
+                    // Fetch active connections for each domain using instant query
                     const connResult = await metricsApiMutation.mutateAsync({
                         name: '.*',
-                        metric: 'http_downstream_cx_active',
-                        start: startTime,
-                        end: endTime,
+                        metric: 'listener_downstream_cx_active',
+                        start: Math.floor(Date.now() / 1000) - 60,
+                        end: Math.floor(Date.now() / 1000),
                         metricConfig: {
-                            queryTemplate: `${domainKey}_${project}_http_downstream_cx_active`
+                            queryTemplate: `sum({__name__=~"${domainKey}_%{project}_listener_downstream_cx_active"})`
                         }
                     });
+                    
+                    console.log('Connection result for domain:', domain, connResult);
+                    
+                    const getMetricValue = (result: any) => {
+                        if (result?.data?.result?.length > 0) {
+                            let totalValue = 0;
+                            result.data.result.forEach((series: any) => {
+                                if (series.values && series.values.length > 0) {
+                                    const lastPoint = series.values[series.values.length - 1];
+                                    const value = parseFloat(lastPoint[1]) || 0;
+                                    totalValue += value;
+                                } else if (series.value) {
+                                    const value = parseFloat(series.value[1]) || 0;
+                                    totalValue += value;
+                                }
+                            });
+                            return totalValue;
+                        }
+                        return 0;
+                    };
                     
                     domainMetrics[domain] = {
                         domain: domain,
                         requests: 0,
-                        connections: connResult?.data?.result?.[0]?.value?.[1] ? parseFloat(connResult.data.result[0].value[1]) : 0,
+                        connections: getMetricValue(connResult),
                         incomingBytes: 0,
                         outgoingBytes: 0,
                         errors4xx: 0,
@@ -436,34 +503,72 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                     };
                     
                 } else if (type === 'traffic') {
-                    // Fetch traffic metrics for each domain
+                    // Fetch traffic metrics for each domain using instant queries
                     const [rxBytes, txBytes] = await Promise.all([
                         metricsApiMutation.mutateAsync({
                             name: '.*',
                             metric: 'http_downstream_cx_rx_bytes_total',
-                            start: startTime,
-                            end: endTime,
+                            start: Math.floor(Date.now() / 1000) - 60,
+                            end: Math.floor(Date.now() / 1000),
                             metricConfig: {
-                                queryTemplate: `rate(${domainKey}_${project}_http_downstream_cx_rx_bytes_total[30s])`
+                                queryTemplate: `sum(rate({__name__=~"${domainKey}_%{project}_http_downstream_cx_rx_bytes_total", envoy_http_conn_manager_prefix!="admin"}[%{window}s]))`,
+                                windowSecs: {
+                                    default: 15,
+                                    ranges: [
+                                        { threshold: 2 * 24 * 60 * 60, value: 300 },
+                                        { threshold: 24 * 60 * 60, value: 60 },
+                                        { threshold: 1 * 60 * 60, value: 30 }
+                                    ]
+                                }
                             }
                         }),
                         metricsApiMutation.mutateAsync({
                             name: '.*',
                             metric: 'http_downstream_cx_tx_bytes_total',
-                            start: startTime,
-                            end: endTime,
+                            start: Math.floor(Date.now() / 1000) - 60,
+                            end: Math.floor(Date.now() / 1000),
                             metricConfig: {
-                                queryTemplate: `rate(${domainKey}_${project}_http_downstream_cx_tx_bytes_total[30s])`
+                                queryTemplate: `sum(rate({__name__=~"${domainKey}_%{project}_http_downstream_cx_tx_bytes_total", envoy_http_conn_manager_prefix!="admin"}[%{window}s]))`,
+                                windowSecs: {
+                                    default: 15,
+                                    ranges: [
+                                        { threshold: 2 * 24 * 60 * 60, value: 300 },
+                                        { threshold: 24 * 60 * 60, value: 60 },
+                                        { threshold: 1 * 60 * 60, value: 30 }
+                                    ]
+                                }
                             }
                         })
                     ]);
+                    
+                    console.log('Traffic results for domain:', domain);
+                    console.log('RX bytes result:', rxBytes);
+                    console.log('TX bytes result:', txBytes);
+                    
+                    const getMetricValue = (result: any) => {
+                        if (result?.data?.result?.length > 0) {
+                            let totalValue = 0;
+                            result.data.result.forEach((series: any) => {
+                                if (series.values && series.values.length > 0) {
+                                    const lastPoint = series.values[series.values.length - 1];
+                                    const value = parseFloat(lastPoint[1]) || 0;
+                                    totalValue += value;
+                                } else if (series.value) {
+                                    const value = parseFloat(series.value[1]) || 0;
+                                    totalValue += value;
+                                }
+                            });
+                            return totalValue;
+                        }
+                        return 0;
+                    };
                     
                     domainMetrics[domain] = {
                         domain: domain,
                         requests: 0,
                         connections: 0,
-                        incomingBytes: rxBytes?.data?.result?.[0]?.value?.[1] ? parseFloat(rxBytes.data.result[0].value[1]) : 0,
-                        outgoingBytes: txBytes?.data?.result?.[0]?.value?.[1] ? parseFloat(txBytes.data.result[0].value[1]) : 0,
+                        incomingBytes: getMetricValue(rxBytes),
+                        outgoingBytes: getMetricValue(txBytes),
                         errors4xx: 0,
                         errors5xx: 0,
                         healthy: 1,
@@ -472,6 +577,8 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                     };
                 }
             }
+
+            console.log('Final domain metrics:', domainMetrics);
 
             // Convert to array and determine status
             const domainList = Object.values(domainMetrics).map(item => {
