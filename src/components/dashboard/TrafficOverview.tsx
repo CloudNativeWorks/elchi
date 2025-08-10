@@ -321,6 +321,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
     };
 
     // Fetch detailed domain metrics from VictoriaMetrics
+    // Domain info is in metric name prefix: {domain}_{projectId}_{metric_name}
     const fetchDomainDetails = async (type: 'requests' | 'connections' | 'traffic') => {
         setModalLoading(true);
         try {
@@ -328,132 +329,152 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
             const startTime = now - 60;
             const endTime = now;
 
-            // Fetch metrics grouped by domain/virtual host
-            const metricQueries = {
-                requests: `sum by(envoy_virtual_host_name) (rate({__name__=~".*_${project}_http_downstream_rq_total", envoy_http_conn_manager_prefix!="admin"}[30s]))`,
-                connections: `sum by(envoy_virtual_host_name) ({__name__=~".*_${project}_listener_downstream_cx_active"})`,
-                traffic: {
-                    incoming: `sum by(envoy_virtual_host_name) (rate({__name__=~".*_${project}_http_downstream_cx_rx_bytes_total", envoy_http_conn_manager_prefix!="admin"}[30s]))`,
-                    outgoing: `sum by(envoy_virtual_host_name) (rate({__name__=~".*_${project}_http_downstream_cx_tx_bytes_total", envoy_http_conn_manager_prefix!="admin"}[30s]))`
-                }
-            };
-
-            const requests = [];
-            
-            if (type === 'requests') {
-                requests.push(
-                    metricsApiMutation.mutateAsync({
-                        name: '.*',
-                        metric: 'http_downstream_rq_total',
-                        start: startTime,
-                        end: endTime,
-                        metricConfig: {
-                            queryTemplate: metricQueries.requests
-                        }
-                    }),
-                    metricsApiMutation.mutateAsync({
-                        name: '.*',
-                        metric: 'http_downstream_rq_xx_total',
-                        start: startTime,
-                        end: endTime,
-                        metricConfig: {
-                            queryTemplate: `sum by(envoy_virtual_host_name) (rate({__name__=~".*_${project}_http_downstream_rq_xx_total", envoy_http_conn_manager_prefix!="admin", envoy_response_code_class="4"}[30s]))`
-                        }
-                    }),
-                    metricsApiMutation.mutateAsync({
-                        name: '.*',
-                        metric: 'http_downstream_rq_xx_total',
-                        start: startTime,
-                        end: endTime,
-                        metricConfig: {
-                            queryTemplate: `sum by(envoy_virtual_host_name) (rate({__name__=~".*_${project}_http_downstream_rq_xx_total", envoy_http_conn_manager_prefix!="admin", envoy_response_code_class="5"}[30s]))`
-                        }
-                    })
-                );
-            } else if (type === 'connections') {
-                requests.push(
-                    metricsApiMutation.mutateAsync({
-                        name: '.*',
-                        metric: 'listener_downstream_cx_active',
-                        start: startTime,
-                        end: endTime,
-                        metricConfig: {
-                            queryTemplate: metricQueries.connections
-                        }
-                    })
-                );
-            } else if (type === 'traffic') {
-                requests.push(
-                    metricsApiMutation.mutateAsync({
-                        name: '.*',
-                        metric: 'http_downstream_cx_rx_bytes_total',
-                        start: startTime,
-                        end: endTime,
-                        metricConfig: {
-                            queryTemplate: metricQueries.traffic.incoming
-                        }
-                    }),
-                    metricsApiMutation.mutateAsync({
-                        name: '.*',
-                        metric: 'http_downstream_cx_tx_bytes_total',
-                        start: startTime,
-                        end: endTime,
-                        metricConfig: {
-                            queryTemplate: metricQueries.traffic.outgoing
-                        }
-                    })
-                );
-            }
-
-            const results = await Promise.all(requests);
-            const domainData: { [key: string]: DetailedMetric } = {};
-
-            // Process results and group by domain
-            results.forEach((result, index) => {
-                if (result?.data?.result?.length > 0) {
-                    result.data.result.forEach((series: any) => {
-                        const domain = series.metric?.envoy_virtual_host_name || 'unknown';
-                        if (!domain || domain === 'unknown') return;
-
-                        if (!domainData[domain]) {
-                            domainData[domain] = {
-                                domain: domain,
-                                requests: 0,
-                                connections: 0,
-                                incomingBytes: 0,
-                                outgoingBytes: 0,
-                                errors4xx: 0,
-                                errors5xx: 0,
-                                healthy: 0,
-                                total: 1,
-                                status: 'healthy'
-                            };
-                        }
-
-                        let value = 0;
-                        if (series.values && series.values.length > 0) {
-                            const lastPoint = series.values[series.values.length - 1];
-                            value = parseFloat(lastPoint[1]) || 0;
-                        } else if (series.value) {
-                            value = parseFloat(series.value[1]) || 0;
-                        }
-
-                        if (type === 'requests') {
-                            if (index === 0) domainData[domain].requests = value;
-                            else if (index === 1) domainData[domain].errors4xx = value;
-                            else if (index === 2) domainData[domain].errors5xx = value;
-                        } else if (type === 'connections') {
-                            domainData[domain].connections = value;
-                        } else if (type === 'traffic') {
-                            if (index === 0) domainData[domain].incomingBytes = value;
-                            else if (index === 1) domainData[domain].outgoingBytes = value;
-                        }
-                    });
+            // First, get all unique domains for this project
+            // Metric names format: {domain}_{projectId}_{metric_name}
+            const domainsResult = await metricsApiMutation.mutateAsync({
+                name: '.*',
+                metric: 'http_downstream_rq_total',
+                start: startTime,
+                end: endTime,
+                metricConfig: {
+                    queryTemplate: `{__name__=~".*_${project}_http_downstream_rq_total"}`
                 }
             });
 
+            // Extract unique domains from metric names
+            const domains = new Set<string>();
+            if (domainsResult?.data?.result?.length > 0) {
+                domainsResult.data.result.forEach((series: any) => {
+                    const metricName = series.metric?.__name__;
+                    if (metricName) {
+                        // Extract domain from metric name: {domain}_{projectId}_{metric_name}
+                        const parts = metricName.split(`_${project}_`);
+                        if (parts.length > 0) {
+                            const domainPart = parts[0];
+                            // Convert underscore to dots for domain format
+                            const domain = domainPart.replace(/_/g, '.');
+                            domains.add(domain);
+                        }
+                    }
+                });
+            }
+
+            // Now fetch metrics for each domain
+            const domainMetrics: { [key: string]: DetailedMetric } = {};
+            
+            for (const domain of domains) {
+                const domainKey = domain.replace(/\./g, '_'); // Convert back to underscore for metric name
+                
+                if (type === 'requests') {
+                    // Fetch request rate and errors for each domain
+                    const [reqRate, errors4xx, errors5xx] = await Promise.all([
+                        metricsApiMutation.mutateAsync({
+                            name: '.*',
+                            metric: 'http_downstream_rq_total',
+                            start: startTime,
+                            end: endTime,
+                            metricConfig: {
+                                queryTemplate: `rate(${domainKey}_${project}_http_downstream_rq_total[30s])`
+                            }
+                        }),
+                        metricsApiMutation.mutateAsync({
+                            name: '.*',
+                            metric: 'http_downstream_rq_xx_total',
+                            start: startTime,
+                            end: endTime,
+                            metricConfig: {
+                                queryTemplate: `rate(${domainKey}_${project}_http_downstream_rq_xx_total{envoy_response_code_class="4"}[30s])`
+                            }
+                        }),
+                        metricsApiMutation.mutateAsync({
+                            name: '.*',
+                            metric: 'http_downstream_rq_xx_total',
+                            start: startTime,
+                            end: endTime,
+                            metricConfig: {
+                                queryTemplate: `rate(${domainKey}_${project}_http_downstream_rq_xx_total{envoy_response_code_class="5"}[30s])`
+                            }
+                        })
+                    ]);
+                    
+                    domainMetrics[domain] = {
+                        domain: domain,
+                        requests: reqRate?.data?.result?.[0]?.value?.[1] ? parseFloat(reqRate.data.result[0].value[1]) : 0,
+                        connections: 0,
+                        incomingBytes: 0,
+                        outgoingBytes: 0,
+                        errors4xx: errors4xx?.data?.result?.[0]?.value?.[1] ? parseFloat(errors4xx.data.result[0].value[1]) : 0,
+                        errors5xx: errors5xx?.data?.result?.[0]?.value?.[1] ? parseFloat(errors5xx.data.result[0].value[1]) : 0,
+                        healthy: 1,
+                        total: 1,
+                        status: 'healthy'
+                    };
+                    
+                } else if (type === 'connections') {
+                    // Fetch active connections for each domain
+                    const connResult = await metricsApiMutation.mutateAsync({
+                        name: '.*',
+                        metric: 'http_downstream_cx_active',
+                        start: startTime,
+                        end: endTime,
+                        metricConfig: {
+                            queryTemplate: `${domainKey}_${project}_http_downstream_cx_active`
+                        }
+                    });
+                    
+                    domainMetrics[domain] = {
+                        domain: domain,
+                        requests: 0,
+                        connections: connResult?.data?.result?.[0]?.value?.[1] ? parseFloat(connResult.data.result[0].value[1]) : 0,
+                        incomingBytes: 0,
+                        outgoingBytes: 0,
+                        errors4xx: 0,
+                        errors5xx: 0,
+                        healthy: 1,
+                        total: 1,
+                        status: 'healthy'
+                    };
+                    
+                } else if (type === 'traffic') {
+                    // Fetch traffic metrics for each domain
+                    const [rxBytes, txBytes] = await Promise.all([
+                        metricsApiMutation.mutateAsync({
+                            name: '.*',
+                            metric: 'http_downstream_cx_rx_bytes_total',
+                            start: startTime,
+                            end: endTime,
+                            metricConfig: {
+                                queryTemplate: `rate(${domainKey}_${project}_http_downstream_cx_rx_bytes_total[30s])`
+                            }
+                        }),
+                        metricsApiMutation.mutateAsync({
+                            name: '.*',
+                            metric: 'http_downstream_cx_tx_bytes_total',
+                            start: startTime,
+                            end: endTime,
+                            metricConfig: {
+                                queryTemplate: `rate(${domainKey}_${project}_http_downstream_cx_tx_bytes_total[30s])`
+                            }
+                        })
+                    ]);
+                    
+                    domainMetrics[domain] = {
+                        domain: domain,
+                        requests: 0,
+                        connections: 0,
+                        incomingBytes: rxBytes?.data?.result?.[0]?.value?.[1] ? parseFloat(rxBytes.data.result[0].value[1]) : 0,
+                        outgoingBytes: txBytes?.data?.result?.[0]?.value?.[1] ? parseFloat(txBytes.data.result[0].value[1]) : 0,
+                        errors4xx: 0,
+                        errors5xx: 0,
+                        healthy: 1,
+                        total: 1,
+                        status: 'healthy'
+                    };
+                }
+            }
+
             // Convert to array and determine status
-            const domainList = Object.values(domainData).map(item => {
+            const domainList = Object.values(domainMetrics).map(item => {
                 const totalErrors = item.errors4xx + item.errors5xx;
                 const errorRate = item.requests > 0 ? (totalErrors / item.requests) * 100 : 0;
                 

@@ -35,6 +35,16 @@ const Discovery: React.FC = () => {
     message.success('Cluster data refreshed');
   };
 
+  // Calculate status based on last_seen time
+  const getClusterStatus = (lastSeen: string) => {
+    const lastSeenTime = new Date(lastSeen).getTime();
+    const currentTime = new Date().getTime();
+    const timeDifference = currentTime - lastSeenTime;
+    const tenMinutesInMs = 10 * 60 * 1000; // 10 minutes in milliseconds
+    
+    return timeDifference > tenMinutesInMs ? 'inactive' : 'active';
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active': return 'green';
@@ -92,11 +102,12 @@ kubectl get pods -n elchi-system`;
     },
     {
       title: 'Status',
-      dataIndex: 'status',
+      dataIndex: 'last_seen',
       key: 'status',
-      render: (status: string) => (
-        <Tag color={getStatusColor(status)}>{status.toUpperCase()}</Tag>
-      ),
+      render: (lastSeen: string) => {
+        const status = getClusterStatus(lastSeen);
+        return <Tag color={getStatusColor(status)}>{status.toUpperCase()}</Tag>;
+      },
     },
     {
       title: 'Version',
@@ -282,10 +293,15 @@ kubectl get pods -n elchi-system`;
                   <Text strong>{selectedCluster.cluster_name}</Text>
                 </Descriptions.Item>
                 <Descriptions.Item label="Status">
-                  <Badge 
-                    status={getStatusColor(selectedCluster.status) as any} 
-                    text={selectedCluster.status.toUpperCase()} 
-                  />
+                  {(() => {
+                    const status = getClusterStatus(selectedCluster.last_seen);
+                    return (
+                      <Badge 
+                        status={getStatusColor(status) as any} 
+                        text={status.toUpperCase()} 
+                      />
+                    );
+                  })()}
                 </Descriptions.Item>
                 <Descriptions.Item label="Version">
                   <Text code>{selectedCluster.cluster_version}</Text>
