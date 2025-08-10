@@ -1,15 +1,16 @@
-import { Form, Row, Divider, Col, Input, Button, Switch } from 'antd';
+import { Row, Col, Input, Button, Switch, Card, Space, Typography } from 'antd';
 import { RenderCreateUpdate } from './CreateUpdate';
 import { ConfigDiscovery } from '@/common/types';
 import { GTypeFieldsBase } from '@/common/statics/gtypes';
-import { EForm } from './e-components/EForm';
 import NodeWarnings from './NodeWarnings';
-import { InfoCircleTwoTone } from '@ant-design/icons';
+import { InfoCircleOutlined, FileTextOutlined, CodeOutlined, RocketOutlined } from '@ant-design/icons';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import { useCustomGetQuery } from '@/common/api';
 import { useState } from 'react';
 import SnapshotDetails from './SnapshotDetails';
 import HowToStart from './HowTo';
+
+const { Text, Title } = Typography;
 
 
 interface RenderFormItemProps {
@@ -48,44 +49,92 @@ type createUpdate = {
 export const HeadOfResource = ({ generalName, version, changeGeneralName, locationCheck, createUpdate }: RenderFormItemProps) => {
     const [showHowTo, setShowHowTo] = useState(false);
     return (
-        <div style={{ background: '#fff', borderRadius: 12, padding: 12, boxShadow: '0 2px 8px rgba(5,117,230,0.06)', marginBottom: 24 }}>
-            <Row id="headofresource" justify="space-around" align="middle">
-                <Col md={18}>
-                    <Divider type="horizontal" orientation="left" orientationMargin="0">General</Divider>
-                    <EForm>
-                        <Row gutter={[5, 1]}>
-                            <Col span={6}>
-                                <Form.Item required label={`Name:`} style={{ display: 'inline-block', width: "100%" }}>
-                                    <Input
-                                        value={generalName}
-                                        onChange={(event) => changeGeneralName(event.target.value)}
-                                        disabled={!locationCheck}
-                                    />
-                                </Form.Item>
+        <Card 
+            style={{ 
+                borderRadius: 12, 
+                boxShadow: '0 2px 8px rgba(5,117,230,0.06)', 
+                marginBottom: 24 
+            }}
+            styles={{
+                body: { padding: 16 }
+            }}
+        >
+            <Row align="middle" justify="space-between">
+                <Col flex="1" style={{ paddingRight: 24 }}>
+                    <div style={{ marginBottom: 16 }}>
+                        <Space align="center">
+                            <FileTextOutlined style={{ color: '#1890ff', fontSize: 18 }} />
+                            <Title level={5} style={{ margin: 0, color: '#262626' }}>General</Title>
+                        </Space>
+                    </div>
+                    
+                    <Row gutter={[16, 12]}>
+                        <Col span={8}>
+                            <div>
+                                <Text style={{ fontSize: 12, fontWeight: 500, color: '#595959', display: 'block', marginBottom: 6 }}>
+                                    Name <Text type="danger">*</Text>
+                                </Text>
+                                <Input
+                                    value={generalName}
+                                    onChange={(event) => changeGeneralName(event.target.value)}
+                                    disabled={!locationCheck}
+                                    placeholder="Resource name"
+                                    style={{ 
+                                        borderRadius: 6,
+                                        fontSize: 14
+                                    }}
+                                />
+                            </div>
+                        </Col>
+                        <Col span={8}>
+                            <div>
+                                <Text style={{ fontSize: 12, fontWeight: 500, color: '#595959', display: 'block', marginBottom: 6 }}>
+                                    Version <Text type="danger">*</Text>
+                                </Text>
+                                <Input
+                                    value={version}
+                                    disabled
+                                    prefix={<CodeOutlined style={{ color: '#bfbfbf', fontSize: 14 }} />}
+                                    style={{ 
+                                        borderRadius: 6,
+                                        backgroundColor: '#fafafa',
+                                        fontSize: 14
+                                    }}
+                                />
+                            </div>
+                        </Col>
+                        {
+                            createUpdate.gtype === "envoy.config.bootstrap.v3.Bootstrap" &&
+                            <Col span={8}>
+                                <div>
+                                    <Text style={{ fontSize: 12, fontWeight: 500, color: '#595959', display: 'block', marginBottom: 6 }}>
+                                        Documentation
+                                    </Text>
+                                    <Button 
+                                        onClick={() => setShowHowTo(true)}
+                                        icon={<RocketOutlined />}
+                                        style={{ 
+                                            width: '100%',
+                                            borderRadius: 6,
+                                            height: 32
+                                        }}
+                                    >
+                                        How to Start
+                                    </Button>
+                                </div>
                             </Col>
-                            <Col span={6}>
-                                <Form.Item required label={`Version:`} style={{ display: 'inline-block', width: "100%" }}>
-                                    <Input
-                                        value={version}
-                                        disabled
-                                    />
-                                </Form.Item>
-                            </Col>
-                            {
-                                createUpdate.gtype === "envoy.config.bootstrap.v3.Bootstrap" &&
-                                <Col span={6}>
-                                    <Form.Item label={`How to start:`} style={{ display: 'inline-block', width: "100%" }}>
-                                        <Button onClick={() => setShowHowTo(true)}>
-                                            <InfoCircleTwoTone />
-                                        </Button>
-                                    </Form.Item>
-                                </Col>
-                            }
-                        </Row>
-                    </EForm>
+                        }
+                    </Row>
                 </Col>
-                <Col md={6} style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-                    <div style={{ width: '100%' }}>
+                
+                <Col>
+                    <div style={{ 
+                        borderLeft: '1px solid #f0f0f0',
+                        paddingLeft: 20,
+                        height: 100,
+                        display: 'flex',
+                        alignItems: 'center'
+                    }}>
                         <RenderCreateUpdate
                             location_path={createUpdate?.location_path}
                             offset={createUpdate.offset}
@@ -103,7 +152,7 @@ export const HeadOfResource = ({ generalName, version, changeGeneralName, locati
                 </Col>
             </Row>
             <HowToStart open={showHowTo} onClose={() => setShowHowTo(false)} />
-        </div>
+        </Card>
     )
 };
 
@@ -132,58 +181,117 @@ export const HeadOfResourceListener = ({ generalName, version, managed, changeGe
             <NodeWarnings err={queryData?.client?.errors} />
             <SnapshotDetails open={open} onClose={onClose} data={queryData?.client} />
 
-            <div style={{ background: '#fff', borderRadius: 12, padding: 12, boxShadow: '0 2px 8px rgba(5,117,230,0.06)', marginBottom: 24 }}>
-                <Row id="headofresource" justify="space-around" align="middle">
-                    <Col md={18}>
-                        <Divider type="horizontal" orientation="left" orientationMargin="0">General</Divider>
-                        <Form
-                            labelCol={{ span: 24 }}
-                            wrapperCol={{ span: 24 }}
-                            layout="vertical"
-                            size="small"
-                            style={{ maxWidth: "100%" }}
-                        >
-                            <Row gutter={[5, 1]}>
-                                <Col span={6}>
-                                    <Form.Item required label={`Name:`} style={{ display: 'inline-block', width: "100%" }}>
-                                        <Input
-                                            value={generalName}
-                                            onChange={(event) => changeGeneralName(event.target.value)}
-                                            disabled={!locationCheck}
-                                        />
-                                    </Form.Item>
-                                </Col>
-                                <Col span={6}>
-                                    <Form.Item required label={`Version:`} style={{ display: 'inline-block', width: "100%" }}>
-                                        <Input
-                                            value={version}
-                                            disabled
-                                        />
-                                    </Form.Item>
-                                </Col>
-                                <Col span={3}>
-                                    <Form.Item required label={`Managed:`} style={{ display: 'inline-block', width: "100%" }}>
+            <Card 
+                style={{ 
+                    borderRadius: 12, 
+                    boxShadow: '0 2px 8px rgba(5,117,230,0.06)', 
+                    marginBottom: 24 
+                }}
+                styles={{
+                    body: { padding: 16 }
+                }}
+            >
+                <Row align="middle" justify="space-between">
+                    <Col flex="1" style={{ paddingRight: 24 }}>
+                        <div style={{ marginBottom: 16 }}>
+                            <Space align="center">
+                                <FileTextOutlined style={{ color: '#1890ff', fontSize: 18 }} />
+                                <Title level={5} style={{ margin: 0, color: '#262626' }}>General</Title>
+                            </Space>
+                        </div>
+                        
+                        <Row gutter={[16, 12]}>
+                            <Col span={6}>
+                                <div>
+                                    <Text style={{ fontSize: 12, fontWeight: 500, color: '#595959', display: 'block', marginBottom: 6 }}>
+                                        Name <Text type="danger">*</Text>
+                                    </Text>
+                                    <Input
+                                        value={generalName}
+                                        onChange={(event) => changeGeneralName(event.target.value)}
+                                        disabled={!locationCheck}
+                                        placeholder="Listener name"
+                                        style={{ 
+                                            borderRadius: 6,
+                                            fontSize: 14
+                                        }}
+                                    />
+                                </div>
+                            </Col>
+                            <Col span={6}>
+                                <div>
+                                    <Text style={{ fontSize: 12, fontWeight: 500, color: '#595959', display: 'block', marginBottom: 6 }}>
+                                        Version <Text type="danger">*</Text>
+                                    </Text>
+                                    <Input
+                                        value={version}
+                                        disabled
+                                        prefix={<CodeOutlined style={{ color: '#bfbfbf', fontSize: 14 }} />}
+                                        style={{ 
+                                            borderRadius: 6,
+                                            backgroundColor: '#fafafa',
+                                            fontSize: 14
+                                        }}
+                                    />
+                                </div>
+                            </Col>
+                            <Col span={6}>
+                                <div>
+                                    <Text style={{ fontSize: 12, fontWeight: 500, color: '#595959', display: 'block', marginBottom: 6 }}>
+                                        Managed <Text type="danger">*</Text>
+                                    </Text>
+                                    <div style={{
+                                        background: managed ? '#e6f7ff' : '#f5f5f5',
+                                        border: `1px solid ${managed ? '#91d5ff' : '#d9d9d9'}`,
+                                        borderRadius: 6,
+                                        padding: '4px 12px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        height: 32,
+                                        fontSize: 14
+                                    }}>
+                                        <Text style={{ fontSize: 13, color: managed ? '#096dd9' : '#595959' }}>
+                                            {managed ? 'True' : 'False'}
+                                        </Text>
                                         <Switch
-                                            checkedChildren="True"
-                                            unCheckedChildren="False"
+                                            size="small"
                                             checked={managed}
                                             disabled={!locationCheck}
                                             onChange={(val) => changeGeneralManaged(val)}
                                         />
-                                    </Form.Item>
-                                </Col>
-                                <Col span={6}>
-                                    <Form.Item label={`Info:`} style={{ display: 'inline-block', width: "100%" }}>
-                                        <Button onClick={showDrawer}>
-                                            <InfoCircleTwoTone />
-                                        </Button>
-                                    </Form.Item>
-                                </Col>
-                            </Row>
-                        </Form>
+                                    </div>
+                                </div>
+                            </Col>
+                            <Col span={6}>
+                                <div>
+                                    <Text style={{ fontSize: 12, fontWeight: 500, color: '#595959', display: 'block', marginBottom: 6 }}>
+                                        Info
+                                    </Text>
+                                    <Button 
+                                        onClick={showDrawer}
+                                        icon={<InfoCircleOutlined />}
+                                        style={{ 
+                                            width: '100%',
+                                            borderRadius: 6,
+                                            height: 32
+                                        }}
+                                    >
+                                        Details
+                                    </Button>
+                                </div>
+                            </Col>
+                        </Row>
                     </Col>
-                    <Col md={6} style={{ display: 'flex', alignItems: 'center', height: '100%' }}>
-                        <div style={{ width: '100%' }}>
+                    
+                    <Col>
+                        <div style={{ 
+                            borderLeft: '1px solid #f0f0f0',
+                            paddingLeft: 20,
+                            height: 100,
+                            display: 'flex',
+                            alignItems: 'center'
+                        }}>
                             <RenderCreateUpdate
                                 location_path={createUpdate?.location_path}
                                 offset={createUpdate.offset}
@@ -200,8 +308,8 @@ export const HeadOfResourceListener = ({ generalName, version, managed, changeGe
                             />
                         </div>
                     </Col>
-                </Row >
-            </div >
+                </Row>
+            </Card>
         </>
     )
 };

@@ -97,7 +97,7 @@ const Settings: React.FC = () => {
                     boxShadow: '0 2px 8px rgba(5,117,230,0.06)'
                 }}
                 styles={{
-                    body: { padding: 24 }
+                    body: { padding: 12 }
                 }}
             >
                 <Tabs

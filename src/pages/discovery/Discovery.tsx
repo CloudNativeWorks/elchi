@@ -6,7 +6,6 @@ import {
   ReloadOutlined, 
   ClusterOutlined,
   NodeIndexOutlined,
-  DatabaseOutlined,
   ClockCircleOutlined,
   CodeOutlined,
   InfoCircleOutlined

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Row, Col, Statistic, Spin, Typography, Button, Progress, Divider } from 'antd';
+import { Card, Row, Col, Statistic, Spin, Typography, Button, Progress, Divider, Drawer, List, Space } from 'antd';
 import {
     LinkOutlined,
     SwapOutlined,
@@ -13,7 +13,9 @@ import {
     ReloadOutlined,
     ThunderboltOutlined,
     SafetyCertificateOutlined,
-    DashboardOutlined
+    DashboardOutlined,
+    UnorderedListOutlined,
+    EyeOutlined
 } from '@ant-design/icons';
 import { useMetricsApiMutation } from '@/common/operations-api';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
@@ -39,6 +41,19 @@ interface TrafficOverviewProps {
     // timeRange kaldırıldı - sadece son 1 dakikaya odaklanacağız
 }
 
+interface DetailedMetric {
+    domain: string;
+    requests: number;
+    connections: number;
+    incomingBytes: number;
+    outgoingBytes: number;
+    errors4xx: number;
+    errors5xx: number;
+    healthy: number;
+    total: number;
+    status: 'healthy' | 'warning' | 'critical';
+}
+
 const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
     const [stats, setStats] = useState<TrafficStats>({
         downstreamConnections: 0,
@@ -54,6 +69,10 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
         activeListeners: 0
     });
     const [loading, setLoading] = useState(false);
+    const [modalVisible, setModalVisible] = useState(false);
+    const [modalTitle, setModalTitle] = useState('');
+    const [modalData, setModalData] = useState<DetailedMetric[]>([]);
+    const [modalLoading, setModalLoading] = useState(false);
     const { project } = useProjectVariable();
     const metricsApiMutation = useMetricsApiMutation();
 
@@ -301,6 +320,200 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
         return roundedNum.toString();
     };
 
+    // Fetch detailed domain metrics from VictoriaMetrics
+    const fetchDomainDetails = async (type: 'requests' | 'connections' | 'traffic') => {
+        setModalLoading(true);
+        try {
+            const now = Math.floor(Date.now() / 1000);
+            const startTime = now - 60;
+            const endTime = now;
+
+            // Fetch metrics grouped by domain/virtual host
+            const metricQueries = {
+                requests: `sum by(envoy_virtual_host_name) (rate({__name__=~".*_${project}_http_downstream_rq_total", envoy_http_conn_manager_prefix!="admin"}[30s]))`,
+                connections: `sum by(envoy_virtual_host_name) ({__name__=~".*_${project}_listener_downstream_cx_active"})`,
+                traffic: {
+                    incoming: `sum by(envoy_virtual_host_name) (rate({__name__=~".*_${project}_http_downstream_cx_rx_bytes_total", envoy_http_conn_manager_prefix!="admin"}[30s]))`,
+                    outgoing: `sum by(envoy_virtual_host_name) (rate({__name__=~".*_${project}_http_downstream_cx_tx_bytes_total", envoy_http_conn_manager_prefix!="admin"}[30s]))`
+                }
+            };
+
+            const requests = [];
+            
+            if (type === 'requests') {
+                requests.push(
+                    metricsApiMutation.mutateAsync({
+                        name: '.*',
+                        metric: 'http_downstream_rq_total',
+                        start: startTime,
+                        end: endTime,
+                        metricConfig: {
+                            queryTemplate: metricQueries.requests
+                        }
+                    }),
+                    metricsApiMutation.mutateAsync({
+                        name: '.*',
+                        metric: 'http_downstream_rq_xx_total',
+                        start: startTime,
+                        end: endTime,
+                        metricConfig: {
+                            queryTemplate: `sum by(envoy_virtual_host_name) (rate({__name__=~".*_${project}_http_downstream_rq_xx_total", envoy_http_conn_manager_prefix!="admin", envoy_response_code_class="4"}[30s]))`
+                        }
+                    }),
+                    metricsApiMutation.mutateAsync({
+                        name: '.*',
+                        metric: 'http_downstream_rq_xx_total',
+                        start: startTime,
+                        end: endTime,
+                        metricConfig: {
+                            queryTemplate: `sum by(envoy_virtual_host_name) (rate({__name__=~".*_${project}_http_downstream_rq_xx_total", envoy_http_conn_manager_prefix!="admin", envoy_response_code_class="5"}[30s]))`
+                        }
+                    })
+                );
+            } else if (type === 'connections') {
+                requests.push(
+                    metricsApiMutation.mutateAsync({
+                        name: '.*',
+                        metric: 'listener_downstream_cx_active',
+                        start: startTime,
+                        end: endTime,
+                        metricConfig: {
+                            queryTemplate: metricQueries.connections
+                        }
+                    })
+                );
+            } else if (type === 'traffic') {
+                requests.push(
+                    metricsApiMutation.mutateAsync({
+                        name: '.*',
+                        metric: 'http_downstream_cx_rx_bytes_total',
+                        start: startTime,
+                        end: endTime,
+                        metricConfig: {
+                            queryTemplate: metricQueries.traffic.incoming
+                        }
+                    }),
+                    metricsApiMutation.mutateAsync({
+                        name: '.*',
+                        metric: 'http_downstream_cx_tx_bytes_total',
+                        start: startTime,
+                        end: endTime,
+                        metricConfig: {
+                            queryTemplate: metricQueries.traffic.outgoing
+                        }
+                    })
+                );
+            }
+
+            const results = await Promise.all(requests);
+            const domainData: { [key: string]: DetailedMetric } = {};
+
+            // Process results and group by domain
+            results.forEach((result, index) => {
+                if (result?.data?.result?.length > 0) {
+                    result.data.result.forEach((series: any) => {
+                        const domain = series.metric?.envoy_virtual_host_name || 'unknown';
+                        if (!domain || domain === 'unknown') return;
+
+                        if (!domainData[domain]) {
+                            domainData[domain] = {
+                                domain: domain,
+                                requests: 0,
+                                connections: 0,
+                                incomingBytes: 0,
+                                outgoingBytes: 0,
+                                errors4xx: 0,
+                                errors5xx: 0,
+                                healthy: 0,
+                                total: 1,
+                                status: 'healthy'
+                            };
+                        }
+
+                        let value = 0;
+                        if (series.values && series.values.length > 0) {
+                            const lastPoint = series.values[series.values.length - 1];
+                            value = parseFloat(lastPoint[1]) || 0;
+                        } else if (series.value) {
+                            value = parseFloat(series.value[1]) || 0;
+                        }
+
+                        if (type === 'requests') {
+                            if (index === 0) domainData[domain].requests = value;
+                            else if (index === 1) domainData[domain].errors4xx = value;
+                            else if (index === 2) domainData[domain].errors5xx = value;
+                        } else if (type === 'connections') {
+                            domainData[domain].connections = value;
+                        } else if (type === 'traffic') {
+                            if (index === 0) domainData[domain].incomingBytes = value;
+                            else if (index === 1) domainData[domain].outgoingBytes = value;
+                        }
+                    });
+                }
+            });
+
+            // Convert to array and determine status
+            const domainList = Object.values(domainData).map(item => {
+                const totalErrors = item.errors4xx + item.errors5xx;
+                const errorRate = item.requests > 0 ? (totalErrors / item.requests) * 100 : 0;
+                
+                let status: 'healthy' | 'warning' | 'critical' = 'healthy';
+                if (errorRate > 10) status = 'critical';
+                else if (errorRate > 5) status = 'warning';
+                
+                return { ...item, status };
+            });
+
+            // Sort by the relevant metric
+            domainList.sort((a, b) => {
+                switch (type) {
+                    case 'requests': return b.requests - a.requests;
+                    case 'connections': return b.connections - a.connections;
+                    case 'traffic': return (b.incomingBytes + b.outgoingBytes) - (a.incomingBytes + a.outgoingBytes);
+                    default: return 0;
+                }
+            });
+
+            return domainList;
+        } catch (error) {
+            console.error('Failed to fetch domain details:', error);
+            return [];
+        } finally {
+            setModalLoading(false);
+        }
+    };
+
+    const showDetailModal = async (type: 'requests' | 'connections' | 'traffic') => {
+        const titles = {
+            requests: 'Request Details by Domain',
+            connections: 'Connection Details by Domain', 
+            traffic: 'Traffic Details by Domain'
+        };
+        setModalTitle(titles[type]);
+        setModalVisible(true);
+        
+        const data = await fetchDomainDetails(type);
+        setModalData(data);
+    };
+
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case 'healthy': return '#52c41a';
+            case 'warning': return '#faad14';
+            case 'critical': return '#ff4d4f';
+            default: return '#d9d9d9';
+        }
+    };
+
+    const getStatusText = (status: string) => {
+        switch (status) {
+            case 'healthy': return 'Healthy';
+            case 'warning': return 'Warning';
+            case 'critical': return 'Critical';
+            default: return 'Unknown';
+        }
+    };
+
     // Compact grouped metric card component
     const GroupedMetricCard = ({
         title,
@@ -451,7 +664,8 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
         icon,
         gradient,
         formatter,
-        suffix
+        suffix,
+        onShowList
     }: {
         title: string;
         value: number;
@@ -459,6 +673,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
         gradient: string;
         formatter?: (value: number) => string;
         suffix?: string;
+        onShowList?: () => void;
     }) => (
         <Card
             style={{
@@ -481,19 +696,6 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                 e.currentTarget.style.boxShadow = '0 12px 40px rgba(0, 0, 0, 0.12)';
             }}
         >
-            {/* Animated background */}
-            <div style={{
-                position: 'absolute',
-                top: 0,
-                right: 0,
-                width: 20,
-                height: 100,
-                background: gradient,
-                opacity: 0.3,
-                borderRadius: '10%',
-                animation: 'pulse 3s ease-in-out infinite'
-            }} />
-
             <div style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -552,6 +754,46 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         )}
                     </div>
                 </div>
+                
+                {/* Hamburger menu butonu */}
+                {onShowList && (
+                    <Button
+                        type="text"
+                        icon={<UnorderedListOutlined />}
+                        size="small"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onShowList();
+                        }}
+                        style={{
+                            color: '#64748b',
+                            border: '1px solid #e5e7eb',
+                            borderRadius: 8,
+                            width: 32,
+                            height: 32,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            background: '#ffffff',
+                            transition: 'all 0.3s ease',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.background = gradient;
+                            e.currentTarget.style.color = 'white';
+                            e.currentTarget.style.borderColor = 'transparent';
+                            e.currentTarget.style.transform = 'scale(1.1)';
+                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(5, 108, 205, 0.3)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.background = '#ffffff';
+                            e.currentTarget.style.color = '#64748b';
+                            e.currentTarget.style.borderColor = '#e5e7eb';
+                            e.currentTarget.style.transform = 'scale(1)';
+                            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                        }}
+                    />
+                )}
             </div>
         </Card>
     );
@@ -691,6 +933,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         gradient="linear-gradient(135deg, #056ccd 0%, #0369a1 100%)"
                         formatter={formatNumber}
                         suffix="/s"
+                        onShowList={() => showDetailModal('requests')}
                     />
                 </Col>
                 <Col xs={24} sm={8}>
@@ -700,6 +943,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         icon={<LinkOutlined />}
                         gradient="linear-gradient(135deg, #00c6fb 0%, #06b6d4 100%)"
                         formatter={formatNumber}
+                        onShowList={() => showDetailModal('connections')}
                     />
                 </Col>
                 <Col xs={24} sm={8}>
@@ -710,6 +954,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         gradient="linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%)"
                         formatter={formatBytes}
                         suffix="/s"
+                        onShowList={() => showDetailModal('traffic')}
                     />
                 </Col>
             </Row>
@@ -819,6 +1064,101 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                     />
                 </Col>
             </Row>
+
+            {/* Detail Drawer */}
+            <Drawer
+                title={modalTitle}
+                open={modalVisible}
+                onClose={() => setModalVisible(false)}
+                width={800}
+                placement="right"
+            >
+                {modalLoading ? (
+                    <div style={{ textAlign: 'center', padding: 40 }}>
+                        <Spin size="large" />
+                        <Text style={{ display: 'block', marginTop: 16, color: '#64748b' }}>
+                            Loading domain metrics...
+                        </Text>
+                    </div>
+                ) : (
+                    <>
+                <List
+                    itemLayout="horizontal"
+                    dataSource={modalData}
+                    renderItem={(item, index) => (
+                        <List.Item>
+                            <List.Item.Meta
+                                avatar={
+                                    <div style={{
+                                        width: 32,
+                                        height: 32,
+                                        borderRadius: 8,
+                                        background: getStatusColor(item.status) + '20',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        color: getStatusColor(item.status),
+                                        fontSize: 14,
+                                        fontWeight: 600
+                                    }}>
+                                        {index + 1}
+                                    </div>
+                                }
+                                title={
+                                    <Space>
+                                        <Text strong style={{ fontSize: 16 }}>{item.domain}</Text>
+                                        <div style={{
+                                            padding: '2px 8px',
+                                            borderRadius: 4,
+                                            background: getStatusColor(item.status),
+                                            color: 'white',
+                                            fontSize: 11,
+                                            fontWeight: 600,
+                                            textTransform: 'uppercase'
+                                        }}>
+                                            {getStatusText(item.status)}
+                                        </div>
+                                    </Space>
+                                }
+                                description={
+                                    <Row gutter={24} style={{ marginTop: 8 }}>
+                                        <Col span={6}>
+                                            <div style={{ textAlign: 'center' }}>
+                                                <Text type="secondary" style={{ fontSize: 12, display: 'block' }}>Requests</Text>
+                                                <Text strong style={{ color: '#056ccd' }}>{formatNumber(item.requests)}/s</Text>
+                                            </div>
+                                        </Col>
+                                        <Col span={6}>
+                                            <div style={{ textAlign: 'center' }}>
+                                                <Text type="secondary" style={{ fontSize: 12, display: 'block' }}>Connections</Text>
+                                                <Text strong style={{ color: '#00c6fb' }}>{formatNumber(item.connections)}</Text>
+                                            </div>
+                                        </Col>
+                                        <Col span={6}>
+                                            <div style={{ textAlign: 'center' }}>
+                                                <Text type="secondary" style={{ fontSize: 12, display: 'block' }}>Traffic</Text>
+                                                <Text strong style={{ color: '#0284c7' }}>{formatBytes(item.incomingBytes + item.outgoingBytes)}/s</Text>
+                                            </div>
+                                        </Col>
+                                        <Col span={6}>
+                                            <div style={{ textAlign: 'center' }}>
+                                                <Text type="secondary" style={{ fontSize: 12, display: 'block' }}>Errors</Text>
+                                                <Text strong style={{ color: item.errors4xx + item.errors5xx > 0 ? '#ef4444' : '#52c41a' }}>{
+                                                    item.errors4xx + item.errors5xx > 0 
+                                                        ? `${formatNumber(item.errors4xx + item.errors5xx)}/s`
+                                                        : '0'
+                                                }</Text>
+                                            </div>
+                                        </Col>
+                                    </Row>
+                                }
+                            />
+                        </List.Item>
+                    )}
+                />
+                    </>
+                )}
+            </Drawer>
 
             {/* CSS Animations */}
             <style>
