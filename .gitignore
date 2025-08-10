@@ -46,3 +46,4 @@ dist-ssr
 sssonar-project.properties
 CLAUDE.md
 ELCHI_PROJECT_NOTES.md
+claude_notes/*

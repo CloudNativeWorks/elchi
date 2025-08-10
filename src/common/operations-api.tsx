@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { MetricsApiMutationOptions, OperationsApiMutationOptions } from './types';
 import { api } from "./api";
 import { useProjectVariable } from "@/hooks/useProjectVariable";
+import { useMemo, useCallback } from "react";
 
 export const useOperationsApiMutation = () => {
     const mutationFn = async (options: OperationsApiMutationOptions) => {
@@ -18,7 +19,7 @@ export const useOperationsApiMutation = () => {
 export const useMetricsApiMutation = () => {
     const { project } = useProjectVariable();
 
-    const mutationFn = async (options: MetricsApiMutationOptions) => {
+    const mutationFn = useCallback(async (options: MetricsApiMutationOptions) => {
         const { name, metric, start, end, metricConfig } = options;
         const sanitizedName = name.replace(/[.:\-\[\]/\\]/g, '_');
         const range = end - start;
@@ -50,7 +51,7 @@ export const useMetricsApiMutation = () => {
             ...response.data,
             windowSec
         };
-    };
+    }, [project]);
 
     return useMutation({
         mutationFn,

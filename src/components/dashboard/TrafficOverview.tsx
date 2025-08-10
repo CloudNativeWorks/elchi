@@ -1,27 +1,115 @@
-import React, { useEffect, useState } from 'react';
-import { Card, Row, Col, Statistic, Spin, Typography, Button, Progress, Divider, Drawer, List, Space } from 'antd';
+import React, { useEffect, useState, startTransition, useCallback, useMemo, memo } from 'react';
+import { Card, Row, Col, Spin, Typography, Button, Drawer, Input, Space } from 'antd';
 import {
     LinkOutlined,
     SwapOutlined,
-    ApiOutlined,
-    ExclamationCircleOutlined,
-    ArrowUpOutlined,
-    ArrowDownOutlined,
     CloudServerOutlined,
-    ClusterOutlined,
-    WarningOutlined,
     ReloadOutlined,
     ThunderboltOutlined,
     SafetyCertificateOutlined,
     DashboardOutlined,
     UnorderedListOutlined,
-    EyeOutlined
+    SearchOutlined
 } from '@ant-design/icons';
 import { useMetricsApiMutation } from '@/common/operations-api';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import CountUp from 'react-countup';
 
 const { Title, Text } = Typography;
+
+// Global value store to persist CountUp values across re-renders
+const countUpValues = new Map<string, number>();
+
+// Persistent CountUp that survives any re-render
+const PersistentCountUp = ({ 
+    end, 
+    duration = 1, 
+    formatter,
+    id 
+}: {
+    end: number;
+    duration?: number;
+    formatter?: (value: number) => string;
+    id: string;
+}) => {
+    // Initialize display value - use persisted value if available, otherwise start from 0 for animation
+    const [displayValue, setDisplayValue] = useState(() => {
+        if (countUpValues.has(id)) {
+            return countUpValues.get(id)!;
+        }
+        // If no persisted value and we have a real end value, start from 0 for animation
+        return end > 0 ? 0 : end;
+    });
+    
+    // Track if we've ever set a value for this component
+    const [isInitialized, setIsInitialized] = useState(() => countUpValues.has(id));
+    
+    // Handle value changes and animations
+    useEffect(() => {
+        if (!isInitialized) {
+            // First time initialization - animate from 0 to end
+            if (end > 0) {
+                setIsInitialized(true);
+                
+                const startTime = Date.now();
+                const animationDuration = duration * 1000;
+                
+                const animate = () => {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / animationDuration, 1);
+                    const easeOut = 1 - Math.pow(1 - progress, 3);
+                    const currentValue = end * easeOut;
+                    
+                    setDisplayValue(currentValue);
+                    countUpValues.set(id, currentValue);
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        setDisplayValue(end);
+                        countUpValues.set(id, end);
+                    }
+                };
+                
+                requestAnimationFrame(animate);
+            } else {
+                setDisplayValue(end);
+                countUpValues.set(id, end);
+                setIsInitialized(true);
+            }
+        } else {
+            // Subsequent updates - only animate if value actually changed
+            const currentPersisted = countUpValues.get(id) ?? displayValue;
+            if (Math.abs(end - currentPersisted) > 0.001) {
+                const startValue = currentPersisted;
+                const startTime = Date.now();
+                const animationDuration = duration * 1000;
+                
+                const animate = () => {
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / animationDuration, 1);
+                    const easeOut = 1 - Math.pow(1 - progress, 3);
+                    const currentValue = startValue + (end - startValue) * easeOut;
+                    
+                    setDisplayValue(currentValue);
+                    countUpValues.set(id, currentValue);
+                    
+                    if (progress < 1) {
+                        requestAnimationFrame(animate);
+                    } else {
+                        setDisplayValue(end);
+                        countUpValues.set(id, end);
+                    }
+                };
+                
+                requestAnimationFrame(animate);
+            }
+        }
+    }, [end, duration, id, isInitialized]);
+    
+    const formattedValue = formatter ? formatter(displayValue) : Math.round(displayValue).toString();
+    return <span>{formattedValue}</span>;
+};
 
 interface TrafficStats {
     downstreamConnections: number;
@@ -73,15 +161,18 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
     const [modalTitle, setModalTitle] = useState('');
     const [modalData, setModalData] = useState<DetailedMetric[]>([]);
     const [modalLoading, setModalLoading] = useState(false);
+    const [searchText, setSearchText] = useState('');
     const { project } = useProjectVariable();
     const metricsApiMutation = useMetricsApiMutation();
 
-    const fetchOverviewStats = async () => {
+    const fetchOverviewStats = useCallback(async () => {
+        if (!project) return;
+        
         setLoading(true);
         try {
-            // Son 1 dakika - sabit zaman aralığı
+            // Son 30 saniye - daha canlı trafik
             const now = Math.floor(Date.now() / 1000);
-            const startTime = now - 60; // Son 1 dakika
+            const startTime = now - 30; // Son 30 saniye (daha canlı)
             const endTime = now;
 
             const requests = [
@@ -111,11 +202,11 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                     metricConfig: {
                         queryTemplate: `sum(rate({__name__=~".*_%{project}_%{metric}", envoy_http_conn_manager_prefix!="admin"}[%{window}s]))`,
                         windowSecs: {
-                            default: 15,
+                            default: 5,
                             ranges: [
                                 { threshold: 2 * 24 * 60 * 60, value: 300 },
                                 { threshold: 24 * 60 * 60, value: 60 },
-                                { threshold: 1 * 60 * 60, value: 30 }
+                                { threshold: 1 * 60 * 60, value: 15 }
                             ]
                         }
                     }
@@ -128,11 +219,11 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                     metricConfig: {
                         queryTemplate: `sum(rate({__name__=~".*_%{project}_%{metric}", envoy_http_conn_manager_prefix!="admin"}[%{window}s]))`,
                         windowSecs: {
-                            default: 15,
+                            default: 5,
                             ranges: [
                                 { threshold: 2 * 24 * 60 * 60, value: 300 },
                                 { threshold: 24 * 60 * 60, value: 60 },
-                                { threshold: 1 * 60 * 60, value: 30 }
+                                { threshold: 1 * 60 * 60, value: 15 }
                             ]
                         }
                     }
@@ -145,11 +236,11 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                     metricConfig: {
                         queryTemplate: `sum(rate({__name__=~".*_%{project}_%{metric}", envoy_http_conn_manager_prefix!="admin"}[%{window}s]))`,
                         windowSecs: {
-                            default: 15,
+                            default: 5,
                             ranges: [
                                 { threshold: 2 * 24 * 60 * 60, value: 300 },
                                 { threshold: 24 * 60 * 60, value: 60 },
-                                { threshold: 1 * 60 * 60, value: 30 }
+                                { threshold: 1 * 60 * 60, value: 15 }
                             ]
                         }
                     }
@@ -180,11 +271,11 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                     metricConfig: {
                         queryTemplate: `sum(rate({__name__=~".*_%{project}_%{metric}", envoy_http_conn_manager_prefix!="admin", envoy_response_code_class="4"}[%{window}s]))`,
                         windowSecs: {
-                            default: 15,
+                            default: 5,
                             ranges: [
                                 { threshold: 2 * 24 * 60 * 60, value: 300 },
                                 { threshold: 24 * 60 * 60, value: 60 },
-                                { threshold: 1 * 60 * 60, value: 30 }
+                                { threshold: 1 * 60 * 60, value: 15 }
                             ]
                         }
                     }
@@ -197,11 +288,11 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                     metricConfig: {
                         queryTemplate: `sum(rate({__name__=~".*_%{project}_%{metric}", envoy_http_conn_manager_prefix!="admin", envoy_response_code_class="5"}[%{window}s]))`,
                         windowSecs: {
-                            default: 15,
+                            default: 5,
                             ranges: [
                                 { threshold: 2 * 24 * 60 * 60, value: 300 },
                                 { threshold: 24 * 60 * 60, value: 60 },
-                                { threshold: 1 * 60 * 60, value: 30 }
+                                { threshold: 1 * 60 * 60, value: 15 }
                             ]
                         }
                     }
@@ -214,11 +305,11 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                     metricConfig: {
                         queryTemplate: `sum(rate({__name__=~".*_%{project}_%{metric}", envoy_http_conn_manager_prefix!="admin"}[%{window}s]))`,
                         windowSecs: {
-                            default: 15,
+                            default: 5,
                             ranges: [
                                 { threshold: 2 * 24 * 60 * 60, value: 300 },
                                 { threshold: 24 * 60 * 60, value: 60 },
-                                { threshold: 1 * 60 * 60, value: 30 }
+                                { threshold: 1 * 60 * 60, value: 15 }
                             ]
                         }
                     }
@@ -236,7 +327,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
 
             const results = await Promise.all(requests);
 
-            const getMetricValue = (result: any, index: number) => {
+            const getMetricValue = (result: any) => {
                 if (result?.data?.result?.length > 0) {
                     let totalValue = 0;
 
@@ -250,10 +341,10 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                             totalValue += value;
                         }
                     });
-
+                    
                     return totalValue;
                 }
-
+                
                 return 0;
             };
 
@@ -269,8 +360,9 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                 http5xxErrors,
                 downstreamDestroyed,
                 activeListeners
-            ] = results.map((result, index) => getMetricValue(result, index));
+            ] = results.map((result) => getMetricValue(result));
 
+            
             setStats({
                 downstreamConnections: downstreamCx,
                 upstreamConnections: upstreamCx,
@@ -290,27 +382,25 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [metricsApiMutation.mutateAsync, project]);
 
-    const handleManualRefresh = () => {
+    const handleManualRefresh = useCallback(() => {
         fetchOverviewStats();
-    };
+    }, [fetchOverviewStats]);
 
     useEffect(() => {
         fetchOverviewStats();
-        const interval = setInterval(fetchOverviewStats, 30000);
-        return () => clearInterval(interval);
-    }, []);
+    }, [fetchOverviewStats]);
 
-    const formatBytes = (bytes: number) => {
+    const formatBytes = useCallback((bytes: number) => {
         if (bytes === 0) return '0 B';
         const k = 1024;
         const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-    };
+    }, []);
 
-    const formatNumber = (num: number) => {
+    const formatNumber = useCallback((num: number) => {
         const roundedNum = Math.round(num);
         if (roundedNum >= 1000000) {
             return (roundedNum / 1000000).toFixed(1) + 'M';
@@ -318,25 +408,27 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
             return (roundedNum / 1000).toFixed(1) + 'K';
         }
         return roundedNum.toString();
-    };
+    }, []);
 
-    // Fetch detailed domain metrics from VictoriaMetrics
-    // Domain info is in metric name prefix: {domain}_{projectId}_{metric_name}
-    const fetchDomainDetails = async (type: 'requests' | 'connections' | 'traffic') => {
+    const fetchDomainDetails = useCallback(async (type: 'requests' | 'connections' | 'traffic') => {
+        if (!project) return [];
+        
         setModalLoading(true);
         try {
-            // Use instant query for latest values - no time range needed
+            // Use the same time window as the main dashboard
+            const now = Math.floor(Date.now() / 1000);
+            const startTime = now - 30; // Son 30 saniye - same as main dashboard
+            const endTime = now;
+            
             const domainsResult = await metricsApiMutation.mutateAsync({
                 name: '.*',
                 metric: 'http_downstream_rq_total',
-                start: Math.floor(Date.now() / 1000) - 60,
-                end: Math.floor(Date.now() / 1000),
+                start: startTime,
+                end: endTime,
                 metricConfig: {
                     queryTemplate: `{__name__=~".*_%{project}_http_downstream_rq_total"}`
                 }
             });
-            
-            console.log('Domains result:', domainsResult);
 
             // Extract unique domains from metric names
             const domains = new Set<string>();
@@ -349,10 +441,8 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         const projectIndex = metricName.indexOf(`_${project}_`);
                         if (projectIndex > 0) {
                             const domainPart = metricName.substring(0, projectIndex);
-                            // Convert underscore to dots for domain format
-                            const domain = domainPart.replace(/_/g, '.');
-                            domains.add(domain);
-                            console.log('Found domain:', domain, 'from metric:', metricName);
+                            // Keep domain with underscores as is - don't convert to dots
+                            domains.add(domainPart);
                         }
                     }
                 });
@@ -381,8 +471,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
             const domainMetrics: { [key: string]: DetailedMetric } = {};
             
             for (const domain of domains) {
-                const domainKey = domain.replace(/\./g, '_'); // Convert back to underscore for metric name
-                console.log('Processing domain:', domain, 'with key:', domainKey);
+                const domainKey = domain; // Domain is already in underscore format
                 
                 if (type === 'requests') {
                     // Fetch only request-related metrics
@@ -390,8 +479,8 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         metricsApiMutation.mutateAsync({
                             name: '.*',
                             metric: 'http_downstream_rq_total',
-                            start: Math.floor(Date.now() / 1000) - 60,
-                            end: Math.floor(Date.now() / 1000),
+                            start: startTime,
+                            end: endTime,
                             metricConfig: {
                                 queryTemplate: `sum(rate({__name__=~"${domainKey}_%{project}_http_downstream_rq_total", envoy_http_conn_manager_prefix!="admin"}[%{window}s]))`,
                                 windowSecs: {
@@ -407,8 +496,8 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         metricsApiMutation.mutateAsync({
                             name: '.*',
                             metric: 'http_downstream_rq_xx_total',
-                            start: Math.floor(Date.now() / 1000) - 60,
-                            end: Math.floor(Date.now() / 1000),
+                            start: startTime,
+                            end: endTime,
                             metricConfig: {
                                 queryTemplate: `sum(rate({__name__=~"${domainKey}_%{project}_http_downstream_rq_xx_total", envoy_http_conn_manager_prefix!="admin", envoy_response_code_class="4"}[%{window}s]))`,
                                 windowSecs: {
@@ -424,8 +513,8 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         metricsApiMutation.mutateAsync({
                             name: '.*',
                             metric: 'http_downstream_rq_xx_total',
-                            start: Math.floor(Date.now() / 1000) - 60,
-                            end: Math.floor(Date.now() / 1000),
+                            start: startTime,
+                            end: endTime,
                             metricConfig: {
                                 queryTemplate: `sum(rate({__name__=~"${domainKey}_%{project}_http_downstream_rq_xx_total", envoy_http_conn_manager_prefix!="admin", envoy_response_code_class="5"}[%{window}s]))`,
                                 windowSecs: {
@@ -440,10 +529,6 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         })
                     ]);
                     
-                    console.log('Request results for domain:', domain);
-                    console.log('Request rate result:', reqRate);
-                    console.log('4xx errors result:', errors4xx);
-                    console.log('5xx errors result:', errors5xx);
                     
                     domainMetrics[domain] = {
                         domain: domain,
@@ -463,14 +548,13 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                     const connResult = await metricsApiMutation.mutateAsync({
                         name: '.*',
                         metric: 'listener_downstream_cx_active',
-                        start: Math.floor(Date.now() / 1000) - 60,
-                        end: Math.floor(Date.now() / 1000),
+                        start: startTime,
+                        end: endTime,
                         metricConfig: {
                             queryTemplate: `sum({__name__=~"${domainKey}_%{project}_listener_downstream_cx_active"})`
                         }
                     });
                     
-                    console.log('Connection result for domain:', domain, connResult);
                     
                     domainMetrics[domain] = {
                         domain: domain,
@@ -491,8 +575,8 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         metricsApiMutation.mutateAsync({
                             name: '.*',
                             metric: 'http_downstream_cx_rx_bytes_total',
-                            start: Math.floor(Date.now() / 1000) - 60,
-                            end: Math.floor(Date.now() / 1000),
+                            start: startTime,
+                            end: endTime,
                             metricConfig: {
                                 queryTemplate: `sum(rate({__name__=~"${domainKey}_%{project}_http_downstream_cx_rx_bytes_total", envoy_http_conn_manager_prefix!="admin"}[%{window}s]))`,
                                 windowSecs: {
@@ -508,8 +592,8 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         metricsApiMutation.mutateAsync({
                             name: '.*',
                             metric: 'http_downstream_cx_tx_bytes_total',
-                            start: Math.floor(Date.now() / 1000) - 60,
-                            end: Math.floor(Date.now() / 1000),
+                            start: startTime,
+                            end: endTime,
                             metricConfig: {
                                 queryTemplate: `sum(rate({__name__=~"${domainKey}_%{project}_http_downstream_cx_tx_bytes_total", envoy_http_conn_manager_prefix!="admin"}[%{window}s]))`,
                                 windowSecs: {
@@ -524,9 +608,6 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         })
                     ]);
                     
-                    console.log('Traffic results for domain:', domain);
-                    console.log('RX bytes result:', rxBytes);
-                    console.log('TX bytes result:', txBytes);
                     
                     domainMetrics[domain] = {
                         domain: domain,
@@ -543,7 +624,6 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                 }
             }
 
-            console.log('Final domain metrics:', domainMetrics);
 
             // Convert to array and determine status
             const domainList = Object.values(domainMetrics).map(item => {
@@ -574,38 +654,55 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
         } finally {
             setModalLoading(false);
         }
-    };
+    }, [metricsApiMutation.mutateAsync, project]);
 
-    const showDetailModal = async (type: 'requests' | 'connections' | 'traffic') => {
+    const showDetailModal = useCallback((type: 'requests' | 'connections' | 'traffic') => {
         const titles = {
             requests: 'Request Details by Domain',
             connections: 'Connection Details by Domain', 
             traffic: 'Traffic Details by Domain'
         };
         setModalTitle(titles[type]);
-        setModalVisible(true);
+        
+        startTransition(() => {
+            setModalVisible(true);
+            setSearchText('');
+            setModalData([]);
+        });
+        
+        fetchDomainDetails(type).then(data => {
+            startTransition(() => {
+                setModalData(data);
+            });
+        });
+    }, [fetchDomainDetails]);
+
+    const handleRefreshData = useCallback(async () => {
+        if (!modalVisible) return;
+        
+        let type: 'requests' | 'connections' | 'traffic' = 'requests';
+        if (modalTitle.includes('Connection')) type = 'connections';
+        else if (modalTitle.includes('Traffic')) type = 'traffic';
         
         const data = await fetchDomainDetails(type);
         setModalData(data);
-    };
+    }, [modalVisible, modalTitle, fetchDomainDetails]);
 
-    const getStatusColor = (status: string) => {
+    const filteredModalData = useMemo(() => 
+        modalData.filter(item => 
+            item.domain.toLowerCase().includes(searchText.toLowerCase())
+        ), [modalData, searchText]
+    );
+
+    const getStatusColor = useCallback((status: string) => {
         switch (status) {
             case 'healthy': return '#52c41a';
             case 'warning': return '#faad14';
             case 'critical': return '#ff4d4f';
             default: return '#d9d9d9';
         }
-    };
+    }, []);
 
-    const getStatusText = (status: string) => {
-        switch (status) {
-            case 'healthy': return 'Healthy';
-            case 'warning': return 'Warning';
-            case 'critical': return 'Critical';
-            default: return 'Unknown';
-        }
-    };
 
     // Compact grouped metric card component
     const GroupedMetricCard = ({
@@ -724,12 +821,11 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                                         fontWeight: 700,
                                         color: metric.color || '#1e293b'
                                     }}>
-                                        <CountUp
+                                        <PersistentCountUp
+                                            id={`metric-${index}-${metric.label}`}
                                             end={metric.value}
                                             duration={1}
-                                            formattingFn={(value) =>
-                                                metric.formatter ? metric.formatter(value) : formatNumber(value)
-                                            }
+                                            formatter={metric.formatter || formatNumber}
                                         />
                                     </Text>
                                     {metric.suffix && (
@@ -830,10 +926,11 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                             color: '#1e293b',
                             lineHeight: 1
                         }}>
-                            <CountUp
+                            <PersistentCountUp
+                                id={`hero-${title}`}
                                 end={value}
                                 duration={1.5}
-                                formattingFn={(val) => formatter ? formatter(val) : formatNumber(val)}
+                                formatter={formatter || formatNumber}
                             />
                         </Text>
                         {suffix && (
@@ -1160,7 +1257,42 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
 
             {/* Detail Drawer */}
             <Drawer
-                title={modalTitle}
+                title={
+                    <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'space-between',
+                        gap: 16
+                    }}>
+                        <span>{modalTitle}</span>
+                        <Space>
+                            <Input
+                                placeholder="Search domains..."
+                                prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />}
+                                value={searchText}
+                                onChange={(e) => setSearchText(e.target.value)}
+                                style={{ 
+                                    width: 200,
+                                    fontSize: 12
+                                }}
+                                allowClear
+                            />
+                            <Button
+                                icon={<ReloadOutlined />}
+                                onClick={handleRefreshData}
+                                loading={modalLoading}
+                                size="middle"
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 4
+                                }}
+                            >
+                                Refresh
+                            </Button>
+                        </Space>
+                    </div>
+                }
                 open={modalVisible}
                 onClose={() => setModalVisible(false)}
                 width={800}
@@ -1175,98 +1307,143 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                     </div>
                 ) : (
                     <>
-                <List
-                    itemLayout="horizontal"
-                    dataSource={modalData}
-                    renderItem={(item, index) => (
-                        <List.Item>
-                            <List.Item.Meta
-                                avatar={
-                                    <div style={{
-                                        width: 32,
-                                        height: 32,
-                                        borderRadius: 8,
-                                        background: getStatusColor(item.status) + '20',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        color: getStatusColor(item.status),
-                                        fontSize: 14,
-                                        fontWeight: 600
-                                    }}>
-                                        {index + 1}
-                                    </div>
-                                }
-                                title={
-                                    <Space>
-                                        <Text strong style={{ fontSize: 16 }}>{item.domain}</Text>
-                                        <div style={{
-                                            padding: '2px 8px',
-                                            borderRadius: 4,
-                                            background: getStatusColor(item.status),
-                                            color: 'white',
-                                            fontSize: 11,
-                                            fontWeight: 600,
-                                            textTransform: 'uppercase'
-                                        }}>
-                                            {getStatusText(item.status)}
+                {filteredModalData.length === 0 && searchText ? (
+                    <div style={{ 
+                        textAlign: 'center', 
+                        padding: 40,
+                        color: '#8c8c8c'
+                    }}>
+                        <SearchOutlined style={{ fontSize: 32, marginBottom: 16 }} />
+                        <div style={{ fontSize: 16, marginBottom: 8 }}>No domains found</div>
+                        <div style={{ fontSize: 12 }}>
+                            No domains match "{searchText}". Try adjusting your search.
+                        </div>
+                    </div>
+                ) : (
+                    <div style={{ 
+                        display: 'grid', 
+                        gap: 8, 
+                        maxHeight: '60vh', 
+                        overflowY: 'auto',
+                        paddingRight: 8
+                    }}>
+                        {filteredModalData.map((item, index) => (
+                        <div 
+                            key={item.domain} 
+                            style={{
+                                background: 'white',
+                                border: '1px solid #f0f0f0',
+                                borderRadius: 8,
+                                padding: 12,
+                                transition: 'all 0.2s ease',
+                                boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between'
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.borderColor = getStatusColor(item.status);
+                                e.currentTarget.style.transform = 'translateY(-1px)';
+                                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.12)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.borderColor = '#f0f0f0';
+                                e.currentTarget.style.transform = 'translateY(0)';
+                                e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08)';
+                            }}
+                        >
+                            {/* Left: Domain name and status */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1 }}>
+                                <div style={{
+                                    width: 20,
+                                    height: 20,
+                                    borderRadius: 4,
+                                    background: getStatusColor(item.status),
+                                    color: 'white',
+                                    fontSize: 10,
+                                    fontWeight: 600,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}>
+                                    {index + 1}
+                                </div>
+                                <Text 
+                                    strong 
+                                    style={{ 
+                                        fontSize: 13, 
+                                        fontFamily: 'Monaco, Consolas, monospace',
+                                        color: '#1a1a1a'
+                                    }}
+                                >
+                                    {item.domain}
+                                </Text>
+                                <div style={{
+                                    width: 8,
+                                    height: 8,
+                                    borderRadius: '50%',
+                                    background: getStatusColor(item.status),
+                                    boxShadow: `0 0 6px ${getStatusColor(item.status)}50`
+                                }} />
+                            </div>
+                            
+                            {/* Right: Metrics */}
+                            <div style={{ 
+                                display: 'flex', 
+                                gap: 24,
+                                alignItems: 'center'
+                            }}>
+                                {modalTitle.includes('Request') && (
+                                    <>
+                                        <div style={{ minWidth: 60, textAlign: 'center' }}>
+                                            <Text style={{ fontSize: 10, color: '#8c8c8c', display: 'block' }}>REQ/S</Text>
+                                            <Text strong style={{ color: '#056ccd', fontSize: 14 }}>
+                                                {formatNumber(item.requests)}
+                                            </Text>
                                         </div>
-                                    </Space>
-                                }
-                                description={
-                                    <Row gutter={24} style={{ marginTop: 8 }}>
-                                        {modalTitle.includes('Request') && (
-                                            <>
-                                                <Col span={8}>
-                                                    <div style={{ textAlign: 'center' }}>
-                                                        <Text type="secondary" style={{ fontSize: 12, display: 'block' }}>Healthy Requests</Text>
-                                                        <Text strong style={{ color: '#056ccd' }}>{formatNumber(item.requests)}/s</Text>
-                                                    </div>
-                                                </Col>
-                                                <Col span={8}>
-                                                    <div style={{ textAlign: 'center' }}>
-                                                        <Text type="secondary" style={{ fontSize: 12, display: 'block' }}>4xx Errors</Text>
-                                                        <Text strong style={{ color: '#f59e0b' }}>{formatNumber(item.errors4xx)}/s</Text>
-                                                    </div>
-                                                </Col>
-                                                <Col span={8}>
-                                                    <div style={{ textAlign: 'center' }}>
-                                                        <Text type="secondary" style={{ fontSize: 12, display: 'block' }}>5xx Errors</Text>
-                                                        <Text strong style={{ color: '#ef4444' }}>{formatNumber(item.errors5xx)}/s</Text>
-                                                    </div>
-                                                </Col>
-                                            </>
-                                        )}
-                                        {modalTitle.includes('Connection') && (
-                                            <Col span={24}>
-                                                <div style={{ textAlign: 'center' }}>
-                                                    <Text type="secondary" style={{ fontSize: 12, display: 'block' }}>Active Connections</Text>
-                                                    <Text strong style={{ color: '#00c6fb' }}>{formatNumber(item.connections)}</Text>
-                                                </div>
-                                            </Col>
-                                        )}
-                                        {modalTitle.includes('Traffic') && (
-                                            <>
-                                                <Col span={12}>
-                                                    <div style={{ textAlign: 'center' }}>
-                                                        <Text type="secondary" style={{ fontSize: 12, display: 'block' }}>Incoming</Text>
-                                                        <Text strong style={{ color: '#0891b2' }}>{formatBytes(item.incomingBytes)}/s</Text>
-                                                    </div>
-                                                </Col>
-                                                <Col span={12}>
-                                                    <div style={{ textAlign: 'center' }}>
-                                                        <Text type="secondary" style={{ fontSize: 12, display: 'block' }}>Outgoing</Text>
-                                                        <Text strong style={{ color: '#0284c7' }}>{formatBytes(item.outgoingBytes)}/s</Text>
-                                                    </div>
-                                                </Col>
-                                            </>
-                                        )}
-                                    </Row>
-                                }
-                            />
-                        </List.Item>
-                    )}
-                />
+                                        <div style={{ minWidth: 50, textAlign: 'center' }}>
+                                            <Text style={{ fontSize: 10, color: '#8c8c8c', display: 'block' }}>4XX</Text>
+                                            <Text strong style={{ color: '#f59e0b', fontSize: 14 }}>
+                                                {formatNumber(item.errors4xx)}
+                                            </Text>
+                                        </div>
+                                        <div style={{ minWidth: 50, textAlign: 'center' }}>
+                                            <Text style={{ fontSize: 10, color: '#8c8c8c', display: 'block' }}>5XX</Text>
+                                            <Text strong style={{ color: '#ef4444', fontSize: 14 }}>
+                                                {formatNumber(item.errors5xx)}
+                                            </Text>
+                                        </div>
+                                    </>
+                                )}
+                                {modalTitle.includes('Connection') && (
+                                    <div style={{ minWidth: 70, textAlign: 'center' }}>
+                                        <Text style={{ fontSize: 10, color: '#8c8c8c', display: 'block' }}>ACTIVE</Text>
+                                        <Text strong style={{ color: '#00c6fb', fontSize: 14 }}>
+                                            {formatNumber(item.connections)}
+                                        </Text>
+                                    </div>
+                                )}
+                                {modalTitle.includes('Traffic') && (
+                                    <>
+                                        <div style={{ minWidth: 80, textAlign: 'center' }}>
+                                            <Text style={{ fontSize: 10, color: '#8c8c8c', display: 'block' }}>IN/S</Text>
+                                            <Text strong style={{ color: '#0891b2', fontSize: 12 }}>
+                                                {formatBytes(item.incomingBytes)}
+                                            </Text>
+                                        </div>
+                                        <div style={{ minWidth: 80, textAlign: 'center' }}>
+                                            <Text style={{ fontSize: 10, color: '#8c8c8c', display: 'block' }}>OUT/S</Text>
+                                            <Text strong style={{ color: '#0284c7', fontSize: 12 }}>
+                                                {formatBytes(item.outgoingBytes)}
+                                            </Text>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        </div>
+                        ))}
+                    </div>
+                )}
                     </>
                 )}
             </Drawer>

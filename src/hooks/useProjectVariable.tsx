@@ -1,6 +1,6 @@
 import { DecodeToken } from '@/utils/tools';
 import Cookies from 'js-cookie';
-import React, { createContext, useState, useContext, ReactNode, useEffect, useMemo } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useEffect, useMemo, useCallback } from 'react';
 
 
 interface ProjectVariableContextType {
@@ -16,11 +16,15 @@ interface ProjectVariableProviderProps {
 }
 
 export const ProjectVariableProvider: React.FC<ProjectVariableProviderProps> = ({ children }) => {
-  const [project, setProject] = useState<string>(() => {
+  const [project, setProjectState] = useState<string>(() => {
     const domainKey = window.location.hostname;
     const savedProject = localStorage.getItem(`selectedProject-${domainKey}`);
     return savedProject || '';
   });
+
+  const setProject = useCallback((value: string) => {
+    setProjectState(value);
+  }, []);
 
   useEffect(() => {
     const checkTokenAndSetProject = () => {
@@ -28,19 +32,14 @@ export const ProjectVariableProvider: React.FC<ProjectVariableProviderProps> = (
       if (token) {
         const userDetail = DecodeToken(token);
         if (userDetail?.base_project && !project) {
-          setProject(userDetail.base_project);
+          setProjectState(userDetail.base_project);
         }
       }
     };
 
     checkTokenAndSetProject();
-
-    // Eğer çerez daha sonra ayarlanırsa diye izlemeye devam edebiliriz
-    const intervalId = setInterval(() => {
-      checkTokenAndSetProject();
-    }, 1000);
-
-    return () => clearInterval(intervalId); // Bellek sızıntısını önlemek için interval temizlenir
+    
+    // Removed interval - only check once on mount to avoid unnecessary re-renders
   }, [project]);
 
   useEffect(() => {
