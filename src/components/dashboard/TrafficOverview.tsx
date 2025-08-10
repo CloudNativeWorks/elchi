@@ -358,7 +358,26 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                 });
             }
 
-            // Now fetch metrics for each domain using the aggregated queries similar to main dashboard
+            // Helper function to extract metric values
+            const getMetricValue = (result: any) => {
+                if (result?.data?.result?.length > 0) {
+                    let totalValue = 0;
+                    result.data.result.forEach((series: any) => {
+                        if (series.values && series.values.length > 0) {
+                            const lastPoint = series.values[series.values.length - 1];
+                            const value = parseFloat(lastPoint[1]) || 0;
+                            totalValue += value;
+                        } else if (series.value) {
+                            const value = parseFloat(series.value[1]) || 0;
+                            totalValue += value;
+                        }
+                    });
+                    return totalValue;
+                }
+                return 0;
+            };
+
+            // Now fetch metrics for each domain - optimized to fetch only relevant metrics per type
             const domainMetrics: { [key: string]: DetailedMetric } = {};
             
             for (const domain of domains) {
@@ -366,7 +385,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                 console.log('Processing domain:', domain, 'with key:', domainKey);
                 
                 if (type === 'requests') {
-                    // Use instant queries to get latest rate values for domain
+                    // Fetch only request-related metrics
                     const [reqRate, errors4xx, errors5xx] = await Promise.all([
                         metricsApiMutation.mutateAsync({
                             name: '.*',
@@ -426,24 +445,6 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                     console.log('4xx errors result:', errors4xx);
                     console.log('5xx errors result:', errors5xx);
                     
-                    const getMetricValue = (result: any) => {
-                        if (result?.data?.result?.length > 0) {
-                            let totalValue = 0;
-                            result.data.result.forEach((series: any) => {
-                                if (series.values && series.values.length > 0) {
-                                    const lastPoint = series.values[series.values.length - 1];
-                                    const value = parseFloat(lastPoint[1]) || 0;
-                                    totalValue += value;
-                                } else if (series.value) {
-                                    const value = parseFloat(series.value[1]) || 0;
-                                    totalValue += value;
-                                }
-                            });
-                            return totalValue;
-                        }
-                        return 0;
-                    };
-                    
                     domainMetrics[domain] = {
                         domain: domain,
                         requests: getMetricValue(reqRate),
@@ -458,7 +459,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                     };
                     
                 } else if (type === 'connections') {
-                    // Fetch active connections for each domain using instant query
+                    // Fetch only connection-related metrics
                     const connResult = await metricsApiMutation.mutateAsync({
                         name: '.*',
                         metric: 'listener_downstream_cx_active',
@@ -470,24 +471,6 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                     });
                     
                     console.log('Connection result for domain:', domain, connResult);
-                    
-                    const getMetricValue = (result: any) => {
-                        if (result?.data?.result?.length > 0) {
-                            let totalValue = 0;
-                            result.data.result.forEach((series: any) => {
-                                if (series.values && series.values.length > 0) {
-                                    const lastPoint = series.values[series.values.length - 1];
-                                    const value = parseFloat(lastPoint[1]) || 0;
-                                    totalValue += value;
-                                } else if (series.value) {
-                                    const value = parseFloat(series.value[1]) || 0;
-                                    totalValue += value;
-                                }
-                            });
-                            return totalValue;
-                        }
-                        return 0;
-                    };
                     
                     domainMetrics[domain] = {
                         domain: domain,
@@ -503,7 +486,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                     };
                     
                 } else if (type === 'traffic') {
-                    // Fetch traffic metrics for each domain using instant queries
+                    // Fetch only traffic-related metrics
                     const [rxBytes, txBytes] = await Promise.all([
                         metricsApiMutation.mutateAsync({
                             name: '.*',
@@ -544,24 +527,6 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                     console.log('Traffic results for domain:', domain);
                     console.log('RX bytes result:', rxBytes);
                     console.log('TX bytes result:', txBytes);
-                    
-                    const getMetricValue = (result: any) => {
-                        if (result?.data?.result?.length > 0) {
-                            let totalValue = 0;
-                            result.data.result.forEach((series: any) => {
-                                if (series.values && series.values.length > 0) {
-                                    const lastPoint = series.values[series.values.length - 1];
-                                    const value = parseFloat(lastPoint[1]) || 0;
-                                    totalValue += value;
-                                } else if (series.value) {
-                                    const value = parseFloat(series.value[1]) || 0;
-                                    totalValue += value;
-                                }
-                            });
-                            return totalValue;
-                        }
-                        return 0;
-                    };
                     
                     domainMetrics[domain] = {
                         domain: domain,
@@ -1250,34 +1215,52 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                                 }
                                 description={
                                     <Row gutter={24} style={{ marginTop: 8 }}>
-                                        <Col span={6}>
-                                            <div style={{ textAlign: 'center' }}>
-                                                <Text type="secondary" style={{ fontSize: 12, display: 'block' }}>Requests</Text>
-                                                <Text strong style={{ color: '#056ccd' }}>{formatNumber(item.requests)}/s</Text>
-                                            </div>
-                                        </Col>
-                                        <Col span={6}>
-                                            <div style={{ textAlign: 'center' }}>
-                                                <Text type="secondary" style={{ fontSize: 12, display: 'block' }}>Connections</Text>
-                                                <Text strong style={{ color: '#00c6fb' }}>{formatNumber(item.connections)}</Text>
-                                            </div>
-                                        </Col>
-                                        <Col span={6}>
-                                            <div style={{ textAlign: 'center' }}>
-                                                <Text type="secondary" style={{ fontSize: 12, display: 'block' }}>Traffic</Text>
-                                                <Text strong style={{ color: '#0284c7' }}>{formatBytes(item.incomingBytes + item.outgoingBytes)}/s</Text>
-                                            </div>
-                                        </Col>
-                                        <Col span={6}>
-                                            <div style={{ textAlign: 'center' }}>
-                                                <Text type="secondary" style={{ fontSize: 12, display: 'block' }}>Errors</Text>
-                                                <Text strong style={{ color: item.errors4xx + item.errors5xx > 0 ? '#ef4444' : '#52c41a' }}>{
-                                                    item.errors4xx + item.errors5xx > 0 
-                                                        ? `${formatNumber(item.errors4xx + item.errors5xx)}/s`
-                                                        : '0'
-                                                }</Text>
-                                            </div>
-                                        </Col>
+                                        {modalTitle.includes('Request') && (
+                                            <>
+                                                <Col span={8}>
+                                                    <div style={{ textAlign: 'center' }}>
+                                                        <Text type="secondary" style={{ fontSize: 12, display: 'block' }}>Healthy Requests</Text>
+                                                        <Text strong style={{ color: '#056ccd' }}>{formatNumber(item.requests)}/s</Text>
+                                                    </div>
+                                                </Col>
+                                                <Col span={8}>
+                                                    <div style={{ textAlign: 'center' }}>
+                                                        <Text type="secondary" style={{ fontSize: 12, display: 'block' }}>4xx Errors</Text>
+                                                        <Text strong style={{ color: '#f59e0b' }}>{formatNumber(item.errors4xx)}/s</Text>
+                                                    </div>
+                                                </Col>
+                                                <Col span={8}>
+                                                    <div style={{ textAlign: 'center' }}>
+                                                        <Text type="secondary" style={{ fontSize: 12, display: 'block' }}>5xx Errors</Text>
+                                                        <Text strong style={{ color: '#ef4444' }}>{formatNumber(item.errors5xx)}/s</Text>
+                                                    </div>
+                                                </Col>
+                                            </>
+                                        )}
+                                        {modalTitle.includes('Connection') && (
+                                            <Col span={24}>
+                                                <div style={{ textAlign: 'center' }}>
+                                                    <Text type="secondary" style={{ fontSize: 12, display: 'block' }}>Active Connections</Text>
+                                                    <Text strong style={{ color: '#00c6fb' }}>{formatNumber(item.connections)}</Text>
+                                                </div>
+                                            </Col>
+                                        )}
+                                        {modalTitle.includes('Traffic') && (
+                                            <>
+                                                <Col span={12}>
+                                                    <div style={{ textAlign: 'center' }}>
+                                                        <Text type="secondary" style={{ fontSize: 12, display: 'block' }}>Incoming</Text>
+                                                        <Text strong style={{ color: '#0891b2' }}>{formatBytes(item.incomingBytes)}/s</Text>
+                                                    </div>
+                                                </Col>
+                                                <Col span={12}>
+                                                    <div style={{ textAlign: 'center' }}>
+                                                        <Text type="secondary" style={{ fontSize: 12, display: 'block' }}>Outgoing</Text>
+                                                        <Text strong style={{ color: '#0284c7' }}>{formatBytes(item.outgoingBytes)}/s</Text>
+                                                    </div>
+                                                </Col>
+                                            </>
+                                        )}
                                     </Row>
                                 }
                             />
