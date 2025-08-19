@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, Typography, Tag, Space, Row, Col, Divider } from 'antd';
 import { CloudServerOutlined } from '@ant-design/icons';
+import { getVersionAntdColor } from '@/utils/versionColors';
 
 const { Text, Title } = Typography;
 
@@ -152,18 +153,15 @@ const General: React.FC = () => {
                                 overflowY: 'auto',
                                 padding: '4px'
                             }}>
-                                {appInfo.supportedEnvoyVersions.map((version, index) => (
+                                {appInfo.supportedEnvoyVersions.map((version) => (
                                     <Tag 
                                         key={version}
-                                        color="cyan"
+                                        color={getVersionAntdColor(version)}
                                         style={{ 
                                             fontSize: '11px',
                                             fontWeight: '500',
                                             margin: 0,
                                             borderRadius: '6px',
-                                            background: 'linear-gradient(135deg, #e6fffb 0%, #b5f5ec 100%)',
-                                            border: '1px solid #87e8de',
-                                            color: '#006d75'
                                         }}
                                     >
                                         {version}

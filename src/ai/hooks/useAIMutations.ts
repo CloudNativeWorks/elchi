@@ -2,7 +2,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { api } from '../../common/api';
 import Config from '../../conf';
 import { useProjectVariable } from '../../hooks/useProjectVariable';
-import { useClaudeToken } from '../../hooks/useClaudeToken';
+import { useOpenRouterToken } from '../../hooks/useOpenRouterToken';
 import type { 
   ConfigAnalyzerRequest, 
   ConfigAnalysisResult, 
@@ -17,11 +17,11 @@ import { RESOURCE_COLLECTIONS, COMPONENT_TYPES } from '../../types/aiConfig';
 // Analyze Listener Configuration Hook
 export const useAnalyzeConfigMutation = () => {
   const { project } = useProjectVariable();
-  const { hasToken } = useClaudeToken();
+  const { hasToken } = useOpenRouterToken();
   
   const mutationFn = async (request: ConfigAnalyzerRequest): Promise<ConfigAnalysisResult> => {
     if (!hasToken) {
-      throw new Error('Claude API token not configured. Please set it in Settings > Tokens.');
+      throw new Error('OpenRouter API token not configured. Please set it in Settings > AI.');
     }
 
     // Add project information to request
@@ -51,7 +51,7 @@ export const useAnalyzeConfigMutation = () => {
 
 // Get AI Status Hook
 export const useAIStatus = (enabled = true) => {
-  const { hasToken } = useClaudeToken();
+  const { hasToken } = useOpenRouterToken();
   const { project } = useProjectVariable();
   
   return useQuery({
@@ -152,11 +152,11 @@ export const useAvailableListeners = (enabled = true) => {
 // Analyze Service Logs Hook
 export const useAnalyzeLogsMutation = () => {
   const { project } = useProjectVariable();
-  const { hasToken } = useClaudeToken();
+  const { hasToken } = useOpenRouterToken();
   
   const mutationFn = async (request: LogAnalyzerRequest): Promise<LogAnalysisResult> => {
     if (!hasToken) {
-      throw new Error('Claude API token not configured. Please set it in Settings > Tokens.');
+      throw new Error('OpenRouter API token not configured. Please set it in Settings > AI.');
     }
 
     // Convert our LogAnalyzerRequest to backend expected format

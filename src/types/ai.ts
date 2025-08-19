@@ -23,6 +23,7 @@ export interface AIUsageStats {
   total_tokens_used: number;
   total_input_tokens: number;
   total_output_tokens: number;
+  total_cost_usd: number;
   analyze_requests: number;
   log_analyze_requests: number;
   average_response_time_ms: number;
@@ -31,6 +32,10 @@ export interface AIUsageStats {
   tokens_today: number;
   tokens_this_week: number;
   tokens_this_month: number;
+  cost_today_usd: number;
+  cost_this_week_usd: number;
+  cost_this_month_usd: number;
+  requests_today: number;
 }
 
 export interface AIUsageStatus {

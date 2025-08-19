@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from 'antd';
 import { LinkOutlined } from '@ant-design/icons';
 import { PopoverContentProps } from './types';
-import { getIconForResource, getNodeStyle } from './utils';
+import { getSvgIconForResource, getNodeStyle } from './utils';
 
 const PopoverContent: React.FC<PopoverContentProps> = ({ nodeLabel, category, gtype, link, id }) => {
     const handleClick = (e: React.MouseEvent) => {
@@ -12,7 +12,7 @@ const PopoverContent: React.FC<PopoverContentProps> = ({ nodeLabel, category, gt
         window.location.href = url;
     };
 
-    const iconUrl = getIconForResource(category);
+    const iconUrl = getSvgIconForResource(category);
     const nodeStyle = getNodeStyle(category);
 
     return (
@@ -21,8 +21,8 @@ const PopoverContent: React.FC<PopoverContentProps> = ({ nodeLabel, category, gt
                 <span>{nodeLabel}</span>
                 {iconUrl && (
                     <div style={{
-                        width: 24,
-                        height: 24,
+                        width: 28,
+                        height: 28,
                         background: nodeStyle.bg,
                         border: `2px solid ${nodeStyle.border}`,
                         borderRadius: '6px',
@@ -31,7 +31,7 @@ const PopoverContent: React.FC<PopoverContentProps> = ({ nodeLabel, category, gt
                         justifyContent: 'center',
                         marginLeft: 4
                     }}>
-                        <img src={iconUrl} alt={category} style={{ width: '70%', height: '70%', objectFit: 'contain', display: 'block' }} />
+                        <img src={iconUrl} alt={category} style={{ width: '18px', height: '18px', objectFit: 'contain', display: 'block' }} />
                     </div>
                 )}
             </div>

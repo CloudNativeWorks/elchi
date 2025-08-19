@@ -10,8 +10,8 @@ import NodeIcons from './NodeIcons';
 import { CustomCardProps } from './types';
 import PopoverContent from './PopoverContent';
 import { createDependencyGraph } from './DependencyGraph';
-import { icons } from './icon';
 import ElchiButton from '../ElchiButton';
+import SearchFilter from './SearchFilter';
 
 cytoscape.use(dagre);
 
@@ -28,6 +28,8 @@ const Dependencies: React.FC<CustomCardProps> = ({ name, collection, gtype, visi
     } | null>(null);
     const [graphInitialized, setGraphInitialized] = useState(false);
     const [forceRender, setForceRender] = useState(0);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filterType, setFilterType] = useState('all');
     const { isLoading, error, data: dependencies, isFetching, refetch } = useCustomGetQuery({
         queryKey: `query_${name}_${collection}`,
         enabled: false,
@@ -126,6 +128,93 @@ const Dependencies: React.FC<CustomCardProps> = ({ name, collection, gtype, visi
                 });
             }
         }
+    };
+
+    const handleSearch = (searchValue: string) => {
+        setSearchTerm(searchValue);
+        if (cyRef.current) {
+            cyRef.current.nodes().forEach(node => {
+                const label = node.data('label').toLowerCase();
+                const category = node.data('category').toLowerCase();
+                const isMatch = label.includes(searchValue.toLowerCase()) || 
+                               category.includes(searchValue.toLowerCase());
+                
+                if (searchValue === '' || isMatch) {
+                    node.style({ 'opacity': 1 });
+                    // Icon'u da göster
+                    const iconDiv = document.getElementById(`icon-${node.id()}`);
+                    if (iconDiv) {
+                        iconDiv.style.opacity = '1';
+                    }
+                } else {
+                    node.style({ 'opacity': 0.2 });
+                    // Icon'u da gizle
+                    const iconDiv = document.getElementById(`icon-${node.id()}`);
+                    if (iconDiv) {
+                        iconDiv.style.opacity = '0.2';
+                    }
+                }
+            });
+        }
+    };
+
+    const handleFilter = (filterValue: string) => {
+        setFilterType(filterValue);
+        if (cyRef.current) {
+            cyRef.current.nodes().forEach(node => {
+                const category = node.data('category').toLowerCase();
+                const isMatch = filterValue === 'all' || category.includes(filterValue.toLowerCase());
+                
+                if (isMatch) {
+                    node.style({ 'display': 'element' });
+                } else {
+                    node.style({ 'display': 'none' });
+                }
+            });
+        }
+    };
+
+    const handleClearFilters = () => {
+        setSearchTerm('');
+        setFilterType('all');
+        if (cyRef.current) {
+            cyRef.current.nodes().forEach(node => {
+                node.style({ 
+                    'opacity': 1,
+                    'display': 'element'
+                });
+                // Icon'ları da göster
+                const iconDiv = document.getElementById(`icon-${node.id()}`);
+                if (iconDiv) {
+                    iconDiv.style.opacity = '1';
+                }
+            });
+        }
+    };
+
+    const getUniqueNodeTypes = () => {
+        if (!dependencies) return [];
+        
+        let nodes = [];
+        if (dependencies.nodes && Array.isArray(dependencies.nodes)) {
+            nodes = dependencies.nodes;
+        } else if (dependencies.elements && Array.isArray(dependencies.elements)) {
+            nodes = dependencies.elements.filter(el => el.group === 'nodes');
+        } else if (Array.isArray(dependencies)) {
+            nodes = dependencies.filter(item =>
+                item.group === 'nodes' ||
+                (item.data && !item.data.source && !item.data.target)
+            );
+        }
+
+        const types = new Set();
+        nodes.forEach(node => {
+            const nodeData = node.data || node;
+            const category = nodeData.category || nodeData.type || 'default';
+            types.add(category.toLowerCase());
+        });
+
+        return Array.from(types) as string[];
     };
 
     useEffect(() => {
@@ -302,16 +391,18 @@ const Dependencies: React.FC<CustomCardProps> = ({ name, collection, gtype, visi
                     width: '100%',
                     height: '100%',
                     position: 'relative',
-                    backgroundColor: ThemeColors.background,
-                    border: '1px solid #eee',
-                    minHeight: '600px'
+                    background: ThemeColors.background,
+                    border: '1px solid rgba(255, 255, 255, 0.2)',
+                    borderRadius: '12px',
+                    minHeight: '600px',
+                    overflow: 'hidden'
                 }}
             >
                 {selectedNode && (
                     <div
                         style={{
                             position: 'absolute',
-                            top: 10,
+                            bottom: 10,
                             left: 10,
                             zIndex: 1010,
                         }}
@@ -333,8 +424,11 @@ const Dependencies: React.FC<CustomCardProps> = ({ name, collection, gtype, visi
                             title="Resource Details"
                             style={{
                                 width: 300,
-                                backgroundColor: 'white',
-                                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                                backgroundColor: ThemeColors.glass.background,
+                                backdropFilter: ThemeColors.glass.backdrop,
+                                boxShadow: ThemeColors.glass.shadow,
+                                border: `1px solid ${ThemeColors.glass.border}`,
+                                borderRadius: '12px',
                                 pointerEvents: 'all'
                             }}
                             onClick={(e) => {
@@ -378,34 +472,88 @@ const Dependencies: React.FC<CustomCardProps> = ({ name, collection, gtype, visi
 
                 <div style={{
                     position: 'absolute',
-                    bottom: 10,
+                    top: 10,
                     left: 10,
                     zIndex: 1000,
                 }}>
-                    <Card
-                        size="small"
-                        title="Graph Controls"
-                        style={{
-                            width: 'auto',
-                            backgroundColor: 'white',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
-                        }}
-                        styles={{
-                            body: {
-                                padding: '12px',
-                                paddingBottom: '12px'
-                            }
-                        }}
-                    >
-                        <GraphControls
-                            onZoomIn={handleZoomIn}
-                            onZoomOut={handleZoomOut}
-                            onFit={handleFit}
-                            onLayoutChange={handleLayoutChange}
-                        />
-                    </Card>
+                    <SearchFilter
+                        onSearch={handleSearch}
+                        onFilter={handleFilter}
+                        onClear={handleClearFilters}
+                        nodeTypes={getUniqueNodeTypes()}
+                    />
                 </div>
-                <NodeIcons icons={icons} />
+
+                {!selectedNode && (
+                    <div style={{
+                        position: 'absolute',
+                        bottom: 10,
+                        left: 10,
+                        zIndex: 1000,
+                    }}>
+                        <Card
+                            size="small"
+                            title="Graph Controls"
+                            style={{
+                                width: 'auto',
+                                backgroundColor: ThemeColors.glass.background,
+                                backdropFilter: ThemeColors.glass.backdrop,
+                                boxShadow: ThemeColors.glass.shadow,
+                                border: `1px solid ${ThemeColors.glass.border}`,
+                                borderRadius: '12px'
+                            }}
+                            styles={{
+                                body: {
+                                    padding: '12px',
+                                    paddingBottom: '12px'
+                                }
+                            }}
+                        >
+                            <GraphControls
+                                onZoomIn={handleZoomIn}
+                                onZoomOut={handleZoomOut}
+                                onFit={handleFit}
+                                onLayoutChange={handleLayoutChange}
+                            />
+                        </Card>
+                    </div>
+                )}
+                
+                {selectedNode && (
+                    <div style={{
+                        position: 'absolute',
+                        bottom: 10,
+                        right: 10,
+                        zIndex: 1000,
+                    }}>
+                        <Card
+                            size="small"
+                            title="Graph Controls"
+                            style={{
+                                width: 'auto',
+                                backgroundColor: ThemeColors.glass.background,
+                                backdropFilter: ThemeColors.glass.backdrop,
+                                boxShadow: ThemeColors.glass.shadow,
+                                border: `1px solid ${ThemeColors.glass.border}`,
+                                borderRadius: '12px'
+                            }}
+                            styles={{
+                                body: {
+                                    padding: '12px',
+                                    paddingBottom: '12px'
+                                }
+                            }}
+                        >
+                            <GraphControls
+                                onZoomIn={handleZoomIn}
+                                onZoomOut={handleZoomOut}
+                                onFit={handleFit}
+                                onLayoutChange={handleLayoutChange}
+                            />
+                        </Card>
+                    </div>
+                )}
+                <NodeIcons />
             </div>
         );
     };
@@ -428,16 +576,19 @@ const Dependencies: React.FC<CustomCardProps> = ({ name, collection, gtype, visi
                     height: 'calc(94vh - 105px)',
                     overflow: 'hidden',
                     padding: 0,
-                    backgroundColor: ThemeColors.background
+                    background: ThemeColors.backgroundSolid
                 },
                 header: {
-                    borderBottom: '1px solid #e8e8e8',
+                    borderBottom: '1px solid rgba(255, 255, 255, 0.1)',
                     padding: '16px 24px',
                     fontSize: '18px',
-                    fontWeight: 'bold'
+                    fontWeight: 'bold',
+                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05))',
+                    backdropFilter: 'blur(10px)'
                 },
                 mask: {
-                    backgroundColor: 'rgba(0, 0, 0, 0.65)'
+                    backgroundColor: 'rgba(0, 0, 0, 0.4)',
+                    backdropFilter: 'blur(4px)'
                 }
             }}
             destroyOnHidden

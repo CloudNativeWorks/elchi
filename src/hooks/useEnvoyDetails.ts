@@ -5,6 +5,7 @@ import { OperationsType } from '@/common/types';
 interface EnvoyDetailsProps {
     name: string;
     project: string;
+    version?: string;
 }
 
 interface EnvoyData {
@@ -28,8 +29,8 @@ interface EnvoyData {
     };
 }
 
-export const useEnvoyDetails = ({ name, project }: EnvoyDetailsProps) => {
-    const mutate = useOperationsApiMutation();
+export const useEnvoyDetails = ({ name, project, version }: EnvoyDetailsProps) => {
+    const mutate = useOperationsApiMutation(version);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [envoyData, setEnvoyData] = useState<Record<string, EnvoyData>>({});

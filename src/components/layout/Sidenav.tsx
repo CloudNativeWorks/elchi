@@ -21,7 +21,8 @@ import {
     CloudServerOutlined,
     CodeOutlined,
     ApiOutlined,
-    RadarChartOutlined
+    RadarChartOutlined,
+    RobotOutlined
 } from '@ant-design/icons';
 import { useProjectVariable } from "@/hooks/useProjectVariable";
 import { UserDetail } from "@/common/types";
@@ -41,10 +42,10 @@ const menuConfig = [
 		label: "Dashboard",
 	},
 	{
-		key: "/quick_start",
+		key: "/scenarios",
 		to: "/quick_start",
 		icon: "RocketOutlined",
-		label: "Quick Start",
+		label: "Scenarios",
 	},
 	{
 		key: "/Resources",
@@ -189,6 +190,7 @@ const iconMap = {
 	CodeOutlined: CodeOutlined,
 	ApiOutlined: ApiOutlined,
 	RadarChartOutlined: RadarChartOutlined,
+	RobotOutlined: RobotOutlined,
 };
 
 function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
@@ -199,6 +201,11 @@ function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
 	const findBestMatchKey = (path: string) => {
 		if (path === "/" || path === "") {
 			return "/home";
+		}
+		
+		// Special case: both /quick_start and /scenarios should activate scenarios button
+		if (path.startsWith("/quick_start") || path.startsWith("/scenarios")) {
+			return "/scenarios";
 		}
 		
 		let bestMatch = "";

@@ -242,6 +242,7 @@ export interface LogAnalysisResult {
   client_name: string;
   log_count: number;
   analysis: string;
+  log_summary?: string;
   suggestions?: string[];
   issues_found?: string[];
   processed_at: string;
@@ -251,6 +252,8 @@ export interface LogAnalysisResult {
     total_tokens: number;
     cost_usd: number;
   };
+  // Additional dynamic fields from OpenRouter response
+  [key: string]: any;
 }
 
 export interface ServiceLogItem {

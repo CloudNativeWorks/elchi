@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Card, Typography, Spin, Alert, Tag, Space, Collapse, Badge, Table, Input, Row, Col, Statistic, Divider } from 'antd';
-import { DatabaseOutlined, ClusterOutlined, ControlOutlined, NodeIndexOutlined, UserOutlined, SearchOutlined, GlobalOutlined, CloudServerOutlined } from '@ant-design/icons';
+import { Card, Typography, Spin, Alert, Tag, Space, Collapse, Badge, Table, Input, Row, Col, Statistic } from 'antd';
+import { DatabaseOutlined, ClusterOutlined, ControlOutlined, SearchOutlined, GlobalOutlined, CloudServerOutlined } from '@ant-design/icons';
 import { useCustomGetQuery } from '@/common/api';
 
 const { Text, Title } = Typography;

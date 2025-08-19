@@ -5,11 +5,11 @@ import { useOperationsApiMutation } from '@/common/operations-api';
 import { OperationsSubType, OperationsType } from '@/common/types';
 import { OperationsResponse, ServiceLogsApiResult, ServiceLogItem } from './model';
 import LogToolbar from '@/elchi/components/common/LogToolBar';
-import LoggerSettingsModal from './LoggerSettingsModal';
+import LoggerSettingsDrawer from './LoggerSettingsDrawer';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import { useAnalyzeLogsMutation } from '@/ai/hooks/useAIMutations';
 import { LogAnalysisResult, LogAnalyzerRequest } from '@/types/aiConfig';
-import { AIAnalysisRenderer } from '@/ai/AIConfigGenerator';
+import { AIAnalysisRenderer, DynamicLogAnalysisRenderer } from '@/ai/AIConfigGenerator';
 
 function wrapWithIndent(line: string, indent: string, maxLen: number) {
     if (!line) return [indent];
@@ -56,6 +56,20 @@ function parseTimestamp(timestamp: string): number {
         return unixMs;
     }
 
+    // Handle YY-MM-DD HH:mm:ss.SSS format specifically
+    const yymmddPattern = /^(\d{2})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})\.?(\d+)?$/;
+    const yymmddMatch = cleanTimestamp.match(yymmddPattern);
+    if (yymmddMatch) {
+        const [, year, month, day, hour, minute, second, millisecond] = yymmddMatch;
+        // Convert 2-digit year to 4-digit (assuming 20xx)
+        const fullYear = parseInt(`20${year}`);
+        const fullTimestamp = `${fullYear}-${month}-${day} ${hour}:${minute}:${second}${millisecond ? '.' + millisecond : ''}`;
+        const parsedDate = new Date(fullTimestamp);
+        if (!isNaN(parsedDate.getTime())) {
+            return parsedDate.getTime();
+        }
+    }
+
     const patterns = [
         /(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})\.?(\d+)?Z?/,
         /(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})/,
@@ -72,7 +86,6 @@ function parseTimestamp(timestamp: string): number {
         }
     }
 
-    console.warn('Timestamp parse edilemedi:', timestamp);
     return 0;
 }
 
@@ -353,7 +366,7 @@ const Logs: React.FC = () => {
                                 <Button
                                     icon={<RobotOutlined />}
                                     onClick={handleAIAnalysis}
-                                    title="Analyze logs with AI"
+                                    title={!name ? "Select a service first to analyze logs" : "Analyze logs with AI"}
                                     type="primary"
                                     disabled={!name || filteredLogs.length === 0}
                                     loading={analyzeLogsMutation.isPending}
@@ -364,7 +377,8 @@ const Logs: React.FC = () => {
                                 <Button
                                     icon={<SettingOutlined />}
                                     onClick={() => setIsLoggerSettingsOpen(true)}
-                                    title="Manage Log Levels"
+                                    title={!name ? "Select a service first to manage log levels" : "Manage Log Levels"}
+                                    disabled={!name}
                                 >
                                     Log Levels
                                 </Button>
@@ -417,7 +431,14 @@ const Logs: React.FC = () => {
                                 <Typography.Text strong>Analyzed Logs: </Typography.Text>
                                 <Typography.Text>{aiAnalysisResult.log_count}</Typography.Text>
                             </div>
-                            <AIAnalysisRenderer analysis={aiAnalysisResult.analysis} />
+                            {/* Check if we have a dynamic OpenRouter response with multiple fields */}
+                            {(aiAnalysisResult.log_summary || Object.keys(aiAnalysisResult).some(key => 
+                              !['service_name', 'client_name', 'log_count', 'processed_at', 'token_usage', 'analysis', 'suggestions', 'issues_found'].includes(key)
+                            )) ? (
+                              <DynamicLogAnalysisRenderer analysisResult={aiAnalysisResult} />
+                            ) : (
+                              <AIAnalysisRenderer analysis={aiAnalysisResult.analysis} />
+                            )}
 
                             {/* Token Usage Statistics */}
                             {aiAnalysisResult.token_usage && (
@@ -807,7 +828,7 @@ const Logs: React.FC = () => {
                     )}
                 </div>
 
-                <LoggerSettingsModal
+                <LoggerSettingsDrawer
                     open={isLoggerSettingsOpen}
                     onClose={() => setIsLoggerSettingsOpen(false)}
                     name={name}

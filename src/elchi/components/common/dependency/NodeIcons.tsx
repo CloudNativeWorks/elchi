@@ -1,29 +1,38 @@
 import React, { useState } from 'react';
 import { ThemeColors } from './themes';
+import { 
+    GlobalOutlined,
+    ClusterOutlined,
+    FilterOutlined,
+    ShareAltOutlined,
+    AimOutlined,
+    SafetyOutlined,
+    CodeOutlined,
+    KeyOutlined,
+    AppstoreOutlined,
+    CloudOutlined
+} from '@ant-design/icons';
 
-interface IconsImport {
-    icons: Record<string, string>;
-}
-
-const NodeIcons: React.FC<IconsImport> = ({ icons }) => {
+const NodeIcons: React.FC = () => {
     const [collapsed, setCollapsed] = useState(false);
     return (
         <div style={{
             position: 'absolute',
             top: '10px',
             right: '10px',
-            backgroundColor: '#ffffff',
-            border: '1px solid #ddd',
+            backgroundColor: ThemeColors.glass.background,
+            backdropFilter: ThemeColors.glass.backdrop,
+            border: `1px solid ${ThemeColors.glass.border}`,
             padding: '12px',
-            borderRadius: '8px',
-            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)',
+            borderRadius: '12px',
+            boxShadow: ThemeColors.glass.shadow,
             zIndex: 1000,
-            //maxWidth: '300px',
+            maxWidth: '400px',
             maxHeight: '80vh',
             overflowY: 'auto'
         }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', height: '20px' }}>
-                <span style={{ fontSize: '13px', fontWeight: 'bold', borderBottom: '1px solid #eee', paddingBottom: '8px', flex: 1, height: '20px', lineHeight: '20px', display: 'flex', alignItems: 'center' }}>
+                <span style={{ fontSize: '13px', fontWeight: 'bold', borderBottom: '1px solid rgba(255, 255, 255, 0.3)', paddingBottom: '8px', flex: 1, height: '20px', lineHeight: '20px', display: 'flex', alignItems: 'center', color: '#333' }}>
                     Resource Types
                 </span>
                 <button
@@ -48,157 +57,167 @@ const NodeIcons: React.FC<IconsImport> = ({ icons }) => {
                 </button>
             </div>
             {!collapsed && (
-                <div style={{ display: 'flex', flexDirection: 'row', gap: '18px', flexWrap: 'wrap', alignItems: 'center' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '12px', alignItems: 'center' }}>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px' }}>
                         <div style={{
-                            width: '32px',
-                            height: '32px',
+                            width: '24px',
+                            height: '24px',
                             backgroundColor: ThemeColors.node.listener.bg,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            border: `2px solid ${ThemeColors.node.listener.border}`,
-                            borderRadius: '6px'
+                            border: `1px solid ${ThemeColors.node.listener.border}`,
+                            borderRadius: '6px',
+                            flexShrink: 0
                         }}>
-                            <img src={icons.listener} alt="Listener" style={{ width: '80%', height: '80%', margin: 'auto', display: 'block' }} />
+                            <GlobalOutlined style={{ color: 'white', fontSize: '14px' }} />
                         </div>
-                        <span>Listener</span>
+                        <span style={{ color: '#333', fontWeight: '500' }}>Listener</span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px' }}>
                         <div style={{
-                            width: '32px',
-                            height: '32px',
+                            width: '24px',
+                            height: '24px',
                             backgroundColor: ThemeColors.node.route.bg,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            border: `2px solid ${ThemeColors.node.route.border}`,
-                            borderRadius: '6px'
+                            border: `1px solid ${ThemeColors.node.route.border}`,
+                            borderRadius: '6px',
+                            flexShrink: 0
                         }}>
-                            <img src={icons.route} alt="Route" style={{ width: '80%', height: '80%', margin: 'auto', display: 'block' }} />
+                            <ShareAltOutlined style={{ color: 'white', fontSize: '14px' }} />
                         </div>
-                        <span>Route</span>
+                        <span style={{ color: '#333', fontWeight: '500' }}>Route</span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px' }}>
                         <div style={{
-                            width: '30px',
-                            height: '30px',
-                            backgroundColor: '#a0522d',
+                            width: '24px',
+                            height: '24px',
+                            backgroundColor: ThemeColors.node.virtual_host.bg,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            border: '2px solid #8b4513',
-                            borderRadius: '6px'
+                            border: `1px solid ${ThemeColors.node.virtual_host.border}`,
+                            borderRadius: '6px',
+                            flexShrink: 0
                         }}>
-                            <img src={icons.virtual_host} alt="Virtual Host" style={{ width: '70%', height: '70%', margin: 'auto', display: 'block' }} />
+                            <CloudOutlined style={{ color: 'white', fontSize: '14px' }} />
                         </div>
-                        <span>Virtual Host</span>
+                        <span style={{ color: '#333', fontWeight: '500' }}>Virtual Host</span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px' }}>
                         <div style={{
-                            width: '32px',
-                            height: '32px',
+                            width: '24px',
+                            height: '24px',
                             backgroundColor: ThemeColors.node.cluster.bg,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            border: `2px solid ${ThemeColors.node.cluster.border}`,
-                            borderRadius: '6px'
+                            border: `1px solid ${ThemeColors.node.cluster.border}`,
+                            borderRadius: '6px',
+                            flexShrink: 0
                         }}>
-                            <img src={icons.cluster} alt="Cluster" style={{ width: '80%', height: '80%', margin: 'auto', display: 'block' }} />
+                            <ClusterOutlined style={{ color: 'white', fontSize: '14px' }} />
                         </div>
-                        <span>Cluster</span>
+                        <span style={{ color: '#333', fontWeight: '500' }}>Cluster</span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px' }}>
                         <div style={{
-                            width: '32px',
-                            height: '32px',
+                            width: '24px',
+                            height: '24px',
                             backgroundColor: ThemeColors.node.endpoint.bg,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            border: `2px solid ${ThemeColors.node.endpoint.border}`,
-                            borderRadius: '6px'
+                            border: `1px solid ${ThemeColors.node.endpoint.border}`,
+                            borderRadius: '6px',
+                            flexShrink: 0
                         }}>
-                            <img src={icons.endpoint} alt="Endpoint" style={{ width: '80%', height: '80%', margin: 'auto', display: 'block' }} />
+                            <AimOutlined style={{ color: 'white', fontSize: '14px' }} />
                         </div>
-                        <span>Endpoint</span>
+                        <span style={{ color: '#333', fontWeight: '500' }}>Endpoint</span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px' }}>
                         <div style={{
-                            width: '32px',
-                            height: '32px',
-                            backgroundColor: '#28a745',
+                            width: '24px',
+                            height: '24px',
+                            backgroundColor: ThemeColors.node.tls.bg,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            border: '2px solid #1e7e34',
-                            borderRadius: '6px'
+                            border: `1px solid ${ThemeColors.node.tls.border}`,
+                            borderRadius: '6px',
+                            flexShrink: 0
                         }}>
-                            <img src={icons.tls} alt="TLS" style={{ width: '80%', height: '80%', margin: 'auto', display: 'block' }} />
+                            <SafetyOutlined style={{ color: 'white', fontSize: '14px' }} />
                         </div>
-                        <span>TLS</span>
+                        <span style={{ color: '#333', fontWeight: '500' }}>TLS</span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px' }}>
                         <div style={{
-                            width: '32px',
-                            height: '32px',
-                            backgroundColor: '#6c757d',
+                            width: '24px',
+                            height: '24px',
+                            backgroundColor: ThemeColors.node.secret.bg,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            border: '2px solid #545b62',
-                            borderRadius: '6px'
+                            border: `1px solid ${ThemeColors.node.secret.border}`,
+                            borderRadius: '6px',
+                            flexShrink: 0
                         }}>
-                            <img src={icons.secret} alt="Secret" style={{ width: '80%', height: '80%', margin: 'auto', display: 'block' }} />
+                            <KeyOutlined style={{ color: 'white', fontSize: '14px' }} />
                         </div>
-                        <span>Secret</span>
+                        <span style={{ color: '#333', fontWeight: '500' }}>Secret</span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px' }}>
                         <div style={{
-                            width: '32px',
-                            height: '32px',
+                            width: '24px',
+                            height: '24px',
                             backgroundColor: ThemeColors.node.filter.bg,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            border: `2px solid ${ThemeColors.node.filter.border}`,
-                            borderRadius: '6px'
+                            border: `1px solid ${ThemeColors.node.filter.border}`,
+                            borderRadius: '6px',
+                            flexShrink: 0
                         }}>
-                            <img src={icons.filter} alt="Filter" style={{ width: '80%', height: '80%', margin: 'auto', display: 'block' }} />
+                            <FilterOutlined style={{ color: 'white', fontSize: '14px' }} />
                         </div>
-                        <span>Filter</span>
+                        <span style={{ color: '#333', fontWeight: '500' }}>Filter</span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px' }}>
                         <div style={{
-                            width: '32px',
-                            height: '32px',
-                            backgroundColor: '#17a2b8',
+                            width: '24px',
+                            height: '24px',
+                            backgroundColor: ThemeColors.node.extension.bg,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            border: '2px solid #138496',
-                            borderRadius: '6px'
+                            border: `1px solid ${ThemeColors.node.extension.border}`,
+                            borderRadius: '6px',
+                            flexShrink: 0
                         }}>
-                            <img src={icons.extension} alt="Extension" style={{ width: '80%', height: '80%', margin: 'auto', display: 'block' }} />
+                            <AppstoreOutlined style={{ color: 'white', fontSize: '14px' }} />
                         </div>
-                        <span>Extension</span>
+                        <span style={{ color: '#333', fontWeight: '500' }}>Extension</span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px' }}>
                         <div style={{
-                            width: '32px',
-                            height: '32px',
-                            backgroundColor: '#007bff',
+                            width: '24px',
+                            height: '24px',
+                            backgroundColor: ThemeColors.node.bootstrap.bg,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            border: '2px solid #0056b3',
-                            borderRadius: '6px'
+                            border: `1px solid ${ThemeColors.node.bootstrap.border}`,
+                            borderRadius: '6px',
+                            flexShrink: 0
                         }}>
-                            <img src={icons.bootstrap} alt="Bootstrap" style={{ width: '80%', height: '80%', margin: 'auto', display: 'block' }} />
+                            <CodeOutlined style={{ color: 'white', fontSize: '14px' }} />
                         </div>
-                        <span>Bootstrap</span>
+                        <span style={{ color: '#333', fontWeight: '500' }}>Bootstrap</span>
                     </div>
                 </div>
             )}

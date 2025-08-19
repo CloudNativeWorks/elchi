@@ -1,4 +1,4 @@
-import React, { useEffect, useState, startTransition, useCallback, useMemo, memo } from 'react';
+import React, { useEffect, useState, startTransition, useCallback, useMemo } from 'react';
 import { Card, Row, Col, Spin, Typography, Button, Drawer, Input, Space } from 'antd';
 import {
     LinkOutlined,
@@ -13,7 +13,6 @@ import {
 } from '@ant-design/icons';
 import { useMetricsApiMutation } from '@/common/operations-api';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
-import CountUp from 'react-countup';
 
 const { Title, Text } = Typography;
 
@@ -1267,7 +1266,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         <span>{modalTitle}</span>
                         <Space>
                             <Input
-                                placeholder="Search domains..."
+                                placeholder="Search..."
                                 prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />}
                                 value={searchText}
                                 onChange={(e) => setSearchText(e.target.value)}

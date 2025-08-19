@@ -2,12 +2,13 @@ import { useMutation } from "@tanstack/react-query";
 import { MetricsApiMutationOptions, OperationsApiMutationOptions } from './types';
 import { api } from "./api";
 import { useProjectVariable } from "@/hooks/useProjectVariable";
-import { useMemo, useCallback } from "react";
+import { useCallback } from "react";
 
-export const useOperationsApiMutation = () => {
+export const useOperationsApiMutation = (version?: string) => {
     const mutationFn = async (options: OperationsApiMutationOptions) => {
         const { data } = options;
-        const response = await api.post('api/op/clients', data);
+        const url = `api/op/clients${version ? `?version=${version}` : ''}`;
+        const response = await api.post(url, data);
         return response.data;
     };
 

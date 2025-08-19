@@ -6,6 +6,7 @@ import { useCustomGetQuery } from '@/common/api';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import { DeleteOutlined, EditOutlined, InboxOutlined, ApiOutlined, SearchOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import { getVersionAntdColor } from '@/utils/versionColors';
 
 
 const { Title, Text } = Typography;
@@ -15,6 +16,7 @@ interface DataType {
     project: string;
     admin_port: number;
     status: string;
+    version?: string;
     clients: {
         downstream_address: string;
         client_id: string;
@@ -174,6 +176,22 @@ const Services: React.FC = () => {
             },
         },
         {
+            title: 'Version',
+            dataIndex: 'version',
+            key: 'version',
+            render: (version: string) => {
+                if (!version) return <span style={{ color: '#bfbfbf' }}>-</span>;
+                return (
+                    <Tag 
+                        className='auto-width-tag'
+                        color={getVersionAntdColor(version)}
+                    >
+                        {version}
+                    </Tag>
+                );
+            },
+        },
+        {
             title: 'Deployed',
             dataIndex: 'clients',
             key: 'clients',
@@ -278,7 +296,7 @@ const Services: React.FC = () => {
                         )
                     }}
                     onRow={(record) => ({
-                        onClick: () => navigate(`/services/${record.id}`),
+                        onClick: () => navigate(`/services/${record.id}?version=${record.version}`),
                         style: {
                             cursor: 'pointer',
                             background: (record.clients?.length === 0) ? '#fafafa' : undefined

@@ -140,9 +140,9 @@ const gtypeFieldMap: Record<GTypes, GTypeFieldsBase> = {
         collection: "bootstrap",
         type: "bootstrap",
         canonicalName: "config.bootstrap.v3.Bootstrap",
+        category: "bootstrap",
         module: 'bootstrap/Bootstrap',
         initialValue: {},
-        category: "bootstrap",
         availableVersions: AVAILABLE_VERSIONS,
         metadata: METADATA_DEFAULT
     },

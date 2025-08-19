@@ -9,6 +9,7 @@ const { Text } = Typography;
 interface ClusterDetailsProps {
     name: string;
     project: string;
+    version?: string;
 }
 
 const metricLabels: Record<string, string> = {
@@ -33,8 +34,8 @@ interface MetricChanges {
     };
 }
 
-const ClusterDetails: React.FC<ClusterDetailsProps> = ({ name, project }) => {
-    const { loading, error, clusterData, fetchClusterDetails } = useClusterDetails({ name, project });
+const ClusterDetails: React.FC<ClusterDetailsProps> = ({ name, project, version }) => {
+    const { loading, error, clusterData, fetchClusterDetails } = useClusterDetails({ name, project, version });
     const [selectedClient, setSelectedClient] = useState<string>();
     const [metricChanges, setMetricChanges] = useState<MetricChanges>({});
     const previousMetrics = useRef<any>({});

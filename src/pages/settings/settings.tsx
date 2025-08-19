@@ -1,10 +1,11 @@
 import React from 'react';
 import { Card, Tabs, Typography, Space } from 'antd';
-import { UserOutlined, TeamOutlined, ProjectOutlined, SettingOutlined, AppstoreOutlined, KeyOutlined, DatabaseOutlined } from '@ant-design/icons';
+import { UserOutlined, TeamOutlined, ProjectOutlined, SettingOutlined, AppstoreOutlined, KeyOutlined, DatabaseOutlined, RobotOutlined } from '@ant-design/icons';
 import General from './General';
 import Users from './users';
 import Groups from './Groups';
 import Projects from './Projects';
+import AI from './AI';
 import Tokens from './Tokens';
 import RegistryInfo from './RegistryInfo';
 
@@ -53,6 +54,16 @@ const Settings: React.FC = () => {
             children: <Projects />
         },
         {
+            key: 'ai',
+            label: (
+                <span className="tabLabel">
+                    <RobotOutlined style={{ fontSize: 18 }} />
+                    AI
+                </span>
+            ),
+            children: <AI />
+        },
+        {
             key: 'tokens',
             label: (
                 <span className="tabLabel">
@@ -86,7 +97,7 @@ const Settings: React.FC = () => {
                 </div>
                 
                 <Text type="secondary">
-                    Manage your application settings, users, groups, projects, API tokens, and registry configuration.
+                    Manage your application settings, users, groups, projects, AI configuration, API tokens, and registry configuration.
                 </Text>
             </div>
 

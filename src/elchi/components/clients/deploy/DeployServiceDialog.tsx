@@ -16,9 +16,10 @@ interface DeployServiceDialogProps {
     action: OperationsType;
     existingClients: Array<{ client_id: string; downstream_address: string }>;
     onSuccess?: () => void;
+    version?: string;
 }
 
-export function DeployServiceDialog({ open, onClose, serviceName, project, action: initialAction, existingClients, onSuccess }: DeployServiceDialogProps) {
+export function DeployServiceDialog({ open, onClose, serviceName, project, action: initialAction, existingClients, onSuccess, version }: DeployServiceDialogProps) {
     const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
     const [downstreamAddresses, setDownstreamAddresses] = useState<Record<string, string>>({});
     const [action, setAction] = useState<OperationsType>(initialAction);
@@ -26,13 +27,14 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
 
     const { executeAction, loading } = useDeployUndeployService({
         name: serviceName,
-        project
+        project,
+        version
     });
 
     const { data: clients, error: clientsError, isLoading: clientsLoading } = useCustomGetQuery({
-        queryKey: `client_list_${project}`,
+        queryKey: `client_list_${project}_${version}`,
         enabled: open && !!project,
-        path: `api/op/clients?project=${project}`,
+        path: `api/op/clients?project=${project}${version ? `&version=${version}` : ''}`,
         directApi: true
     });
 

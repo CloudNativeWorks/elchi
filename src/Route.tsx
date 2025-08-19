@@ -20,7 +20,10 @@ import Main from "@/components/layout/Main";
 import Settings from "@/pages/settings/settings";
 import ExtensionsMain from "@/pages/ExtensionsMain";
 import SnapshotDump from '@/pages/SnapshotDump';
-import Scenario from '@/elchi/components/scenario/Scenario';
+import Scenario from '@/elchi/components/scenario_old/Scenario';
+import ScenarioDashboard from '@/elchi/components/scenarios/ScenarioDashboard';
+import DynamicScenarioWizard from '@/elchi/components/scenarios/DynamicScenarioWizard';
+import DynamicScenarioExecutionRedux from '@/elchi/components/scenarios/DynamicScenarioExecutionRedux';
 import Demo from '@/pages/auth/Demo';
 import Clients from './pages/operations/clients';
 import Services from './pages/operations/services';
@@ -29,6 +32,7 @@ import Service from './pages/operations/service';
 import Metrics from './pages/metrics/metrics';
 import Logs from './pages/logs/Logs';
 import AIConfigGenerator from './ai/AIConfigGenerator';
+import NewAIConfigGenerator from './components/ai/AIConfigGenerator';
 import Discovery from './pages/discovery/Discovery';
 
 
@@ -43,6 +47,12 @@ const AppRoutes: React.FC = () => (
             <Route path="/" element={<Main />}>
                 <Route index element={<Dashboard />} />
                 <Route path="/quick_start" element={<QuickStart />} />
+                {/* Scenarios */}
+                <Route path="/scenarios" element={<ScenarioDashboard />} />
+                <Route path="/scenarios/create" element={<DynamicScenarioWizard />} />
+                <Route path="/scenarios/:scenarioId/execute" element={<DynamicScenarioExecutionRedux />} />
+                <Route path="/scenarios/:scenarioId/edit" element={<DynamicScenarioWizard />} />
+                {/* Legacy scenario route - for backward compatibility during transition */}
                 <Route path="/scenario/:scenarioid" element={<Scenario />} />
                 <Route path="/403" element={<Err403 />} />
                 <Route path="/snapshot_dump/:listenerName" element={<SnapshotDump />} />
@@ -91,8 +101,9 @@ const AppRoutes: React.FC = () => (
                 {/* Logs Routes */}
                 <Route path="/observability/logs" element={<Logs />} />
 
-                {/* AI Config Analyzer Route */}
+                {/* AI Config Generator Routes */}
                 <Route path="/ai-analyzer" element={<AIConfigGenerator />} />
+                <Route path="/ai-config-generator" element={<NewAIConfigGenerator />} />
 
                 {/* Discovery Route */}
                 <Route path="/discovery" element={<Discovery />} />

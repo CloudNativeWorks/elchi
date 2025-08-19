@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Button, Input, List, Modal, Typography, Space, message, Divider, Statistic, Row, Col, Progress } from 'antd';
-import { PlusOutlined, DeleteOutlined, RobotOutlined, SaveOutlined, EditOutlined, ApiOutlined, ThunderboltOutlined, EyeOutlined, EyeInvisibleOutlined, BarChartOutlined, CheckCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { Card, Button, Input, Modal, Typography, Space, message, Divider } from 'antd';
+import { PlusOutlined, DeleteOutlined, ApiOutlined, ThunderboltOutlined, EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
 import { useCustomGetQuery } from '@/common/api';
 import { useCustomApiMutation } from '@/common/custom-api';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
-import { useClaudeToken } from '@/hooks/useClaudeToken';
 import { useDiscoveryToken } from '@/hooks/useDiscoveryToken';
-import { useAIUsageStatus, useAIUsageStats } from '@/hooks/useAIUsage';
 
 const { Title, Text } = Typography;
 
@@ -21,20 +19,6 @@ const Tokens: React.FC = () => {
     const [messageApi, contextHolder] = message.useMessage();
     const mutate = useCustomApiMutation();
     
-    // AI Usage hooks
-    const { data: aiUsageStatus } = useAIUsageStatus();
-    const { data: aiUsageStats } = useAIUsageStats();
-    
-    const {
-        maskedToken,
-        hasToken,
-        isLoading: isClaudeTokenLoading,
-        error: claudeTokenError,
-        setToken,
-        updateToken,
-        deleteToken: deleteClaudeToken
-    } = useClaudeToken();
-    
     const {
         token: discoveryToken,
         hasToken: hasDiscoveryToken,
@@ -44,8 +28,6 @@ const Tokens: React.FC = () => {
         generateToken: generateDiscoveryToken
     } = useDiscoveryToken();
     
-    const [newClaudeToken, setNewClaudeToken] = useState('');
-    const [isEditingClaudeToken, setIsEditingClaudeToken] = useState(false);
     const [showGeneratedToken, setShowGeneratedToken] = useState<string | null>(null);
     const [showDiscoveryToken, setShowDiscoveryToken] = useState(false);
 
@@ -130,52 +112,6 @@ const Tokens: React.FC = () => {
         setDeleteModal({ visible: false, tokenName: '', tokenId: null });
     };
 
-    const handleSaveClaudeToken = async () => {
-        if (!newClaudeToken.trim()) {
-            messageApi.warning('Please enter Claude API token!');
-            return;
-        }
-        
-        if (!newClaudeToken.startsWith('sk-ant-')) {
-            messageApi.warning('Claude API token must start with "sk-ant-"');
-            return;
-        }
-
-        try {
-            if (hasToken) {
-                await updateToken(newClaudeToken);
-                messageApi.success('Claude API token updated successfully!');
-            } else {
-                await setToken(newClaudeToken);
-                messageApi.success('Claude API token saved successfully!');
-            }
-            setNewClaudeToken('');
-            setIsEditingClaudeToken(false);
-        } catch (error: any) {
-            messageApi.error(error?.message || 'Failed to save Claude API token!');
-        }
-    };
-
-    const handleEditClaudeToken = () => {
-        setIsEditingClaudeToken(true);
-        setNewClaudeToken('');
-    };
-
-    const handleDeleteClaudeToken = async () => {
-        try {
-            await deleteClaudeToken();
-            messageApi.success('Claude API token deleted successfully!');
-            setIsEditingClaudeToken(false);
-            setNewClaudeToken('');
-        } catch (error: any) {
-            messageApi.error(error?.message || 'Failed to delete Claude API token!');
-        }
-    };
-
-    const handleCancelEdit = () => {
-        setIsEditingClaudeToken(false);
-        setNewClaudeToken('');
-    };
 
     // Discovery Token handlers
     const handleDeleteDiscoveryToken = async () => {
@@ -200,223 +136,21 @@ const Tokens: React.FC = () => {
     // Create masked version of discovery token
     const getMaskedDiscoveryToken = (token: string | null) => {
         if (!token) return '';
-        if (token.length <= 8) return token;
-        return token.substring(0, 8) + '*'.repeat(Math.min(token.length - 8, 20));
+        const tokenWithProject = `${token}--${project}`;
+        if (tokenWithProject.length <= 8) return tokenWithProject;
+        return tokenWithProject.substring(0, 8) + '*'.repeat(Math.min(tokenWithProject.length - 8, 20));
+    };
+
+    // Get discovery token with project ID appended
+    const getDiscoveryTokenWithProject = (token: string | null) => {
+        if (!token) return '';
+        return `${token}--${project}`;
     };
 
     return (
         <>
             {contextHolder}
             <Card variant="borderless" style={{ boxShadow: 'none', background: 'transparent' }}>
-                <Title level={5} style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <RobotOutlined style={{ color: '#722ed1' }} />
-                    Claude AI Token
-                </Title>
-                <Space direction="vertical" style={{ width: '100%', marginBottom: 24 }} size={12}>
-                    <Text type="secondary" style={{ fontSize: 13 }}>
-                        Enter your Claude API token here. Required for AI configuration analysis. Token is stored securely in database.
-                    </Text>
-                    
-                    {isClaudeTokenLoading ? (
-                        <div style={{ padding: 16, textAlign: 'center' }}>Loading token...</div>
-                    ) : (
-                        <>
-                            {hasToken && !isEditingClaudeToken ? (
-                                <div style={{ 
-                                    display: 'flex', 
-                                    alignItems: 'center', 
-                                    gap: 12, 
-                                    padding: '12px 16px', 
-                                    background: '#f6ffed', 
-                                    border: '1px solid #b7eb8f', 
-                                    borderRadius: 6 
-                                }}>
-                                    <Text 
-                                        style={{ 
-                                            fontFamily: 'monospace', 
-                                            fontSize: 13, 
-                                            color: '#52c41a',
-                                            flex: 1
-                                        }}
-                                    >
-                                        {maskedToken}
-                                    </Text>
-                                    <Button
-                                        type="text"
-                                        size="small"
-                                        icon={<EditOutlined />}
-                                        onClick={handleEditClaudeToken}
-                                        style={{ color: '#722ed1' }}
-                                    >
-                                        Edit
-                                    </Button>
-                                    <Button
-                                        type="text"
-                                        size="small"
-                                        icon={<DeleteOutlined />}
-                                        onClick={handleDeleteClaudeToken}
-                                        style={{ color: '#ff4d4f' }}
-                                        danger
-                                    >
-                                        Delete
-                                    </Button>
-                                </div>
-                            ) : (
-                                <Space.Compact style={{ width: '100%' }}>
-                                    <Input.Password
-                                        style={{ flex: 1, maxWidth: 400 }}
-                                        placeholder="sk-ant-api03-..."
-                                        value={newClaudeToken}
-                                        onChange={(e) => setNewClaudeToken(e.target.value)}
-                                        disabled={isClaudeTokenLoading}
-                                    />
-                                    <Button
-                                        type="primary"
-                                        icon={<SaveOutlined />}
-                                        loading={isClaudeTokenLoading}
-                                        onClick={handleSaveClaudeToken}
-                                        style={{ background: '#722ed1', borderColor: '#722ed1' }}
-                                    >
-                                        {hasToken ? 'Update' : 'Save'}
-                                    </Button>
-                                    {isEditingClaudeToken && (
-                                        <Button
-                                            onClick={handleCancelEdit}
-                                            disabled={isClaudeTokenLoading}
-                                        >
-                                            Cancel
-                                        </Button>
-                                    )}
-                                </Space.Compact>
-                            )}
-                            
-                            {claudeTokenError && (
-                                <Text type="danger" style={{ fontSize: 12 }}>
-                                    {claudeTokenError}
-                                </Text>
-                            )}
-
-                            {/* AI Usage Statistics */}
-                            {hasToken && (
-                                <Card 
-                                    size="small" 
-                                    style={{ marginTop: 16 }}
-                                    title={
-                                        <Space>
-                                            <BarChartOutlined style={{ color: '#fff' }} />
-                                            <Text strong style={{ color: '#fff' }}>AI Usage Statistics</Text>
-                                        </Space>
-                                    }
-                                >
-                                    {aiUsageStatus?.usage_summary ? (
-                                        <Row gutter={16}>
-                                            <Col span={6}>
-                                                <Statistic
-                                                    title="Total Requests"
-                                                    value={aiUsageStatus.usage_summary.total_requests}
-                                                    prefix={<BarChartOutlined />}
-                                                />
-                                            </Col>
-                                            <Col span={6}>
-                                                <Statistic
-                                                    title="Success Rate"
-                                                    value={aiUsageStatus.usage_summary.success_rate}
-                                                    precision={1}
-                                                    suffix="%"
-                                                    prefix={<CheckCircleOutlined />}
-                                                />
-                                            </Col>
-                                            <Col span={6}>
-                                                <Statistic
-                                                    title="Tokens Today"
-                                                    value={aiUsageStatus.usage_summary.tokens_used_today}
-                                                    prefix={<RobotOutlined />}
-                                                />
-                                            </Col>
-                                            <Col span={6}>
-                                                <Statistic
-                                                    title="Tokens This Month"
-                                                    value={aiUsageStatus.usage_summary.tokens_used_month}
-                                                    prefix={<RobotOutlined />}
-                                                />
-                                            </Col>
-                                        </Row>
-                                    ) : (
-                                        <Space style={{ width: '100%', justifyContent: 'center', padding: '16px 0' }}>
-                                            <ExclamationCircleOutlined style={{ color: '#faad14' }} />
-                                            <Text type="secondary">No usage data available yet</Text>
-                                        </Space>
-                                    )}
-
-                                    {aiUsageStats && (
-                                        <div style={{ marginTop: 16 }}>
-                                            <Row gutter={16}>
-                                                <Col span={12}>
-                                                    <div style={{ marginBottom: 8 }}>
-                                                        <Text type="secondary" style={{ fontSize: 12 }}>Average Response Time</Text>
-                                                    </div>
-                                                    <Progress
-                                                        percent={Math.min((aiUsageStats.average_response_time_ms / 10000) * 100, 100)}
-                                                        format={() => `${aiUsageStats.average_response_time_ms.toFixed(0)}ms`}
-                                                        strokeColor="#722ed1"
-                                                    />
-                                                </Col>
-                                                <Col span={12}>
-                                                    <div style={{ marginBottom: 8 }}>
-                                                        <Text type="secondary" style={{ fontSize: 12 }}>Request Types</Text>
-                                                    </div>
-                                                    <Space wrap>
-                                                        <Text style={{ fontSize: 12 }}>
-                                                            Analysis: {aiUsageStats.analyze_requests}
-                                                        </Text>
-                                                        <Text style={{ fontSize: 12 }}>
-                                                            Log Analysis: {aiUsageStats.log_analyze_requests}
-                                                        </Text>
-                                                    </Space>
-                                                </Col>
-                                            </Row>
-                                            {aiUsageStats.last_used && (
-                                                <div style={{ marginTop: 12, fontSize: 12, color: '#8c8c8c' }}>
-                                                    Last used: {new Date(aiUsageStats.last_used).toLocaleString()}
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-                                </Card>
-                            )}
-
-                            {/* Service Status */}
-                            {hasToken && (
-                                <div style={{ 
-                                    display: 'flex', 
-                                    alignItems: 'center', 
-                                    gap: 8, 
-                                    marginTop: 12,
-                                    padding: '8px 12px',
-                                    background: aiUsageStatus?.status?.service_available ? '#f6ffed' : '#fff2e8',
-                                    border: `1px solid ${aiUsageStatus?.status?.service_available ? '#b7eb8f' : '#ffbb96'}`,
-                                    borderRadius: 6
-                                }}>
-                                    {aiUsageStatus?.status?.service_available ? (
-                                        <CheckCircleOutlined style={{ color: '#52c41a' }} />
-                                    ) : (
-                                        <ExclamationCircleOutlined style={{ color: '#fa8c16' }} />
-                                    )}
-                                    <Text style={{ fontSize: 12 }}>
-                                        AI Service: {aiUsageStatus?.status?.service_available ? 'Available' : 'Unavailable'}
-                                    </Text>
-                                    {aiUsageStatus?.status?.supported_models && (
-                                        <Text type="secondary" style={{ fontSize: 11 }}>
-                                            • {aiUsageStatus.status.supported_models.join(', ')}
-                                        </Text>
-                                    )}
-                                </div>
-                            )}
-                        </>
-                    )}
-                </Space>
-                
-                <Divider style={{ margin: '24px 0' }} />
                 
                 <Title level={5} style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
                     <ApiOutlined style={{ color: '#13c2c2' }} />
@@ -442,7 +176,7 @@ const Tokens: React.FC = () => {
                                     borderRadius: 6 
                                 }}>
                                     <Text 
-                                        copyable={showDiscoveryToken ? { text: discoveryToken } : false}
+                                        copyable={showDiscoveryToken ? { text: getDiscoveryTokenWithProject(discoveryToken) } : false}
                                         style={{ 
                                             fontFamily: 'monospace', 
                                             fontSize: 12, 
@@ -451,7 +185,7 @@ const Tokens: React.FC = () => {
                                             wordBreak: 'break-all'
                                         }}
                                     >
-                                        {showDiscoveryToken ? discoveryToken : getMaskedDiscoveryToken(discoveryToken)}
+                                        {showDiscoveryToken ? getDiscoveryTokenWithProject(discoveryToken) : getMaskedDiscoveryToken(discoveryToken)}
                                     </Text>
                                     <Button
                                         type="text"
@@ -662,7 +396,7 @@ const Tokens: React.FC = () => {
                             Your new discovery token has been generated. You can copy it now:
                         </Text>
                         <Input.TextArea
-                            value={showGeneratedToken || ''}
+                            value={showGeneratedToken ? getDiscoveryTokenWithProject(showGeneratedToken) : ''}
                             readOnly
                             autoSize={{ minRows: 2, maxRows: 4 }}
                             style={{ 

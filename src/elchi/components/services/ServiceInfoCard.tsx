@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Input, Typography, Table, Tag } from 'antd';
 import { useCustomGetQuery } from '@/common/api';
 import { useNavigate } from 'react-router-dom';
+import { useProjectVariable } from '@/hooks/useProjectVariable';
 
 const { Title } = Typography;
 
@@ -10,10 +11,11 @@ interface ServiceInfoCardProps {
 }
 
 const ServiceInfoCard: React.FC<ServiceInfoCardProps> = ({ clientId }) => {
+    const { project } = useProjectVariable();
     const { isLoading, data: dataServices, error } = useCustomGetQuery({
         queryKey: `client_services_${clientId}`,
         enabled: !!clientId,
-        path: `api/op/services/service?client_id=${clientId}&from_client=true`,
+        path: `api/op/services/from_client?client_id=${clientId}&from_client=true&project=${project}`,
         directApi: true
     });
     const navigate = useNavigate();

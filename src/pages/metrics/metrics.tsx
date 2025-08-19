@@ -230,6 +230,7 @@ const Metrics: React.FC<MetricsProps> = () => {
             const results = await Promise.all(requests);
 
             const successCount = results.filter(r => r).length;
+            console.log(`[Fetch] Success count: ${successCount}`);
 
             setMetricsState(prev => ({
                 ...prev,

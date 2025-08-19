@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../common/api';
-import Config from '../conf';
 import { useProjectVariable } from './useProjectVariable';
 import { ClusterDiscovery, DiscoveryResponse } from '../types/discovery';
 

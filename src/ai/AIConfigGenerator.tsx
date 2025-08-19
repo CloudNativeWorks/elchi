@@ -33,6 +33,217 @@ import { useAnalyzeConfigMutation, useAvailableResources, useResourceCollections
 import { COMPONENT_TYPES } from '../types/aiConfig';
 import type { ConfigAnalyzerRequest, ConfigAnalysisResult } from '../types/aiConfig';
 
+// Dynamic Log Analysis Renderer for OpenRouter responses
+export const DynamicLogAnalysisRenderer: React.FC<{ analysisResult: any }> = ({ analysisResult }) => {
+  const renderField = (key: string, value: any, level = 0) => {
+    if (value === null || value === undefined) return null;
+    
+    // Skip certain system fields
+    if (['service_name', 'client_name', 'log_count', 'processed_at', 'token_usage'].includes(key)) {
+      return null;
+    }
+    
+    const indent = level * 16;
+    
+    if (typeof value === 'string') {
+      return (
+        <Card
+          key={key}
+          style={{
+            marginBottom: 16,
+            marginLeft: indent,
+            borderRadius: 8,
+            border: '1px solid #f0f0f0',
+            borderLeft: '4px solid #1890ff'
+          }}
+          styles={{ body: { padding: 16 } }}
+        >
+          <Space style={{ marginBottom: 12 }}>
+            <InfoCircleOutlined style={{ color: '#1890ff' }} />
+            <Typography.Title level={5} style={{ margin: 0, textTransform: 'capitalize' }}>
+              {key.replace(/_/g, ' ')}
+            </Typography.Title>
+          </Space>
+          <ReactMarkdown 
+            remarkPlugins={[remarkGfm]} 
+            rehypePlugins={[rehypeRaw]}
+            components={{
+              code: ({ children, className }) => {
+                const isInline = !className;
+                const language = className ? className.replace('language-', '') : '';
+
+                if (isInline) {
+                  return (
+                    <Typography.Text
+                      code
+                      style={{
+                        backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                        color: '#d63384',
+                        padding: '2px 6px',
+                        borderRadius: 4,
+                        fontSize: 13
+                      }}
+                    >
+                      {children}
+                    </Typography.Text>
+                  );
+                }
+
+                return (
+                  <div style={{ position: 'relative', marginBottom: 16 }}>
+                    {language && (
+                      <div style={{
+                        position: 'absolute',
+                        top: 8,
+                        right: 8,
+                        background: 'rgba(0, 0, 0, 0.7)',
+                        color: '#fff',
+                        padding: '2px 8px',
+                        borderRadius: 4,
+                        fontSize: 12,
+                        zIndex: 1
+                      }}>
+                        {language.toUpperCase()}
+                      </div>
+                    )}
+                    <pre style={{
+                      backgroundColor: '#f6f8fa',
+                      padding: 16,
+                      borderRadius: 8,
+                      overflow: 'auto',
+                      border: '1px solid #e1e4e8',
+                      fontSize: 13,
+                      margin: 0,
+                      fontFamily: 'SFMono-Regular, Monaco, Consolas, monospace',
+                      lineHeight: '1.45'
+                    }}>
+                      <code>{children}</code>
+                    </pre>
+                  </div>
+                );
+              },
+              table: ({ children }) => (
+                <div style={{ overflowX: 'auto', marginBottom: 16 }}>
+                  <table style={{ 
+                    width: '100%', 
+                    borderCollapse: 'collapse',
+                    border: '1px solid #d9d9d9',
+                    fontSize: 13
+                  }}>
+                    {children}
+                  </table>
+                </div>
+              ),
+              th: ({ children }) => (
+                <th style={{ 
+                  padding: '8px 12px', 
+                  background: '#fafafa', 
+                  border: '1px solid #d9d9d9',
+                  textAlign: 'left',
+                  fontWeight: 600
+                }}>
+                  {children}
+                </th>
+              ),
+              td: ({ children }) => (
+                <td style={{ 
+                  padding: '8px 12px', 
+                  border: '1px solid #d9d9d9',
+                  verticalAlign: 'top'
+                }}>
+                  {children}
+                </td>
+              )
+            }}
+          >
+            {value}
+          </ReactMarkdown>
+        </Card>
+      );
+    }
+    
+    if (Array.isArray(value)) {
+      return (
+        <Card
+          key={key}
+          style={{
+            marginBottom: 16,
+            marginLeft: indent,
+            borderRadius: 8,
+            border: '1px solid #f0f0f0',
+            borderLeft: '4px solid #52c41a'
+          }}
+          styles={{ body: { padding: 16 } }}
+        >
+          <Space style={{ marginBottom: 12 }}>
+            <CheckCircleOutlined style={{ color: '#52c41a' }} />
+            <Typography.Title level={5} style={{ margin: 0, textTransform: 'capitalize' }}>
+              {key.replace(/_/g, ' ')} ({value.length} items)
+            </Typography.Title>
+          </Space>
+          <List
+            dataSource={value}
+            renderItem={(item, index) => (
+              <List.Item style={{ borderBottom: index === value.length - 1 ? 'none' : '1px solid #f0f0f0' }}>
+                {typeof item === 'string' ? (
+                  <Typography.Text>{item}</Typography.Text>
+                ) : (
+                  <div style={{ width: '100%' }}>
+                    {Object.entries(item).map(([subKey, subValue]) => 
+                      renderField(subKey, subValue, level + 1)
+                    )}
+                  </div>
+                )}
+              </List.Item>
+            )}
+          />
+        </Card>
+      );
+    }
+    
+    if (typeof value === 'object') {
+      return (
+        <Card
+          key={key}
+          style={{
+            marginBottom: 16,
+            marginLeft: indent,
+            borderRadius: 8,
+            border: '1px solid #f0f0f0',
+            borderLeft: '4px solid #722ed1'
+          }}
+          styles={{ body: { padding: 16 } }}
+        >
+          <Space style={{ marginBottom: 12 }}>
+            <BulbOutlined style={{ color: '#722ed1' }} />
+            <Typography.Title level={5} style={{ margin: 0, textTransform: 'capitalize' }}>
+              {key.replace(/_/g, ' ')}
+            </Typography.Title>
+          </Space>
+          <div>
+            {Object.entries(value).map(([subKey, subValue]) => 
+              renderField(subKey, subValue, level + 1)
+            )}
+          </div>
+        </Card>
+      );
+    }
+    
+    return (
+      <div key={key} style={{ marginBottom: 8, marginLeft: indent }}>
+        <Typography.Text strong>{key.replace(/_/g, ' ')}: </Typography.Text>
+        <Typography.Text>{String(value)}</Typography.Text>
+      </div>
+    );
+  };
+
+  return (
+    <Space direction="vertical" style={{ width: '100%' }} size={16}>
+      {Object.entries(analysisResult).map(([key, value]) => renderField(key, value))}
+    </Space>
+  );
+};
+
 // Simple AI Analysis Renderer Component
 export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis }) => {
   
@@ -563,7 +774,7 @@ const AIConfigAnalyzer: React.FC = () => {
                   onChange={setIncludeDependencies}
                 />
                 <Text>Include dependency analysis</Text>
-                <Text type="secondary">(recommended for comprehensive analysis)</Text>
+                <Text type="secondary">(recommended for comprehensive analysis. Certificate and secrets analysis will be excluded.)</Text>
               </Space>
             </div>
 

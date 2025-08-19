@@ -1,4 +1,4 @@
-import { SearchOutlined, ExclamationCircleFilled, InboxOutlined, DeploymentUnitOutlined, DeleteOutlined, AliyunOutlined, PlaySquareOutlined } from '@ant-design/icons';
+import { SearchOutlined, ExclamationCircleFilled, InboxOutlined, DeploymentUnitOutlined, DeleteOutlined, AliyunOutlined, PlaySquareOutlined, CopyOutlined } from '@ant-design/icons';
 import type { InputRef, MenuProps } from 'antd';
 import { message, Button, Dropdown, Input, Space, Table, Typography, Modal, Tag, Pagination } from 'antd';
 import type { ColumnType, ColumnsType } from 'antd/es/table';
@@ -17,6 +17,7 @@ import React, { useEffect, useRef, useState, useMemo } from 'react';
 import Highlighter from 'react-highlight-words';
 import DependenciesModal from "@/elchi/components/common/dependency";
 import { getLastDotPart } from '@/utils/tools';
+import { getVersionAntdColor } from '@/utils/versionColors';
 
 
 const { Text } = Typography;
@@ -60,7 +61,7 @@ const CustomListenerDataTable: React.FC<CustomListenerDataTableProps> = ({ path,
     const [isModalVisible, setIsModalVisible] = useState<dependenciesType>({ name: '', collection: '', gtype: '', version: '', visible: false });
     const deleteResource = useDeleteResource(messageApi, deleteMutate);
     const [deleteModal, setDeleteModal] = useState<{ visible: boolean; record: DataType | null }>({ visible: false, record: null });
-    const [versionColors, setVersionColors] = useState<Record<string, string>>({});
+    // Removed local version colors - using global system now
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 50;
 
@@ -74,6 +75,7 @@ const CustomListenerDataTable: React.FC<CustomListenerDataTableProps> = ({ path,
         { key: '1', label: 'Show Dependencies', icon: <DeploymentUnitOutlined /> },
         { key: '3', label: 'Bootstrap', icon: <PlaySquareOutlined /> },
         { key: '5', label: 'Snapshot Dump', icon: <AliyunOutlined /> },
+        { key: '7', label: 'Duplicate', icon: <CopyOutlined /> },
         { type: 'divider' },
         { key: '6', label: 'Delete', danger: true, icon: <DeleteOutlined /> },
     ];
@@ -123,6 +125,13 @@ const CustomListenerDataTable: React.FC<CustomListenerDataTableProps> = ({ path,
             navigate(`/snapshot_dump/${record.name}?version=${record.version}`);
         } else if (key === "6") {
             setDeleteModal({ visible: true, record });
+        } else if (key === "7") {
+            // Duplicate functionality - navigate to create page with resource data
+            const gtype = getGTypeFields(record.gtype);
+            const GType = getFieldsByGType(gtype);
+            
+            // Navigate to create page with duplicate data as query parameters
+            navigate(`${GType.createPath}?duplicate=true&resource_id=${record.id}&resource_name=${encodeURIComponent(record.name)}&version=${record.version}`);
         }
     };
 
@@ -130,19 +139,7 @@ const CustomListenerDataTable: React.FC<CustomListenerDataTableProps> = ({ path,
         setQueryKey(`listResources-${path}`);
     }, [path])
 
-    useEffect(() => {
-        if (dataResource && Array.isArray(dataResource)) {
-            const uniqueVersions = [...new Set(dataResource.map(item => item.version))];
-            const colors = ['cyan', 'gold', 'blue', 'purple', 'geekblue'];
-            const newVersionColors: Record<string, string> = {};
-
-            uniqueVersions.forEach((version, index) => {
-                newVersionColors[version] = colors[index % colors.length];
-            });
-
-            setVersionColors(newVersionColors);
-        }
-    }, [dataResource]);
+    // Removed manual version color mapping - now using global system
 
     const handleSearch = (
         selectedKeys: string[], //eslint-disable-next-line no-unused-vars
@@ -356,7 +353,7 @@ const CustomListenerDataTable: React.FC<CustomListenerDataTableProps> = ({ path,
             render: (_, record) => (
                 <Dropdown menu={{ items: listenerActions, onClick: (e) => onClick(record, e.key) }} trigger={['contextMenu']}>
                     <div>
-                        <Tag className='auto-width-tag' color={versionColors[record.version] || 'default'}>{record.version}</Tag>
+                        <Tag className='auto-width-tag' color={getVersionAntdColor(record.version)}>{record.version}</Tag>
                     </div>
                 </Dropdown>
             )
@@ -427,7 +424,7 @@ const CustomListenerDataTable: React.FC<CustomListenerDataTableProps> = ({ path,
                     )
                 }}
                 onRow={(record) => ({
-                    onClick: () => navigate(`${record.name}?resource_id=${record.id}`),
+                    onClick: () => navigate(`${record.name}?resource_id=${record.id}&version=${record.version}`),
                     style: { cursor: 'pointer' }
                 })}
             />

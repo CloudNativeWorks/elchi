@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
 import { Card, Typography, Spin, Alert, Tabs } from 'antd';
 import { useCustomGetQuery } from '@/common/api';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
@@ -23,6 +23,8 @@ interface ServiceState {
 const Service: React.FC = () => {
     const { service_id } = useParams();
     const { project } = useProjectVariable();
+    const [searchParams] = useSearchParams();
+    const urlVersion = searchParams.get('version');
 
     const [state, setState] = useState<ServiceState>({
         isDeployDialogOpen: false,
@@ -31,21 +33,23 @@ const Service: React.FC = () => {
     });
 
     const { isLoading, data: serviceData, error: serviceError, refetch: refetchService } = useCustomGetQuery({
-        queryKey: `service_detail_${service_id}`,
+        queryKey: `service_detail_${service_id}_${urlVersion || 'default'}`,
         enabled: !!service_id,
-        path: `api/op/services/${service_id}?project=${project}`,
+        path: `api/op/services/${service_id}?project=${project}${urlVersion ? `&version=${urlVersion}` : ''}`,
         directApi: true
     });
 
     const { statusData, loading: statusLoading, error: statusError, refresh: refreshStatus } = useServiceStatus({
         name: serviceData?.service?.name,
         project,
-        enabled: !!serviceData?.service?.name
+        enabled: !!serviceData?.service?.name,
+        version: urlVersion || serviceData?.service?.version
     });
 
     const { callAction, actionLoading } = useServiceAction({
         name: serviceData?.service?.name,
-        project
+        project,
+        version: urlVersion || serviceData?.service?.version
     });
 
     useEffect(() => {
@@ -195,6 +199,7 @@ const Service: React.FC = () => {
                                 <ClusterDetails
                                     name={serviceData?.service?.name}
                                     project={project}
+                                    version={urlVersion || serviceData?.service?.version}
                                 />
                             )
                         },
@@ -211,6 +216,7 @@ const Service: React.FC = () => {
                                     envoys={serviceData?.envoys}
                                     name={serviceData?.service?.name}
                                     project={project}
+                                    version={urlVersion || serviceData?.service?.version}
                                 />
                             )
                         }
@@ -224,6 +230,7 @@ const Service: React.FC = () => {
                 action={OperationsType.DEPLOY}
                 existingClients={serviceData?.service?.clients || []}
                 onSuccess={handleDeploymentSuccess}
+                version={urlVersion || serviceData?.service?.version}
             />
         </div>
     );

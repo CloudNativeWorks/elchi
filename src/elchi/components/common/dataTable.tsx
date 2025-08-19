@@ -1,4 +1,4 @@
-import { DeleteOutlined, DeploymentUnitOutlined, ExclamationCircleFilled, InboxOutlined, SearchOutlined } from '@ant-design/icons';
+import { DeleteOutlined, DeploymentUnitOutlined, ExclamationCircleFilled, InboxOutlined, SearchOutlined, CopyOutlined } from '@ant-design/icons';
 import type { InputRef, MenuProps } from 'antd';
 import { message, Button, Dropdown, Input, Space, Table, Typography, Modal, Tag, Pagination } from 'antd';
 import type { ColumnType, ColumnsType } from 'antd/es/table';
@@ -16,6 +16,7 @@ import useDeleteResource from './DeleteResource';
 import { getGTypeFields } from '@/hooks/useGtypes';
 import { getFieldsByGType, GTypes } from '@/common/statics/gtypes';
 import { getLastDotPart } from '@/utils/tools';
+import { getVersionAntdColor } from '@/utils/versionColors';
 
 
 const { Text } = Typography;
@@ -53,7 +54,7 @@ interface CustomDataTableProps {
 
 const CustomDataTable: React.FC<CustomDataTableProps> = ({ path, searchText }) => {
     const [searchedColumn, setSearchedColumn] = useState('');
-    const [versionColors, setVersionColors] = useState<Record<string, string>>({});
+    // Removed local version colors - using global system now
     const deleteMutate = useDeleteMutation()
     const searchInput = useRef<InputRef>(null);
     const [messageApi, contextHolder] = message.useMessage();
@@ -78,6 +79,7 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({ path, searchText }) =
     const resourceActions: MenuProps['items'] = [
         { key: '1', label: 'Show Dependencies', icon: <DeploymentUnitOutlined /> },
         ...(isBootstrapPath ? [] : [
+            { key: '3', label: 'Duplicate', icon: <CopyOutlined /> },
             { key: 'divider', type: 'divider' as const },
             { key: '2', label: 'Delete', danger: true, icon: <DeleteOutlined /> },
         ]),
@@ -130,6 +132,13 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({ path, searchText }) =
             });
         } else if (key === "2" && !isBootstrapPath) {
             setDeleteModal({ visible: true, record });
+        } else if (key === "3" && !isBootstrapPath) {
+            // Duplicate functionality - navigate to create page with resource data
+            const gtype = getGTypeFields(record.gtype);
+            const GType = getFieldsByGType(gtype);
+            
+            // Navigate to create page with duplicate data as query parameters
+            navigate(`${GType.createPath}?duplicate=true&resource_id=${record.id}&resource_name=${encodeURIComponent(record.name)}&version=${record.version}`);
         }
     };
 
@@ -137,19 +146,7 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({ path, searchText }) =
         setQueryKey(`listResources-${path}`);
     }, [path])
 
-    useEffect(() => {
-        if (dataResource && Array.isArray(dataResource)) {
-            const uniqueVersions = [...new Set(dataResource.map(item => item.version))];
-            const colors = ['cyan', 'gold', 'blue', 'purple', 'geekblue'];
-            const newVersionColors: Record<string, string> = {};
-
-            uniqueVersions.forEach((version, index) => {
-                newVersionColors[version] = colors[index % colors.length];
-            });
-
-            setVersionColors(newVersionColors);
-        }
-    }, [dataResource]);
+    // Removed manual version color mapping - now using global system
 
     const handleSearch = (
         selectedKeys: string[], //eslint-disable-next-line no-unused-vars
@@ -324,7 +321,7 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({ path, searchText }) =
             render: (_, record) => (
                 <Dropdown menu={{ items: resourceActions, onClick: (e) => onClick(record, e.key) }} trigger={['contextMenu']}>
                     <div>
-                        <Tag className='auto-width-tag' color={versionColors[record.version] || 'default'}>{record.version}</Tag>
+                        <Tag className='auto-width-tag' color={getVersionAntdColor(record.version)}>{record.version}</Tag>
                     </div>
                 </Dropdown>
             )
@@ -395,7 +392,7 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({ path, searchText }) =
                     )
                 }}
                 onRow={(record) => ({
-                    onClick: () => navigate(`${record.name}?resource_id=${record.id}`),
+                    onClick: () => navigate(`${record.name}?resource_id=${record.id}&version=${record.version}`),
                     style: { cursor: 'pointer' }
                 })}
             />

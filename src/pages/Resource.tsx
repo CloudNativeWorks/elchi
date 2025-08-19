@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Suspense } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useParams, useSearchParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { useCustomGetQuery } from "@/common/api";
 import * as dynamicModules from "@/VersionedComponent";
@@ -33,9 +33,15 @@ const Resource: React.FC = () => {
     const { project } = useProjectVariable();
     const { loadingCount, incrementLoading, decrementLoading } = useLoading();
     const [components, setComponents] = useState<Partial<Components>>({})
+    const [searchParams] = useSearchParams();
+
+    // Check for duplicate parameters
+    const isDuplicate = searchParams.get('duplicate') === 'true';
+    const duplicateResourceId = searchParams.get('resource_id');
+    const urlVersion = searchParams.get('version');
 
     const [state, setState] = useState<state>({
-        version: null,
+        version: urlVersion as Version || null,
         componentsLoaded: false,
         generalName: 'resource',
         gtype: "",
@@ -45,7 +51,15 @@ const Resource: React.FC = () => {
     const { data: dataQuery, isFetching: fechingQuery, isLoading } = useCustomGetQuery({
         queryKey: `query_${GType.createPath}_${project}`,
         enabled: location.pathname !== GType.createPath,
-        path: `${getApiPathFromLocation(GType.backendPath)}&project=${project}`,
+        path: `${getApiPathFromLocation(GType.backendPath)}&project=${project}&version=${state.version}`,
+    });
+
+    // Fetch original resource data for duplication
+    const duplicateResourceName = searchParams.get('resource_name');
+    const { data: duplicateResourceData, isFetching: fetchingDuplicate } = useCustomGetQuery({
+        queryKey: `duplicate_${duplicateResourceId}_${project}`,
+        enabled: isDuplicate && !!duplicateResourceId && !!duplicateResourceName && location.pathname === GType.createPath,
+        path: `${GType.backendPath}/${duplicateResourceName}?resource_id=${duplicateResourceId}&project=${project}&version=${urlVersion || state.version}`,
     });
 
     const loadComponent = async (moduleName: string) => {
@@ -105,6 +119,68 @@ const Resource: React.FC = () => {
         fillRedux();
     }, [dataQuery, dispatch, fechingQuery, location.pathname, GType.createPath, GType.initialValue, state.generalName, state.managed]);
 
+    // Handle duplicate resource data after version is selected
+    useEffect(() => {
+        if (!isDuplicate || !duplicateResourceData || !state.version || fetchingDuplicate) return;
+        
+        const fillDuplicateData = () => {
+            // Safely access the duplicate resource data with proper null checks
+            const resourceData = duplicateResourceData?.resource?.resource;
+            if (!resourceData) {
+                console.warn('Duplicate resource data is not available in expected format:', duplicateResourceData);
+                return;
+            }
+
+            // For array resources, clear names in each array item
+            const isArrayResource = Array.isArray(resourceData);
+            let duplicatedResource;
+            
+            if (isArrayResource) {
+                duplicatedResource = resourceData.map((item: any) => {
+                    const newItem = { ...item };
+                    // Keep the original names for duplication
+                    return newItem;
+                });
+            } else {
+                // For single resources, keep the original name
+                duplicatedResource = { ...resourceData };
+            }
+
+            // Update state with duplicate data but clear the name
+            setState(prevState => ({ 
+                ...prevState, 
+                generalName: '', // Clear name for duplicate
+                managed: duplicateResourceData.general?.managed || false,
+                gtype: duplicateResourceData.general?.gtype || ''
+            }));
+
+            // Clear and set redux with duplicate data
+            dispatch(ClearResources({ version: state.version, initialValue: GType.initialValue }));
+            dispatch(
+                ResourceAction({
+                    version: state.version,
+                    type: ActionType.Set,
+                    val: duplicatedResource,
+                    resourceType: ResourceType.Resource
+                })
+            );
+
+            if (duplicateResourceData.general?.config_discovery) {
+                dispatch(
+                    ResourceAction({
+                        version: state.version,
+                        type: ActionType.Set,
+                        val: duplicateResourceData.general?.config_discovery,
+                        keys: [],
+                        resourceType: ResourceType.ConfigDiscovery
+                    })
+                )
+            }
+        };
+        
+        fillDuplicateData();
+    }, [isDuplicate, duplicateResourceData, state.version, fetchingDuplicate, dispatch, GType.initialValue]);
+
     const changeGeneralName = (name: string) => setState({ ...state, generalName: name });
     const changeGeneralManaged = (managed: boolean) => setState({ ...state, managed: managed });
 
@@ -112,7 +188,7 @@ const Resource: React.FC = () => {
 
     const shouldShowSelectVersion = !state.version && location.pathname === GType.createPath;
     const canRenderVersionedComponent = state.componentsLoaded && components.VersionedComponent && state.version;
-    const isLoadingState = loadingCount > 0 || isLoading || fechingQuery;
+    const isLoadingState = loadingCount > 0 || isLoading || fechingQuery || (isDuplicate && fetchingDuplicate);
 
     if (isLoadingState && !canRenderVersionedComponent) {
         return <RenderLoading checkPage={true} isLoadingQuery={true} error={""} />;

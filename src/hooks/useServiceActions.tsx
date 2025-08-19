@@ -4,8 +4,8 @@ import { OperationsClient, OperationsType } from '@/common/types';
 import { OperationsSubType } from '@/common/types';
 
 
-export function useServiceStatus({ name, project, enabled = true }: { name: string; project: string; enabled?: boolean; }) {
-    const mutate = useOperationsApiMutation();
+export function useServiceStatus({ name, project, enabled = true, version }: { name: string; project: string; enabled?: boolean; version?: string }) {
+    const mutate = useOperationsApiMutation(version);
     const [statusData, setStatusData] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -40,8 +40,8 @@ export function useServiceStatus({ name, project, enabled = true }: { name: stri
     return { statusData, loading, error, refresh: fetchStatus };
 }
 
-export function useServiceAction({ name, project }: { name: string; project: string }) {
-    const mutate = useOperationsApiMutation();
+export function useServiceAction({ name, project, version }: { name: string; project: string; version?: string }) {
+    const mutate = useOperationsApiMutation(version);
     const [actionLoading, setActionLoading] = useState(false);
     const [actionError, setActionError] = useState<string | null>(null);
 
@@ -68,8 +68,8 @@ export function useServiceAction({ name, project }: { name: string; project: str
     return { callAction, actionLoading, actionError };
 }
 
-export function useDeployUndeployService({ name, project }: { name: string; project: string }) {
-    const mutate = useOperationsApiMutation();
+export function useDeployUndeployService({ name, project, version }: { name: string; project: string; version?: string }) {
+    const mutate = useOperationsApiMutation(version);
     const [statusData, setStatusData] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
 

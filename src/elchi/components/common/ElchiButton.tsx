@@ -38,7 +38,7 @@ const ElchiButton: React.FC<ElchiButtonProps> = ({ children = 'Add New', onlyTex
                 color: isDisabled ? '#eee' : '#fff',
                 fontWeight: 600,
                 fontSize: 12,
-                borderRadius: 10,
+                borderRadius: 8,
                 padding: '0 12px',
                 height: 32,
                 boxShadow: isDisabled

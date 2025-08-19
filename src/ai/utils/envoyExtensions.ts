@@ -1,3 +1,4 @@
+/* eslint-disable */
 // Envoy Extensions utility based on Elchi frontend gtypes.ts
 // This utility maps Envoy extensions to form categories for AI Config Generator
 

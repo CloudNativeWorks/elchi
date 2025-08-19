@@ -51,8 +51,8 @@ interface ClusterResponse {
     };
 }
 
-export function useClusterDetails({ name, project }: { name: string; project: string }) {
-    const mutate = useOperationsApiMutation();
+export function useClusterDetails({ name, project, version }: { name: string; project: string; version?: string }) {
+    const mutate = useOperationsApiMutation(version);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [clusterData, setClusterData] = useState<ClusterResponse[]>([]);

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Select, Button, Space, message, Divider, Row, Col } from 'antd';
+import { Drawer, Select, Button, Space, message, Divider, Row, Col, Alert } from 'antd';
 import { useLoggerSettings } from '@/hooks/useLoggerSettings';
 
-interface LoggerSettingsModalProps {
+interface LoggerSettingsDrawerProps {
     open: boolean;
     onClose: () => void;
     name: string;
@@ -11,7 +11,7 @@ interface LoggerSettingsModalProps {
 
 const LOG_LEVELS = ['trace', 'debug', 'info', 'warning', 'error', 'critical'];
 
-const LoggerSettingsModal: React.FC<LoggerSettingsModalProps> = ({
+const LoggerSettingsDrawer: React.FC<LoggerSettingsDrawerProps> = ({
     open,
     onClose,
     name,
@@ -100,15 +100,25 @@ const LoggerSettingsModal: React.FC<LoggerSettingsModalProps> = ({
     }, []);
 
     return (
-        <Modal
+        <Drawer
             title="Manage Log Levels"
             open={open}
-            onCancel={onClose}
+            onClose={onClose}
             width={1000}
-            footer={null}
-            style={{ top: 20 }}
+            placement="right"
         >
             <Space direction="vertical" style={{ width: '100%' }} size="large">
+                {/* Warning Alert */}
+                <Alert
+                    message="Proxy Log Level Configuration"
+                    description="Be cautious when enabling debug or trace log levels. These verbose logging modes can generate excessive log data, potentially impacting system performance and consuming significant disk space. Use debug/trace levels only for troubleshooting specific issues and disable them afterwards."
+                    type="warning"
+                    showIcon
+                    style={{
+                        marginBottom: 8,
+                        borderRadius: 8
+                    }}
+                />
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     {/* Global Level Control */}
                     <div>
@@ -179,8 +189,6 @@ const LoggerSettingsModal: React.FC<LoggerSettingsModalProps> = ({
                 <div>
                     <h4 style={{ marginBottom: 16 }}>Current Log Levels</h4>
                     <div style={{ 
-                        maxHeight: '400px', 
-                        overflowY: 'auto',
                         border: '1px solid #f0f0f0',
                         borderRadius: '4px',
                         padding: '16px 8px'
@@ -226,8 +234,8 @@ const LoggerSettingsModal: React.FC<LoggerSettingsModalProps> = ({
                     </div>
                 </div>
             </Space>
-        </Modal>
+        </Drawer>
     );
 };
 
-export default LoggerSettingsModal; 
+export default LoggerSettingsDrawer; 

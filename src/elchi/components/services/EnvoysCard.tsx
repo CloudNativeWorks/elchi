@@ -9,6 +9,7 @@ interface EnvoysCardProps {
     envoys: any;
     name: string;
     project: string;
+    version?: string;
 }
 
 const { Text } = Typography;
@@ -33,8 +34,8 @@ const getErrorMessage = (error: string): string => {
     return error.replace('error: ', '');
 };
 
-const EnvoysCard: React.FC<EnvoysCardProps> = ({ envoys, name, project }) => {
-    const { loading, error, envoyData, fetchEnvoyDetails } = useEnvoyDetails({ name, project });
+const EnvoysCard: React.FC<EnvoysCardProps> = ({ envoys, name, project, version }) => {
+    const { loading, error, envoyData, fetchEnvoyDetails } = useEnvoyDetails({ name, project, version });
     const [selectedClient, setSelectedClient] = useState<string>();
     const [manualRefreshLoading, setManualRefreshLoading] = useState(false);
     let filteredEnvoys = envoys?.envoys || [];

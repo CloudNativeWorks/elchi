@@ -139,7 +139,9 @@ const ComponentHttpFilters: React.FC<GeneralProps> = ({ veri }) => {
                                 }}
                                 pagination={false}
                                 columns={columns}
-                                dataSource={Array.isArray(veri.reduxStore) ? veri.reduxStore?.map((data: ConfDiscovery, index: number) => ({ ...data, tableIndex: index })) : []}
+                                dataSource={Array.isArray(veri.reduxStore) ? veri.reduxStore
+                                    ?.filter((data: ConfDiscovery) => data.category === 'envoy.filters.http')
+                                    ?.map((data: ConfDiscovery, index: number) => ({ ...data, tableIndex: index })) : []}
                                 rowKey={(record) => `item-${record.tableIndex}`}
                                 scroll={{ y: 500 }}
                                 locale={{

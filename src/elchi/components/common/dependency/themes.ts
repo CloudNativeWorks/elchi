@@ -1,74 +1,103 @@
 export const ThemeColors = {
-    background: '#f9fafb',
+    background: '#ffffff',
+    backgroundSolid: '#ffffff',
+    glass: {
+        background: 'rgba(255, 255, 255, 0.9)',
+        backdrop: 'blur(10px)',
+        border: 'rgba(0, 0, 0, 0.1)',
+        shadow: '0 4px 20px 0 rgba(0, 0, 0, 0.15)'
+    },
     node: {
         virtual_host: {
             bg: '#a0522d',
-            border: '#8b4513',
-            text: '#fff'
+            border: '#654321',
+            text: '#fff',
+            shadow: '0 4px 15px 0 rgba(160, 82, 45, 0.4)'
         },
         extension: {
             bg: '#17a2b8',
-            border: '#138496',
-            text: '#fff'
+            border: '#0f6674',
+            text: '#fff',
+            shadow: '0 4px 15px 0 rgba(23, 162, 184, 0.4)'
         },
         secret: {
             bg: '#6c757d',
-            border: '#545b62',
-            text: '#fff'
+            border: '#495057',
+            text: '#fff',
+            shadow: '0 4px 15px 0 rgba(108, 117, 125, 0.4)'
         },
         bootstrap: {
-            bg: '#007bff',
-            border: '#0056b3',
-            text: '#fff'
+            bg: '#056ccd',
+            border: '#004080',
+            text: '#fff',
+            shadow: '0 4px 15px 0 rgba(5, 108, 205, 0.4)'
         },
         tls: {
             bg: '#28a745',
             border: '#1e7e34',
-            text: '#fff'
+            text: '#fff',
+            shadow: '0 4px 15px 0 rgba(40, 167, 69, 0.4)'
         },
         endpoint: {
             bg: '#E86C60',
-            border: '#d13b42',
-            text: '#fff'
+            border: '#c1392b',
+            text: '#fff',
+            shadow: '0 4px 15px 0 rgba(232, 108, 96, 0.4)'
         },
         route: {
             bg: '#5EA4CF',
-            border: '#2d7eb8',
-            text: '#fff'
+            border: '#2980b9',
+            text: '#fff',
+            shadow: '0 4px 15px 0 rgba(94, 164, 207, 0.4)'
         },
         filter: {
             bg: '#7AC74F',
-            border: '#4d8a29',
-            text: '#fff'
+            border: '#27ae60',
+            text: '#fff',
+            shadow: '0 4px 15px 0 rgba(122, 199, 79, 0.4)'
         },
         listener: {
             bg: '#FF7F50',
-            border: '#E25822',
-            text: '#fff'
+            border: '#e74c3c',
+            text: '#fff',
+            shadow: '0 4px 15px 0 rgba(255, 127, 80, 0.4)'
         },
         cluster: {
             bg: '#7851A9',
-            border: '#5b3b8a',
-            text: '#fff'
+            border: '#5b2c87',
+            text: '#fff',
+            shadow: '0 4px 15px 0 rgba(120, 81, 169, 0.4)'
         },
         default: {
-            bg: '#0074D9',
-            border: '#0055a7',
-            text: '#fff'
+            bg: '#056ccd',
+            border: '#004080',
+            text: '#fff',
+            shadow: '0 4px 15px 0 rgba(5, 108, 205, 0.4)'
         },
         first: {
-            bg: '#000000',
-            border: '#000000',
-            text: '#fff'
+            bg: '#2d3436',
+            border: '#2d3436',
+            text: '#fff',
+            shadow: '0 4px 15px 0 rgba(45, 52, 54, 0.6)'
         },
         highlighted: {
             bg: '#FFD700',
             border: '#FF8C00',
-            text: '#333'
+            text: '#333',
+            shadow: '0 4px 25px 0 rgba(255, 215, 0, 0.6)'
         }
     },
     edge: {
-        default: '#aaa',
-        highlighted: '#FFD700'
+        default: 'rgba(30, 64, 175, 0.8)',
+        highlighted: '#FFD700',
+        hover: '#056ccd'
+    },
+    animations: {
+        duration: {
+            fast: '200ms',
+            normal: '300ms',
+            slow: '500ms'
+        },
+        easing: 'cubic-bezier(0.4, 0, 0.2, 1)'
     }
 }; 
