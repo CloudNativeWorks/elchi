@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Card, Typography, Spin, Alert, Tag, Space, Collapse, Badge, Table, Input, Row, Col, Statistic } from 'antd';
-import { DatabaseOutlined, ClusterOutlined, ControlOutlined, SearchOutlined, GlobalOutlined, CloudServerOutlined } from '@ant-design/icons';
+import React, { useState, useMemo } from 'react';
+import { Card, Typography, Spin, Alert, Tag, Space, Collapse, Badge, Table, Input, Row, Col, Statistic, Pagination, Progress, Tooltip, Empty, Divider } from 'antd';
+import { DatabaseOutlined, ClusterOutlined, ControlOutlined, SearchOutlined, GlobalOutlined, NodeIndexOutlined, TeamOutlined, ApiOutlined } from '@ant-design/icons';
 import { useCustomGetQuery } from '@/common/api';
 
 const { Text, Title } = Typography;
@@ -94,6 +94,11 @@ const safeNumberCompare = (a: number | null | undefined, b: number | null | unde
 const RegistryInfo: React.FC = () => {
     const [controlPlaneSearchTerm, setControlPlaneSearchTerm] = useState('');
     const [controllerSearchTerm, setControllerSearchTerm] = useState('');
+    const [controlPlanePage, setControlPlanePage] = useState(1);
+    const [controllerPage, setControllerPage] = useState(1);
+    const [expandedControlPlanes, setExpandedControlPlanes] = useState<string[]>([]);
+    const [expandedControllers, setExpandedControllers] = useState<string[]>([]);
+    const pageSize = 10;
 
     const { isLoading, error, data } = useCustomGetQuery({
         queryKey: 'registry_info',
@@ -188,17 +193,72 @@ const RegistryInfo: React.FC = () => {
         });
     };
 
-    const filteredControlPlanes = filterControlPlanes().sort((a, b) => safeStringCompare(a?.control_plane_id, b?.control_plane_id));
-    const filteredControllers = filterControllers().sort((a, b) => safeStringCompare(a?.controller_id, b?.controller_id));
+    const filteredControlPlanes = useMemo(() => 
+        filterControlPlanes().sort((a, b) => safeStringCompare(a?.control_plane_id, b?.control_plane_id)),
+        [registryData, controlPlaneSearchTerm]
+    );
+    
+    const filteredControllers = useMemo(() => 
+        filterControllers().sort((a, b) => safeStringCompare(a?.controller_id, b?.controller_id)),
+        [registryData, controllerSearchTerm]
+    );
 
-    // Calculate total counts
-    const totalNodes = Object.values(registryData?.data?.control_plane_data?.nodes_by_control_plane || {})
-        .reduce((sum, cp) => sum + (cp?.nodes?.length || 0), 0);
-    const totalClients = Object.values(registryData?.data?.controller_data?.clients_by_controller || {})
-        .reduce((sum, controller) => sum + (controller?.clients?.length || 0), 0);
+    // Paginated data
+    const paginatedControlPlanes = useMemo(() => {
+        const startIndex = (controlPlanePage - 1) * pageSize;
+        return filteredControlPlanes.slice(startIndex, startIndex + pageSize);
+    }, [filteredControlPlanes, controlPlanePage]);
+
+    const paginatedControllers = useMemo(() => {
+        const startIndex = (controllerPage - 1) * pageSize;
+        return filteredControllers.slice(startIndex, startIndex + pageSize);
+    }, [filteredControllers, controllerPage]);
+
+    // Calculate statistics
+    const totalNodes = useMemo(() => 
+        Object.values(registryData?.data?.control_plane_data?.nodes_by_control_plane || {})
+            .reduce((sum, cp) => sum + (cp?.nodes?.length || 0), 0),
+        [registryData]
+    );
+    
+    const totalClients = useMemo(() => 
+        Object.values(registryData?.data?.controller_data?.clients_by_controller || {})
+            .reduce((sum, controller) => sum + (controller?.clients?.length || 0), 0),
+        [registryData]
+    );
+
+    // Calculate active/inactive counts
+    const activeThreshold = Date.now() - (5 * 60 * 1000); // 5 minutes ago
+    
+    const activeControlPlanes = useMemo(() => 
+        filteredControlPlanes.filter(cp => {
+            const lastSeen = (cp?.last_seen?.seconds || 0) * 1000;
+            return lastSeen > activeThreshold;
+        }).length,
+        [filteredControlPlanes, activeThreshold]
+    );
+
+    const activeControllers = useMemo(() => 
+        filteredControllers.filter(controller => {
+            const lastSeen = (controller?.last_seen?.seconds || 0) * 1000;
+            return lastSeen > activeThreshold;
+        }).length,
+        [filteredControllers, activeThreshold]
+    );
+
+    // Get status color based on last seen time
+    const getStatusColor = (lastSeen: any) => {
+        const timestamp = (lastSeen?.seconds || 0) * 1000;
+        const now = Date.now();
+        const diff = now - timestamp;
+        
+        if (diff < 60000) return '#52c41a'; // Green - Active (< 1 min)
+        if (diff < 300000) return '#faad14'; // Orange - Warning (< 5 min)
+        return '#ff4d4f'; // Red - Inactive (> 5 min)
+    };
 
     // Prepare collapse items for detailed view
-    const controlPlaneItems = filteredControlPlanes?.map((cp, index) => {
+    const controlPlaneItems = paginatedControlPlanes?.map((cp, index) => {
         if (!cp) return null;
 
         const nodes = registryData?.data?.control_plane_data?.nodes_by_control_plane?.[cp.control_plane_id]?.nodes || [];
@@ -208,16 +268,25 @@ const RegistryInfo: React.FC = () => {
                 title: 'Node ID',
                 dataIndex: 'node_id',
                 key: 'node_id',
-                render: (text: string) => (
-                    <Text code style={{
-                        fontSize: '11px',
-                        background: '#f0f2f5',
-                        padding: '2px 6px',
-                        borderRadius: '4px',
-                        color: '#1890ff'
-                    }}>
-                        {text || 'N/A'}
-                    </Text>
+                render: (text: string, record: any) => (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <div style={{ 
+                            width: 6, 
+                            height: 6, 
+                            borderRadius: '50%', 
+                            backgroundColor: getStatusColor(record?.last_seen),
+                            flexShrink: 0
+                        }} />
+                        <Text code style={{
+                            fontSize: '11px',
+                            background: '#f0f2f5',
+                            padding: '2px 6px',
+                            borderRadius: '4px',
+                            color: '#1890ff'
+                        }}>
+                            {text || 'N/A'}
+                        </Text>
+                    </div>
                 ),
                 sorter: (a: any, b: any) => safeStringCompare(a?.node_id, b?.node_id),
                 defaultSortOrder: 'ascend' as const
@@ -254,21 +323,33 @@ const RegistryInfo: React.FC = () => {
                 }}>
                     <Space size="small">
                         <div>
-                            <Text strong style={{ fontSize: '13px' }}>{cp.control_plane_id || 'N/A'}</Text>
-                            <br />
-                            <Space size="small">
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                                <Text strong style={{ fontSize: '13px' }}>{cp.control_plane_id || 'N/A'}</Text>
                                 <Tag color="blue" style={{ fontSize: '10px', margin: 0 }}>{cp.version || 'N/A'}</Tag>
-                                <Text type="secondary" style={{ fontSize: '10px' }}>
-                                    {formatTimestamp(cp.last_seen?.seconds, cp.last_seen?.nanos)}
-                                </Text>
-                            </Space>
+                                <Tooltip title={formatTimestamp(cp.last_seen?.seconds, cp.last_seen?.nanos)}>
+                                    <div style={{ 
+                                        width: 8, 
+                                        height: 8, 
+                                        borderRadius: '50%', 
+                                        backgroundColor: getStatusColor(cp.last_seen),
+                                        display: 'inline-block'
+                                    }} />
+                                </Tooltip>
+                            </div>
+                            <Text type="secondary" style={{ fontSize: '11px' }}>
+                                {formatTimestamp(cp.last_seen?.seconds, cp.last_seen?.nanos)}
+                            </Text>
                         </div>
                     </Space>
                     <Badge
                         count={nodes.length}
                         style={{
                             backgroundColor: '#52c41a',
-                            boxShadow: '0 2px 4px rgba(82, 196, 26, 0.3)'
+                            boxShadow: '0 2px 4px rgba(82, 196, 26, 0.3)',
+                            fontSize: '11px',
+                            height: '20px',
+                            minWidth: '20px',
+                            lineHeight: '20px'
                         }}
                         title={`${nodes.length} nodes`}
                     />
@@ -282,7 +363,7 @@ const RegistryInfo: React.FC = () => {
                     ) : nodes).sort((a, b) => safeStringCompare(a?.node_id, b?.node_id))}
                     rowKey={(record) => record?.node_id || Math.random().toString()}
                     size="small"
-                    pagination={false}
+                    pagination={{ pageSize: 50, size: 'small', hideOnSinglePage: true }}
                     scroll={{ x: true }}
                     style={{
                         marginTop: '8px',
@@ -295,7 +376,7 @@ const RegistryInfo: React.FC = () => {
         };
     }).filter(Boolean);
 
-    const controllerItems = filteredControllers.map((controller, index) => {
+    const controllerItems = paginatedControllers.map((controller, index) => {
         if (!controller) return null;
 
         const clients = registryData?.data?.controller_data?.clients_by_controller?.[controller.controller_id]?.clients || [];
@@ -305,16 +386,25 @@ const RegistryInfo: React.FC = () => {
                 title: 'Client ID',
                 dataIndex: 'client_id',
                 key: 'client_id',
-                render: (text: string) => (
-                    <Text code style={{
-                        fontSize: '11px',
-                        background: '#f0f2f5',
-                        padding: '2px 6px',
-                        borderRadius: '4px',
-                        color: '#722ed1'
-                    }}>
-                        {text || 'N/A'}
-                    </Text>
+                render: (text: string, record: any) => (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <div style={{ 
+                            width: 6, 
+                            height: 6, 
+                            borderRadius: '50%', 
+                            backgroundColor: getStatusColor(record?.last_seen),
+                            flexShrink: 0
+                        }} />
+                        <Text code style={{
+                            fontSize: '11px',
+                            background: '#f0f2f5',
+                            padding: '2px 6px',
+                            borderRadius: '4px',
+                            color: '#722ed1'
+                        }}>
+                            {text || 'N/A'}
+                        </Text>
+                    </div>
                 ),
                 sorter: (a: any, b: any) => safeStringCompare(a?.client_id, b?.client_id),
                 defaultSortOrder: 'ascend' as const
@@ -344,20 +434,32 @@ const RegistryInfo: React.FC = () => {
                 }}>
                     <Space size="small">
                         <div>
-                            <Text strong style={{ fontSize: '13px' }}>{controller.controller_id || 'N/A'}</Text>
-                            <br />
-                            <Space size="small">
-                                <Text type="secondary" style={{ fontSize: '10px' }}>
-                                    {formatTimestamp(controller.last_seen?.seconds, controller.last_seen?.nanos)}
-                                </Text>
-                            </Space>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                                <Text strong style={{ fontSize: '13px' }}>{controller.controller_id || 'N/A'}</Text>
+                                <Tooltip title={formatTimestamp(controller.last_seen?.seconds, controller.last_seen?.nanos)}>
+                                    <div style={{ 
+                                        width: 8, 
+                                        height: 8, 
+                                        borderRadius: '50%', 
+                                        backgroundColor: getStatusColor(controller.last_seen),
+                                        display: 'inline-block'
+                                    }} />
+                                </Tooltip>
+                            </div>
+                            <Text type="secondary" style={{ fontSize: '11px' }}>
+                                {formatTimestamp(controller.last_seen?.seconds, controller.last_seen?.nanos)}
+                            </Text>
                         </div>
                     </Space>
                     <Badge
                         count={clients.length}
                         style={{
                             backgroundColor: '#1890ff',
-                            boxShadow: '0 2px 4px rgba(24, 144, 255, 0.3)'
+                            boxShadow: '0 2px 4px rgba(24, 144, 255, 0.3)',
+                            fontSize: '11px',
+                            height: '20px',
+                            minWidth: '20px',
+                            lineHeight: '20px'
                         }}
                         title={`${clients.length} clients`}
                     />
@@ -401,78 +503,139 @@ const RegistryInfo: React.FC = () => {
     return (
         <div style={{ width: '100%', padding: '12px' }}>
             <div style={{ marginBottom: '24px' }}>
-                <Title level={3} style={{ margin: '0 0 8px 0', color: '#1f2937' }}>
-                    Registry Information
-                </Title>
-                <Text type="secondary">System components status and statistics</Text>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div>
+                        <Title level={3} style={{ margin: '0 0 8px 0', color: '#1f2937', display: 'flex', alignItems: 'center', gap: 12 }}>
+                            <ApiOutlined style={{ color: '#1890ff' }} />
+                            Registry Information
+                        </Title>
+                        <Text type="secondary">Monitor and manage system components, control planes, and controllers</Text>
+                    </div>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#52c41a' }} />
+                            <Text type="secondary" style={{ fontSize: 12 }}>Active</Text>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#faad14' }} />
+                            <Text type="secondary" style={{ fontSize: 12 }}>Warning</Text>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#ff4d4f' }} />
+                            <Text type="secondary" style={{ fontSize: 12 }}>Inactive</Text>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
                 {/* Registry Status & Statistics */}
-                <Row gutter={[16, 16]}>
-                    <Col xs={24} lg={12}>
+                <Row gutter={[24, 24]}>
+                    <Col xs={24} lg={10}>
                         <Card
                             style={{
                                 borderRadius: '12px',
-                                background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                                background: 'linear-gradient(135deg, #056ccd 0%, #00c6fb 100%)',
                                 border: 'none',
-                                color: 'white'
+                                color: 'white',
+                                height: 180
                             }}
-                            styles={{ body: { padding: '20px' } }}
+                            styles={{ body: { padding: '24px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' } }}
                         >
-                            <Space direction="vertical" size="small" style={{ width: '100%' }}>
-                                <Space>
-                                    <DatabaseOutlined style={{ fontSize: '20px', color: 'white' }} />
-                                    <Text style={{ color: 'white', fontSize: '16px', fontWeight: 'bold' }}>
+                            <div>
+                                <Space align="center" style={{ marginBottom: 16 }}>
+                                    <DatabaseOutlined style={{ fontSize: '24px', color: 'white' }} />
+                                    <Text style={{ color: 'white', fontSize: '18px', fontWeight: '600' }}>
                                         Registry Status
                                     </Text>
                                 </Space>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{ marginBottom: 12 }}>
                                     <Tag
+                                        className='auto-width-tag'
                                         color={registryData?.data?.status === 'connected' ? 'success' : 'error'}
-                                        style={{ fontSize: '12px', fontWeight: 'bold' }}
+                                        style={{ fontSize: '11px', fontWeight: '600', marginBottom: 8 }}
                                     >
                                         {registryData?.data?.status === 'connected' ? 'CONNECTED' : 'DISCONNECTED'}
                                     </Tag>
-                                    <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: '12px' }}>
+                                    <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '13px', fontWeight: '500' }}>
                                         {registryData?.data?.registry_address || 'N/A'}
-                                    </Text>
+                                    </div>
                                 </div>
-                                <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: '11px' }}>
-                                    Last updated: {registryData?.data?.timestamp ?
-                                        new Date(registryData.data.timestamp).toLocaleString('en-US') :
-                                        'N/A'
-                                    }
-                                </Text>
-                            </Space>
+                            </div>
+                            <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px' }}>
+                                Last updated: {registryData?.data?.timestamp ?
+                                    new Date(registryData.data.timestamp).toLocaleString('en-US') :
+                                    'N/A'
+                                }
+                            </Text>
                         </Card>
                     </Col>
-                    <Col xs={24} lg={12}>
-                        <Card style={{ borderRadius: '12px', height: '100%' }} styles={{ body: { padding: '20px' } }}>
-                            <Row gutter={16} style={{ height: '100%', marginTop: '15px' }}>
-                                <Col span={8} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                                    <Statistic
-                                        title="Control Planes"
-                                        value={filteredControlPlanes?.length || 0}
-                                        prefix={<ClusterOutlined style={{ color: '#056ccd' }} />}
-                                        valueStyle={{ color: '#056ccd', fontSize: '20px' }}
-                                    />
+                    <Col xs={24} lg={14}>
+                        <Card 
+                            style={{ borderRadius: '12px', height: 180 }} 
+                            styles={{ body: { padding: '24px', height: '100%' } }}
+                        >
+                            <Title level={5} style={{ marginBottom: 20, fontSize: 16, fontWeight: '600' }}>System Overview</Title>
+                            <Row gutter={[16, 16]} style={{ height: 'calc(100% - 40px)' }}>
+                                <Col span={6}>
+                                    <div style={{ textAlign: 'center', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                        <Statistic
+                                            title="Control Planes"
+                                            value={filteredControlPlanes?.length || 0}
+                                            prefix={<ClusterOutlined style={{ color: '#056ccd', fontSize: 16 }} />}
+                                            valueStyle={{ color: '#056ccd', fontSize: '20px', fontWeight: '600' }}
+                                        />
+                                        <Progress 
+                                            percent={Math.round((activeControlPlanes / Math.max(filteredControlPlanes?.length || 1, 1)) * 100)}
+                                            size="small"
+                                            strokeColor="#52c41a"
+                                            showInfo={false}
+                                            style={{ marginTop: 6 }}
+                                        />
+                                        <Text type="secondary" style={{ fontSize: 11, marginTop: 2 }}>
+                                            {activeControlPlanes} active
+                                        </Text>
+                                    </div>
                                 </Col>
-                                <Col span={8} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                                    <Statistic
-                                        title="Controllers"
-                                        value={filteredControllers.length}
-                                        prefix={<ControlOutlined style={{ color: '#00c6fb' }} />}
-                                        valueStyle={{ color: '#00c6fb', fontSize: '20px' }}
-                                    />
+                                <Col span={6}>
+                                    <div style={{ textAlign: 'center', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                        <Statistic
+                                            title="Controllers"
+                                            value={filteredControllers.length}
+                                            prefix={<ControlOutlined style={{ color: '#00c6fb', fontSize: 16 }} />}
+                                            valueStyle={{ color: '#00c6fb', fontSize: '20px', fontWeight: '600' }}
+                                        />
+                                        <Progress 
+                                            percent={Math.round((activeControllers / Math.max(filteredControllers.length || 1, 1)) * 100)}
+                                            size="small"
+                                            strokeColor="#52c41a"
+                                            showInfo={false}
+                                            style={{ marginTop: 6 }}
+                                        />
+                                        <Text type="secondary" style={{ fontSize: 11, marginTop: 2 }}>
+                                            {activeControllers} active
+                                        </Text>
+                                    </div>
                                 </Col>
-                                <Col span={8} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
-                                    <Statistic
-                                        title="Total Nodes/Clients"
-                                        value={totalNodes + totalClients}
-                                        prefix={<CloudServerOutlined style={{ color: '#52c41a' }} />}
-                                        valueStyle={{ color: '#52c41a', fontSize: '20px' }}
-                                    />
+                                <Col span={6}>
+                                    <div style={{ textAlign: 'center', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                        <Statistic
+                                            title="Total Nodes"
+                                            value={totalNodes}
+                                            prefix={<NodeIndexOutlined style={{ color: '#722ed1', fontSize: 16 }} />}
+                                            valueStyle={{ color: '#722ed1', fontSize: '20px', fontWeight: '600' }}
+                                        />
+                                    </div>
+                                </Col>
+                                <Col span={6}>
+                                    <div style={{ textAlign: 'center', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                        <Statistic
+                                            title="Total Clients"
+                                            value={totalClients}
+                                            prefix={<TeamOutlined style={{ color: '#fa8c16', fontSize: 16 }} />}
+                                            valueStyle={{ color: '#fa8c16', fontSize: '20px', fontWeight: '600' }}
+                                        />
+                                    </div>
                                 </Col>
                             </Row>
                         </Card>
@@ -490,34 +653,43 @@ const RegistryInfo: React.FC = () => {
 
                 {/* Control Planes */}
                 <Card
-                    title={
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                            <Space>
-                                <div style={{
-                                    width: '24px',
-                                    height: '24px',
-                                    borderRadius: '6px',
-                                    background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                }}>
-                                    <ClusterOutlined style={{ color: 'white', fontSize: '12px' }} />
+                    style={{
+                        background: '#fafafa',
+                        border: '1px solid #e8f4ff',
+                        borderRadius: 8,
+                        margin: 0
+                    }}
+                    styles={{
+                        body: { padding: '20px' }
+                    }}
+                >
+                    {/* Control Planes Header */}
+                    <div style={{ marginBottom: 24 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <ClusterOutlined style={{ color: '#1890ff' }} />
+                                    <Text strong style={{ fontSize: 16 }}>Control Planes</Text>
                                 </div>
-                                <span style={{ fontSize: '16px', fontWeight: '600' }}>Control Planes</span>
-                                {controlPlaneSearchTerm && (
-                                    <Text type="secondary" style={{ fontSize: '12px' }}>
-                                        ({registryData?.data?.control_plane_data?.control_planes?.length || 0} total)
-                                    </Text>
-                                )}
-                            </Space>
+                                <Badge 
+                                    count={`${filteredControlPlanes.length}/${registryData?.data?.control_plane_data?.control_planes?.length || 0}`}
+                                    style={{ 
+                                        backgroundColor: filteredControlPlanes.length > 0 ? '#52c41a' : '#d9d9d9',
+                                        color: filteredControlPlanes.length > 0 ? '#fff' : '#666',
+                                        fontSize: '11px',
+                                        height: '20px',
+                                        minWidth: '20px',
+                                        lineHeight: '20px'
+                                    }} 
+                                />
+                            </div>
                             <Input
                                 placeholder="Search control planes and nodes..."
                                 prefix={<SearchOutlined style={{ color: '#ccc' }} />}
                                 value={controlPlaneSearchTerm}
                                 onChange={(e) => setControlPlaneSearchTerm(e.target.value)}
                                 style={{
-                                    width: 280,
+                                    width: 320,
                                     borderRadius: '8px',
                                     boxShadow: 'none',
                                     border: '1px solid #e1e5e9'
@@ -525,61 +697,87 @@ const RegistryInfo: React.FC = () => {
                                 allowClear
                             />
                         </div>
-                    }
-                    style={{ borderRadius: '12px' }}
-                    styles={{ body: { padding: '16px' } }}
-                >
+                        
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                            Monitor control plane instances and their connected nodes. Status indicators show real-time health.
+                        </Text>
+                    </div>
+
+                    <Divider style={{ margin: '20px 0' }} />
                     {controlPlaneItems.length > 0 ? (
-                        <Collapse
-                            items={controlPlaneItems}
-                            size="small"
-                            ghost
-                            style={{ background: 'transparent' }}
-                        />
+                        <>
+                            <Collapse
+                                items={controlPlaneItems}
+                                size="small"
+                                ghost
+                                style={{ background: 'transparent' }}
+                                activeKey={expandedControlPlanes}
+                                onChange={(keys) => setExpandedControlPlanes(keys as string[])}
+                            />
+                            {filteredControlPlanes.length > pageSize && (
+                                <div style={{ marginTop: 16, textAlign: 'center' }}>
+                                    <Pagination
+                                        current={controlPlanePage}
+                                        total={filteredControlPlanes.length}
+                                        pageSize={pageSize}
+                                        onChange={setControlPlanePage}
+                                        size="small"
+                                        showSizeChanger={false}
+                                        showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} control planes`}
+                                    />
+                                </div>
+                            )}
+                        </>
                     ) : (
-                        <div style={{
-                            textAlign: 'center',
-                            padding: '40px 20px',
-                            color: '#999',
-                            background: '#fafafa',
-                            borderRadius: '8px'
-                        }}>
-                            <SearchOutlined style={{ fontSize: '32px', marginBottom: '12px', color: '#d9d9d9' }} />
-                            <div>No control planes found matching "{controlPlaneSearchTerm}"</div>
-                        </div>
+                        <Empty 
+                            image={Empty.PRESENTED_IMAGE_SIMPLE}
+                            description={controlPlaneSearchTerm ? 
+                                `No control planes found matching "${controlPlaneSearchTerm}"` : 
+                                "No control planes available"
+                            }
+                        />
                     )}
                 </Card>
 
                 {/* Controllers */}
                 <Card
-                    title={
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                            <Space>
-                                <div style={{
-                                    width: '24px',
-                                    height: '24px',
-                                    borderRadius: '6px',
-                                    background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                }}>
-                                    <ControlOutlined style={{ color: 'white', fontSize: '12px' }} />
+                    style={{
+                        background: '#fafafa',
+                        border: '1px solid #e8f4ff',
+                        borderRadius: 8,
+                        margin: 0
+                    }}
+                    styles={{
+                        body: { padding: '20px' }
+                    }}
+                >
+                    {/* Controllers Header */}
+                    <div style={{ marginBottom: 24 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <ControlOutlined style={{ color: '#1890ff' }} />
+                                    <Text strong style={{ fontSize: 16 }}>Controllers</Text>
                                 </div>
-                                <span style={{ fontSize: '16px', fontWeight: '600' }}>Controllers</span>
-                                {controllerSearchTerm && (
-                                    <Text type="secondary" style={{ fontSize: '12px' }}>
-                                        ({registryData?.data?.controller_data?.controllers?.length || 0} total)
-                                    </Text>
-                                )}
-                            </Space>
+                                <Badge 
+                                    count={`${filteredControllers.length}/${registryData?.data?.controller_data?.controllers?.length || 0}`}
+                                    style={{ 
+                                        backgroundColor: filteredControllers.length > 0 ? '#52c41a' : '#d9d9d9',
+                                        color: filteredControllers.length > 0 ? '#fff' : '#666',
+                                        fontSize: '11px',
+                                        height: '20px',
+                                        minWidth: '20px',
+                                        lineHeight: '20px'
+                                    }} 
+                                />
+                            </div>
                             <Input
                                 placeholder="Search controllers and clients..."
                                 prefix={<SearchOutlined style={{ color: '#ccc' }} />}
                                 value={controllerSearchTerm}
                                 onChange={(e) => setControllerSearchTerm(e.target.value)}
                                 style={{
-                                    width: 280,
+                                    width: 320,
                                     borderRadius: '8px',
                                     boxShadow: 'none',
                                     border: '1px solid #e1e5e9'
@@ -587,28 +785,45 @@ const RegistryInfo: React.FC = () => {
                                 allowClear
                             />
                         </div>
-                    }
-                    style={{ borderRadius: '12px' }}
-                    styles={{ body: { padding: '16px' } }}
-                >
+                        
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                            Manage controller instances and their client connections. Track HTTP addresses and connection status.
+                        </Text>
+                    </div>
+
+                    <Divider style={{ margin: '20px 0' }} />
                     {controllerItems.length > 0 ? (
-                        <Collapse
-                            items={controllerItems}
-                            size="small"
-                            ghost
-                            style={{ background: 'transparent' }}
-                        />
+                        <>
+                            <Collapse
+                                items={controllerItems}
+                                size="small"
+                                ghost
+                                style={{ background: 'transparent' }}
+                                activeKey={expandedControllers}
+                                onChange={(keys) => setExpandedControllers(keys as string[])}
+                            />
+                            {filteredControllers.length > pageSize && (
+                                <div style={{ marginTop: 16, textAlign: 'center' }}>
+                                    <Pagination
+                                        current={controllerPage}
+                                        total={filteredControllers.length}
+                                        pageSize={pageSize}
+                                        onChange={setControllerPage}
+                                        size="small"
+                                        showSizeChanger={false}
+                                        showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} controllers`}
+                                    />
+                                </div>
+                            )}
+                        </>
                     ) : (
-                        <div style={{
-                            textAlign: 'center',
-                            padding: '40px 20px',
-                            color: '#999',
-                            background: '#fafafa',
-                            borderRadius: '8px'
-                        }}>
-                            <SearchOutlined style={{ fontSize: '32px', marginBottom: '12px', color: '#d9d9d9' }} />
-                            <div>No controllers found matching "{controllerSearchTerm}"</div>
-                        </div>
+                        <Empty 
+                            image={Empty.PRESENTED_IMAGE_SIMPLE}
+                            description={controllerSearchTerm ? 
+                                `No controllers found matching "${controllerSearchTerm}"` : 
+                                "No controllers available"
+                            }
+                        />
                     )}
                 </Card>
             </Space>

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Dropdown, Table, Pagination, Tag, Typography, Input, Space, Card } from 'antd';
+import { Dropdown, Table, Pagination, Tag, Typography, Input, Space, Card, Modal, message } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { ActionsSVG } from '@/assets/svg/icons';
 import { DateTimeTool } from '@/utils/date-time-tool';
 import { useCustomGetQuery } from '@/common/api';
+import { useCustomApiMutation } from '@/common/custom-api';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import { DeleteOutlined, EditOutlined, InboxOutlined, CloudServerOutlined, SearchOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
@@ -41,14 +42,27 @@ const Clients: React.FC = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 50;
     const navigate = useNavigate();
+    const [deleteModal, setDeleteModal] = useState<{ visible: boolean; client: DataType | null; loading: boolean }>({
+        visible: false,
+        client: null,
+        loading: false
+    });
+    const [messageApi, contextHolder] = message.useMessage();
+    const deleteClientMutation = useCustomApiMutation();
 
     const onClick = (record: DataType, key: string) => {
         if (key === "1") {
             navigate(`/clients/${record.client_id}`);
+        } else if (key === "2") {
+            setDeleteModal({
+                visible: true,
+                client: record,
+                loading: false
+            });
         }
     };
 
-    const { isLoading: isLoadingResource, data: dataResource } = useCustomGetQuery({
+    const { isLoading: isLoadingResource, data: dataResource, refetch: refetchClients } = useCustomGetQuery({
         queryKey: `client_list_${project}`,
         enabled: true,
         path: `api/op/clients?project=${project}&with_service_ips=true`,
@@ -88,6 +102,32 @@ const Clients: React.FC = () => {
         const start = (currentPage - 1) * pageSize;
         return filteredTableData.slice(start, start + pageSize);
     }, [filteredTableData, currentPage]);
+
+    const handleDeleteClient = async () => {
+        if (!deleteModal.client) return;
+        
+        setDeleteModal(prev => ({ ...prev, loading: true }));
+        
+        try {
+            await deleteClientMutation.mutateAsync({
+                method: 'delete',
+                path: `api/op/clients/${deleteModal.client.client_id}?project=${project}`,
+                data: null
+            });
+            
+            messageApi.success(`Client "${deleteModal.client.name}" deleted successfully`);
+            setDeleteModal({ visible: false, client: null, loading: false });
+            await refetchClients();
+        } catch (error: any) {
+            const errorMessage = error?.response?.data?.message || 'Failed to delete client';
+            messageApi.error(errorMessage);
+            setDeleteModal(prev => ({ ...prev, loading: false }));
+        }
+    };
+
+    const handleCancelDelete = () => {
+        setDeleteModal({ visible: false, client: null, loading: false });
+    };
 
     const columns: ColumnsType<DataType> = [
         {
@@ -220,6 +260,7 @@ const Clients: React.FC = () => {
 
     return (
         <>
+            {contextHolder}
             {/* Header Section - Outside Card */}
             <div style={{ marginBottom: 16 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
@@ -295,6 +336,30 @@ const Clients: React.FC = () => {
                     />
                 </div>
             </Card>
+
+            {/* Delete Confirmation Modal */}
+            <Modal
+                title="Delete Client"
+                open={deleteModal.visible}
+                onOk={handleDeleteClient}
+                onCancel={handleCancelDelete}
+                okText="Delete"
+                cancelText="Cancel"
+                okButtonProps={{ 
+                    danger: true, 
+                    loading: deleteModal.loading 
+                }}
+                cancelButtonProps={{ 
+                    disabled: deleteModal.loading 
+                }}
+            >
+                <p>
+                    Are you sure you want to delete the client <strong>"{deleteModal.client?.name}"</strong>?
+                </p>
+                <p style={{ color: '#ff4d4f', fontSize: 12 }}>
+                    <strong>Warning:</strong> This action cannot be undone. The client will be permanently removed from the system.
+                </p>
+            </Modal>
         </>
     );
 };

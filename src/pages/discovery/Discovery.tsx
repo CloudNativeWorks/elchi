@@ -106,7 +106,7 @@ kubectl get pods -n elchi-system`;
       key: 'status',
       render: (lastSeen: string) => {
         const status = getClusterStatus(lastSeen);
-        return <Tag color={getStatusColor(status)}>{status.toUpperCase()}</Tag>;
+        return <Tag className='auto-width-tag' color={getStatusColor(status)}>{status.toUpperCase()}</Tag>;
       },
     },
     {

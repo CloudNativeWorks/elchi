@@ -4,7 +4,7 @@ import { ColumnsType } from 'antd/es/table';
 import { ActionsSVG } from '@/assets/svg/icons';
 import { useCustomGetQuery } from '@/common/api';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
-import { DeleteOutlined, EditOutlined, InboxOutlined, ApiOutlined, SearchOutlined } from '@ant-design/icons';
+import { EditOutlined, InboxOutlined, ApiOutlined, SearchOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { getVersionAntdColor } from '@/utils/versionColors';
 
@@ -25,7 +25,6 @@ interface DataType {
 
 const serviceActions = [
     { key: '1', label: 'Edit', icon: <EditOutlined />, color: 'blue' },
-    { key: '2', label: 'Delete', danger: true, icon: <DeleteOutlined /> },
 ];
 
 const Services: React.FC = () => {
@@ -39,7 +38,7 @@ const Services: React.FC = () => {
 
     const onClick = (record: DataType, key: string) => {
         if (key === "1") {
-            console.log(`Editing ${record.id}`);
+            navigate(`/services/${record.id}?version=${record.version}`);
         }
     };
 

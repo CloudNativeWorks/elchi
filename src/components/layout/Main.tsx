@@ -120,7 +120,7 @@ function Main() {
 							<BreadCrumb
 								name={location.pathname.replace("/", "") === "" ? "" : location.pathname.replace("/", "").charAt(0).toUpperCase() + location.pathname.replace("/", "").slice(1)}
 							/>
-							<Content>
+							<Content style={{ padding: '6px' }}>
 								<Outlet />
 							</Content>
 							{/* <Footer /> */}

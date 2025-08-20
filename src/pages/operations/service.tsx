@@ -131,6 +131,10 @@ const Service: React.FC = () => {
     const serviceActionsDisabled = !Array.isArray(serviceData?.service?.clients) ||
         serviceData?.service?.clients.length === 0;
 
+    // Check if service is deployed (has clients)
+    const isServiceDeployed = Array.isArray(serviceData?.service?.clients) && 
+        serviceData?.service?.clients.length > 0;
+
     return (
         <div style={{ width: '100%', margin: '3px auto', padding: 0 }}>
             <Card style={{ borderRadius: 14, boxShadow: '0 2px 8px rgba(24,144,255,0.10)' }}>
@@ -195,6 +199,7 @@ const Service: React.FC = () => {
                                     Clusters
                                 </span>
                             ),
+                            disabled: !isServiceDeployed,
                             children: (
                                 <ClusterDetails
                                     name={serviceData?.service?.name}
@@ -211,6 +216,7 @@ const Service: React.FC = () => {
                                     Envoy
                                 </span>
                             ),
+                            disabled: !isServiceDeployed,
                             children: (
                                 <EnvoysCard
                                     envoys={serviceData?.envoys}

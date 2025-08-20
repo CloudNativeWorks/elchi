@@ -136,15 +136,8 @@ const Tokens: React.FC = () => {
     // Create masked version of discovery token
     const getMaskedDiscoveryToken = (token: string | null) => {
         if (!token) return '';
-        const tokenWithProject = `${token}--${project}`;
-        if (tokenWithProject.length <= 8) return tokenWithProject;
-        return tokenWithProject.substring(0, 8) + '*'.repeat(Math.min(tokenWithProject.length - 8, 20));
-    };
-
-    // Get discovery token with project ID appended
-    const getDiscoveryTokenWithProject = (token: string | null) => {
-        if (!token) return '';
-        return `${token}--${project}`;
+        if (token.length <= 8) return token;
+        return token.substring(0, 8) + '*'.repeat(Math.min(token.length - 8, 20));
     };
 
     return (
@@ -176,7 +169,7 @@ const Tokens: React.FC = () => {
                                     borderRadius: 6 
                                 }}>
                                     <Text 
-                                        copyable={showDiscoveryToken ? { text: getDiscoveryTokenWithProject(discoveryToken) } : false}
+                                        copyable={showDiscoveryToken ? { text: discoveryToken } : false}
                                         style={{ 
                                             fontFamily: 'monospace', 
                                             fontSize: 12, 
@@ -185,7 +178,7 @@ const Tokens: React.FC = () => {
                                             wordBreak: 'break-all'
                                         }}
                                     >
-                                        {showDiscoveryToken ? getDiscoveryTokenWithProject(discoveryToken) : getMaskedDiscoveryToken(discoveryToken)}
+                                        {showDiscoveryToken ? discoveryToken : getMaskedDiscoveryToken(discoveryToken)}
                                     </Text>
                                     <Button
                                         type="text"
@@ -396,7 +389,7 @@ const Tokens: React.FC = () => {
                             Your new discovery token has been generated. You can copy it now:
                         </Text>
                         <Input.TextArea
-                            value={showGeneratedToken ? getDiscoveryTokenWithProject(showGeneratedToken) : ''}
+                            value={showGeneratedToken}
                             readOnly
                             autoSize={{ minRows: 2, maxRows: 4 }}
                             style={{ 

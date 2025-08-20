@@ -107,7 +107,7 @@ export const ServiceActions: React.FC<{
     );
 
 const DeploymentButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
-    <Tooltip title="Service Yönetimi" placement="bottom">
+    <Tooltip title="Service Management" placement="bottom">
         <button
             onClick={onClick}
             style={{
