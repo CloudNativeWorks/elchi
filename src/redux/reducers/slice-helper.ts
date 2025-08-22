@@ -6,6 +6,7 @@ export interface ResourceTypes {
     CustomResource: any;
     ConfigDiscovery: any;
     Scenario: any;
+    ElchiDiscovery: any;
 }
 
 export interface InitVersions {

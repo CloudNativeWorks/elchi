@@ -4,9 +4,11 @@ import { CheckOutlined, CloseOutlined, PlusOutlined, DeleteOutlined } from '@ant
 
 const { Title } = Typography;
 
+import { InterfaceState, RoutingTableDefinition } from '@/hooks/useNetworkOperations';
+
 interface AddRouteCardProps {
-    interfaces: any[];
-    routingTables: { name: string; table: number; }[];
+    interfaces: InterfaceState[];
+    routingTables: RoutingTableDefinition[];
     onCancel: () => void;
     onSave: (values: any) => void; //eslint-disable-line
 }
@@ -30,17 +32,18 @@ const AddRouteCard: React.FC<AddRouteCardProps> = ({ interfaces, routingTables, 
         } else {
             onSave(values);
         }
-        form.resetFields();
+        // Don't reset form here - parent will handle form closure on success
+        // form.resetFields();
     };
 
     const interfaceOptions = interfaces.map(iface => ({
-        label: iface.ifname,
-        value: iface.ifname
+        label: iface.name,
+        value: iface.name
     }));
 
     const tableOptions = routingTables.map(table => ({
-        label: `${table.table} (${table.name})`,
-        value: table.table
+        label: `${table.id} (${table.name})`,
+        value: table.id
     }));
 
     const addRoute = () => {
@@ -120,6 +123,32 @@ const AddRouteCard: React.FC<AddRouteCardProps> = ({ interfaces, routingTables, 
                         extra="Route priority"
                     >
                         <Input type="number" placeholder="100" min={0} max={4294967295} />
+                    </Form.Item>
+                </Col>
+                <Col xs={24} sm={12} md={12} lg={12} xl={12}>
+                    <Form.Item
+                        name={multipleMode ? `source_${index}` : 'source'}
+                        label="Source IP (Optional)"
+                        extra="Source address for this route"
+                    >
+                        <Input placeholder="10.0.0.1" />
+                    </Form.Item>
+                </Col>
+                <Col xs={24} sm={12} md={12} lg={12} xl={12}>
+                    <Form.Item
+                        name={multipleMode ? `scope_${index}` : 'scope'}
+                        label="Scope (Optional)"
+                        extra="Route scope"
+                    >
+                        <Select
+                            placeholder="Select scope"
+                            allowClear
+                            options={[
+                                { label: 'Global', value: 'global' },
+                                { label: 'Link', value: 'link' },
+                                { label: 'Host', value: 'host' }
+                            ]}
+                        />
                     </Form.Item>
                 </Col>
             </Row>

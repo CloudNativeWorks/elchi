@@ -115,6 +115,18 @@ const Resource: React.FC = () => {
                     })
                 )
             }
+
+            if (dataQuery.general?.elchi_discovery) {
+                dispatch(
+                    ResourceAction({
+                        version: dataQuery.general.version,
+                        type: ActionType.Set,
+                        val: dataQuery.general?.elchi_discovery,
+                        keys: [],
+                        resourceType: ResourceType.ElchiDiscovery
+                    })
+                )
+            }
         };
         fillRedux();
     }, [dataQuery, dispatch, fechingQuery, location.pathname, GType.createPath, GType.initialValue, state.generalName, state.managed]);
@@ -173,6 +185,18 @@ const Resource: React.FC = () => {
                         val: duplicateResourceData.general?.config_discovery,
                         keys: [],
                         resourceType: ResourceType.ConfigDiscovery
+                    })
+                )
+            }
+
+            if (duplicateResourceData.general?.elchi_discovery) {
+                dispatch(
+                    ResourceAction({
+                        version: state.version,
+                        type: ActionType.Set,
+                        val: duplicateResourceData.general?.elchi_discovery,
+                        keys: [],
+                        resourceType: ResourceType.ElchiDiscovery
                     })
                 )
             }

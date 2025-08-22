@@ -108,54 +108,14 @@ const RegistryInfo: React.FC = () => {
         refetchOnWindowFocus: false
     });
 
-    if (isLoading) {
-        return (
-            <div style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                minHeight: '400px',
-                background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-                borderRadius: '12px'
-            }}>
-                <Space direction="vertical" align="center">
-                    <Spin size="large" />
-                    <Text type="secondary">Loading registry information...</Text>
-                </Space>
-            </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <Alert
-                message="Connection Error"
-                description="An error occurred while fetching registry information."
-                type="error"
-                showIcon
-                style={{ borderRadius: '12px' }}
-            />
-        );
-    }
-
-    if (!data?.data) {
-        return (
-            <Alert
-                message="No Data Found"
-                description="Registry information not found."
-                type="warning"
-                showIcon
-                style={{ borderRadius: '12px' }}
-            />
-        );
-    }
-
     const registryData: RegistryData = data;
 
-    // Filter function
-    const filterControlPlanes = () => {
-        const controlPlanes = registryData?.data?.control_plane_data?.control_planes || [];
-        if (!controlPlaneSearchTerm) return controlPlanes;
+    // Filter functions - moved inside useMemo to avoid recreating on every render
+    const filteredControlPlanes = useMemo(() => {
+        if (!registryData?.data?.control_plane_data?.control_planes) return [];
+        
+        const controlPlanes = registryData.data.control_plane_data.control_planes;
+        if (!controlPlaneSearchTerm) return controlPlanes.sort((a, b) => safeStringCompare(a?.control_plane_id, b?.control_plane_id));
 
         return controlPlanes.filter(cp => {
             if (!cp) return false;
@@ -170,12 +130,14 @@ const RegistryInfo: React.FC = () => {
             return nodes.some(node =>
                 node?.node_id?.toLowerCase()?.includes(controlPlaneSearchTerm.toLowerCase())
             );
-        });
-    };
-
-    const filterControllers = () => {
-        const controllers = registryData?.data?.controller_data?.controllers || [];
-        if (!controllerSearchTerm) return controllers;
+        }).sort((a, b) => safeStringCompare(a?.control_plane_id, b?.control_plane_id));
+    }, [registryData, controlPlaneSearchTerm]);
+    
+    const filteredControllers = useMemo(() => {
+        if (!registryData?.data?.controller_data?.controllers) return [];
+        
+        const controllers = registryData.data.controller_data.controllers;
+        if (!controllerSearchTerm) return controllers.sort((a, b) => safeStringCompare(a?.controller_id, b?.controller_id));
 
         return controllers.filter(controller => {
             if (!controller) return false;
@@ -190,18 +152,8 @@ const RegistryInfo: React.FC = () => {
             return clients.some(client =>
                 client?.client_id?.toLowerCase()?.includes(controllerSearchTerm.toLowerCase())
             );
-        });
-    };
-
-    const filteredControlPlanes = useMemo(() => 
-        filterControlPlanes().sort((a, b) => safeStringCompare(a?.control_plane_id, b?.control_plane_id)),
-        [registryData, controlPlaneSearchTerm]
-    );
-    
-    const filteredControllers = useMemo(() => 
-        filterControllers().sort((a, b) => safeStringCompare(a?.controller_id, b?.controller_id)),
-        [registryData, controllerSearchTerm]
-    );
+        }).sort((a, b) => safeStringCompare(a?.controller_id, b?.controller_id));
+    }, [registryData, controllerSearchTerm]);
 
     // Paginated data
     const paginatedControlPlanes = useMemo(() => {
@@ -245,6 +197,48 @@ const RegistryInfo: React.FC = () => {
         }).length,
         [filteredControllers, activeThreshold]
     );
+
+    if (isLoading) {
+        return (
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                minHeight: '400px',
+                background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+                borderRadius: '12px'
+            }}>
+                <Space direction="vertical" align="center">
+                    <Spin size="large" />
+                    <Text type="secondary">Loading registry information...</Text>
+                </Space>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <Alert
+                message="Connection Error"
+                description="An error occurred while fetching registry information."
+                type="error"
+                showIcon
+                style={{ borderRadius: '12px' }}
+            />
+        );
+    }
+
+    if (!data?.data) {
+        return (
+            <Alert
+                message="No Data Found"
+                description="Registry information not found."
+                type="warning"
+                showIcon
+                style={{ borderRadius: '12px' }}
+            />
+        );
+    }
 
     // Get status color based on last seen time
     const getStatusColor = (lastSeen: any) => {

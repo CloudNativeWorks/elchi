@@ -1,76 +1,76 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { useClientNetworks } from '@/hooks/useClientNetworks';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import { useNetworkOperations, NetworkState, InterfaceState, Route, RoutingPolicy, RoutingTableDefinition } from '@/hooks/useNetworkOperations';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
-import InterfaceContent from './InterfaceContent';
+import InterfaceOverview from './InterfaceOverview';
 import RouteContent from './RouteContent';
 import RoutingPolicyContent from './RoutingPolicyContent';
+import RoutingTableManager from './RoutingTableManager';
 import BGPContent from './bgp/BGPContent';
 
 const MENU_ITEMS = [
     { key: 'interfaces', label: 'Interfaces' },
     { key: 'route', label: 'Route' },
     { key: 'routing_policy', label: 'Routing Policy' },
+    { key: 'routing_tables', label: 'Routing Tables' },
     { key: 'bgp', label: 'BGP' },
 ];
 
 const ClientNetwork: React.FC<{ clientId: string }> = ({ clientId }) => {
     const { project } = useProjectVariable();
-    const { loading, error, networkData, refetch } = useClientNetworks({ project: project, clientId: clientId });
+    const networkOps = useNetworkOperations();
+    const [networkState, setNetworkState] = useState<NetworkState | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState('interfaces');
 
+    const fetchNetworkState = useCallback(async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await networkOps.getNetworkState(clientId);
+            if (response.success && response.network_state) {
+                setNetworkState(response.network_state);
+            } else {
+                setError(response.error || 'Failed to fetch network state');
+            }
+        } catch (err: any) {
+            setError(err?.message || 'Failed to fetch network state');
+        } finally {
+            setLoading(false);
+        }
+    }, [clientId, networkOps]);
+
     useEffect(() => {
-        refetch();
+        fetchNetworkState();
     }, [clientId, activeTab]);
 
-    const interfaces = networkData?.[0]?.Result?.Network.interfaces || [];
-    const routes = interfaces.reduce((acc: any[], curr: any) => {
-        if (Array.isArray(curr.routes)) {
-            curr.routes.forEach((route: any) => {
-                acc.push({ ...route, interface: curr.ifname });
-            });
+    // Use network state structure directly with proper types
+    const interfaces: InterfaceState[] = networkState?.interfaces || [];
+    const routes: Route[] = networkState?.routes || [];
+    const policies: RoutingPolicy[] = networkState?.policies || [];
+    
+    // Get routing tables from network state - backend provides all tables including system tables
+    const routingTables: RoutingTableDefinition[] = useMemo(() => {
+        // Just use tables from backend, they should include both system and custom tables
+        const backendTables: RoutingTableDefinition[] = networkState?.routing_tables || [];
+        
+        // If backend doesn't provide system tables, add them as fallback
+        if (backendTables.length === 0 || !backendTables.find((t: RoutingTableDefinition) => t.id === 254)) {
+            const systemTables: RoutingTableDefinition[] = [
+                { id: 253, name: 'default' },
+                { id: 254, name: 'main' },
+                { id: 255, name: 'local' }
+            ];
+            return [...systemTables, ...backendTables]
+                .filter((table: RoutingTableDefinition) => table.id !== 0) // Hide unspec table
+                .sort((a, b) => a.id - b.id);
         }
-        return acc;
-    }, []);
-
-    const policies = interfaces.reduce((acc: any[], curr: any) => {
-        if (Array.isArray(curr.routing_policies)) {
-            curr.routing_policies.forEach((policy: any) => {
-                // Filter out empty objects and invalid policies
-                if (policy && 
-                    typeof policy === 'object' && 
-                    Object.keys(policy).length > 0 &&
-                    (policy.from || policy.to || policy.table !== undefined)) {
-                    acc.push({ ...policy, interface: curr.ifname });
-                }
-            });
-        }
-        return acc;
-    }, []);
-
-    // Create routing tables list
-    const routingTables = useMemo(() => {
-        // Default tables
-        const defaultTables = [
-            { name: 'main', table: 254 },
-            { name: 'default', table: 253 }
-        ];
-
-        // Extract tables from interfaces data with their interface names
-        const tablesFromData = new Map<number, string>();
-        interfaces.forEach((iface: any) => {
-            if (iface.table && iface.table !== 254 && iface.table !== 253) {
-                tablesFromData.set(iface.table, iface.ifname);
-            }
-        });
-
-        // Convert to array and add to default tables
-        const additionalTables = Array.from(tablesFromData).map(([tableNum, ifname]) => ({
-            name: ifname,
-            table: tableNum
-        }));
-
-        return [...defaultTables, ...additionalTables].sort((a, b) => b.table - a.table);
-    }, [interfaces]);
+        
+        // Backend provides all tables, filter out unspec and sort them
+        return backendTables
+            .filter((table: RoutingTableDefinition) => table.id !== 0) // Hide unspec table
+            .sort((a: RoutingTableDefinition, b: RoutingTableDefinition) => a.id - b.id);
+    }, [networkState?.routing_tables]);
 
     return (
         <div style={{ boxShadow: 'none', padding: 0, margin: 0 }}>
@@ -144,12 +144,13 @@ const ClientNetwork: React.FC<{ clientId: string }> = ({ clientId }) => {
                 <div style={{ flex: 1, padding: '0 8px', display: 'flex', flexDirection: 'row', alignItems: 'flex-start' }}>
                     <div style={{ width: '100%', padding: 0 }}>
                         {activeTab === 'interfaces' && (
-                            <InterfaceContent
+                            <InterfaceOverview
                                 interfaces={interfaces}
                                 loading={loading}
                                 error={error}
                                 clientId={clientId}
-                                routingTables={routingTables}
+                                currentNetplanYaml={networkState?.current_netplan_yaml}
+                                onRefresh={fetchNetworkState}
                             />
                         )}
                         {activeTab === 'route' && (
@@ -159,7 +160,7 @@ const ClientNetwork: React.FC<{ clientId: string }> = ({ clientId }) => {
                                 interfaces={interfaces}
                                 routingTables={routingTables}
                                 clientId={clientId}
-                                onRefresh={refetch}
+                                onRefresh={fetchNetworkState}
                             />
                         )}
                         {activeTab === 'routing_policy' && (
@@ -167,8 +168,18 @@ const ClientNetwork: React.FC<{ clientId: string }> = ({ clientId }) => {
                                 clientId={clientId}
                                 policies={policies}
                                 loading={loading}
+                                interfaces={interfaces}
                                 routingTables={routingTables}
-                                onRefresh={refetch}
+                                onRefresh={fetchNetworkState}
+                            />
+                        )}
+                        {activeTab === 'routing_tables' && (
+                            <RoutingTableManager
+                                tables={networkState?.routing_tables || []}
+                                routes={routes}
+                                policies={policies}
+                                clientId={clientId}
+                                onRefresh={fetchNetworkState}
                             />
                         )}
                         {activeTab === 'bgp' && (

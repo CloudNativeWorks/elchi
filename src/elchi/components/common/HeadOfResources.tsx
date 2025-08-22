@@ -3,12 +3,16 @@ import { RenderCreateUpdate } from './CreateUpdate';
 import { ConfigDiscovery } from '@/common/types';
 import { GTypeFieldsBase } from '@/common/statics/gtypes';
 import NodeWarnings from './NodeWarnings';
-import { InfoCircleOutlined, FileTextOutlined, CodeOutlined, RocketOutlined } from '@ant-design/icons';
+import { InfoCircleOutlined, FileTextOutlined, CodeOutlined, RocketOutlined, CloudServerOutlined } from '@ant-design/icons';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import { useCustomGetQuery } from '@/common/api';
 import { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { ResourceAction } from '@/redux/reducers/slice';
+import { ActionType, ResourceType } from '@/redux/reducer-helpers/common';
 import SnapshotDetails from './SnapshotDetails';
 import HowToStart from './HowTo';
+import DiscoveryModal from './DiscoveryModal';
 
 const { Text, Title } = Typography;
 
@@ -19,6 +23,7 @@ interface RenderFormItemProps {
     changeGeneralName?: any;
     locationCheck: boolean;
     createUpdate: createUpdate;
+    onDiscoveryChange?: (discoveries: any[]) => void;
 }
 
 interface RenderFormItemPropsListener {
@@ -46,8 +51,35 @@ type createUpdate = {
     rawQuery?: any;
 }
 
-export const HeadOfResource = ({ generalName, version, changeGeneralName, locationCheck, createUpdate }: RenderFormItemProps) => {
+export const HeadOfResource = ({ generalName, version, changeGeneralName, locationCheck, createUpdate, onDiscoveryChange }: RenderFormItemProps) => {
+    const dispatch = useDispatch();
     const [showHowTo, setShowHowTo] = useState(false);
+    const [showDiscovery, setShowDiscovery] = useState(false);
+    
+    const isEndpointType = createUpdate.gtype === "envoy.config.endpoint.v3.ClusterLoadAssignment";
+    
+    // Get discovery data from Redux
+    const discoveryData = useSelector((state: any) => 
+        state.VersionedResources[version]?.ElchiDiscovery || []
+    );
+    
+    const handleDiscoverySave = (discoveries: any[]) => {
+        // Save to Redux
+        dispatch(
+            ResourceAction({
+                version: version,
+                type: ActionType.Set,
+                val: discoveries,
+                keys: [],
+                resourceType: ResourceType.ElchiDiscovery
+            })
+        );
+        
+        // Callback to call (for backward compatibility)
+        if (onDiscoveryChange) {
+            onDiscoveryChange(discoveries);
+        }
+    };
     return (
         <Card 
             style={{ 
@@ -103,8 +135,30 @@ export const HeadOfResource = ({ generalName, version, changeGeneralName, locati
                                 />
                             </div>
                         </Col>
-                        {
-                            createUpdate.gtype === "envoy.config.bootstrap.v3.Bootstrap" &&
+                        {isEndpointType && (
+                            <Col span={8}>
+                                <div>
+                                    <Text style={{ fontSize: 12, fontWeight: 500, color: '#595959', display: 'block', marginBottom: 6 }}>
+                                        Discovery
+                                    </Text>
+                                    <Button 
+                                        onClick={() => setShowDiscovery(true)}
+                                        icon={<CloudServerOutlined />}
+                                        style={{ 
+                                            width: '100%',
+                                            borderRadius: 6,
+                                            height: 32,
+                                            backgroundColor: discoveryData.length > 0 ? '#e6f7ff' : undefined,
+                                            borderColor: discoveryData.length > 0 ? '#1890ff' : undefined,
+                                            color: discoveryData.length > 0 ? '#1890ff' : undefined
+                                        }}
+                                    >
+                                        {discoveryData.length > 0 ? `${discoveryData.length} Clusters` : 'Configure Discovery'}
+                                    </Button>
+                                </div>
+                            </Col>
+                        )}
+                        {createUpdate.gtype === "envoy.config.bootstrap.v3.Bootstrap" && (
                             <Col span={8}>
                                 <div>
                                     <Text style={{ fontSize: 12, fontWeight: 500, color: '#595959', display: 'block', marginBottom: 6 }}>
@@ -123,7 +177,7 @@ export const HeadOfResource = ({ generalName, version, changeGeneralName, locati
                                     </Button>
                                 </div>
                             </Col>
-                        }
+                        )}
                     </Row>
                 </Col>
                 
@@ -152,6 +206,12 @@ export const HeadOfResource = ({ generalName, version, changeGeneralName, locati
                 </Col>
             </Row>
             <HowToStart open={showHowTo} onClose={() => setShowHowTo(false)} />
+            <DiscoveryModal 
+                open={showDiscovery} 
+                onClose={() => setShowDiscovery(false)}
+                onSave={handleDiscoverySave}
+                initialData={discoveryData}
+            />
         </Card>
     )
 };

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Row, Col, Spin, Card, Button, Descriptions } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
-import NetplanInterfaceEditor from './NetplanInterfaceEditor';
+import UnifiedNetplanEditor from './UnifiedNetplanEditor';
 import { EthernetIcon } from '@/assets/svg/icons';
+import { InterfaceState } from '@/hooks/useNetworkOperations';
 
-const InterfaceCard: React.FC<{ entry: any; onEdit: () => void }> = ({ entry, onEdit }) => {
-    // New network state structure - interface data is directly in entry
+const InterfaceCard: React.FC<{ entry: InterfaceState }> = ({ entry }) => {
     const state = entry.state?.toLowerCase();
     const hasCarrier = entry.has_carrier;
     const stateColor = (state === 'up' && hasCarrier) ? '#52c41a' : 
@@ -40,19 +40,6 @@ const InterfaceCard: React.FC<{ entry: any; onEdit: () => void }> = ({ entry, on
                     boxShadow: state === 'up' ? '0 0 6px #52c41a' : 'none',
                     animation: state === 'up' ? 'pulse 1.2s infinite' : 'none'
                 }} />
-                <Button
-                    type="text"
-                    icon={<EditOutlined style={{ color: '#1677ff', fontSize: 16 }} />}
-                    onClick={onEdit}
-                    style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: 4,
-                        border: '1px solid #e6e6e6',
-                        borderRadius: 6
-                    }}
-                />
             </div>
 
             <div style={{ marginBottom: 16 }}>
@@ -80,9 +67,6 @@ const InterfaceCard: React.FC<{ entry: any; onEdit: () => void }> = ({ entry, on
                         {state || 'unknown'} {hasCarrier === false && state === 'up' ? '(No Carrier)' : ''}
                     </span>
                 </Descriptions.Item>
-                <Descriptions.Item label="DHCP">
-                    {entry.dhcp4 ? 'Enabled' : 'Disabled'}
-                </Descriptions.Item>
                 {entry.addresses?.length > 1 && (
                     <Descriptions.Item label="Additional IPs">
                         {entry.addresses.slice(1).join(', ')}
@@ -103,40 +87,39 @@ const InterfaceCard: React.FC<{ entry: any; onEdit: () => void }> = ({ entry, on
     );
 };
 
-interface InterfaceContentProps {
-    interfaces: any[];
+interface InterfaceOverviewProps {
+    interfaces: InterfaceState[];
     loading: boolean;
     error: any;
     clientId: string;
-    routingTables: { id: number; name: string; }[];
+    currentNetplanYaml?: string;
     onRefresh?: () => void;
 }
 
-const InterfaceContent: React.FC<InterfaceContentProps> = ({
+const InterfaceOverview: React.FC<InterfaceOverviewProps> = ({
     interfaces,
     loading,
     error,
     clientId,
-    routingTables,
+    currentNetplanYaml,
     onRefresh
 }) => {
-    const [editIndex, setEditIndex] = useState<number | null>(null);
+    const [showEditor, setShowEditor] = useState(false);
 
-    const handleEdit = (idx: number) => setEditIndex(idx);
-    const handleCancel = () => setEditIndex(null);
+    const handleCancel = () => setShowEditor(false);
+    const handleSuccess = () => {
+        setShowEditor(false);
+        if (onRefresh) {
+            onRefresh();
+        }
+    };
 
-    if (editIndex !== null) {
-        return <NetplanInterfaceEditor
-            interface={interfaces[editIndex]}
-            allInterfaces={interfaces}
-            routingTables={routingTables}
+    if (showEditor) {
+        return <UnifiedNetplanEditor
+            currentYaml={currentNetplanYaml}
+            interfaces={interfaces}
             onCancel={handleCancel}
-            onSuccess={() => {
-                setEditIndex(null);
-                if (onRefresh) {
-                    onRefresh();
-                }
-            }}
+            onSuccess={handleSuccess}
             clientId={clientId}
         />;
     }
@@ -159,17 +142,52 @@ const InterfaceContent: React.FC<InterfaceContentProps> = ({
     }
 
     return (
-        <Row gutter={[16, 16]}>
-            {interfaces.map((entry: any, idx: number) => (
-                <Col key={idx} xs={24} sm={12} lg={8}>
-                    <InterfaceCard
-                        entry={entry}
-                        onEdit={() => handleEdit(idx)}
-                    />
-                </Col>
-            ))}
-        </Row>
+        <div>
+            <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                marginBottom: 16 
+            }}>
+                <div>
+                    <h3 style={{ margin: 0 }}>Network Interfaces</h3>
+                    <p style={{ margin: 0, color: '#666', fontSize: 14 }}>
+                        {interfaces.length} interface{interfaces.length !== 1 ? 's' : ''}
+                    </p>
+                </div>
+                <Button
+                    type="primary"
+                    icon={<EditOutlined />}
+                    onClick={() => setShowEditor(true)}
+                    style={{
+                        background: 'linear-gradient(90deg, #1677ff, #00c6fb)',
+                        borderColor: '#1677ff'
+                    }}
+                >
+                    Edit Network Configuration
+                </Button>
+            </div>
+
+
+            <Row gutter={[16, 16]}>
+                {interfaces.map((entry: InterfaceState, idx: number) => (
+                    <Col key={idx} xs={24} sm={12} lg={8}>
+                        <InterfaceCard entry={entry} />
+                    </Col>
+                ))}
+            </Row>
+
+            {interfaces.length === 0 && (
+                <div style={{
+                    textAlign: 'center',
+                    padding: 40,
+                    color: '#999'
+                }}>
+                    <p>No network interfaces found</p>
+                </div>
+            )}
+        </div>
     );
 };
 
-export default InterfaceContent; 
+export default InterfaceOverview;

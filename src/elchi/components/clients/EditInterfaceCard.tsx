@@ -10,7 +10,7 @@ interface EditInterfaceCardProps {
     onCancel: () => void;
     setEditIndex: (index: number | null) => void;//eslint-disable-line
     clientId: string;
-    routingTables: { name: string; table: number; }[];
+    routingTables: { id: number; name: string; }[];
 }
 
 const EditInterfaceCard: React.FC<EditInterfaceCardProps> = ({ 
@@ -46,13 +46,13 @@ const EditInterfaceCard: React.FC<EditInterfaceCardProps> = ({
         return found ? found.table : 254; // default main table
     };
 
-    const initialAddress = Array.isArray(entry.interface.addresses)
-        ? entry.interface.addresses[0] || ''
-        : (typeof entry.interface.addresses === 'string' ? entry.interface.addresses.split(',')[0]?.trim() || '' : '');
+    const initialAddress = Array.isArray(entry.addresses)
+        ? entry.addresses[0] || ''
+        : (typeof entry.addresses === 'string' ? entry.addresses.split(',')[0]?.trim() || '' : '');
 
     const analyzeRoutes = () => {
         const routes = entry.routes || [];
-        const interfaceTable = getInterfaceTable(entry.ifname);
+        const interfaceTable = getInterfaceTable(entry.name);
         
         const interfaceDefaultRoute = routes.find((route: any) => 
             route.to === "0.0.0.0/0" && route.table === interfaceTable
@@ -88,7 +88,7 @@ const EditInterfaceCard: React.FC<EditInterfaceCardProps> = ({
             const addresses = [values.address];
             const firstIP = values.address;
             const gateway = values.gateway;
-            const interfaceTable = getInterfaceTable(entry.ifname);
+            const interfaceTable = getInterfaceTable(entry.name);
             
             const networkSubnet = calculateNetworkFromIP(firstIP);
             if (!networkSubnet) {
@@ -134,7 +134,7 @@ const EditInterfaceCard: React.FC<EditInterfaceCardProps> = ({
             }
 
             const interfaceData = {
-                ifname: entry.ifname,
+                ifname: entry.name,
                 table: interfaceTable,
                 interface: {
                     dhcp4: false,
@@ -167,7 +167,7 @@ const EditInterfaceCard: React.FC<EditInterfaceCardProps> = ({
             boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
         }}>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 18 }}>
-                <Title level={5} style={{ margin: 0 }}>Edit Interface: {entry.ifname}</Title>
+                <Title level={5} style={{ margin: 0 }}>Edit Interface: {entry.name}</Title>
             </div>
             <Divider style={{ marginBottom: 20, marginTop: -12 }} />
             
@@ -176,8 +176,9 @@ const EditInterfaceCard: React.FC<EditInterfaceCardProps> = ({
                 layout="vertical"
                 initialValues={{
                     address: initialAddress,
-                    mtu: entry.interface.mtu,
-                    gateway: initialGateway
+                    mtu: entry.mtu || 1500,
+                    gateway: initialGateway,
+                    dhcp4: entry.dhcp4 || false
                 }}
                 onFinish={handleFinish}
             >

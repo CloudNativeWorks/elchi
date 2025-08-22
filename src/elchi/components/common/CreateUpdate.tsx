@@ -8,6 +8,7 @@ import { SaveOutlined, ArrowLeftOutlined, DownOutlined, RocketOutlined, DeleteOu
 import type { MenuProps } from 'antd';
 import { compareReduxStoreAndNameAndConfigDiscovery, memorizeComponent } from "@/hooks/useMemoComponent";
 import { useState } from 'react';
+import { useSelector } from 'react-redux';
 import { GetYaml } from '@/utils/get-yaml';
 import ResourceDrawer from './Result';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
@@ -46,6 +47,11 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
     const [messageApi, contextHolder] = message.useMessage();
     const [loading, setLoading] = useState(false);
     const { project } = useProjectVariable();
+    
+    // Redux'dan elchi_discovery'yi al
+    const elchiDiscovery = useSelector((state: any) => 
+        state.VersionedResources[options.envoyVersion]?.ElchiDiscovery || []
+    );
 
     const [drawerVisible, setDrawerVisible] = useState(false);
     const [errDrawerVisible, setErrDrawerVisible] = useState(false);
@@ -109,9 +115,9 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
 
         let path: string;
         if (method === "post") {
-            path = `${options.GType.backendPath}?project=${project}`
+            path = `${options.GType.backendPath}?project=${project}&version=${options.envoyVersion}`
         } else {
-            path = `${options.GType.backendPath}/${options.name}?save_or_publish=${saveORpublish}&project=${project}&resource_id=${options.queryResource?.id}`
+            path = `${options.GType.backendPath}/${options.name}?save_or_publish=${saveORpublish}&project=${project}&resource_id=${options.queryResource?.id}&version=${options.envoyVersion}`
         }
 
         const defaultMO: CustomMutationOptions = {
@@ -135,7 +141,8 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
                 users: [],
                 groups: []
             },
-            managed: options?.managed
+            managed: options?.managed,
+            elchi_discovery: elchiDiscovery
         }
 
         try {

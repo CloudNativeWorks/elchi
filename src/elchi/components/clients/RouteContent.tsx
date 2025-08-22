@@ -1,14 +1,14 @@
 import React, { useMemo, useState } from 'react';
-import { Table, Button, Divider, message, Popconfirm } from 'antd';
-import { DeleteOutlined, PlusOutlined, LockOutlined } from '@ant-design/icons';
+import { Table, Button, Divider, message, Popconfirm, notification } from 'antd';
+import { DeleteOutlined, PlusOutlined, LockOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
 import AddRouteCard from './AddRouteCard';
-import { useNetworkOperations } from '@/hooks/useNetworkOperations';
+import { useNetworkOperations, RouteOperation, Route, InterfaceState, RoutingTableDefinition } from '@/hooks/useNetworkOperations';
 
 interface RouteContentProps {
-    routes: any[];
+    routes: Route[];
     loading: boolean;
-    interfaces: any[];
-    routingTables: { name: string; table: number; }[];
+    interfaces: InterfaceState[];
+    routingTables: RoutingTableDefinition[];
     clientId: string;
     onRefresh?: () => void;
 }
@@ -19,7 +19,7 @@ const RouteContent: React.FC<RouteContentProps> = ({ routes, loading, interfaces
     const [showAddForm, setShowAddForm] = useState(false);
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
     const [actionLoading, setActionLoading] = useState(false);
-    const { addRoute, removeRoute } = useNetworkOperations();
+    const { manageRoutes } = useNetworkOperations();
 
     const handleAddRoute = () => {
         setShowAddForm(true);
@@ -35,26 +35,58 @@ const RouteContent: React.FC<RouteContentProps> = ({ routes, loading, interfaces
             // values: { routes: [{ to, via, interface, table, metric }] } or single route
             const routeList = values.routes || [values];
             
-            // Group routes by interface
-            const interfacesMap: { [ifname: string]: any[] } = {};
-            routeList.forEach((route: any) => {
-                if (!route.interface) return;
-                if (!interfacesMap[route.interface]) interfacesMap[route.interface] = [];
-                interfacesMap[route.interface].push({
+            // Convert to new route operations format
+            const routeOperations: RouteOperation[] = routeList.map((route: any) => ({
+                action: 'ADD',
+                route: {
                     to: route.to,
                     via: route.via,
+                    interface: route.interface,
                     ...(route.table && { table: Number(route.table) }),
-                    ...(route.metric && { metric: Number(route.metric) })
-                });
-            });
+                    ...(route.metric && { metric: Number(route.metric) }),
+                    ...(route.scope && { scope: route.scope })
+                }
+            }));
             
-            const interfaces = Object.entries(interfacesMap).map(([ifname, routes]) => ({ ifname, routes }));
-            await addRoute(clientId, interfaces);
-            message.success('Route(s) added successfully!');
-            setShowAddForm(false);
-            onRefresh?.();
+            const response = await manageRoutes(clientId, routeOperations);
+            
+            if (response.success) {
+                message.success('Route(s) added successfully!');
+                if (response.safely_applied) {
+                    notification.info({
+                        message: 'Routes Added Safely',
+                        description: 'Routes were added with safety mechanisms enabled.',
+                        icon: <SafetyCertificateOutlined style={{ color: '#52c41a' }} />,
+                        duration: 3,
+                    });
+                }
+                // Only close form and refresh on success
+                setShowAddForm(false);
+                onRefresh?.();
+            } else {
+                // If response.success is false, show error but don't close form
+                const errorMessage = response.message || response.error || 'Route operation failed';
+                message.error(errorMessage);
+            }
         } catch (error: any) {
-            message.error('Failed to add route: ' + (error?.message || error));
+            // Check for detailed error message in multiple locations
+            let errorMessage = 'Failed to add route';
+            
+            // Check response.data.message first (backend validation errors)
+            if (error?.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            }
+            // Check direct response.message 
+            else if (error?.response?.message) {
+                errorMessage = error.response.message;
+            }
+            // Check general error.message
+            else if (error?.message) {
+                errorMessage = error.message;
+            }
+            
+            message.error(errorMessage);
+            // Don't close form on error - keep it open so user can fix the issue
         } finally {
             setActionLoading(false);
         }
@@ -66,45 +98,75 @@ const RouteContent: React.FC<RouteContentProps> = ({ routes, loading, interfaces
             return;
         }
         
-        // Filter out system routes
+        // Filter out system routes and direct routes
         const validKeys = selectedRowKeys.filter(key => {
             const route = routes.find(r => 
                 `${r.interface}-${r.to}-${r.via}-${r.table}` === key
             );
-            return route && !SYSTEM_SOURCES.includes(route.source);
+            return route && !SYSTEM_SOURCES.includes(route.source) && route.via; // Don't allow deletion of direct routes (no via/gateway)
         });
         
         if (validKeys.length === 0) {
-            message.warning('Cannot remove system routes');
+            message.warning('Cannot remove system routes or direct routes');
             return;
         }
         
         setActionLoading(true);
         try {
-            // Group routes to remove by interface
-            const interfacesMap: { [ifname: string]: any[] } = {};
-            validKeys.forEach(key => {
+            // Convert to new route operations format
+            const routeOperations: RouteOperation[] = validKeys.map(key => {
                 const route = routes.find(r => 
                     `${r.interface}-${r.to}-${r.via}-${r.table}` === key
                 );
-                if (!route) return;
+                if (!route) throw new Error(`Route not found for key: ${key}`);
                 
-                if (!interfacesMap[route.interface]) interfacesMap[route.interface] = [];
-                interfacesMap[route.interface].push({
-                    to: route.to,
-                    via: route.via,
-                    ...(route.table && { table: Number(route.table) }),
-                    ...(route.metric && { metric: Number(route.metric) })
-                });
+                return {
+                    action: 'DELETE',
+                    route: {
+                        to: route.to,
+                        via: route.via,
+                        interface: route.interface,
+                        ...(route.table && { table: Number(route.table) }),
+                        ...(route.metric && { metric: Number(route.metric) }),
+                        ...(route.scope && { scope: route.scope })
+                    }
+                };
             });
             
-            const interfaces = Object.entries(interfacesMap).map(([ifname, routes]) => ({ ifname, routes }));
-            await removeRoute(clientId, interfaces);
-            message.success(`${validKeys.length} route(s) removed successfully!`);
+            const response = await manageRoutes(clientId, routeOperations);
+            
+            if (response.success) {
+                message.success(`${validKeys.length} route(s) removed successfully!`);
+                if (response.safely_applied) {
+                    notification.info({
+                        message: 'Routes Removed Safely',
+                        description: 'Routes were removed with safety mechanisms enabled.',
+                        icon: <SafetyCertificateOutlined style={{ color: '#52c41a' }} />,
+                        duration: 3,
+                    });
+                }
+            }
+            
             setSelectedRowKeys([]);
             onRefresh?.();
         } catch (error: any) {
-            message.error('Failed to remove routes: ' + (error?.message || error));
+            // Check for detailed error message in multiple locations
+            let errorMessage = 'Failed to remove routes';
+            
+            // Check response.data.message first (backend validation errors)
+            if (error?.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            }
+            // Check direct response.message 
+            else if (error?.response?.message) {
+                errorMessage = error.response.message;
+            }
+            // Check general error.message
+            else if (error?.message) {
+                errorMessage = error.message;
+            }
+            
+            message.error(errorMessage);
         } finally {
             setActionLoading(false);
         }
@@ -187,12 +249,20 @@ const RouteContent: React.FC<RouteContentProps> = ({ routes, loading, interfaces
             dataIndex: 'source',
             key: 'source',
             width: '15%',
-            render: (text: string) => {
+            render: (text: string, record: any) => {
                 if (SYSTEM_SOURCES.includes(text)) {
                     return (
                         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                             <LockOutlined style={{ color: '#8c8c8c', fontSize: 12 }} />
                             <span style={{ color: '#8c8c8c' }}>{text}</span>
+                        </div>
+                    );
+                }
+                if (!record.via) { // Direct route (no gateway)
+                    return (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                            <LockOutlined style={{ color: '#8c8c8c', fontSize: 12 }} />
+                            <span style={{ color: '#8c8c8c' }}>{text || 'direct'}</span>
                         </div>
                     );
                 }
@@ -207,7 +277,7 @@ const RouteContent: React.FC<RouteContentProps> = ({ routes, loading, interfaces
             setSelectedRowKeys(newSelectedRowKeys);
         },
         getCheckboxProps: (record: any) => ({
-            disabled: record.isDivider || SYSTEM_SOURCES.includes(record.source),
+            disabled: record.isDivider || SYSTEM_SOURCES.includes(record.source) || !record.via, // Disable selection for direct routes (no via/gateway)
         }),
     };
 

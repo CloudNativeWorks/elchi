@@ -19,6 +19,7 @@ const initialState: InitVersions = Object.entries(VERSIONS).reduce((acc, [versio
         CustomResource: [],
         ConfigDiscovery: [],
         Scenario: {},
+        ElchiDiscovery: [],
     };
     return acc;
 }, {} as InitVersions);
@@ -103,6 +104,7 @@ const ResourceSlice = createSlice({
                 state[window.APP_CONFIG.AVAILABLE_VERSIONS[key]].ConfigDiscovery = [];
                 state[window.APP_CONFIG.AVAILABLE_VERSIONS[key]].Resource = [];
                 state[window.APP_CONFIG.AVAILABLE_VERSIONS[key]].Scenario = {};
+                state[window.APP_CONFIG.AVAILABLE_VERSIONS[key]].ElchiDiscovery = [];
             }
 
             state[version].Resource = initialValue;

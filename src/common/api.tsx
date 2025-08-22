@@ -56,7 +56,7 @@ export const useCustomGetQuery = ({ queryKey, enabled, path, refetchOnWindowFocu
 export const useCustomMutation = () => {
     const { project } = useProjectVariable();
     const mutationFn = async (options: CustomMutationOptions) => {
-        const { name, envoyVersion, type: type, gtype, canonical_name, metadata, category, resource, version, method, path, config_discovery, managed, service, collection } = options;
+        const { name, envoyVersion, type: type, gtype, canonical_name, metadata, category, resource, version, method, path, config_discovery, managed, service, collection, elchi_discovery } = options;
         const general: General = {
             name,
             version: envoyVersion,
@@ -74,6 +74,7 @@ export const useCustomMutation = () => {
             service,
             managed,
             collection,
+            elchi_discovery: elchi_discovery || [],
         };
 
         const data = {

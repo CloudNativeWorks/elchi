@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { useLocation } from "react-router-dom";
-import { Col, Row, Divider } from "antd";
+import { Col, Row, Divider, Alert } from "antd";
 import { matchesEndOrStartOf } from "@/utils/tools";
 import { HeadOfResource } from "@/elchi/components/common/HeadOfResources";
 import { ResourceAction } from "@/redux/reducers/slice";
@@ -18,6 +18,8 @@ import ComponentPolicy from '@elchi/components/resources/common/Policy/policy';
 import { useLoading } from "@/hooks/loadingContext";
 import { useManagedLoading } from "@/hooks/useManageLoading";
 import { ConditionalComponent } from "../../common/ConditionalComponent";
+import { useSelector } from 'react-redux';
+import { InfoCircleOutlined } from '@ant-design/icons';
 
 
 type GeneralProps = {
@@ -42,6 +44,19 @@ const ComponentEndpoint: React.FC<GeneralProps> = ({ veri }) => {
         modelName: "ClusterLoadAssignment",
     });
 
+    // Get discovery data from Redux
+    const discoveryData = useSelector((state: any) =>
+        state.VersionedResources[veri.version]?.ElchiDiscovery || []
+    );
+
+    const handleDiscoveryChange = useCallback((discoveries: any[]) => {
+        // Redux save operation is handled in HeadOfResource
+        console.log('Discovery config updated:', discoveries);
+    }, []);
+
+    // Check if discovery is active
+    const hasDiscoveryConfig = discoveryData && discoveryData.length > 0;
+
     useManagedLoading(loading, loading_m);
     if (loadingCount > 0) {
         return <RenderLoading checkPage={true} isLoadingQuery={true} error={""} />;
@@ -53,6 +68,7 @@ const ComponentEndpoint: React.FC<GeneralProps> = ({ veri }) => {
                 generalName={reduxStore?.cluster_name as string}
                 version={veri.version}
                 locationCheck={false}
+                onDiscoveryChange={handleDiscoveryChange}
                 createUpdate={{
                     location_path: location.pathname,
                     GType: GType,
@@ -80,6 +96,30 @@ const ComponentEndpoint: React.FC<GeneralProps> = ({ veri }) => {
                     />
                 </Col>
                 <Col md={20}>
+                    {/* Discovery warning - show before endpoints section */}
+                    {hasDiscoveryConfig && matchesEndOrStartOf("endpoints", selectedTags) && (
+                        <Alert
+                            message="Automatic Discovery Enabled"
+                            description={
+                                <span>
+                                    <strong>{discoveryData.length} cluster(s)</strong> configured for automatic discovery.
+                                    <br />
+                                    <strong>Please do not manually edit Lb Endpoints and Locality configurations</strong> -
+                                    they will be automatically populated from the discovered services.
+                                </span>
+                            }
+                            type="info"
+                            icon={<InfoCircleOutlined />}
+                            showIcon
+                            style={{
+                                marginBottom: 16,
+                                borderRadius: 8,
+                                backgroundColor: '#e6f7ff',
+                                borderColor: '#91d5ff'
+                            }}
+                            closable={false}
+                        />
+                    )}
                     <ConditionalComponent
                         shouldRender={selectedTags?.includes("cluster_name")}
                         Component={CommonComponentName}

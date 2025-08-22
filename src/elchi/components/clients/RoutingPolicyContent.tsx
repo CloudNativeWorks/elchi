@@ -1,21 +1,24 @@
 import React, { useState } from 'react';
-import { Table, Button, message, Popconfirm } from 'antd';
-import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
-import AddRoutingPolicyCard from './AddRoutingPolicyCard';
-import { useNetworkOperations } from '@/hooks/useNetworkOperations';
+import { Table, Button, message, Popconfirm, notification, Descriptions, Tag, Typography } from 'antd';
+import { PlusOutlined, DeleteOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
+import ModernAddRoutingPolicyCard from './ModernAddRoutingPolicyCard';
+
+const { Text } = Typography;
+import { useNetworkOperations, PolicyOperation, RoutingPolicy, InterfaceState, RoutingTableDefinition } from '@/hooks/useNetworkOperations';
 
 interface RoutingPolicyContentProps {
     clientId: string;
-    policies: any[];
+    policies: RoutingPolicy[];
     loading: boolean;
-    routingTables: { name: string; table: number; }[];
+    interfaces: InterfaceState[];
+    routingTables: RoutingTableDefinition[];
     onRefresh?: () => void;
 }
 
-const RoutingPolicyContent: React.FC<RoutingPolicyContentProps> = ({ clientId, policies, loading, routingTables, onRefresh }) => {
+const RoutingPolicyContent: React.FC<RoutingPolicyContentProps> = ({ clientId, policies, loading, interfaces, routingTables, onRefresh }) => {
     const [showAddForm, setShowAddForm] = useState(false);
     const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-    const { addRoutingPolicy, removeRoutingPolicy } = useNetworkOperations();
+    const { managePolicies } = useNetworkOperations();
     const [actionLoading, setActionLoading] = useState(false);
 
     const handleAddPolicy = () => {
@@ -29,24 +32,56 @@ const RoutingPolicyContent: React.FC<RoutingPolicyContentProps> = ({ clientId, p
     const handleSavePolicy = async (values: any) => {
         setActionLoading(true);
         try {
-            // values: { policies: [{ from, to, table, interface }] }
-            const interfacesMap: { [ifname: string]: any[] } = {};
-            (values.policies || []).forEach((policy: any) => {
-                if (!policy.interface) return;
-                if (!interfacesMap[policy.interface]) interfacesMap[policy.interface] = [];
-                interfacesMap[policy.interface].push({
-                    ...(policy.from ? { from: policy.from } : {}),
-                    ...(policy.to ? { to: policy.to } : {}),
-                    table: Number(policy.table)
-                });
-            });
-            const interfaces = Object.entries(interfacesMap).map(([ifname, routing_policies]) => ({ ifname, routing_policies }));
-            await addRoutingPolicy(clientId, interfaces);
-            message.success('Routing policy added successfully!');
-            setShowAddForm(false);
-            onRefresh?.(); // Refresh data after adding policy
+            // values: { policies: [{ from, to, table, priority, interface }] }
+            const policyOperations: PolicyOperation[] = (values.policies || []).map((policy: any) => ({
+                action: 'ADD',
+                policy: {
+                    ...(policy.from && { from: policy.from }),
+                    ...(policy.to && { to: policy.to }),
+                    table: Number(policy.table),
+                    priority: policy.priority || 100,
+                    interface: policy.interface
+                }
+            }));
+            
+            const response = await managePolicies(clientId, policyOperations);
+            
+            if (response.success) {
+                message.success('Routing policy added successfully!');
+                if (response.safely_applied) {
+                    notification.info({
+                        message: 'Policies Added Safely',
+                        description: 'Routing policies were added with safety mechanisms enabled.',
+                        icon: <SafetyCertificateOutlined style={{ color: '#52c41a' }} />,
+                        duration: 3,
+                    });
+                }
+                // Only close form and refresh on success
+                setShowAddForm(false);
+                onRefresh?.();
+            } else {
+                // If response.success is false, show error but don't close form
+                const errorMessage = response.message || response.error || 'Policy operation failed';
+                message.error(errorMessage);
+            }
         } catch (error: any) {
-            message.error('Failed to add routing policy: ' + (error?.message || error));
+            // Check for detailed error message in multiple locations
+            let errorMessage = 'Failed to add routing policy';
+            
+            // Check response.data.message first (backend validation errors)
+            if (error?.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            }
+            // Check direct response.message 
+            else if (error?.response?.message) {
+                errorMessage = error.response.message;
+            }
+            // Check general error.message
+            else if (error?.message) {
+                errorMessage = error.message;
+            }
+            
+            message.error(errorMessage);
         } finally {
             setActionLoading(false);
         }
@@ -59,37 +94,63 @@ const RoutingPolicyContent: React.FC<RoutingPolicyContentProps> = ({ clientId, p
         }
         setActionLoading(true);
         try {
-            // selectedRowKeys: ["interface-from-table"] veya ["interface-to-table"] 
-            // policies: [{ interface, from, to, table }]
-            const toRemove = selectedRowKeys.map((key) => {
-                // Find the actual policy from the list
-                const policy = policies.find(p => 
-                    `${p.interface}-${p.from || 'any'}-${p.to || 'any'}-${p.table}` === key
-                );
+            // Convert to new policy operations format
+            const policyOperations: PolicyOperation[] = selectedRowKeys.map((key) => {
+                // Find the actual policy from the list using the new key format
+                const keyStr = key.toString();
+                const policyIndex = parseInt(keyStr.split('-').pop() || '0');
+                const policy = policies[policyIndex];
                 
                 if (!policy) {
-                    console.error('Policy not found for key:', key);
-                    return null;
+                    throw new Error(`Policy not found for key: ${key}`);
                 }
                 
                 return {
-                    ifname: policy.interface,
-                    routing_policies: [
-                        {
-                            ...(policy.from ? { from: policy.from } : {}),
-                            ...(policy.to ? { to: policy.to } : {}),
-                            table: Number(policy.table)
-                        }
-                    ]
+                    action: 'DELETE',
+                    policy: {
+                        ...(policy.from && { from: policy.from }),
+                        ...(policy.to && { to: policy.to }),
+                        table: Number(policy.table),
+                        priority: policy.priority || 100,
+                        interface: policy.interface
+                    }
                 };
-            }).filter(Boolean); // Remove null entries
+            });
             
-            await removeRoutingPolicy(clientId, toRemove);
-            message.success(`${selectedRowKeys.length} policies removed successfully!`);
+            const response = await managePolicies(clientId, policyOperations);
+            
+            if (response.success) {
+                message.success(`${selectedRowKeys.length} policies removed successfully!`);
+                if (response.safely_applied) {
+                    notification.info({
+                        message: 'Policies Removed Safely',
+                        description: 'Routing policies were removed with safety mechanisms enabled.',
+                        icon: <SafetyCertificateOutlined style={{ color: '#52c41a' }} />,
+                        duration: 3,
+                    });
+                }
+            }
+            
             setSelectedRowKeys([]);
-            onRefresh?.(); // Refresh data after removing policies
+            onRefresh?.();
         } catch (error: any) {
-            message.error('Failed to remove policies: ' + (error?.message || error));
+            // Check for detailed error message in multiple locations
+            let errorMessage = 'Failed to remove policies';
+            
+            // Check response.data.message first (backend validation errors)
+            if (error?.response?.data?.message) {
+                errorMessage = error.response.data.message;
+            }
+            // Check direct response.message 
+            else if (error?.response?.message) {
+                errorMessage = error.response.message;
+            }
+            // Check general error.message
+            else if (error?.message) {
+                errorMessage = error.message;
+            }
+            
+            message.error(errorMessage);
         } finally {
             setActionLoading(false);
         }
@@ -98,7 +159,8 @@ const RoutingPolicyContent: React.FC<RoutingPolicyContentProps> = ({ clientId, p
     // Show add form when requested
     if (showAddForm) {
         return (
-            <AddRoutingPolicyCard
+            <ModernAddRoutingPolicyCard
+                interfaces={interfaces}
                 routingTables={routingTables}
                 onCancel={handleCancelAdd}
                 onSave={handleSavePolicy}
@@ -108,32 +170,66 @@ const RoutingPolicyContent: React.FC<RoutingPolicyContentProps> = ({ clientId, p
 
     const columns = [
         {
-            title: 'Interface',
-            dataIndex: 'interface',
-            key: 'interface',
-            width: '15%',
-        },
-        {
             title: 'From',
             dataIndex: 'from',
             key: 'from',
-            width: '30%',
-            render: (text: string) => text || 'any',
+            width: '35%',
+            render: (text: string) => (
+                <Text style={{ fontFamily: 'monospace' }}>
+                    {text || <Text type="secondary">any</Text>}
+                </Text>
+            ),
         },
         {
             title: 'To',
             dataIndex: 'to',
             key: 'to',
-            width: '30%',
-            render: (text: string) => text || 'any',
+            width: '35%',
+            render: (text: string) => (
+                <Text style={{ fontFamily: 'monospace' }}>
+                    {text || <Text type="secondary">any</Text>}
+                </Text>
+            ),
         },
         {
             title: 'Table',
             dataIndex: 'table',
             key: 'table',
-            width: '25%',
+            width: '30%',
+            render: (tableId: number, record: any) => {
+                const table = routingTables.find(t => t.id === tableId);
+                return (
+                    <div>
+                        <Text strong style={{ fontFamily: 'monospace' }}>{tableId}</Text>
+                        {table && <Text type="secondary" style={{ marginLeft: 8 }}>({table.name})</Text>}
+                    </div>
+                );
+            },
         },
     ];
+
+    const expandedRowRender = (record: any) => (
+        <div style={{ padding: '16px 0', background: '#fafafa' }}>
+            <Descriptions size="small" column={2} bordered>
+                <Descriptions.Item label="Priority">
+                    <Text style={{ fontFamily: 'monospace' }}>
+                        {record.priority || <Text type="secondary">default</Text>}
+                    </Text>
+                </Descriptions.Item>
+                <Descriptions.Item label="Interface">
+                    <Text style={{ fontFamily: 'monospace' }}>
+                        {record.interface || <Text type="secondary">none</Text>}
+                    </Text>
+                </Descriptions.Item>
+                <Descriptions.Item label="Rule Type">
+                    <Tag color="blue">Policy-based routing</Tag>
+                </Descriptions.Item>
+                <Descriptions.Item label="Status">
+                    <Tag color="green">Active</Tag>
+                </Descriptions.Item>
+            </Descriptions>
+        </div>
+    );
 
     const rowSelection = {
         selectedRowKeys,
@@ -193,10 +289,15 @@ const RoutingPolicyContent: React.FC<RoutingPolicyContentProps> = ({ clientId, p
                 rowSelection={rowSelection}
                 dataSource={policies}
                 columns={columns}
-                rowKey={(record) => `${record.interface}-${record.from || 'any'}-${record.to || 'any'}-${record.table}`}
+                rowKey={(record, index) => `policy-${record.table}-${record.from || 'any'}-${record.to || 'any'}-${record.priority}-${index}`}
                 loading={loading || actionLoading}
                 pagination={false}
                 size="middle"
+                expandable={{
+                    expandedRowRender,
+                    expandRowByClick: false,
+                    rowExpandable: (record) => true, // All rows can be expanded
+                }}
                 style={{
                     background: '#fff',
                     borderRadius: 12,

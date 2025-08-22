@@ -47,6 +47,7 @@ export interface CustomMutationOptions {
     service?: string;
     collection: string;
     headers?: Record<string, string>;
+    elchi_discovery?: any[];
 }
 
 export interface Permissions {
@@ -68,6 +69,7 @@ export interface General {
     service?: string;
     managed?: boolean;
     collection: string;
+    elchi_discovery?: any[];
 }
 
 export interface ConfigDiscovery {
@@ -147,6 +149,18 @@ export enum OperationsSubType {
     SUB_START = "SUB_START",
     SUB_STOP = "SUB_STOP",
     SUB_RESTART = "SUB_RESTART",
+    // New unified network operations
+    SUB_NETPLAN_APPLY = "SUB_NETPLAN_APPLY",
+    SUB_NETPLAN_GET = "SUB_NETPLAN_GET",
+    SUB_NETPLAN_ROLLBACK = "SUB_NETPLAN_ROLLBACK",
+    SUB_ROUTE_MANAGE = "SUB_ROUTE_MANAGE",
+    SUB_ROUTE_LIST = "SUB_ROUTE_LIST",
+    SUB_POLICY_MANAGE = "SUB_POLICY_MANAGE",
+    SUB_POLICY_LIST = "SUB_POLICY_LIST",
+    SUB_GET_NETWORK_STATE = "SUB_GET_NETWORK_STATE",
+    SUB_TABLE_MANAGE = "SUB_TABLE_MANAGE",
+    SUB_TABLE_LIST = "SUB_TABLE_LIST",
+    // Legacy operations (deprecated - use new unified operations above)
     SUB_GET_IF_CONFIG = "SUB_GET_IF_CONFIG",
     SUB_SET_IF_CONFIG = "SUB_SET_IF_CONFIG",
     SUB_ADD_ROUTING_POLICY = "SUB_ADD_ROUTING_POLICY",

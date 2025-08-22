@@ -5,7 +5,7 @@ import { CheckOutlined, CloseOutlined, PlusOutlined, MinusOutlined } from '@ant-
 const { Title } = Typography;
 
 interface AddRoutingPolicyCardProps {
-    routingTables: { name: string; table: number; }[];
+    routingTables: { id: number; name: string; }[];
     onCancel: () => void;
     onSave: (values: any) => void; //eslint-disable-line
 }
@@ -14,16 +14,20 @@ interface PolicyForm {
     from: string;
     to: string;
     table: string;
+    priority: string;
+    iif: string;
+    oif: string;
+    fwmark: string;
 }
 
 const AddRoutingPolicyCard: React.FC<AddRoutingPolicyCardProps> = ({ routingTables, onCancel, onSave }) => {
     const [isMultipleMode, setIsMultipleMode] = useState(false);
     const [policies, setPolicies] = useState<PolicyForm[]>([
-        { from: '', to: '', table: '' }
+        { from: '', to: '', table: '', priority: '', iif: '', oif: '', fwmark: '' }
     ]);
 
     const handleAddPolicy = () => {
-        setPolicies([...policies, { from: '', to: '', table: '' }]);
+        setPolicies([...policies, { from: '', to: '', table: '', priority: '', iif: '', oif: '', fwmark: '' }]);
     };
 
     const handleRemovePolicy = (index: number) => {
@@ -41,19 +45,21 @@ const AddRoutingPolicyCard: React.FC<AddRoutingPolicyCardProps> = ({ routingTabl
     const handleModeChange = (checked: boolean) => {
         setIsMultipleMode(checked);
         if (!checked) {
-            setPolicies([policies[0] || { from: '', to: '', table: '' }]);
+            setPolicies([policies[0] || { from: '', to: '', table: '', priority: '', iif: '', oif: '', fwmark: '' }]);
         }
     };
 
-    const filteredTableOptions = routingTables.filter(t => t.name !== 'main' && t.name !== 'default').map(table => ({
-        label: `${table.table} (${table.name})`,
-        value: table.table.toString()
-    }));
+    const filteredTableOptions = routingTables
+        .filter(t => t.name !== 'main' && t.name !== 'default' && t.id !== undefined)
+        .map(table => ({
+            label: `${table.id} (${table.name})`,
+            value: table.id.toString()
+        }));
 
     const handleFinish = () => {
         const enrichWithInterface = (policy: PolicyForm) => {
             const tableNum = Number(policy.table);
-            const found = routingTables.find(t => t.table === tableNum);
+            const found = routingTables.find(t => t.id === tableNum);
             if (!found || found.name === 'main' || found.name === 'default') return null;
             return { ...policy, interface: found.name };
         };
@@ -151,6 +157,65 @@ const AddRoutingPolicyCard: React.FC<AddRoutingPolicyCardProps> = ({ routingTabl
                                         value={policy.table}
                                         onChange={(value) => handlePolicyChange(index, 'table', value)}
                                         options={filteredTableOptions}
+                                    />
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                        <Row gutter={16}>
+                            <Col xs={24} sm={12} md={6} lg={6} xl={6}>
+                                <Form.Item
+                                    label="Priority"
+                                    style={{ marginBottom: 16 }}
+                                    help="Lower number = higher priority"
+                                >
+                                    <Input
+                                        type="number"
+                                        placeholder="100"
+                                        min={1}
+                                        max={32767}
+                                        value={policy.priority}
+                                        onChange={(e) => handlePolicyChange(index, 'priority', e.target.value)}
+                                    />
+                                </Form.Item>
+                            </Col>
+                            <Col xs={24} sm={12} md={6} lg={6} xl={6}>
+                                <Form.Item
+                                    label="Input Interface (Optional)"
+                                    style={{ marginBottom: 16 }}
+                                    help="Interface for incoming packets"
+                                >
+                                    <Input
+                                        placeholder="eth0"
+                                        value={policy.iif}
+                                        onChange={(e) => handlePolicyChange(index, 'iif', e.target.value)}
+                                    />
+                                </Form.Item>
+                            </Col>
+                            <Col xs={24} sm={12} md={6} lg={6} xl={6}>
+                                <Form.Item
+                                    label="Output Interface (Optional)"
+                                    style={{ marginBottom: 16 }}
+                                    help="Interface for outgoing packets"
+                                >
+                                    <Input
+                                        placeholder="eth1"
+                                        value={policy.oif}
+                                        onChange={(e) => handlePolicyChange(index, 'oif', e.target.value)}
+                                    />
+                                </Form.Item>
+                            </Col>
+                            <Col xs={24} sm={12} md={6} lg={6} xl={6}>
+                                <Form.Item
+                                    label="FW Mark (Optional)"
+                                    style={{ marginBottom: 16 }}
+                                    help="Firewall mark value"
+                                >
+                                    <Input
+                                        type="number"
+                                        placeholder="0x100"
+                                        min={0}
+                                        value={policy.fwmark}
+                                        onChange={(e) => handlePolicyChange(index, 'fwmark', e.target.value)}
                                     />
                                 </Form.Item>
                             </Col>

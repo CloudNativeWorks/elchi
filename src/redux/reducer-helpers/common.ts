@@ -16,7 +16,8 @@ export enum ResourceType {
     ConfigDiscovery = 'ConfigDiscovery',
     Resource = 'Resource',
     CustomResource = 'CustomResource',
-    Scenario = 'Scenario'
+    Scenario = 'Scenario',
+    ElchiDiscovery = 'ElchiDiscovery'
 }
 
 export const VERSIONS = window.APP_CONFIG.AVAILABLE_VERSIONS.reduce((versions, version) => {
