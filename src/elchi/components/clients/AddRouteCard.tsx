@@ -26,6 +26,7 @@ const AddRouteCard: React.FC<AddRouteCardProps> = ({ interfaces, routingTables, 
                 interface: values[`interface_${index}`],
                 table: values[`table_${index}`],
                 metric: values[`metric_${index}`],
+                protocol: values[`protocol_${index}`],
             })).filter(route => route.to && route.via && route.interface);
             
             onSave({ routes: routeList });
@@ -147,6 +148,24 @@ const AddRouteCard: React.FC<AddRouteCardProps> = ({ interfaces, routingTables, 
                                 { label: 'Global', value: 'global' },
                                 { label: 'Link', value: 'link' },
                                 { label: 'Host', value: 'host' }
+                            ]}
+                        />
+                    </Form.Item>
+                </Col>
+                <Col xs={24} sm={12} md={12} lg={12} xl={12}>
+                    <Form.Item
+                        name={multipleMode ? `protocol_${index}` : 'protocol'}
+                        label="Protocol (Optional)"
+                        extra="Route protocol"
+                    >
+                        <Select
+                            placeholder="Select protocol"
+                            allowClear
+                            options={[
+                                { label: 'Static', value: 'static' },
+                                { label: 'Kernel', value: 'kernel' },
+                                { label: 'DHCP', value: 'dhcp' },
+                                { label: 'Boot', value: 'boot' }
                             ]}
                         />
                     </Form.Item>

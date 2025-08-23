@@ -255,6 +255,118 @@ const BGPConfigurationContent: React.FC<BGPConfigurationContentProps> = ({ clien
                             </Col>
                         </Row>
 
+                        <Divider orientation="left" orientationMargin={0}>Graceful Restart Configuration</Divider>
+                        <Row gutter={16}>
+                            <Col span={8}>
+                                <Form.Item
+                                    name="graceful_restart_enabled"
+                                    label="Enable Graceful Restart"
+                                    valuePropName="checked"
+                                    extra="Enable global graceful restart capability"
+                                >
+                                    <Switch onChange={(checked) => {
+                                        if (checked) {
+                                            form.setFieldValue('graceful_restart_disable', false);
+                                        }
+                                    }} />
+                                </Form.Item>
+                            </Col>
+                            <Col span={8}>
+                                <Form.Item
+                                    name="preserve_forwarding_state"
+                                    label="Preserve Forwarding State"
+                                    valuePropName="checked"
+                                    extra="Maintain FIB during restart"
+                                >
+                                    <Switch />
+                                </Form.Item>
+                            </Col>
+                            <Col span={8}>
+                                <Form.Item
+                                    name="graceful_restart_disable"
+                                    label="Disable Graceful Restart"
+                                    valuePropName="checked"
+                                    extra="Completely disable GR functionality"
+                                >
+                                    <Switch onChange={(checked) => {
+                                        if (checked) {
+                                            form.setFieldValue('graceful_restart_enabled', false);
+                                        }
+                                    }} />
+                                </Form.Item>
+                            </Col>
+                        </Row>
+                        <Form.Item dependencies={['graceful_restart_enabled', 'graceful_restart_disable']}>
+                            {({ getFieldValue }) => {
+                                const grEnabled = getFieldValue('graceful_restart_enabled');
+                                const grDisabled = getFieldValue('graceful_restart_disable');
+                                return (grEnabled && !grDisabled) ? (
+                                    <>
+                                        <Row gutter={16}>
+                                            <Col span={8}>
+                                                <Form.Item
+                                                    name="graceful_restart_time"
+                                                    label="Restart Timer (seconds)"
+                                                    extra="Maximum time for graceful restart (1-3600)"
+                                                >
+                                                    <InputNumber
+                                                        style={{ width: '100%' }}
+                                                        min={1}
+                                                        max={3600}
+                                                        placeholder="120"
+                                                    />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={8}>
+                                                <Form.Item
+                                                    name="graceful_stale_path_time"
+                                                    label="Stale Path Timer (seconds)"
+                                                    extra="Time to retain stale paths (1-3600)"
+                                                >
+                                                    <InputNumber
+                                                        style={{ width: '100%' }}
+                                                        min={1}
+                                                        max={3600}
+                                                        placeholder="360"
+                                                    />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={8}>
+                                                <Form.Item
+                                                    name="select_defer_time"
+                                                    label="Select Defer Time (seconds)"
+                                                    extra="Route selection delay (0-3600)"
+                                                >
+                                                    <InputNumber
+                                                        style={{ width: '100%' }}
+                                                        min={0}
+                                                        max={3600}
+                                                        placeholder="180"
+                                                    />
+                                                </Form.Item>
+                                            </Col>
+                                        </Row>
+                                        <Row gutter={16}>
+                                            <Col span={8}>
+                                                <Form.Item
+                                                    name="rib_stale_time"
+                                                    label="RIB Stale Timer (seconds)"
+                                                    extra="RIB stale path cleanup time"
+                                                >
+                                                    <InputNumber
+                                                        style={{ width: '100%' }}
+                                                        min={1}
+                                                        max={3600}
+                                                        placeholder="300"
+                                                    />
+                                                </Form.Item>
+                                            </Col>
+                                        </Row>
+                                    </>
+                                ) : null;
+                            }}
+                        </Form.Item>
+
                         <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
                             <Button
                                 type="primary"

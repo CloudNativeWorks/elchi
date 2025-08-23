@@ -126,6 +126,22 @@ const UnifiedNetplanEditor: React.FC<UnifiedNetplanEditorProps> = ({
                 </Space>
             }
         >
+            {/* Network Interruption Warning */}
+            <div style={{ 
+                marginBottom: 16, 
+                padding: 12, 
+                backgroundColor: '#fff2e8', 
+                border: '1px solid #ffbb96',
+                borderRadius: 6,
+                borderLeft: '4px solid #ff7a00'
+            }}>
+                <Text style={{ fontSize: 13, color: '#d4380d' }}>
+                    ⚠️ <strong>Warning:</strong> Modifying network configuration may cause temporary network interruption. 
+                    Changes will be applied system-wide and may affect SSH connections and active services. 
+                    Use Safety Mode to automatically rollback if configuration fails.
+                </Text>
+            </div>
+
             <div style={{ marginBottom: 16 }}>
                 <Text type="secondary">
                     Edit the complete netplan YAML configuration below. This will affect all network interfaces on the system.
@@ -142,20 +158,23 @@ const UnifiedNetplanEditor: React.FC<UnifiedNetplanEditorProps> = ({
                         </Text>
                     </div>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                        {interfaces.map((iface: InterfaceState, index: number) => (
-                            <Tag 
-                                key={index}
-                                color={iface.state?.toLowerCase() === 'up' ? 'green' : 'orange'}
-                                style={{ marginBottom: 4 }}
-                            >
-                                {iface.name}
-                                {iface.addresses?.[0] && (
-                                    <span style={{ fontSize: 11, opacity: 0.8 }}>
-                                        {' '}({iface.addresses[0]})
-                                    </span>
-                                )}
-                            </Tag>
-                        ))}
+                        {interfaces
+                            .filter((iface: InterfaceState) => !iface.name.startsWith('elchi-if-') && iface.name !== 'lo')
+                            .map((iface: InterfaceState, index: number) => (
+                                <Tag 
+                                    key={index}
+                                    color={iface.state?.toLowerCase() === 'up' ? 'green' : 'orange'}
+                                    style={{ marginBottom: 4 }}
+                                >
+                                    {iface.name}
+                                    {iface.addresses?.[0] && (
+                                        <span style={{ fontSize: 11, opacity: 0.8 }}>
+                                            {' '}({iface.addresses[0]})
+                                        </span>
+                                    )}
+                                </Tag>
+                            ))
+                        }
                     </div>
                 </div>
             )}

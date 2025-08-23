@@ -8,16 +8,17 @@ export interface NodeInfo {
 export interface ClusterDiscovery {
   id?: string;
   cluster_name: string;
-  project: string;
-  nodes: NodeInfo[];
-  status: string;
-  last_seen: string;
-  created_at: string;
-  updated_at: string;
-  node_count: number;
   cluster_version: string;
-  discovery_duration: string;
-  last_request_time: string;
+  last_seen: string;
+  nodes: NodeInfo[];
+  project: string;
+  // Optional fields that may not be in API response
+  status?: string;
+  created_at?: string;
+  updated_at?: string;
+  node_count?: number;
+  discovery_duration?: string;
+  last_request_time?: string;
 }
 
 export interface DiscoveryResponse {

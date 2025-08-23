@@ -101,6 +101,14 @@ export interface BGPConfig {
     deterministic_med?: boolean;
     always_compare_med?: boolean;
     log_neighbor_changes?: boolean;
+    // Graceful Restart Fields
+    graceful_restart_enabled?: boolean;
+    graceful_restart_time?: number;
+    graceful_stale_path_time?: number;
+    preserve_forwarding_state?: boolean;
+    graceful_restart_disable?: boolean;
+    select_defer_time?: number;
+    rib_stale_time?: number;
 }
 
 // BGP Field Mapping Configuration
@@ -229,6 +237,10 @@ export interface BGPNeighbor {
     ebgp_multihop?: boolean;
     ebgp_multihop_ttl?: number;
     disable_connected_check?: boolean;
+    // Per-Neighbor Graceful Restart Fields
+    graceful_restart?: boolean;
+    graceful_restart_helper?: boolean;
+    graceful_restart_disable?: boolean;
 }
 
 export interface BGPNetwork {
@@ -502,6 +514,10 @@ export interface BGPNeighborResponse {
     weight?: number;
     prefix_list_in?: string;
     prefix_list_out?: string;
+    // Per-Neighbor Graceful Restart Fields
+    graceful_restart?: boolean;
+    graceful_restart_helper?: boolean;
+    graceful_restart_disable?: boolean;
 }
 
 export interface BGPNeighborRequest {
@@ -523,6 +539,10 @@ export interface BGPNeighborRequest {
     ebgp_multihop?: boolean;
     ebgp_multihop_ttl?: number;
     disable_connected_check?: boolean;
+    // Per-Neighbor Graceful Restart Fields
+    graceful_restart?: boolean;
+    graceful_restart_helper?: boolean;
+    graceful_restart_disable?: boolean;
 }
 
 export const useBGPOperations = () => {
@@ -561,17 +581,8 @@ export const useBGPOperations = () => {
                         return { success: false, error: firstResponse.error };
                     }
 
-                    const isModificationOp = !operation.startsWith('BGP_GET') &&
-                        !operation.startsWith('BGP_LIST') &&
-                        !operation.startsWith('BGP_SHOW');
-
-                    if (isModificationOp) {
-                        if (response[0]?.Result?.Frr?.success) {
-                            message.success(response[0]?.Result?.Frr?.bgp?.message);
-                        } else {
-                            message.error(response[0]?.Result?.Frr?.bgp?.message);
-                        }
-                    }
+                    // Let components handle their own success/error messages
+                    // Hook just returns the response data
 
                     return { success: true, data: response };
                 }
@@ -597,7 +608,11 @@ export const useBGPOperations = () => {
                 peer_ip: peerIp
             }),
             getBGPConfig: (clientId: string) => sendBGPRequest(clientId, BGPOperationType.GET_CONFIG),
-            updateBGPConfig: (clientId: string, config: BGPConfig) => sendBGPRequest(clientId, BGPOperationType.SET_CONFIG, { config }),
+            updateBGPConfig: (clientId: string, config: BGPConfig, localAs?: number, remoteAs?: number) => sendBGPRequest(clientId, BGPOperationType.SET_CONFIG, { 
+                config,
+                ...(localAs && { local_as: localAs }),
+                ...(remoteAs && { remote_as: remoteAs })
+            }),
             getBGPNeighbors: (clientId: string) => sendBGPRequest(clientId, BGPOperationType.LIST_NEIGHBORS),
             addBGPNeighbor: (clientId: string, neighbor: BGPNeighborRequest, asNumber: number) => sendBGPRequest(clientId, BGPOperationType.ADD_NEIGHBOR, {
                 neighbor,

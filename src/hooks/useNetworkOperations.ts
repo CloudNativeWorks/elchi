@@ -39,6 +39,7 @@ export interface Route {
     metric?: number;
     source?: string;
     scope?: string;
+    protocol?: string;
     is_default?: boolean;
 }
 

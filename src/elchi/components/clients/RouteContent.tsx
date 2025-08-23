@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Table, Button, Divider, message, Popconfirm, notification } from 'antd';
+import { Table, Button, Divider, message, Popconfirm, notification, Tooltip } from 'antd';
 import { DeleteOutlined, PlusOutlined, LockOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
 import AddRouteCard from './AddRouteCard';
 import { useNetworkOperations, RouteOperation, Route, InterfaceState, RoutingTableDefinition } from '@/hooks/useNetworkOperations';
@@ -14,6 +14,18 @@ interface RouteContentProps {
 }
 
 const SYSTEM_SOURCES = ['dhcp', 'kernel', 'boot', 'system'];
+
+const PROTECTED_PROTOCOLS = {
+    'bgp': 'BGP routes are dynamically managed and should not be manually deleted',
+    'ospf': 'OSPF routes are dynamically managed and should not be manually deleted', 
+    'isis': 'ISIS routes are dynamically managed and should not be manually deleted',
+    'zebra': 'FRR/Zebra routes are dynamically managed and should not be manually deleted',
+    'bird': 'BIRD routes are dynamically managed and should not be manually deleted',
+    'kernel': 'Kernel routes are system managed and should not be manually deleted',
+    'redirect': 'ICMP redirect routes are system managed and should not be manually deleted',
+    'dhcp': 'DHCP routes are service managed and deletion may break network connectivity',
+    'ra': 'IPv6 Router Advertisement routes are system managed and should not be deleted'
+};
 
 const RouteContent: React.FC<RouteContentProps> = ({ routes, loading, interfaces, routingTables, clientId, onRefresh }) => {
     const [showAddForm, setShowAddForm] = useState(false);
@@ -44,7 +56,8 @@ const RouteContent: React.FC<RouteContentProps> = ({ routes, loading, interfaces
                     interface: route.interface,
                     ...(route.table && { table: Number(route.table) }),
                     ...(route.metric && { metric: Number(route.metric) }),
-                    ...(route.scope && { scope: route.scope })
+                    ...(route.scope && { scope: route.scope }),
+                    ...(route.protocol && { protocol: route.protocol })
                 }
             }));
             
@@ -103,11 +116,11 @@ const RouteContent: React.FC<RouteContentProps> = ({ routes, loading, interfaces
             const route = routes.find(r => 
                 `${r.interface}-${r.to}-${r.via}-${r.table}` === key
             );
-            return route && !SYSTEM_SOURCES.includes(route.source) && route.via; // Don't allow deletion of direct routes (no via/gateway)
+            return route && !SYSTEM_SOURCES.includes(route.source) && !PROTECTED_PROTOCOLS.hasOwnProperty(route.protocol); // Don't allow deletion of protected protocol routes
         });
         
         if (validKeys.length === 0) {
-            message.warning('Cannot remove system routes or direct routes');
+            message.warning('Cannot remove system routes or protected protocol routes');
             return;
         }
         
@@ -128,7 +141,8 @@ const RouteContent: React.FC<RouteContentProps> = ({ routes, loading, interfaces
                         interface: route.interface,
                         ...(route.table && { table: Number(route.table) }),
                         ...(route.metric && { metric: Number(route.metric) }),
-                        ...(route.scope && { scope: route.scope })
+                        ...(route.scope && { scope: route.scope }),
+                        ...(route.protocol && { protocol: route.protocol })
                     }
                 };
             });
@@ -228,20 +242,27 @@ const RouteContent: React.FC<RouteContentProps> = ({ routes, loading, interfaces
             title: 'Scope',
             dataIndex: 'scope',
             key: 'scope',
-            width: '15%',
+            width: '10%',
+        },
+        {
+            title: 'Protocol',
+            dataIndex: 'protocol',
+            key: 'protocol',
+            width: '10%',
+            render: (text: string) => text || '-',
         },
         {
             title: 'Table',
             dataIndex: 'table',
             key: 'table',
-            width: '10%',
+            width: '8%',
             render: (text: number) => text || 'Main',
         },
         {
             title: 'Metric',
             dataIndex: 'metric',
             key: 'metric',
-            width: '10%',
+            width: '8%',
             render: (text: number) => text || '-',
         },
         {
@@ -258,12 +279,14 @@ const RouteContent: React.FC<RouteContentProps> = ({ routes, loading, interfaces
                         </div>
                     );
                 }
-                if (!record.via) { // Direct route (no gateway)
+                if (PROTECTED_PROTOCOLS.hasOwnProperty(record.protocol)) { // Protected protocol routes
                     return (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                            <LockOutlined style={{ color: '#8c8c8c', fontSize: 12 }} />
-                            <span style={{ color: '#8c8c8c' }}>{text || 'direct'}</span>
-                        </div>
+                        <Tooltip title={PROTECTED_PROTOCOLS[record.protocol]} placement="topLeft">
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                <LockOutlined style={{ color: '#8c8c8c', fontSize: 12 }} />
+                                <span style={{ color: '#8c8c8c' }}>{text || record.protocol}</span>
+                            </div>
+                        </Tooltip>
                     );
                 }
                 return text || 'static';
@@ -277,7 +300,7 @@ const RouteContent: React.FC<RouteContentProps> = ({ routes, loading, interfaces
             setSelectedRowKeys(newSelectedRowKeys);
         },
         getCheckboxProps: (record: any) => ({
-            disabled: record.isDivider || SYSTEM_SOURCES.includes(record.source) || !record.via, // Disable selection for direct routes (no via/gateway)
+            disabled: record.isDivider || SYSTEM_SOURCES.includes(record.source) || PROTECTED_PROTOCOLS.hasOwnProperty(record.protocol), // Disable selection for protected protocol routes
         }),
     };
 
@@ -347,7 +370,7 @@ const RouteContent: React.FC<RouteContentProps> = ({ routes, loading, interfaces
                             if (props['data-row-key'] === 'divider') {
                                 return (
                                     <tr>
-                                        <td colSpan={7} style={{ padding: '8px 16px', background: '#fafafa' }}>
+                                        <td colSpan={8} style={{ padding: '8px 16px', background: '#fafafa' }}>
                                             <div style={{ 
                                                 display: 'flex', 
                                                 alignItems: 'center', 

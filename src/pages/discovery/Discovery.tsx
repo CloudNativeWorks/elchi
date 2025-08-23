@@ -70,14 +70,13 @@ helm repo update
 # Install Elchi Discovery Agent
 helm install elchi-discovery elchi/discovery-agent \\
   --set config.elchiEndpoint="https://your-elchi-instance.com" \\
-  --set config.project="your-project-id" \\
   --set config.token="your-discovery-token" \\
   --set config.clusterName="my-k8s-cluster" \\
-  --namespace elchi-system \\
+  --namespace elchi-stack \\
   --create-namespace
 
 # Verify installation
-kubectl get pods -n elchi-system`;
+kubectl get pods -n elchi-stack`;
 
   const handleShowSetup = () => {
     setSetupModalVisible(true);
@@ -117,12 +116,12 @@ kubectl get pods -n elchi-system`;
     },
     {
       title: 'Nodes',
-      dataIndex: 'node_count',
-      key: 'node_count',
-      render: (count: number) => (
+      dataIndex: 'nodes',
+      key: 'nodes',
+      render: (nodes: NodeInfo[]) => (
         <Space>
           <NodeIndexOutlined />
-          <Text>{count}</Text>
+          <Text>{nodes ? nodes.length : 0}</Text>
         </Space>
       ),
     },
@@ -137,12 +136,6 @@ kubectl get pods -n elchi-system`;
           </Text>
         </Tooltip>
       ),
-    },
-    {
-      title: 'Discovery Duration',
-      dataIndex: 'discovery_duration',
-      key: 'discovery_duration',
-      render: (duration: string) => <Text type="secondary">{duration}</Text>,
     },
     {
       title: 'Actions',
@@ -307,13 +300,10 @@ kubectl get pods -n elchi-system`;
                   <Text code>{selectedCluster.cluster_version}</Text>
                 </Descriptions.Item>
                 <Descriptions.Item label="Node Count">
-                  {selectedCluster.node_count}
+                  {selectedCluster.nodes ? selectedCluster.nodes.length : 0}
                 </Descriptions.Item>
-                <Descriptions.Item label="Discovery Duration">
-                  {selectedCluster.discovery_duration}
-                </Descriptions.Item>
-                <Descriptions.Item label="Created At">
-                  {new Date(selectedCluster.created_at).toLocaleString()}
+                <Descriptions.Item label="Project">
+                  {selectedCluster.project}
                 </Descriptions.Item>
                 <Descriptions.Item label="Last Seen">
                   <Space>
@@ -391,9 +381,7 @@ kubectl get pods -n elchi-system`;
             <List
               size="small"
               dataSource={[
-                'Kubernetes cluster with RBAC enabled',
                 'Helm 3.x installed on your local machine',
-                'kubectl configured to access your cluster',
                 'Discovery token from Settings → Tokens page'
               ]}
               renderItem={item => (
@@ -432,7 +420,6 @@ kubectl get pods -n elchi-system`;
               size="small"
               dataSource={[
                 { key: 'config.elchiEndpoint', desc: 'Your Elchi instance URL' },
-                { key: 'config.project', desc: 'Project ID from Elchi dashboard' },
                 { key: 'config.token', desc: 'Discovery token from Settings page' },
                 { key: 'config.clusterName', desc: 'Unique name for your cluster' }
               ]}

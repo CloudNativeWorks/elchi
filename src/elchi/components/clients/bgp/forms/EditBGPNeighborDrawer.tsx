@@ -399,6 +399,49 @@ const EditBGPNeighborDrawer: React.FC<EditBGPNeighborDrawerProps> = ({
                     <InputNumber style={{ width: '100%' }} placeholder="1" />
                 </Form.Item>
 
+                <Divider orientation="left" orientationMargin={0}>Graceful Restart</Divider>
+
+                <Form.Item
+                    name="graceful_restart"
+                    label="Enable Graceful Restart"
+                    valuePropName="checked"
+                    extra="Enable graceful restart for this neighbor"
+                >
+                    <Switch onChange={(checked) => {
+                        if (checked) {
+                            form.setFieldValue('graceful_restart_helper', false);
+                            form.setFieldValue('graceful_restart_disable', false);
+                        }
+                    }} />
+                </Form.Item>
+
+                <Form.Item
+                    name="graceful_restart_helper"
+                    label="Graceful Restart Helper Mode"
+                    valuePropName="checked"
+                    extra="Act only as GR helper (receive-only mode)"
+                >
+                    <Switch onChange={(checked) => {
+                        if (checked) {
+                            form.setFieldValue('graceful_restart', false);
+                            form.setFieldValue('graceful_restart_disable', false);
+                        }
+                    }} />
+                </Form.Item>
+
+                <Form.Item
+                    name="graceful_restart_disable"
+                    label="Disable Graceful Restart"
+                    valuePropName="checked"
+                    extra="Completely disable GR for this neighbor"
+                >
+                    <Switch onChange={(checked) => {
+                        if (checked) {
+                            form.setFieldValue('graceful_restart', false);
+                            form.setFieldValue('graceful_restart_helper', false);
+                        }
+                    }} />
+                </Form.Item>
 
             </Form>
         </Drawer>

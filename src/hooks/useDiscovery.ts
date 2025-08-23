@@ -9,10 +9,11 @@ export const useDiscovery = () => {
   return useQuery({
     queryKey: ['discovery-clusters', project],
     queryFn: async (): Promise<ClusterDiscovery[]> => {
-      const response = await api.get<DiscoveryResponse>(
+      const response = await api.get<ClusterDiscovery[]>(
         `/api/discovery/clusters?project=${project}`
       );
-      return response.data.clusters || [];
+      // API returns array directly, not wrapped in clusters property
+      return Array.isArray(response.data) ? response.data : [];
     },
     enabled: !!project,
     refetchInterval: 30000, // Refresh every 30 seconds
