@@ -21,7 +21,9 @@ export function useServiceStatus({ name, project, enabled = true, version }: { n
                     type: OperationsType.SERVICE,
                     sub_type: OperationsSubType.SUB_STATUS,
                     command: { name, project }
-                }
+                },
+                project: project,
+                version: version
             });
             setStatusData(data);
         } catch (err: any) {
@@ -54,7 +56,9 @@ export function useServiceAction({ name, project, version }: { name: string; pro
                     type: OperationsType.SERVICE,
                     sub_type: subType,
                     command: { name, project }
-                }
+                },
+                project: project,
+                version: version
             });
             return data;
         } catch (err: any) {
@@ -81,7 +85,9 @@ export function useDeployUndeployService({ name, project, version }: { name: str
                     type: type,
                     command: { name, project },
                     clients: clients
-                }
+                },
+                project: project,
+                version: version
             });
             setStatusData(data);
 

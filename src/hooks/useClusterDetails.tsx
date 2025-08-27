@@ -73,7 +73,9 @@ export function useClusterDetails({ name, project, version }: { name: string; pr
                             format: 'json'
                         }
                     }
-                }
+                },
+                project,
+                version
             });
 
             setClusterData(response);

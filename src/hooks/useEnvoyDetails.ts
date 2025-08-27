@@ -51,7 +51,9 @@ export const useEnvoyDetails = ({ name, project, version }: EnvoyDetailsProps) =
                             format: 'json'
                         }
                     }
-                }
+                },
+                project,
+                version
             });
 
             if (Array.isArray(response)) {

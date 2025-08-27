@@ -14,6 +14,30 @@ const ClientInstallationDrawer: React.FC<ClientInstallationDrawerProps> = ({ ope
         navigator.clipboard.writeText(text);
     };
 
+    // Auto-detect server configuration from current URL
+    const getServerConfig = () => {
+        const hostname = window.location.hostname;
+        const protocol = window.location.protocol;
+        const port = window.location.port;
+        
+        // Determine if TLS is used
+        const useTLS = protocol === 'https:';
+        
+        // Determine the port - use default ports if not specified
+        let serverPort = port;
+        if (!serverPort) {
+            serverPort = useTLS ? '443' : '80';
+        }
+        
+        return {
+            host: hostname,
+            port: serverPort,
+            tls: useTLS
+        };
+    };
+    
+    const serverConfig = getServerConfig();
+
     const CodeBlock = ({ children, onCopy }: { children: string; onCopy?: () => void }) => (
         <div style={{
             background: '#f6f8fa',
@@ -78,105 +102,152 @@ const ClientInstallationDrawer: React.FC<ClientInstallationDrawerProps> = ({ ope
                         Bootstrap Installation
                     </Title>
                     
-                    <Text>Install using bootstrap script:</Text>
+                    <Text>Download installer script:</Text>
                     <CodeBlock
-                        onCopy={() => copyToClipboard('curl -sSL https://github.com/CloudNativeWorks/elchi-client/releases/download/v1.0.0/elchi-install.sh | sudo bash')}
+                        onCopy={() => copyToClipboard('curl -sSL https://github.com/CloudNativeWorks/elchi-client/releases/download/v1.0.0/elchi-install.sh -o elchi-install.sh')}
                     >
-                        curl -sSL https://github.com/CloudNativeWorks/elchi-client/releases/download/v1.0.0/elchi-install.sh | sudo bash
+                        wget https://github.com/CloudNativeWorks/elchi-client/releases/download/v1.0.0/elchi-install.sh
+                    </CodeBlock>
+
+                    <Title level={5} style={{ marginTop: 24, marginBottom: 12 }}>
+                        Production Setup
+                    </Title>
+                    
+                    <Alert
+                        type="success"
+                        showIcon
+                        message="Auto-detected Server Settings"
+                        description={
+                            <div>
+                                <div>Host: <Text code>{serverConfig.host}</Text></div>
+                                <div>Port: <Text code>{serverConfig.port}</Text></div>
+                                <div>TLS: <Text code>{serverConfig.tls.toString()}</Text></div>
+                                <div style={{ marginTop: 8 }}>
+                                    <Text type="warning">Replace <Text code>&lt;YOUR-CLIENT-NAME&gt;</Text> and <Text code>&lt;YOUR-AUTH-TOKEN&gt;</Text> with your values</Text>
+                                </div>
+                            </div>
+                        }
+                        style={{ marginBottom: 16 }}
+                    />
+                    
+                    <Text>Production configuration with auto-detected server settings:</Text>
+                    <CodeBlock
+                        onCopy={() => copyToClipboard(`sudo bash elchi-install.sh \\
+  --name=<YOUR-CLIENT-NAME> \\
+  --host=${serverConfig.host} \\
+  --port=${serverConfig.port} \\
+  --tls=${serverConfig.tls} \\
+  --token=<YOUR-AUTH-TOKEN>`)}
+                    >
+{`sudo bash elchi-install.sh \\
+  --name=<YOUR-CLIENT-NAME> \\
+  --host=${serverConfig.host} \\
+  --port=${serverConfig.port} \\
+  --tls=${serverConfig.tls} \\
+  --token=<YOUR-AUTH-TOKEN>`}
                     </CodeBlock>
                     
-                    <Text>With BGP enabled:</Text>
+                    <Text>With BGP routing enabled:</Text>
                     <CodeBlock
-                        onCopy={() => copyToClipboard('curl -sSL https://github.com/CloudNativeWorks/elchi-client/releases/download/v1.0.0/elchi-install.sh | sudo bash -s -- --enable-bgp')}
+                        onCopy={() => copyToClipboard(`sudo bash elchi-install.sh \\
+  --enable-bgp \\
+  --name=<YOUR-CLIENT-NAME> \\
+  --host=${serverConfig.host} \\
+  --port=${serverConfig.port} \\
+  --tls=${serverConfig.tls} \\
+  --token=<YOUR-AUTH-TOKEN>`)}
                     >
-                        curl -sSL https://github.com/CloudNativeWorks/elchi-client/releases/download/v1.0.0/elchi-install.sh | sudo bash -s -- --enable-bgp
+{`sudo bash elchi-install.sh \\
+  --enable-bgp \\
+  --name=<YOUR-CLIENT-NAME> \\
+  --host=${serverConfig.host} \\
+  --port=${serverConfig.port} \\
+  --tls=${serverConfig.tls} \\
+  --token=<YOUR-AUTH-TOKEN>`}
                     </CodeBlock>
+                    <Title level={5} style={{ marginTop: 24, marginBottom: 12 }}>
+                        Configuration Options
+                    </Title>
+                    
+                    <div style={{ marginBottom: 16 }}>
+                        <Text strong>Required Parameters:</Text>
+                        <ul style={{ marginTop: 8, marginBottom: 8, paddingLeft: 20 }}>
+                            <li><Text code>--name=NAME</Text>: Client name</li>
+                            <li><Text code>--host=HOST</Text>: Server address</li>
+                            <li><Text code>--port=PORT</Text>: Server port (1-65535)</li>
+                            <li><Text code>--tls=true|false</Text>: Enable TLS</li>
+                            <li><Text code>--token=TOKEN</Text>: Authentication token (min 8 chars)</li>
+                        </ul>
+                    </div>
+
+                    <div style={{ marginBottom: 16 }}>
+                        <Text strong>Optional Parameters:</Text>
+                        <ul style={{ marginTop: 8, marginBottom: 8, paddingLeft: 20 }}>
+                            <li><Text code>--enable-bgp</Text>: Install FRR routing</li>
+                        </ul>
+                    </div>
                 </div>
 
                 <Divider />
 
-                {/* Configuration Section */}
+                {/* Service Management */}
                 <div style={{ marginBottom: 32 }}>
                     <Title level={4}>
                         <SettingOutlined style={{ color: '#faad14', marginRight: 8 }} />
-                        Configuration
-                    </Title>
-                    
-                    <Title level={5} style={{ marginTop: 24, marginBottom: 12 }}>
-                        Post-Installation Setup
+                        Service Management
                     </Title>
                     
                     <Paragraph>
-                        After installation, you need to configure the client to connect to your Elchi server.
+                        After installation, the Elchi client runs as a system service.
                     </Paragraph>
 
                     <div style={{ marginBottom: 16 }}>
-                        <Text strong>1. Edit Configuration File</Text>
-                        <Paragraph style={{ marginTop: 8, marginBottom: 8 }}>
-                            Open the configuration file located at:
-                        </Paragraph>
-                        <CodeBlock
-                            onCopy={() => copyToClipboard('/etc/elchi/config.yaml')}
-                        >
-                            /etc/elchi/config.yaml
-                        </CodeBlock>
-                    </div>
-
-                    <div style={{ marginBottom: 16 }}>
-                        <Text strong>2. Update Server & Client Configuration</Text>
-                        <Paragraph style={{ marginTop: 8, marginBottom: 8 }}>
-                            Fill in the following server details:
-                        </Paragraph>
-                        <CodeBlock
-                            onCopy={() => copyToClipboard(`server:
-  host: "" # Main server address
-  port: 80 # Main server port
-  tls: false # Set to true if you are using TLS on main server
-  token: "xxxx-xxxx-xxxx-xxxx" # Get from Elchi
-client:
-  name: "" # Set to the name of the machine`)}
-                        >
-{`server:
-  host: "" # Main server address
-  port: 80 # Main server port
-  tls: false # Set to true if you are using TLS on main server
-  token: "xxxx-xxxx-xxxx-xxxx" # Get from Elchi
-client:
-  name: "" # Set to the name of the machine`}
-                        </CodeBlock>
-                    </div>
-
-                    <div style={{ marginBottom: 16 }}>
-                        <Text strong>3. Restart the Service</Text>
-                        <Paragraph style={{ marginTop: 8, marginBottom: 8 }}>
-                            After updating the configuration, restart the client service:
-                        </Paragraph>
-                        <CodeBlock
-                            onCopy={() => copyToClipboard('systemctl restart elchi-client.service')}
-                        >
-                            systemctl restart elchi-client.service
-                        </CodeBlock>
+                        <Text strong>Service Commands:</Text>
+                        <div style={{ marginTop: 8 }}>
+                            <Text>Check service status:</Text>
+                            <CodeBlock
+                                onCopy={() => copyToClipboard('systemctl status elchi-client.service')}
+                            >
+                                systemctl status elchi-client.service
+                            </CodeBlock>
+                            
+                            <Text>Restart service:</Text>
+                            <CodeBlock
+                                onCopy={() => copyToClipboard('systemctl restart elchi-client.service')}
+                            >
+                                systemctl restart elchi-client.service
+                            </CodeBlock>
+                            
+                            <Text>View service logs:</Text>
+                            <CodeBlock
+                                onCopy={() => copyToClipboard('journalctl -u elchi-client.service -f')}
+                            >
+                                journalctl -u elchi-client.service -f
+                            </CodeBlock>
+                        </div>
                     </div>
                 </div>
 
                 <Divider />
 
-                {/* Configuration Tips */}
+                {/* Important Notes */}
                 <div style={{ marginBottom: 32 }}>
                     <Title level={4}>
                         <CheckCircleOutlined style={{ color: '#1890ff', marginRight: 8 }} />
-                        Configuration Tips
+                        Important Notes
                     </Title>
                     
                     <Alert
                         type="info"
                         showIcon
-                        message="Important Notes"
+                        message="Installation Requirements"
                         description={
                             <ul style={{ marginBottom: 0, paddingLeft: 16 }}>
+                                <li>All parameters (--name, --host, --port, --tls, --token) are required during installation</li>
                                 <li>Make sure the server address is reachable from your client machine</li>
-                                <li>Enable TLS if your server uses HTTPS</li>
-                                <li>Get Token from Elchi UI Settings page</li>
+                                <li>Use --tls=true if your server uses HTTPS (port 443)</li>
+                                <li>Get your authentication token from Elchi UI Settings page</li>
+                                <li>Use --enable-bgp flag if you need FRR routing capabilities</li>
                             </ul>
                         }
                         style={{ marginBottom: 16 }}
@@ -185,17 +256,141 @@ client:
 
                 <Divider />
 
+                {/* What the Script Does */}
+                <div style={{ marginBottom: 32 }}>
+                    <Title level={4}>
+                        <CodeOutlined style={{ color: '#722ed1', marginRight: 8 }} />
+                        What Does the Installation Script Do?
+                    </Title>
+                    
+                    <Paragraph>
+                        The elchi-install.sh script performs a complete system setup optimized for high-performance load balancing:
+                    </Paragraph>
+                    
+                    <div style={{ marginTop: 16 }}>
+                        <Text strong>Kernel Parameter Optimizations:</Text>
+                        <ul style={{ marginTop: 8, marginBottom: 16, paddingLeft: 20 }}>
+                            <li><Text code>net.netfilter.nf_conntrack_max = 2097152</Text> - Handles 2M+ concurrent connections</li>
+                            <li><Text code>net.ipv4.tcp_tw_reuse = 1</Text> - Reuses TIME_WAIT sockets for new connections</li>
+                            <li><Text code>net.ipv4.tcp_fin_timeout = 30</Text> - Reduces FIN-WAIT-2 timeout from 60s to 30s</li>
+                            <li><Text code>fs.file-max = 4097152</Text> - System-wide file descriptor limit (4M)</li>
+                            <li><Text code>fs.nr_open = 2048576</Text> - Per-process file descriptor hard limit (2M)</li>
+                            <li><Text code>net.core.somaxconn = 32768</Text> - Max queued connections (32K)</li>
+                            <li><Text code>net.ipv4.tcp_max_syn_backlog = 32768</Text> - SYN queue size for DDoS protection</li>
+                            <li><Text code>net.core.rmem_max = 16777216</Text> - Max receive buffer (16MB)</li>
+                            <li><Text code>net.core.wmem_max = 16777216</Text> - Max send buffer (16MB)</li>
+                            <li><Text code>net.ipv4.ip_forward = 1</Text> - Enables packet forwarding between interfaces</li>
+                            <li><Text code>net.ipv4.tcp_keepalive_time = 120</Text> - TCP keepalive probe after 2 min idle</li>
+                            <li><Text code>net.ipv4.ip_local_port_range = 1024 65535</Text> - Ephemeral port range</li>
+                            <li><Text code>fs.inotify.max_user_watches = 262144</Text> - File watch limit for config monitoring</li>
+                        </ul>
+                    </div>
+
+                    <div style={{ marginTop: 16 }}>
+                        <Text strong>System Limits Configuration:</Text>
+                        <ul style={{ marginTop: 8, marginBottom: 16, paddingLeft: 20 }}>
+                            <li><Text code>* soft nofile 655360</Text> - Soft limit for open files per process</li>
+                            <li><Text code>* hard nofile 655360</Text> - Hard limit for open files per process</li>
+                            <li><Text code>* soft nproc 32768</Text> - Max processes/threads (soft limit)</li>
+                            <li><Text code>* hard nproc 32768</Text> - Max processes/threads (hard limit)</li>
+                            <li><Text code>* soft memlock unlimited</Text> - Memory lock limit for high-performance I/O</li>
+                            <li><Text code>* hard memlock unlimited</Text> - Allows unlimited memory locking</li>
+                        </ul>
+                    </div>
+
+                    <div style={{ marginTop: 16 }}>
+                        <Text strong>User & Permission Setup:</Text>
+                        <ul style={{ marginTop: 8, marginBottom: 16, paddingLeft: 20 }}>
+                            <li>Creates system users: <Text code>elchi</Text> and <Text code>envoyuser</Text></li>
+                            <li>Configures sudoers rules for systemd, netplan, and FRR management</li>
+                            <li>Sets up <Text code>/etc/elchi</Text> and <Text code>/var/lib/elchi</Text> directory hierarchy</li>
+                            <li>Applies SELinux/AppArmor compatible permissions</li>
+                        </ul>
+                    </div>
+
+                    <div style={{ marginTop: 16 }}>
+                        <Text strong>Elchi Client Installation:</Text>
+                        <ul style={{ marginTop: 8, marginBottom: 16, paddingLeft: 20 }}>
+                            <li>Downloads latest elchi-client binary from GitHub releases</li>
+                            <li>Verifies binary integrity with SHA256 checksum</li>
+                            <li>Creates configuration file with your server settings</li>
+                            <li>Installs and enables systemd service for auto-start</li>
+                        </ul>
+                    </div>
+
+                    <div style={{ marginTop: 16 }}>
+                        <Text strong>Network & Connection Tracking:</Text>
+                        <ul style={{ marginTop: 8, marginBottom: 16, paddingLeft: 20 }}>
+                            <li><Text code>nf_conntrack hashsize=524288</Text> - Connection tracking hash table size</li>
+                            <li><Text code>nf_conntrack expect_hashsize=524288</Text> - Expected connections hash table</li>
+                            <li><Text code>net.netfilter.nf_conntrack_tcp_timeout_established = 7200</Text> - 2 hour timeout for established connections</li>
+                            <li><Text code>net.netfilter.nf_conntrack_tcp_timeout_time_wait = 120</Text> - 2 min TIME_WAIT timeout</li>
+                            <li>Converts Ubuntu netplan to <Text code>99-elchi-interfaces.yaml</Text> format</li>
+                            <li>Sets up routing table management via <Text code>/var/lib/elchi/rt_tables.conf</Text></li>
+                            <li>Creates symlink to <Text code>/etc/iproute2/rt_tables.d/elchi.conf</Text></li>
+                        </ul>
+                    </div>
+
+                    {/* BGP/FRR Section */}
+                    <div style={{ marginTop: 16 }}>
+                        <Text strong>Optional: BGP Routing (--enable-bgp):</Text>
+                        <ul style={{ marginTop: 8, marginBottom: 16, paddingLeft: 20 }}>
+                            <li>Installs FRR 10.4.0 from official repository</li>
+                            <li>Enables zebra and bgpd daemons only</li>
+                            <li>Configures auto-save for routing configurations</li>
+                            <li>Sets up gRPC for programmatic route management</li>
+                        </ul>
+                    </div>
+
+                    <Alert
+                        type="success"
+                        showIcon
+                        message="Production-Ready Setup"
+                        description={
+                            <div>
+                                <div>• <strong>High Performance:</strong> Optimized for 2M+ concurrent connections</div>
+                                <div>• <strong>Auto-Recovery:</strong> Service auto-restarts on failure</div>
+                                <div>• <strong>Security:</strong> Proper user isolation and permission management</div>
+                                <div>• <strong>Monitoring:</strong> Full systemd integration with journald logging</div>
+                                <div>• <strong>Network Control:</strong> Complete netplan and routing table management</div>
+                            </div>
+                        }
+                        style={{ marginTop: 16 }}
+                    />
+                </div>
+
+                <Divider />
+
                 {/* Supported Operating Systems */}
                 <div style={{ marginBottom: 24 }}>
                     <Title level={4}>
-                        <CodeOutlined style={{ color: '#722ed1', marginRight: 8 }} />
-                        Supported Operating Systems
+                        <CheckCircleOutlined style={{ color: '#52c41a', marginRight: 8 }} />
+                        System Requirements
                     </Title>
                     
                     <div style={{ marginTop: 16 }}>
-                        <Text strong>Linux</Text>
+                        <Text strong>Operating System:</Text>
                         <div style={{ marginTop: 8 }}>
-                            <Text>Ubuntu 24.04 (minimum required)</Text>
+                            <Text>• Ubuntu 24.04 LTS (recommended)</Text><br/>
+                            <Text>• Ubuntu 22.04 LTS (supported)</Text><br/>
+                            <Text>• Debian 12 (supported)</Text>
+                        </div>
+                    </div>
+                    
+                    <div style={{ marginTop: 16 }}>
+                        <Text strong>Architecture:</Text>
+                        <div style={{ marginTop: 8 }}>
+                            <Text>• AMD64 / x86_64</Text><br/>
+                            <Text>• ARM64 / aarch64</Text>
+                        </div>
+                    </div>
+                    
+                    <div style={{ marginTop: 16 }}>
+                        <Text strong>Minimum Resources:</Text>
+                        <div style={{ marginTop: 8 }}>
+                            <Text>• RAM: 2GB (4GB+ recommended for production)</Text><br/>
+                            <Text>• Disk: 10GB free space</Text><br/>
+                            <Text>• Network: Stable internet connection</Text>
                         </div>
                     </div>
                 </div>

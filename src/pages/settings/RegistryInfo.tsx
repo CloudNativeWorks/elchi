@@ -102,6 +102,7 @@ const RegistryInfo: React.FC = () => {
     const [expandedControllers, setExpandedControllers] = useState<string[]>([]);
     const [snapshotDrawerOpen, setSnapshotDrawerOpen] = useState(false);
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+    const [selectedControlPlaneVersion, setSelectedControlPlaneVersion] = useState<string | null>(null);
     const [messageApi, contextHolder] = message.useMessage();
     const pageSize = 10;
 
@@ -115,9 +116,9 @@ const RegistryInfo: React.FC = () => {
 
     // Snapshot API hooks
     const { data: snapshotData, isLoading: snapshotLoading, refetch: refetchSnapshot } = useCustomGetQuery({
-        queryKey: `node_snapshot_${selectedNodeId}`,
+        queryKey: `node_snapshot_${selectedNodeId}_${selectedControlPlaneVersion}`,
         enabled: !!selectedNodeId,
-        path: `bridge/nodes/${selectedNodeId}/snapshot`,
+        path: `bridge/nodes/${selectedNodeId}/snapshot${selectedControlPlaneVersion ? `?version=${selectedControlPlaneVersion}` : ''}`,
         refetchOnWindowFocus: false
     });
 
@@ -189,8 +190,9 @@ const RegistryInfo: React.FC = () => {
     const registryData: RegistryData = data;
 
     // Snapshot handlers
-    const handleViewSnapshot = (nodeId: string) => {
+    const handleViewSnapshot = (nodeId: string, controlPlaneVersion: string) => {
         setSelectedNodeId(nodeId);
+        setSelectedControlPlaneVersion(controlPlaneVersion);
         setSnapshotDrawerOpen(true);
     };
 
@@ -222,6 +224,7 @@ const RegistryInfo: React.FC = () => {
     const closeSnapshotDrawer = () => {
         setSnapshotDrawerOpen(false);
         setSelectedNodeId(null);
+        setSelectedControlPlaneVersion(null);
     };
 
     // Delete handlers
@@ -484,7 +487,7 @@ const RegistryInfo: React.FC = () => {
                         type="link"
                         size="small"
                         icon={<EyeOutlined />}
-                        onClick={() => handleViewSnapshot(record.node_id)}
+                        onClick={() => handleViewSnapshot(record.node_id, cp.version)}
                         style={{ padding: '4px 8px' }}
                     >
                         Details
