@@ -427,12 +427,20 @@ export function ClientListTable({
         if (!clients) return [];
 
         return [...clients].sort((a, b) => {
+            // First priority: Selected items
             const aSelected = selectedRowKeys.includes(a.client_id);
             const bSelected = selectedRowKeys.includes(b.client_id);
 
             if (aSelected && !bSelected) return -1;
             if (!aSelected && bSelected) return 1;
-            return 0;
+            
+            // Second priority: Online status (online first, offline last)
+            if (a.connected !== b.connected) {
+                return b.connected ? 1 : -1; // Online (true) first, offline (false) last
+            }
+            
+            // Third priority: Name alphabetical
+            return (a.name || '').localeCompare(b.name || '');
         }).map(client => ({
             ...client,
             key: client.client_id
@@ -442,8 +450,9 @@ export function ClientListTable({
     return (
         <>
         <div style={{ 
-            height: '400px', 
-            overflow: 'hidden',
+            flex: 1,
+            height: '100%',
+            overflow: 'auto',
             border: '1px solid #f0f0f0',
             borderRadius: 8
         }}>
@@ -478,7 +487,7 @@ export function ClientListTable({
                     return `${selectedRowKeys.includes(record.key) ? 'ant-table-row-selected' : ''} ${isIncompatible ? 'version-incompatible' : ''}`;
                 }}
                 className="modern-table"
-                scroll={{ x: '100%', y: 350 }}
+                scroll={{ x: '100%' }}
                 locale={{
                     emptyText: (
                         <div style={{

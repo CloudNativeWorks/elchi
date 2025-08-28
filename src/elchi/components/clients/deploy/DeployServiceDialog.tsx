@@ -435,7 +435,9 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                     borderRadius: 10,
                     marginBottom: 10,
                     maxWidth: '100%',
-                    minHeight: 550
+                    height: 'calc(100vh - 200px)',
+                    display: 'flex',
+                    flexDirection: 'column'
                 }}>
                     <div style={{
                         fontSize: 13,
