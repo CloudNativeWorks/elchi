@@ -7,7 +7,7 @@ import RoutingPolicyContent from './RoutingPolicyContent';
 import RoutingTableManager from './RoutingTableManager';
 import BGPContent from './bgp/BGPContent';
 
-const MENU_ITEMS = [
+const ALL_MENU_ITEMS = [
     { key: 'interfaces', label: 'Interfaces' },
     { key: 'route', label: 'Route' },
     { key: 'routing_policy', label: 'Routing Policy' },
@@ -15,13 +15,25 @@ const MENU_ITEMS = [
     { key: 'bgp', label: 'BGP' },
 ];
 
-const ClientNetwork: React.FC<{ clientId: string }> = ({ clientId }) => {
+const ClientNetwork: React.FC<{ clientId: string; bgpEnabled?: boolean }> = ({ clientId, bgpEnabled = true }) => {
     const { project } = useProjectVariable();
     const networkOps = useNetworkOperations();
     const [networkState, setNetworkState] = useState<NetworkState | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState('interfaces');
+
+    // Filter menu items based on BGP availability
+    const menuItems = useMemo(() => {
+        return bgpEnabled ? ALL_MENU_ITEMS : ALL_MENU_ITEMS.filter(item => item.key !== 'bgp');
+    }, [bgpEnabled]);
+
+    // If BGP is disabled and current tab is bgp, switch to interfaces
+    useEffect(() => {
+        if (!bgpEnabled && activeTab === 'bgp') {
+            setActiveTab('interfaces');
+        }
+    }, [bgpEnabled, activeTab]);
 
     const fetchNetworkState = useCallback(async () => {
         setLoading(true);
@@ -92,7 +104,7 @@ const ClientNetwork: React.FC<{ clientId: string }> = ({ clientId }) => {
                     }}
                 >
                     <div style={{ width: '100%', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', gap: 6 }}>
-                        {MENU_ITEMS.map((item) => {
+                        {menuItems.map((item) => {
                             const selected = activeTab === item.key;
                             return (
                                 <div
@@ -182,7 +194,7 @@ const ClientNetwork: React.FC<{ clientId: string }> = ({ clientId }) => {
                                 onRefresh={fetchNetworkState}
                             />
                         )}
-                        {activeTab === 'bgp' && (
+                        {activeTab === 'bgp' && bgpEnabled && (
                             <BGPContent
                                 clientId={clientId}
                                 project={project}

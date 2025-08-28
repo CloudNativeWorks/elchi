@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, Tabs, Typography, Space } from 'antd';
-import { UserOutlined, TeamOutlined, ProjectOutlined, SettingOutlined, AppstoreOutlined, KeyOutlined, DatabaseOutlined, RobotOutlined } from '@ant-design/icons';
+import { UserOutlined, TeamOutlined, ProjectOutlined, SettingOutlined, AppstoreOutlined, KeyOutlined, DatabaseOutlined, RobotOutlined, CloudOutlined } from '@ant-design/icons';
 import General from './General';
 import Users from './users';
 import Groups from './Groups';
@@ -8,6 +8,7 @@ import Projects from './Projects';
 import AI from './AI';
 import Tokens from './Tokens';
 import RegistryInfo from './RegistryInfo';
+import CloudsConfig from './CloudsConfig';
 
 const { Title, Text } = Typography;
 
@@ -74,6 +75,16 @@ const Settings: React.FC = () => {
             children: <Tokens />
         },
         {
+            key: 'clouds',
+            label: (
+                <span className="tabLabel">
+                    <CloudOutlined style={{ fontSize: 18 }} />
+                    Clouds
+                </span>
+            ),
+            children: <CloudsConfig />
+        },
+        {
             key: 'registry',
             label: (
                 <span className="tabLabel">
@@ -97,7 +108,7 @@ const Settings: React.FC = () => {
                 </div>
                 
                 <Text type="secondary">
-                    Manage your application settings, users, groups, projects, AI configuration, API tokens, and registry configuration.
+                    Manage your application settings, users, groups, projects, AI configuration, API tokens, cloud providers, and registry configuration.
                 </Text>
             </div>
 

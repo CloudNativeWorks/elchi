@@ -206,7 +206,7 @@ const RegistryInfo: React.FC = () => {
             cancelText: 'Cancel',
             onOk() {
                 clearSnapshotMutation.mutate(
-                    { path: `bridge/nodes/${selectedNodeId}/snapshot` },
+                    { path: `bridge/nodes/${selectedNodeId}/snapshot${selectedControlPlaneVersion ? `?version=${selectedControlPlaneVersion}` : ''}` },
                     {
                         onSuccess: () => {
                             messageApi.success('Snapshot cleared successfully');

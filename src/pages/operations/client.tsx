@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Card, Spin, Typography, Tag, Descriptions, Alert, Tabs, Divider } from 'antd';
+import { Card, Spin, Typography, Tag, Descriptions, Alert, Tabs, Divider, Modal, Button, Row, Col } from 'antd';
 import { FileTextOutlined, InfoCircleOutlined, AppstoreOutlined, BarChartOutlined, CloudDownloadOutlined } from '@ant-design/icons';
 import { useCustomGetQuery } from '@/common/api';
 import { DateTimeTool } from '@/utils/date-time-tool';
@@ -14,6 +14,7 @@ const { Title, Text } = Typography;
 
 const ClientDetail: React.FC = () => {
     const { client_id } = useParams();
+    const [metadataModalVisible, setMetadataModalVisible] = useState(false);
     const { isLoading: isLoadingClient, data: dataClient, error: errorClient } = useCustomGetQuery({
         queryKey: `client_detail_${client_id}`,
         enabled: !!client_id,
@@ -104,25 +105,45 @@ const ClientDetail: React.FC = () => {
                             ),
                             children: (
                                 <>
-                                    <Descriptions column={1} bordered size="middle">
+                                    <Descriptions column={{ xs: 1, sm: 2, md: 3 }} bordered size="middle">
                                         <Descriptions.Item label="Client ID"><Text copyable>{dataClient.client_id}</Text></Descriptions.Item>
                                         <Descriptions.Item label="Hostname">{dataClient.hostname}</Descriptions.Item>
                                         <Descriptions.Item label="OS">{dataClient.os}</Descriptions.Item>
-                                        <Descriptions.Item label="Arch">{dataClient.arch}</Descriptions.Item>
+                                        <Descriptions.Item label="Architecture">{dataClient.arch}</Descriptions.Item>
                                         <Descriptions.Item label="Kernel">{dataClient.kernel}</Descriptions.Item>
                                         <Descriptions.Item label="Version">
-                                            <Tag className='auto-width-tag' color="blue">{dataClient.version}</Tag>
+                                            <Tag color="blue">{dataClient.version}</Tag>
                                         </Descriptions.Item>
                                         <Descriptions.Item label="Last Seen">{DateTimeTool(dataClient.last_seen)}</Descriptions.Item>
+                                        <Descriptions.Item label="BGP">
+                                            <Tag color={dataClient.bgp ? "green" : "red"}>
+                                                {dataClient.bgp ? "Enabled" : "Disabled"}
+                                            </Tag>
+                                        </Descriptions.Item>
+                                        {dataClient.cloud && (
+                                            <Descriptions.Item label="Cloud">
+                                                <Tag color="cyan">{dataClient.cloud}</Tag>
+                                            </Descriptions.Item>
+                                        )}
+                                        {dataClient.provider && (
+                                            <Descriptions.Item label="Provider">
+                                                <Tag color="orange">{dataClient.provider}</Tag>
+                                            </Descriptions.Item>
+                                        )}
                                         <Descriptions.Item label="Metadata">
                                             {dataClient.metadata && Object.keys(dataClient.metadata).length > 0 ? (
-                                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                                                    {Object.entries(dataClient.metadata).map(([key, value]) => (
-                                                        <Tag key={key} style={{ fontSize: 12, padding: '4px 10px' }}>
-                                                            <span style={{ fontWeight: 600 }}>{key}:&nbsp;</span> <span style={{ fontWeight: 400 }}>{String(value)}</span>
-                                                        </Tag>
-                                                    ))}
-                                                </div>
+                                                <Button 
+                                                    type="link" 
+                                                    size="small"
+                                                    onClick={() => setMetadataModalVisible(true)}
+                                                    style={{ 
+                                                        padding: '2px 8px',
+                                                        height: 'auto',
+                                                        fontSize: '13px'
+                                                    }}
+                                                >
+                                                    {Object.keys(dataClient.metadata).length} items - Click to view
+                                                </Button>
                                             ) : (
                                                 <span style={{ color: '#bfbfbf' }}>No metadata</span>
                                             )}
@@ -144,7 +165,7 @@ const ClientDetail: React.FC = () => {
                                 </span>
                             ),
                             children: (
-                                <ClientNetwork clientId={dataClient.client_id} />
+                                <ClientNetwork clientId={dataClient.client_id} bgpEnabled={dataClient.bgp} />
                             )
                         },
                         {
@@ -189,6 +210,59 @@ const ClientDetail: React.FC = () => {
                     ]}
                 />
             </Card>
+
+            {/* Metadata Modal */}
+            <Modal
+                title="Client Metadata"
+                open={metadataModalVisible}
+                onCancel={() => setMetadataModalVisible(false)}
+                footer={null}
+                width={800}
+            >
+                {dataClient.metadata && Object.keys(dataClient.metadata).length > 0 ? (
+                    <Row gutter={[16, 16]} style={{ padding: '8px 0' }}>
+                        {Object.entries(dataClient.metadata).map(([key, value]) => (
+                            <Col xs={24} sm={12} md={8} key={key}>
+                                <div style={{
+                                    background: '#fafafa',
+                                    border: '1px solid #f0f0f0',
+                                    borderRadius: 8,
+                                    padding: '12px',
+                                    height: '100%',
+                                    display: 'flex',
+                                    flexDirection: 'column'
+                                }}>
+                                    <div style={{
+                                        fontSize: '12px',
+                                        color: '#666',
+                                        fontWeight: 500,
+                                        marginBottom: '6px',
+                                        textTransform: 'uppercase',
+                                        letterSpacing: '0.5px'
+                                    }}>
+                                        {key}
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        <Text 
+                                            copyable 
+                                            style={{ 
+                                                fontSize: '14px',
+                                                wordBreak: 'break-all'
+                                            }}
+                                        >
+                                            {String(value)}
+                                        </Text>
+                                    </div>
+                                </div>
+                            </Col>
+                        ))}
+                    </Row>
+                ) : (
+                    <div style={{ textAlign: 'center', padding: '20px' }}>
+                        <Text type="secondary">No metadata available</Text>
+                    </div>
+                )}
+            </Modal>
 
             <div style={{ height: 32 }} />
         </div>
