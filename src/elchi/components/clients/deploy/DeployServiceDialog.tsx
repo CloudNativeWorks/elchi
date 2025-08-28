@@ -1,11 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Modal, Button, message, Alert } from 'antd';
+import { Drawer, Button, message, Alert } from 'antd';
 import { ClientListTable } from './ClientListTable';
 import { useDeployUndeployService } from '@/hooks/useServiceActions';
 import { OperationsType } from '@/common/types';
 import { useCustomGetQuery, api } from '@/common/api';
 import { DeployLineIcon } from '@/assets/svg/icons';
 import { CloudUploadOutlined, DeleteOutlined } from '@ant-design/icons';
+import { useProjectVariable } from '@/hooks/useProjectVariable';
 
 
 interface DeployServiceDialogProps {
@@ -14,7 +15,7 @@ interface DeployServiceDialogProps {
     serviceName: string;
     project: string;
     action: OperationsType;
-    existingClients: Array<{ client_id: string; downstream_address: string }>;
+    existingClients: Array<{ client_id: string; downstream_address: string; interface_id?: string }>;
     onSuccess?: () => void;
     version?: string;
 }
@@ -25,13 +26,36 @@ interface ClientVersionInfo {
     error?: string;
 }
 
+interface OpenStackInterface {
+    id: string;
+    name: string;
+    network_id: string;
+    status: string;
+    admin_state_up: boolean;
+    mac_address: string;
+    fixed_ips: Array<{
+        subnet_id: string;
+        ip_address: string;
+    }>;
+    allowed_address_pairs: Array<{
+        ip_address: string;
+        mac_address: string;
+    }>;
+    device_id: string;
+    device_owner: string;
+}
+
 export function DeployServiceDialog({ open, onClose, serviceName, project, action: initialAction, existingClients, onSuccess, version }: DeployServiceDialogProps) {
+    const { project: currentProject } = useProjectVariable();
     const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
     const [downstreamAddresses, setDownstreamAddresses] = useState<Record<string, string>>({});
+    const [selectedInterfaces, setSelectedInterfaces] = useState<Record<string, string>>({});
     const [action, setAction] = useState<OperationsType>(initialAction);
     const [messageApi, contextHolder] = message.useMessage();
     const [clientVersions, setClientVersions] = useState<Record<string, ClientVersionInfo>>({});
     const [loadingVersions, setLoadingVersions] = useState(false);
+    const [interfaceData, setInterfaceData] = useState<Record<string, OpenStackInterface[]>>({});
+    const [interfaceLoading, setInterfaceLoading] = useState<Record<string, boolean>>({});
 
     const { executeAction, loading } = useDeployUndeployService({
         name: serviceName,
@@ -46,6 +70,22 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
         directApi: true
     });
 
+    const fetchOpenStackInterfaces = useCallback(async (clientId: string, osUuid: string, osProjectId: string) => {
+        setInterfaceLoading(prev => ({ ...prev, [clientId]: true }));
+        
+        try {
+            const response = await api.get(`/api/op/clients/${clientId}/openstack/interfaces?os_uuid=${osUuid}&osp_project=${osProjectId}&project=${currentProject}`);
+            if (response.data?.data) {
+                setInterfaceData(prev => ({ ...prev, [clientId]: response.data.data }));
+            }
+        } catch (error: any) {
+            console.error('Error fetching OpenStack interfaces:', error);
+            setInterfaceData(prev => ({ ...prev, [clientId]: [] }));
+        } finally {
+            setInterfaceLoading(prev => ({ ...prev, [clientId]: false }));
+        }
+    }, [currentProject]);
+
     // Fetch available versions for all clients in a single batch request
     const fetchClientVersions = useCallback(async (clientList: any[]) => {
         if (!clientList || clientList.length === 0) return;
@@ -53,11 +93,14 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
         setLoadingVersions(true);
         const versionMap: Record<string, ClientVersionInfo> = {};
         
+        // Filter only connected clients for version requests
+        const connectedClients = clientList.filter(client => client.connected);
+        
         try {
-            // Send batch request for all clients at once
+            // Send batch request only for connected clients
             const payload = {
                 type: "ENVOY_VERSION",
-                clients: clientList.map(client => ({
+                clients: connectedClients.map(client => ({
                     client_id: client.client_id,
                     downstream_address: client.downstream_address || ""
                 })),
@@ -91,8 +134,8 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                 }
             });
         } catch (error) {
-            // If batch request fails, mark all clients as error
-            clientList.forEach(client => {
+            // If batch request fails, mark only connected clients as error
+            connectedClients.forEach(client => {
                 versionMap[client.client_id] = {
                     client_id: client.client_id,
                     downloaded_versions: [],
@@ -101,15 +144,32 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
             });
         }
         
+        // For disconnected clients, mark them as offline with no versions
+        const disconnectedClients = clientList.filter(client => !client.connected);
+        disconnectedClients.forEach(client => {
+            versionMap[client.client_id] = {
+                client_id: client.client_id,
+                downloaded_versions: [],
+                error: 'Client offline'
+            };
+        });
+        
         setClientVersions(versionMap);
         setLoadingVersions(false);
+    }, []);
+
+    const handleInterfaceSelect = useCallback((clientId: string, interfaceId: string) => {
+        setSelectedInterfaces(prev => ({ ...prev, [clientId]: interfaceId }));
     }, []);
 
     useEffect(() => {
         if (!open) {
             setSelectedRowKeys([]);
             setDownstreamAddresses({});
+            setSelectedInterfaces({});
             setClientVersions({});
+            setInterfaceData({});
+            setInterfaceLoading({});
         } else {
             setAction(OperationsType.DEPLOY);
             if (existingClients.length > 0 && selectedRowKeys.length === 0) {
@@ -117,8 +177,12 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                 const addresses = Object.fromEntries(
                     existingClients.map(c => [c.client_id, c.downstream_address])
                 );
+                const interfaces = Object.fromEntries(
+                    existingClients.filter(c => c.interface_id).map(c => [c.client_id, c.interface_id!])
+                );
                 setSelectedRowKeys(clientIds);
                 setDownstreamAddresses(addresses);
+                setSelectedInterfaces(interfaces);
             }
         }
     }, [open, existingClients]);
@@ -127,8 +191,17 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
     useEffect(() => {
         if (open && clients && clients.length > 0) {
             fetchClientVersions(clients);
+            // Auto-fetch interfaces for OpenStack clients
+            const openStackClients = clients.filter(client => 
+                client.provider === 'openstack' && 
+                client.metadata?.os_uuid && 
+                client.metadata?.os_project_id
+            );
+            openStackClients.forEach(client => {
+                fetchOpenStackInterfaces(client.client_id, client.metadata.os_uuid, client.metadata.os_project_id);
+            });
         }
-    }, [open, clients, fetchClientVersions]);
+    }, [open, clients, fetchClientVersions, fetchOpenStackInterfaces]);
 
     const handleSubmit = async () => {
         if (selectedRowKeys.length === 0) {
@@ -159,6 +232,21 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                 return;
             }
 
+            // Validate OpenStack interface selection
+            const openStackClients = selectedRowKeys.filter(id => {
+                const client = clients?.find(c => c.client_id === id);
+                return client?.provider === 'openstack' && client.metadata?.os_uuid && client.metadata?.os_project_id;
+            });
+
+            const missingInterfaces = openStackClients.filter(id => !selectedInterfaces[id]);
+            if (missingInterfaces.length > 0) {
+                const clientNames = clients?.filter(c => missingInterfaces.includes(c.client_id))
+                                          .map(c => c.name)
+                                          .join(', ');
+                messageApi.error(`Please select OpenStack interfaces for: ${clientNames}`);
+                return;
+            }
+
             // Check version compatibility
             if (version) {
                 const incompatibleClients = selectedRowKeys.filter(id => {
@@ -181,7 +269,8 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
         try {
             const result = await executeAction(action, selectedRowKeys.map(id => ({
                 client_id: id,
-                downstream_address: downstreamAddresses[id]
+                downstream_address: downstreamAddresses[id],
+                interface_id: selectedInterfaces[id] || undefined
             })));
 
             if (!result.success) {
@@ -217,21 +306,17 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
     return (
         <>
             {contextHolder}
-            <Modal
+            <Drawer
                 open={open}
-                onCancel={onClose}
-                closeIcon={null}
+                onClose={onClose}
+                placement="right"
+                width={1200}
                 title={
                     <div style={{
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'space-between',
-                        width: '100%',
-                        padding: '10px',
-                        margin: '0px 0px 0px',
-                        borderBottom: '1px solid #f0f0f0',
-                        background: '#fff',
-                        borderRadius: '12px 12px 0 0'
+                        width: '100%'
                     }}>
                         <div style={{
                             display: 'flex',
@@ -246,9 +331,9 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                         <div style={{
                             display: 'flex',
                             alignItems: 'center',
-                            gap: 12,
-                            padding: '4px 12px',
-                        }}><span style={{ fontSize: 14, color: '#262626' }}>Active Mode: </span>
+                            gap: 12
+                        }}>
+                            <span style={{ fontSize: 14, color: '#262626' }}>Active Mode:</span>
                             <div style={{ display: 'flex', gap: 8 }}>
                                 <Button
                                     onClick={() => setAction(OperationsType.DEPLOY)}
@@ -287,25 +372,18 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                 }
                 footer={
                     <div style={{
-                        margin: '0',
-                        padding: '12px 16px',
-                        background: '#fafafa',
-                        borderTop: '1px solid #f0f0f0',
-                        borderRadius: '0 0 12px 12px'
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                        gap: 8,
+                        padding: '16px 0'
                     }}>
                         <Button
-                            key="cancel"
                             onClick={onClose}
-                            style={{
-                                borderRadius: 6,
-                                marginRight: 8,
-                                border: '1px solid #d9d9d9'
-                            }}
+                            style={{ borderRadius: 6 }}
                         >
                             Cancel
                         </Button>
                         <Button
-                            key="submit"
                             danger={action === OperationsType.UNDEPLOY}
                             loading={loading}
                             onClick={handleSubmit}
@@ -325,25 +403,6 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                         </Button>
                     </div>
                 }
-                width={1100}
-                styles={{
-                    content: {
-                        padding: 0,
-                        overflow: 'hidden',
-                        borderRadius: 12
-                    },
-                    body: {
-                        padding: '8px'
-                    },
-                    header: {
-                        padding: 0,
-                        border: 'none'
-                    },
-                    footer: {
-                        padding: 0,
-                        border: 'none'
-                    }
-                }}
             >
                 {clientsError && (
                     <Alert
@@ -417,19 +476,31 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                                                              versionInfo?.downloaded_versions && 
                                                              !versionInfo.downloaded_versions.includes(version);
                                 
+                                // Check if OpenStack client has no interfaces available
+                                const isOpenStack = record.provider === 'openstack' && record.metadata?.os_uuid && record.metadata?.os_project_id;
+                                const hasNoInterfaces = isOpenStack && 
+                                                       !interfaceLoading[record.client_id] && 
+                                                       (!interfaceData[record.client_id] || interfaceData[record.client_id].length === 0);
+                                
                                 return {
                                     disabled: (action === OperationsType.UNDEPLOY && !isExistingClient(record.client_id)) || 
                                             !record.connected || 
-                                            isVersionIncompatible
+                                            isVersionIncompatible ||
+                                            hasNoInterfaces
                                 };
                             }
                         }}
                         clientVersions={clientVersions}
                         serviceVersion={version}
                         actionType={action}
+                        onInterfaceSelect={handleInterfaceSelect}
+                        interfaceData={interfaceData}
+                        interfaceLoading={interfaceLoading}
+                        selectedInterfaces={selectedInterfaces}
+                        fetchOpenStackInterfaces={fetchOpenStackInterfaces}
                     />
                 </div>
-            </Modal>
+            </Drawer>
         </>
     );
 } 

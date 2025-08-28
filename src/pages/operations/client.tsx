@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Card, Spin, Typography, Tag, Descriptions, Alert, Tabs, Divider, Modal, Button, Row, Col } from 'antd';
+import { Card, Spin, Typography, Tag, Descriptions, Alert, Tabs, Divider, Drawer, Button, Row, Col } from 'antd';
 import { FileTextOutlined, InfoCircleOutlined, AppstoreOutlined, BarChartOutlined, CloudDownloadOutlined } from '@ant-design/icons';
 import { useCustomGetQuery } from '@/common/api';
 import { DateTimeTool } from '@/utils/date-time-tool';
@@ -14,7 +14,7 @@ const { Title, Text } = Typography;
 
 const ClientDetail: React.FC = () => {
     const { client_id } = useParams();
-    const [metadataModalVisible, setMetadataModalVisible] = useState(false);
+    const [metadataDrawerVisible, setMetadataDrawerVisible] = useState(false);
     const { isLoading: isLoadingClient, data: dataClient, error: errorClient } = useCustomGetQuery({
         queryKey: `client_detail_${client_id}`,
         enabled: !!client_id,
@@ -135,7 +135,7 @@ const ClientDetail: React.FC = () => {
                                                 <Button 
                                                     type="link" 
                                                     size="small"
-                                                    onClick={() => setMetadataModalVisible(true)}
+                                                    onClick={() => setMetadataDrawerVisible(true)}
                                                     style={{ 
                                                         padding: '2px 8px',
                                                         height: 'auto',
@@ -211,18 +211,18 @@ const ClientDetail: React.FC = () => {
                 />
             </Card>
 
-            {/* Metadata Modal */}
-            <Modal
+            {/* Metadata Drawer */}
+            <Drawer
                 title="Client Metadata"
-                open={metadataModalVisible}
-                onCancel={() => setMetadataModalVisible(false)}
-                footer={null}
-                width={800}
+                open={metadataDrawerVisible}
+                onClose={() => setMetadataDrawerVisible(false)}
+                width={600}
+                placement="right"
             >
                 {dataClient.metadata && Object.keys(dataClient.metadata).length > 0 ? (
                     <Row gutter={[16, 16]} style={{ padding: '8px 0' }}>
                         {Object.entries(dataClient.metadata).map(([key, value]) => (
-                            <Col xs={24} sm={12} md={8} key={key}>
+                            <Col xs={24} sm={12} key={key}>
                                 <div style={{
                                     background: '#fafafa',
                                     border: '1px solid #f0f0f0',
@@ -244,13 +244,13 @@ const ClientDetail: React.FC = () => {
                                     </div>
                                     <div style={{ flex: 1 }}>
                                         <Text 
-                                            copyable 
+                                            copyable={{ text: String(value) }}
                                             style={{ 
                                                 fontSize: '14px',
                                                 wordBreak: 'break-all'
                                             }}
                                         >
-                                            {String(value)}
+                                            {String(value).length > 30 ? `${String(value).substring(0, 30)}...` : String(value)}
                                         </Text>
                                     </div>
                                 </div>
@@ -262,7 +262,7 @@ const ClientDetail: React.FC = () => {
                         <Text type="secondary">No metadata available</Text>
                     </div>
                 )}
-            </Modal>
+            </Drawer>
 
             <div style={{ height: 32 }} />
         </div>
