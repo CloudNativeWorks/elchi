@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Drawer, Button, message, Alert } from 'antd';
+import { Drawer, Button, message, Alert, Modal } from 'antd';
 import { ClientListTable } from './ClientListTable';
 import { useDeployUndeployService } from '@/hooks/useServiceActions';
 import { OperationsType } from '@/common/types';
 import { useCustomGetQuery, api } from '@/common/api';
 import { DeployLineIcon } from '@/assets/svg/icons';
-import { CloudUploadOutlined, DeleteOutlined } from '@ant-design/icons';
+import { CloudUploadOutlined, DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 
 
@@ -56,6 +56,7 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
     const [loadingVersions, setLoadingVersions] = useState(false);
     const [interfaceData, setInterfaceData] = useState<Record<string, OpenStackInterface[]>>({});
     const [interfaceLoading, setInterfaceLoading] = useState<Record<string, boolean>>({});
+    const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
 
     const { executeAction, loading } = useDeployUndeployService({
         name: serviceName,
@@ -66,7 +67,7 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
     const { data: clients, error: clientsError, isLoading: clientsLoading } = useCustomGetQuery({
         queryKey: `client_list_${project}_${version}`,
         enabled: open && !!project,
-        path: `api/op/clients?project=${project}${version ? `&version=${version}` : ''}`,
+        path: `api/op/clients?project=${project}${version ? `&version=${version}` : ''}&with_service_ips=true`,
         directApi: true
     });
 
@@ -162,53 +163,12 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
         setSelectedInterfaces(prev => ({ ...prev, [clientId]: interfaceId }));
     }, []);
 
-    useEffect(() => {
-        if (!open) {
-            setSelectedRowKeys([]);
-            setDownstreamAddresses({});
-            setSelectedInterfaces({});
-            setClientVersions({});
-            setInterfaceData({});
-            setInterfaceLoading({});
-        } else {
-            setAction(OperationsType.DEPLOY);
-            if (existingClients.length > 0 && selectedRowKeys.length === 0) {
-                const clientIds = existingClients.map(c => c.client_id);
-                const addresses = Object.fromEntries(
-                    existingClients.map(c => [c.client_id, c.downstream_address])
-                );
-                const interfaces = Object.fromEntries(
-                    existingClients.filter(c => c.interface_id).map(c => [c.client_id, c.interface_id!])
-                );
-                setSelectedRowKeys(clientIds);
-                setDownstreamAddresses(addresses);
-                setSelectedInterfaces(interfaces);
-            }
-        }
-    }, [open, existingClients]);
+    const handleConfirmDelete = async () => {
+        setDeleteConfirmVisible(false);
+        await performAction();
+    };
 
-    // Fetch versions when clients are loaded
-    useEffect(() => {
-        if (open && clients && clients.length > 0) {
-            fetchClientVersions(clients);
-            // Auto-fetch interfaces for OpenStack clients
-            const openStackClients = clients.filter(client => 
-                client.provider === 'openstack' && 
-                client.metadata?.os_uuid && 
-                client.metadata?.os_project_id
-            );
-            openStackClients.forEach(client => {
-                fetchOpenStackInterfaces(client.client_id, client.metadata.os_uuid, client.metadata.os_project_id);
-            });
-        }
-    }, [open, clients, fetchClientVersions, fetchOpenStackInterfaces]);
-
-    const handleSubmit = async () => {
-        if (selectedRowKeys.length === 0) {
-            messageApi.warning('Please select at least one client.');
-            return;
-        }
-
+    const performAction = async () => {
         if (action === OperationsType.DEPLOY) {
             const missing = selectedRowKeys.some(id => !downstreamAddresses[id]);
             if (missing) {
@@ -281,12 +241,67 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
             messageApi.success(action === OperationsType.DEPLOY ? 'Deploy Success!' : 'Remove Success!');
             onSuccess?.();
             onClose();
-        } catch (
-        // eslint-disable-next-line no-unused-vars
-        error
-        ) {
+        } catch (error) {
             messageApi.error('Operation failed. Please try again.');
         }
+    };
+
+    useEffect(() => {
+        if (!open) {
+            setSelectedRowKeys([]);
+            setDownstreamAddresses({});
+            setSelectedInterfaces({});
+            setClientVersions({});
+            setInterfaceData({});
+            setInterfaceLoading({});
+            setDeleteConfirmVisible(false);
+        } else {
+            setAction(OperationsType.DEPLOY);
+            if (existingClients.length > 0 && selectedRowKeys.length === 0) {
+                const clientIds = existingClients.map(c => c.client_id);
+                const addresses = Object.fromEntries(
+                    existingClients.map(c => [c.client_id, c.downstream_address])
+                );
+                const interfaces = Object.fromEntries(
+                    existingClients.filter(c => c.interface_id).map(c => [c.client_id, c.interface_id!])
+                );
+                setSelectedRowKeys(clientIds);
+                setDownstreamAddresses(addresses);
+                setSelectedInterfaces(interfaces);
+            }
+        }
+    }, [open, existingClients]);
+
+    // Fetch versions when clients are loaded
+    useEffect(() => {
+        if (open && clients && clients.length > 0) {
+            fetchClientVersions(clients);
+            // Auto-fetch interfaces for OpenStack clients
+            const openStackClients = clients.filter(client => 
+                client.provider === 'openstack' && 
+                client.metadata?.os_uuid && 
+                client.metadata?.os_project_id
+            );
+            openStackClients.forEach(client => {
+                fetchOpenStackInterfaces(client.client_id, client.metadata.os_uuid, client.metadata.os_project_id);
+            });
+        }
+    }, [open, clients, fetchClientVersions, fetchOpenStackInterfaces]);
+
+    const handleSubmit = async () => {
+        if (selectedRowKeys.length === 0) {
+            messageApi.warning('Please select at least one client.');
+            return;
+        }
+
+        // Show confirmation modal for UNDEPLOY action
+        if (action === OperationsType.UNDEPLOY) {
+            setDeleteConfirmVisible(true);
+            return;
+        }
+
+        // For DEPLOY action, proceed directly
+        await performAction();
     };
 
     const isExistingClient = useCallback((clientId: string) =>
@@ -497,10 +512,87 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                         interfaceData={interfaceData}
                         interfaceLoading={interfaceLoading}
                         selectedInterfaces={selectedInterfaces}
-                        fetchOpenStackInterfaces={fetchOpenStackInterfaces}
                     />
                 </div>
             </Drawer>
+
+            {/* Delete Confirmation Modal */}
+            <Modal
+                title={
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <ExclamationCircleOutlined style={{ color: '#ff4d4f', fontSize: 20 }} />
+                        <span>Confirm Service Removal</span>
+                    </div>
+                }
+                open={deleteConfirmVisible}
+                onCancel={() => setDeleteConfirmVisible(false)}
+                onOk={handleConfirmDelete}
+                okText="Remove Service"
+                cancelText="Cancel"
+                okButtonProps={{ 
+                    danger: true, 
+                    loading: loading,
+                    style: { fontWeight: 500 }
+                }}
+                cancelButtonProps={{
+                    style: { fontWeight: 500 }
+                }}
+                width={500}
+            >
+                <div style={{ marginTop: 16 }}>
+                    <p style={{ marginBottom: 16, color: '#262626', fontSize: 14 }}>
+                        This service will be removed from the following <strong>{selectedRowKeys.length}</strong> client{selectedRowKeys.length > 1 ? 's' : ''}:
+                    </p>
+                    <div style={{
+                        maxHeight: 200,
+                        overflowY: 'auto',
+                        background: '#fafafa',
+                        border: '1px solid #f0f0f0',
+                        borderRadius: 6,
+                        padding: 12
+                    }}>
+                        {selectedRowKeys.map((clientId, index) => {
+                            const client = clients?.find(c => c.client_id === clientId);
+                            return (
+                                <div key={clientId} style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 8,
+                                    marginBottom: index === selectedRowKeys.length - 1 ? 0 : 8,
+                                    padding: '6px 8px',
+                                    background: '#fff',
+                                    border: '1px solid #e9ecef',
+                                    borderRadius: 4,
+                                    fontSize: 13
+                                }}>
+                                    <span style={{ 
+                                        display: 'inline-block',
+                                        width: 6,
+                                        height: 6,
+                                        borderRadius: '50%',
+                                        background: '#ff4d4f'
+                                    }} />
+                                    <span style={{ fontWeight: 500 }}>{client?.name || clientId}</span>
+                                    <span style={{ color: '#8c8c8c', fontSize: 11, marginLeft: 'auto' }}>
+                                        {client?.hostname}
+                                    </span>
+                                </div>
+                            );
+                        })}
+                    </div>
+                    <div style={{
+                        marginTop: 16,
+                        padding: 12,
+                        background: '#fff2f0',
+                        border: '1px solid #ffccc7',
+                        borderRadius: 6
+                    }}>
+                        <p style={{ margin: 0, color: '#ff4d4f', fontSize: 13, fontWeight: 500 }}>
+                            ⚠️ This action cannot be undone. Are you sure you want to continue?
+                        </p>
+                    </div>
+                </div>
+            </Modal>
         </>
     );
 } 

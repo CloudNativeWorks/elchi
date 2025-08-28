@@ -1,4 +1,4 @@
-import { Table, Input, Collapse, Select, Alert, Spin, Tag, Button, Modal, Descriptions, Space } from 'antd';
+import { Table, Input, Select, Spin, Tag, Button, Modal, Descriptions, Space } from 'antd';
 import { useMemo, useCallback, useState } from 'react';
 import { OperationsType } from '@/common/types';
 import { InfoCircleOutlined } from '@ant-design/icons';
@@ -44,7 +44,6 @@ interface ClientListTableProps {
     interfaceData?: Record<string, OpenStackInterface[]>;
     interfaceLoading?: Record<string, boolean>;
     selectedInterfaces?: Record<string, string>;
-    fetchOpenStackInterfaces?: (clientId: string, osUuid: string, osProjectId: string) => Promise<void>;//eslint-disable-line
 }
 
 // IP validation function outside component
@@ -69,8 +68,7 @@ export function ClientListTable({
     onInterfaceSelect,
     interfaceData = {},
     interfaceLoading = {},
-    selectedInterfaces = {},
-    fetchOpenStackInterfaces
+    selectedInterfaces = {}
 }: ClientListTableProps) {
     const [interfaceDetailModal, setInterfaceDetailModal] = useState<{
         visible: boolean;
@@ -218,6 +216,34 @@ export function ClientListTable({
             }
         },
         {
+            title: 'Services',
+            key: 'service_ips',
+            width: 100,
+            render: (_: any, record: any) => {
+                const serviceIpsCount = record.service_ips?.length || 0;
+                
+                if (serviceIpsCount === 0) {
+                    return <span style={{ color: '#bfbfbf', fontSize: 12 }}>-</span>;
+                }
+                
+                return (
+                    <span style={{
+                        display: 'inline-flex',
+                        background: 'linear-gradient(90deg, #f6ffed 0%, #d9f7be 100%)',
+                        color: '#52c41a',
+                        alignItems: 'center',
+                        borderRadius: 4,
+                        padding: '2px 12px',
+                        fontWeight: 600,
+                        fontSize: 12,
+                        boxShadow: '0 1px 4px rgba(82,196,26,0.08)'
+                    }}>
+                        {serviceIpsCount}
+                    </span>
+                );
+            }
+        },
+        {
             title: 'Downstream Address',
             dataIndex: 'downstream_address',
             key: 'downstream_address',
@@ -247,8 +273,6 @@ export function ClientListTable({
                 }
 
                 // Enhanced input for OpenStack clients with interface selection
-                const osUuid = record.metadata.os_uuid;
-                const osProjectId = record.metadata.os_project_id;
                 const interfaces = interfaceData[record.client_id] || [];
                 const isLoading = interfaceLoading[record.client_id];
                 const selectedInterface = selectedInterfaces[record.client_id];
@@ -329,20 +353,6 @@ export function ClientListTable({
                                                 </div>
                                             )
                                         }))}
-                                        dropdownRender={(menu) => (
-                                            <div>
-                                                {menu}
-                                                <div style={{ 
-                                                    padding: '8px 12px', 
-                                                    borderTop: '1px solid #f0f0f0',
-                                                    background: '#fafafa',
-                                                    fontSize: 10,
-                                                    color: '#666'
-                                                }}>
-                                                    💡 Interface selection is required for OpenStack deployment
-                                                </div>
-                                            </div>
-                                        )}
                                     />
                                 </div>
                             )}
