@@ -2,6 +2,8 @@ import { Table, Input, Select, Spin, Tag, Button, Modal, Descriptions, Space } f
 import { useMemo, useCallback, useState } from 'react';
 import { OperationsType } from '@/common/types';
 import { InfoCircleOutlined } from '@ant-design/icons';
+import { useProjectVariable } from '@/hooks/useProjectVariable';
+import OpenStackNetworkDetails from './OpenStackNetworkDetails';
 
 interface ClientVersionInfo {
     client_id: string;
@@ -70,10 +72,12 @@ export function ClientListTable({
     interfaceLoading = {},
     selectedInterfaces = {}
 }: ClientListTableProps) {
+    const { project } = useProjectVariable();
     const [interfaceDetailModal, setInterfaceDetailModal] = useState<{
         visible: boolean;
         interface: OpenStackInterface | null;
-    }>({ visible: false, interface: null });
+        clientRecord: any | null;
+    }>({ visible: false, interface: null, clientRecord: null });
 
     const handleInterfaceChange = useCallback((clientId: string, interfaceId: string) => {
         onInterfaceSelect?.(clientId, interfaceId);
@@ -382,7 +386,8 @@ export function ClientListTable({
                                             icon={<InfoCircleOutlined />}
                                             onClick={() => setInterfaceDetailModal({ 
                                                 visible: true, 
-                                                interface: selectedInterfaceData 
+                                                interface: selectedInterfaceData,
+                                                clientRecord: record 
                                             })}
                                             style={{ 
                                                 padding: '2px 4px',
@@ -511,12 +516,13 @@ export function ClientListTable({
                 </Space>
             }
             open={interfaceDetailModal.visible}
-            onCancel={() => setInterfaceDetailModal({ visible: false, interface: null })}
+            onCancel={() => setInterfaceDetailModal({ visible: false, interface: null, clientRecord: null })}
             footer={null}
-            width={600}
+            width={900}
         >
-            {interfaceDetailModal.interface && (
-                <Descriptions column={1} size="small" bordered>
+            {interfaceDetailModal.interface && interfaceDetailModal.clientRecord && (
+                <div>
+                    <Descriptions column={1} size="small" bordered style={{ marginBottom: 24 }}>
                     <Descriptions.Item label="Name">
                         {interfaceDetailModal.interface.name || interfaceDetailModal.interface.id.substring(0, 8)}
                     </Descriptions.Item>
@@ -581,7 +587,16 @@ export function ClientListTable({
                             </div>
                         </Descriptions.Item>
                     )}
-                </Descriptions>
+                    </Descriptions>
+                    
+                    {/* Network Details Component */}
+                    <OpenStackNetworkDetails
+                        networkId={interfaceDetailModal.interface.network_id}
+                        subnetIds={interfaceDetailModal.interface.fixed_ips.map(ip => ip.subnet_id)}
+                        osProjectId={interfaceDetailModal.clientRecord.metadata?.os_project_id}
+                        project={project}
+                    />
+                </div>
             )}
         </Modal>
         </>
