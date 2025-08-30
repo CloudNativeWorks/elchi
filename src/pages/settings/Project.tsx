@@ -3,8 +3,6 @@ import { Form, Input, Transfer, message, Card, Typography, Space, Badge, Divider
 import { ProjectOutlined, UserOutlined, ArrowLeftOutlined, CloseOutlined, SaveOutlined, PlusOutlined } from '@ant-design/icons';
 import { useCustomGetQuery } from '@/common/api';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { errorMessage, successMessage } from '@/common/message';
-import { AxiosError } from 'axios';
 import { useCustomApiMutation } from '@/common/custom-api';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import ElchiButton from '@/elchi/components/common/ElchiButton';
@@ -19,7 +17,6 @@ const Project: React.FC = () => {
     const project_id = query.get('project_id');
     const { project } = useProjectVariable();
     const [targetKeys, setTargetKeys] = useState([]);
-    const [messageApi, contextHolder] = message.useMessage();
     const isCreatePage = location.pathname === `/settings/create/project`;
     const [form] = Form.useForm();
     const { /* isLoading: isLoadingResource */ data: dataProject } = useCustomGetQuery({
@@ -50,20 +47,11 @@ const Project: React.FC = () => {
             values.project.members = values.project.members.filter(member => member !== null);
         }
 
-        try {
-            await mutate.mutateAsync({ data: values.project, method: 'put', path: `api/v3/setting/project/${projectName}` }, {
-                onSuccess: (data: any) => {
-                    successMessage(messageApi, data.message);
-                    navigate('/settings/projects');
-                },
-                onError: (error: any) => {
-                    const errorMsg = error?.response?.data?.message || 'An error occurred while saving project';
-                    errorMessage(messageApi, errorMsg);
-                },
-            })
-        } catch (error) {
-            if (error instanceof AxiosError) { errorMessage(messageApi, error?.response?.data?.message) }
-        }
+        await mutate.mutateAsync({ data: values.project, method: 'put', path: `api/v3/setting/project/${projectName}` }, {
+            onSuccess: () => {
+                navigate('/settings/projects');
+            }
+        })
     };
 
     const goBack = () => {
@@ -109,7 +97,6 @@ const Project: React.FC = () => {
 
     return (
         <>
-            {contextHolder}
             {/* Header Section */}
             <div style={{ marginBottom: 24 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
@@ -119,9 +106,9 @@ const Project: React.FC = () => {
                             {isCreatePage ? 'Create Project' : 'Project Details'}
                         </Title>
                     </Space>
-                    <ElchiButton 
-                        type="text" 
-                        icon={<ArrowLeftOutlined />} 
+                    <ElchiButton
+                        type="text"
+                        icon={<ArrowLeftOutlined />}
                         onClick={goBack}
                         onlyText
                     >
@@ -129,7 +116,7 @@ const Project: React.FC = () => {
                     </ElchiButton>
                 </div>
                 <Text type="secondary">
-                    {isCreatePage 
+                    {isCreatePage
                         ? 'Create a new project workspace with member management and resource organization.'
                         : 'Manage project settings, members, and workspace configuration.'
                     }
@@ -137,7 +124,7 @@ const Project: React.FC = () => {
             </div>
 
             {/* Main Form Card */}
-            <Card 
+            <Card
                 style={{
                     borderRadius: 12,
                     boxShadow: '0 2px 8px rgba(5,117,230,0.06)',
@@ -158,13 +145,13 @@ const Project: React.FC = () => {
                             <ProjectOutlined />
                             Project Information
                         </Title>
-                        <Form.Item 
-                            name={['project', 'projectname']} 
-                            label="Project Name" 
+                        <Form.Item
+                            name={['project', 'projectname']}
+                            label="Project Name"
                             rules={[{ required: true, message: 'Project name is required!' }]}
                             style={{ maxWidth: 400 }}
                         >
-                            <Input 
+                            <Input
                                 prefix={<ProjectOutlined style={{ color: '#bfbfbf' }} />}
                                 placeholder="Enter project name"
                                 disabled={!isCreatePage}
@@ -179,7 +166,7 @@ const Project: React.FC = () => {
                             <UserOutlined />
                             Project Members
                         </Title>
-                        
+
                         <Card
                             style={{
                                 background: '#fafafa',
@@ -198,15 +185,15 @@ const Project: React.FC = () => {
                                         <UserOutlined />
                                         <Text strong style={{ fontSize: 14 }}>Member Management</Text>
                                     </div>
-                                    <Badge 
+                                    <Badge
                                         count={`${targetKeys.length}/${(dataSource || []).length}`}
-                                        style={{ 
+                                        style={{
                                             backgroundColor: targetKeys.length > 0 ? '#52c41a' : '#d9d9d9',
                                             color: targetKeys.length > 0 ? '#fff' : '#666'
-                                        }} 
+                                        }}
                                     />
                                 </div>
-                                
+
                                 <Text type="secondary" style={{ fontSize: 12 }}>
                                     Select users to grant access to this project workspace and its resources.
                                 </Text>
@@ -222,7 +209,7 @@ const Project: React.FC = () => {
                                         Assign users to this project for workspace access and collaboration
                                     </Text>
                                 </div>
-                                
+
                                 <Form.Item name={['project', 'members']} style={{ margin: 0 }}>
                                     <Transfer
                                         dataSource={dataSource || []}
@@ -255,10 +242,10 @@ const Project: React.FC = () => {
                             </div>
 
                             {targetKeys.length > 0 && (
-                                <div style={{ 
-                                    marginTop: 16, 
-                                    padding: '12px 16px', 
-                                    background: '#e6f7ff', 
+                                <div style={{
+                                    marginTop: 16,
+                                    padding: '12px 16px',
+                                    background: '#e6f7ff',
                                     border: '1px solid #91d5ff',
                                     borderRadius: 6
                                 }}>
@@ -271,26 +258,26 @@ const Project: React.FC = () => {
                     </div>
 
                     {/* Action Buttons */}
-                    <div style={{ 
-                        display: 'flex', 
-                        justifyContent: 'flex-end', 
-                        gap: 12, 
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                        gap: 12,
                         paddingTop: 24,
                         borderTop: '1px solid #f0f0f0'
                     }}>
-                        <ElchiButton 
-                            type="default" 
+                        <ElchiButton
+                            type="default"
                             icon={<CloseOutlined />}
-                            onClick={goBack} 
+                            onClick={goBack}
                             onlyText
                             size="large"
                         >
                             Cancel
                         </ElchiButton>
-                        <ElchiButton 
-                            type="primary" 
+                        <ElchiButton
+                            type="primary"
                             icon={isCreatePage ? <PlusOutlined /> : <SaveOutlined />}
-                            htmlType="submit" 
+                            htmlType="submit"
                             onlyText
                             size="large"
                         >

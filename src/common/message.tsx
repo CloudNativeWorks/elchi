@@ -12,7 +12,6 @@ export const successMessage = (message: any, msg: string) => {
 export const errorMessage = (message: any, msg: string) => {
     if (msg.startsWith('Resource has dependencies')) {
         const dependencies = msg.replace('Resource has dependencies:', '').split(',').map(dep => dep.trim());
-
         const content = (
             <span>
                 <strong>Resource could not be deleted have dependencies:</strong>
@@ -38,9 +37,6 @@ export const errorMessage = (message: any, msg: string) => {
         });
     }
 };
-
-
-
 
 export const useCustomMessage = (messageApi: any) => {
     const [messageConfig, setMessageConfig] = useState<{ type: 'success' | 'error' | 'warning', content: string } | null>(null);

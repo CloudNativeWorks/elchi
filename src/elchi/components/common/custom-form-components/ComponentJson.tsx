@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Alert, Button } from 'antd';
+import { SaveOutlined, CheckOutlined } from '@ant-design/icons';
 import MonacoEditor from '@monaco-editor/react';
 
 
@@ -12,6 +13,7 @@ const ComponentJson: React.FC<JsonEditorProps> = ({ value, onChange }) => {
     const [tempJson, setTempJson] = useState(JSON.stringify(value, null, 2));
     const [error, setError] = useState<string | null>(null);
     const [editorHeight, setEditorHeight] = useState(200);
+    const [isSaved, setIsSaved] = useState(false);
     const editorRef = React.useRef<any>(null);
 
 
@@ -32,6 +34,10 @@ const ComponentJson: React.FC<JsonEditorProps> = ({ value, onChange }) => {
             setTempJson(JSON.stringify(parsedJson, null, 2));
             setError(null);
             onChange(parsedJson);
+
+            // Success animation
+            setIsSaved(true);
+            setTimeout(() => setIsSaved(false), 2000);
 
             if (editorRef.current) {
                 const lineCount = editorRef.current.getModel().getLineCount();
@@ -90,9 +96,65 @@ const ComponentJson: React.FC<JsonEditorProps> = ({ value, onChange }) => {
                     }
                 }}
             />
-            <Button onClick={handleFormatJson} disabled={!!error} style={{ marginTop: '3px', width: "100%", background: "linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)", color: "#fff" }}>
-                Update
-            </Button>
+            <div style={{ 
+                marginTop: 12,
+                padding: '0px 0px',
+                background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+                borderRadius: 8,
+                border: '1px solid #e2e8f0'
+            }}>
+                <Button 
+                    onClick={handleFormatJson} 
+                    disabled={!!error}
+                    type="primary"
+                    size="large"
+                    icon={isSaved ? <CheckOutlined /> : <SaveOutlined />}
+                    style={{ 
+                        width: "100%",
+                        height: 44,
+                        background: error ? '#d9d9d9' : 
+                                   isSaved ? 'linear-gradient(135deg, #52c41a 0%, #73d13d 50%, #95de64 100%)' :
+                                   'linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #06b6d4 100%)',
+                        border: error ? '1px solid #d9d9d9' : 
+                               isSaved ? '1px solid rgba(255, 255, 255, 0.2)' :
+                               '1px solid rgba(255, 255, 255, 0.2)',
+                        borderRadius: 8,
+                        fontSize: 14,
+                        fontWeight: 600,
+                        letterSpacing: '0.5px',
+                        boxShadow: error ? 'none' : 
+                                  isSaved ? '0 4px 12px rgba(82, 196, 26, 0.3), 0 2px 6px rgba(0,0,0,0.1)' :
+                                  '0 4px 12px rgba(59, 130, 246, 0.3), 0 2px 6px rgba(0,0,0,0.1)',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                        color: error ? '#8c8c8c' : '#ffffff',
+                        transform: isSaved ? 'scale(1.01)' : 'scale(1)'
+                    }}
+                    onMouseEnter={e => {
+                        if (!error && !isSaved) {
+                            e.currentTarget.style.transform = 'translateY(-1px) scale(1.01)';
+                            e.currentTarget.style.boxShadow = '0 6px 16px rgba(59, 130, 246, 0.4), 0 3px 8px rgba(0,0,0,0.15)';
+                        }
+                    }}
+                    onMouseLeave={e => {
+                        if (!error && !isSaved) {
+                            e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3), 0 2px 6px rgba(0,0,0,0.1)';
+                        }
+                    }}
+                >
+                    {isSaved ? 'Saved' : 'Save JSON'}
+                </Button>
+                {error && (
+                    <div style={{
+                        marginTop: 8,
+                        fontSize: 11,
+                        color: '#ff4d4f',
+                        textAlign: 'center'
+                    }}>
+                        Fix JSON syntax errors to enable saving
+                    </div>
+                )}
+            </div>
         </div>
     );
 };

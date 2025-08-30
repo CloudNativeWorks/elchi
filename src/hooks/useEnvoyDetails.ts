@@ -31,7 +31,7 @@ interface EnvoyData {
 
 export const useEnvoyDetails = ({ name, project, version }: EnvoyDetailsProps) => {
     const mutate = useOperationsApiMutation(version);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [envoyData, setEnvoyData] = useState<Record<string, EnvoyData>>({});
 

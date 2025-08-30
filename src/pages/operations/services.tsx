@@ -79,6 +79,7 @@ const Services: React.FC = () => {
         if (filters.name) params.set('name', filters.name);
         if (filters.version) params.set('version', filters.version);
         if (filters.downstream_address) params.set('downstream_address', filters.downstream_address);
+        if (filters.status) params.set('status', filters.status);
 
         return params.toString();
     };
@@ -299,7 +300,7 @@ const Services: React.FC = () => {
                 }}
             >
                 <Row gutter={[16, 16]} align="middle">
-                    <Col span={8}>
+                    <Col span={6}>
                         <Input
                             placeholder="Search by name..."
                             allowClear
@@ -311,7 +312,7 @@ const Services: React.FC = () => {
                     </Col>
                     <Col span={4}>
                         <Select
-                            placeholder="Filter by version"
+                            placeholder="Version"
                             allowClear
                             value={tempFilters.version || undefined}
                             onChange={(value) => setTempFilters(prev => ({ ...prev, version: value }))}
@@ -320,6 +321,21 @@ const Services: React.FC = () => {
                                 label: version,
                                 value: version
                             }))}
+                        />
+                    </Col>
+                    <Col span={4}>
+                        <Select
+                            placeholder="Status"
+                            allowClear
+                            value={tempFilters.status || undefined}
+                            onChange={(value) => setTempFilters(prev => ({ ...prev, status: value }))}
+                            style={{ width: '100%' }}
+                            options={[
+                                { value: "Live", label: "Live (All Connected)" },
+                                { value: "Partial", label: "Partial (Some Connected)" },
+                                { value: "Offline", label: "Offline (None Connected)" },
+                                { value: "Not_Deployed", label: "Not Deployed" }
+                            ]}
                         />
                     </Col>
                     <Col span={4}>
@@ -332,7 +348,7 @@ const Services: React.FC = () => {
                             prefix={<FilterOutlined />}
                         />
                     </Col>
-                    <Col span={8}>
+                    <Col span={6}>
                         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                             <Space>
                                 <Button 

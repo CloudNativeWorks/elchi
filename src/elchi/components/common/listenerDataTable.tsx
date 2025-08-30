@@ -1,6 +1,6 @@
 import { ExclamationCircleFilled, InboxOutlined, DeploymentUnitOutlined, DeleteOutlined, AliyunOutlined, PlaySquareOutlined, CopyOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-import { message, Dropdown, Table, Typography, Modal, Tag, Pagination } from 'antd';
+import { Dropdown, Table, Typography, Modal, Tag, Pagination } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useCustomGetQuery, useDeleteMutation } from "../../../common/api";
 import { DateTimeTool } from "../../../utils/date-time-tool"
@@ -43,13 +43,12 @@ interface CustomListenerDataTableProps {
 
 const CustomListenerDataTable: React.FC<CustomListenerDataTableProps> = ({ path, filters = {} }) => {
     const navigate = useNavigate();
-    const [messageApi, contextHolder] = message.useMessage();
     const deleteMutate = useDeleteMutation()
     const { project } = useProjectVariable();
     const [updateData, setUpdateData] = useState(1);
     const [queryKey, setQueryKey] = useState(`listResources-${path}`);
     const [isModalVisible, setIsModalVisible] = useState<dependenciesType>({ name: '', collection: '', gtype: '', version: '', visible: false });
-    const deleteResource = useDeleteResource(messageApi, deleteMutate);
+    const deleteResource = useDeleteResource(deleteMutate);
     const [deleteModal, setDeleteModal] = useState<{ visible: boolean; record: DataType | null }>({ visible: false, record: null });
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(50);
@@ -337,7 +336,7 @@ const CustomListenerDataTable: React.FC<CustomListenerDataTableProps> = ({ path,
         }
     }, [dataResource, pageSize]);
 
-    return <>{contextHolder}
+    return <>
         <div style={{ flex: 1, overflow: 'hidden' }}>
             <Table
                 loading={isLoadingResource}

@@ -112,22 +112,22 @@ const ClientDetail: React.FC = () => {
                                         <Descriptions.Item label="Architecture">{dataClient.arch}</Descriptions.Item>
                                         <Descriptions.Item label="Kernel">{dataClient.kernel}</Descriptions.Item>
                                         <Descriptions.Item label="Version">
-                                            <Tag color="blue">{dataClient.version}</Tag>
+                                            <Tag className='auto-width-tag' color="blue">{dataClient.version}</Tag>
                                         </Descriptions.Item>
                                         <Descriptions.Item label="Last Seen">{DateTimeTool(dataClient.last_seen)}</Descriptions.Item>
                                         <Descriptions.Item label="BGP">
-                                            <Tag color={dataClient.bgp ? "green" : "red"}>
+                                            <Tag className='auto-width-tag' color={dataClient.bgp ? "green" : "red"}>
                                                 {dataClient.bgp ? "Enabled" : "Disabled"}
                                             </Tag>
                                         </Descriptions.Item>
                                         {dataClient.cloud && (
                                             <Descriptions.Item label="Cloud">
-                                                <Tag color="cyan">{dataClient.cloud}</Tag>
+                                                <Tag className='auto-width-tag' color="cyan">{dataClient.cloud}</Tag>
                                             </Descriptions.Item>
                                         )}
                                         {dataClient.provider && (
                                             <Descriptions.Item label="Provider">
-                                                <Tag color="orange">{dataClient.provider}</Tag>
+                                                <Tag className='auto-width-tag' color="orange">{dataClient.provider}</Tag>
                                             </Descriptions.Item>
                                         )}
                                         <Descriptions.Item label="Metadata">

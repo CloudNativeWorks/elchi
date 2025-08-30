@@ -4,6 +4,7 @@ import Config from '../conf';
 import Cookies from 'js-cookie';
 import { AuthMutationOptions, AxiosInstanceExtended, CustomMutationOptions, CustomQueryOptions, DeleteMutationOptions, General, ScenarioMutationOptions } from './types';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
+import { showErrorNotification, isAuthError, handleApiResponse } from './notificationHandler';
 
 export const api: AxiosInstanceExtended = axios.create({
     baseURL: window.APP_CONFIG?.API_URL,
@@ -34,6 +35,9 @@ api.interceptors.response.use(
     (error) => {
         if (error.response && [403, 401].includes(error.response.status)) {
             window.location.hash = '#/403';
+        } else if (!isAuthError(error)) {
+            // Show error notification for all non-auth errors
+            showErrorNotification(error);
         }
         return Promise.reject(error);
     }
@@ -44,10 +48,17 @@ export const useCustomGetQuery = ({ queryKey, enabled, path, refetchOnWindowFocu
         queryKey: [queryKey],
         refetchOnWindowFocus: refetchOnWindowFocus ?? false,
         enabled: enabled,
-        retry: 1,
+        retry: (failureCount, error: any) => {
+            // Don't retry on auth errors or client errors (4xx)
+            if (isAuthError(error) || (error?.response?.status >= 400 && error?.response?.status < 500)) {
+                return false;
+            }
+            return failureCount < 1;
+        },
+        retryDelay: 1000,
         queryFn: () =>
             api.get(directApi ? '/' + path : Config.baseApi + path)
-                .then((res) => res.data),
+                .then((res) => res.data)
     });
 
     return { isLoading, error, data, isFetching, refetch };
@@ -56,7 +67,12 @@ export const useCustomGetQuery = ({ queryKey, enabled, path, refetchOnWindowFocu
 export const useCustomMutation = () => {
     const { project } = useProjectVariable();
     const mutationFn = async (options: CustomMutationOptions) => {
-        const { name, envoyVersion, type: type, gtype, canonical_name, metadata, category, resource, version, method, path, config_discovery, managed, service, collection, elchi_discovery } = options;
+        const { 
+            name, envoyVersion, type: type, gtype, canonical_name, metadata, category, 
+            resource, version, method, path, config_discovery, managed, service, collection, 
+            elchi_discovery, showAutoSuccess, customSuccessMessage, successTitle 
+        } = options;
+        
         const general: General = {
             name,
             version: envoyVersion,
@@ -90,6 +106,14 @@ export const useCustomMutation = () => {
                 'envoy-version': envoyVersion,
             }
         });
+        
+        // Handle success notification
+        handleApiResponse(response.data, undefined, undefined, {
+            showAutoSuccess,
+            customSuccessMessage,
+            successTitle
+        });
+        
         return response;
     }
 
@@ -102,7 +126,16 @@ export const useCustomMutation = () => {
 
 export const useDeleteMutation = () => {
     const mutationFn = async (options: DeleteMutationOptions) => {
-        const response = await api.delete(Config.baseApi + options.path);
+        const { path, showAutoSuccess, customSuccessMessage, successTitle } = options;
+        const response = await api.delete(Config.baseApi + path);
+        
+        // Handle success notification
+        handleApiResponse(response.data, undefined, undefined, {
+            showAutoSuccess,
+            customSuccessMessage,
+            successTitle
+        });
+        
         return response;
     }
 

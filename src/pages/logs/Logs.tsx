@@ -378,7 +378,12 @@ const Logs: React.FC = () => {
                                     type="primary"
                                     disabled={!name || filteredLogs.length === 0}
                                     loading={analyzeLogsMutation.isPending}
-                                    style={{ backgroundColor: '#722ed1', borderColor: '#722ed1', color: 'white' }}
+                                    style={{
+                                        background: 'linear-gradient(90deg, #722ed1 0%, #1890ff 100%)',
+                                        border: 'none',
+                                        boxShadow: '0 2px 4px rgba(114, 46, 209, 0.3)',
+                                        color: 'white'
+                                    }}
                                 >
                                     {aiAnalysisResult ? 'New Analysis' : 'AI Analysis'}
                                 </Button>

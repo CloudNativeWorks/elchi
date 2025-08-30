@@ -50,7 +50,7 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({ path, filters = {} })
     const [updateData, setUpdateData] = useState(1);
     const [queryKey, setQueryKey] = useState(`listResources-${path}`);
     const [isModalVisible, setIsModalVisible] = useState<dependenciesType>({ name: '', collection: '', gtype: '', version: '', visible: false });
-    const deleteResource = useDeleteResource(messageApi, deleteMutate);
+    const deleteResource = useDeleteResource(deleteMutate);
     const [deleteModal, setDeleteModal] = useState<{ visible: boolean; record: DataType | null }>({ visible: false, record: null });
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(50);

@@ -64,7 +64,7 @@ const OpenStackNetworkDetails: React.FC<OpenStackNetworkDetailsProps> = ({
         const fetchNetworkDetails = async () => {
             setLoading(true);
             setError(null);
-            
+
             try {
                 // Fetch network details
                 const networkResponse = await api.get(`/api/op/clients/openstack/networks/${networkId}?osp_project=${osProjectId}&project=${project}`);
@@ -81,7 +81,7 @@ const OpenStackNetworkDetails: React.FC<OpenStackNetworkDetailsProps> = ({
                 const subnets = subnetResponses
                     .map(response => response.data?.data)
                     .filter(Boolean);
-                
+
                 setSubnetDetails(subnets);
             } catch (err: any) {
                 console.error('Error fetching OpenStack network details:', err);
@@ -139,33 +139,33 @@ const OpenStackNetworkDetails: React.FC<OpenStackNetworkDetailsProps> = ({
                             <Text code style={{ fontSize: 11 }}>{networkDetail.id}</Text>
                         </Descriptions.Item>
                         <Descriptions.Item label="Status">
-                            <Tag color={networkDetail.status === 'ACTIVE' ? 'green' : 'orange'}>
+                            <Tag className='auto-width-tag' color={networkDetail.status === 'ACTIVE' ? 'green' : 'orange'}>
                                 {networkDetail.status}
                             </Tag>
                         </Descriptions.Item>
                         <Descriptions.Item label="Admin State">
-                            <Tag color={networkDetail.admin_state_up ? 'green' : 'red'}>
+                            <Tag className='auto-width-tag' color={networkDetail.admin_state_up ? 'green' : 'red'}>
                                 {networkDetail.admin_state_up ? 'UP' : 'DOWN'}
                             </Tag>
                         </Descriptions.Item>
                         <Descriptions.Item label="Shared">
-                            <Tag color={networkDetail.shared ? 'blue' : 'default'}>
+                            <Tag className='auto-width-tag' color={networkDetail.shared ? 'blue' : 'default'}>
                                 {networkDetail.shared ? 'Yes' : 'No'}
                             </Tag>
                         </Descriptions.Item>
                         <Descriptions.Item label="External">
-                            <Tag color={networkDetail.router_external ? 'purple' : 'default'}>
+                            <Tag className='auto-width-tag' color={networkDetail.router_external ? 'purple' : 'default'}>
                                 {networkDetail.router_external ? 'Yes' : 'No'}
                             </Tag>
                         </Descriptions.Item>
                         {networkDetail.provider_network_type && (
                             <Descriptions.Item label="Provider Type" span={2}>
-                                <Tag color="cyan">{networkDetail.provider_network_type}</Tag>
+                                <Tag className='auto-width-tag' color="cyan">{networkDetail.provider_network_type}</Tag>
                             </Descriptions.Item>
                         )}
                         {networkDetail.mtu && (
                             <Descriptions.Item label="MTU">
-                                <Tag>{networkDetail.mtu}</Tag>
+                                <Tag className='auto-width-tag' >{networkDetail.mtu}</Tag>
                             </Descriptions.Item>
                         )}
                         {networkDetail.description && (
@@ -197,12 +197,12 @@ const OpenStackNetworkDetails: React.FC<OpenStackNetworkDetailsProps> = ({
                         <Text code style={{ fontSize: 11 }}>{subnet.id}</Text>
                     </Descriptions.Item>
                     <Descriptions.Item label="CIDR">
-                        <Tag color="geekblue" style={{ fontFamily: 'monospace' }}>
+                        <Tag className='auto-width-tag' color="geekblue" style={{ fontFamily: 'monospace' }}>
                             {subnet.cidr}
                         </Tag>
                     </Descriptions.Item>
                     <Descriptions.Item label="IP Version">
-                        <Tag color={subnet.ip_version === 4 ? 'blue' : 'purple'}>
+                        <Tag className='auto-width-tag' color={subnet.ip_version === 4 ? 'blue' : 'purple'}>
                             IPv{subnet.ip_version}
                         </Tag>
                     </Descriptions.Item>
@@ -210,7 +210,7 @@ const OpenStackNetworkDetails: React.FC<OpenStackNetworkDetailsProps> = ({
                         <Text code>{subnet.gateway_ip}</Text>
                     </Descriptions.Item>
                     <Descriptions.Item label="DHCP">
-                        <Tag color={subnet.enable_dhcp ? 'green' : 'red'}>
+                        <Tag className='auto-width-tag' color={subnet.enable_dhcp ? 'green' : 'red'}>
                             {subnet.enable_dhcp ? 'Enabled' : 'Disabled'}
                         </Tag>
                     </Descriptions.Item>
@@ -229,7 +229,7 @@ const OpenStackNetworkDetails: React.FC<OpenStackNetworkDetailsProps> = ({
                         <Descriptions.Item label="DNS Nameservers" span={2}>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
                                 {subnet.dns_nameservers.map((dns, idx) => (
-                                    <Tag key={idx} color="gold" style={{ fontFamily: 'monospace', fontSize: 11 }}>
+                                    <Tag className='auto-width-tag' key={idx} color="gold" style={{ fontFamily: 'monospace', fontSize: 11 }}>
                                         {dns}
                                     </Tag>
                                 ))}
@@ -240,7 +240,7 @@ const OpenStackNetworkDetails: React.FC<OpenStackNetworkDetailsProps> = ({
                         <Descriptions.Item label="Host Routes" span={2}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                                 {subnet.host_routes.map((route, idx) => (
-                                    <div key={idx} style={{ 
+                                    <div key={idx} style={{
                                         background: '#f6f8fa',
                                         padding: '4px 8px',
                                         borderRadius: 4,

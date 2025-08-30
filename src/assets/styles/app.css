@@ -692,4 +692,439 @@ body {
 
 .ant-collapse-ghost > .ant-collapse-item.ant-collapse-item-active {
     border-bottom: 1px solid #f0f0f0 !important;
+}
+
+/* Modern Error Notification Styles - Glass Morphism */
+.modern-error-notification {
+    background: linear-gradient(135deg, 
+        rgba(255, 240, 245, 0.9) 0%,
+        rgba(255, 245, 248, 0.85) 100%) !important;
+    backdrop-filter: blur(16px) saturate(150%) !important;
+    border: 1px solid rgba(255, 182, 193, 0.3) !important;
+    border-left: 4px solid #ff4757 !important;
+    border-radius: 12px !important;
+    box-shadow: 
+        0 8px 32px rgba(255, 71, 87, 0.1),
+        0 4px 16px rgba(0, 0, 0, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+    overflow: hidden !important;
+    animation: slideInGlass 0.5s ease-out !important;
+    margin: 8px !important;
+    position: relative !important;
+    min-width: 500px !important;
+    max-width: 600px !important;
+}
+
+/* Remove wrapper background */
+.ant-notification-notice-wrapper {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Remove container backgrounds */
+.ant-notification {
+    background: transparent !important;
+}
+
+.ant-notification .ant-notification-notice {
+    margin-bottom: 16px !important;
+}
+
+.modern-error-notification.ant-notification-notice-wrapper {
+    background: transparent !important;
+}
+
+.modern-error-notification .ant-notification-notice-content {
+    background: transparent !important;
+    padding: 0px 0px 0px 0px !important;
+    position: relative !important;
+    z-index: 2 !important;
+}
+
+.modern-error-notification .ant-notification-notice-content .ant-notification-notice-with-icon {
+    display: block !important;
+}
+
+/* Glass overlay effect */
+.modern-error-notification::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.2) 0%,
+        rgba(255, 182, 193, 0.1) 50%,
+        rgba(255, 255, 255, 0.1) 100%);
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Header row with icon + title */
+.modern-error-notification .ant-notification-notice-content > .ant-notification-notice-with-icon-title {
+    display: flex !important;
+    align-items: center !important;
+    margin-bottom: 0px !important;
+}
+
+.modern-error-notification .ant-notification-notice-icon {
+    margin-right: 8px !important;
+    font-size: 16px !important;
+    color: #ff4757 !important;
+    margin-top: 0px !important;
+    filter: drop-shadow(0 2px 4px rgba(255, 71, 87, 0.2)) !important;
+    position: relative !important;
+    z-index: 3 !important;
+    flex-shrink: 0 !important;
+    height: 16px !important;
+    line-height: 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    float: left !important;
+}
+
+.modern-error-notification .ant-notification-notice-message {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #2d1b1b !important;
+    margin-bottom: 4px !important;
+    letter-spacing: -0.2px !important;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5) !important;
+    position: relative !important;
+    z-index: 3 !important;
+    line-height: 16px !important;
+    margin-top: 0px !important;
+    display: inline !important;
+    margin-left: 0px !important;
+}
+
+.modern-error-notification .ant-notification-notice-description {
+    font-size: 12px !important;
+    color: #5a3a3a !important;
+    line-height: 1.3 !important;
+    font-weight: 400 !important;
+    margin: 0 !important;
+    margin-left: 2px !important;
+    margin-top: -10px !important;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3) !important;
+    position: relative !important;
+    z-index: 3 !important;
+}
+
+/* Clear float after title */
+.modern-error-notification .ant-notification-notice-message::after {
+    content: '';
+    display: table;
+    clear: both;
+}
+
+.modern-error-notification .ant-notification-notice-close {
+    right: 10px !important;
+    top: 10px !important;
+    color: rgba(93, 58, 58, 0.6) !important;
+    font-size: 14px !important;
+    transition: all 0.2s ease !important;
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-radius: 50% !important;
+    width: 22px !important;
+    height: 22px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    backdrop-filter: blur(4px) !important;
+    position: absolute !important;
+    z-index: 4 !important;
+}
+
+.modern-error-notification .ant-notification-notice-close:hover {
+    color: #ff4757 !important;
+    background: rgba(255, 255, 255, 0.4) !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 2px 8px rgba(255, 71, 87, 0.2) !important;
+}
+
+@keyframes slideInGlass {
+    0% {
+        opacity: 0;
+        transform: translateX(100%) scale(0.95);
+        backdrop-filter: blur(0px);
+    }
+    50% {
+        opacity: 0.7;
+        transform: translateX(-5%) scale(1.02);
+        backdrop-filter: blur(8px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+        backdrop-filter: blur(16px);
+    }
+}
+
+/* Modern Warning Notification Styles */
+.modern-warning-notification {
+    background: linear-gradient(135deg, 
+        rgba(255, 248, 220, 0.9) 0%,
+        rgba(255, 251, 235, 0.85) 100%) !important;
+    backdrop-filter: blur(16px) saturate(150%) !important;
+    border: 1px solid rgba(255, 193, 7, 0.3) !important;
+    border-left: 4px solid #faad14 !important;
+    border-radius: 12px !important;
+    box-shadow: 
+        0 8px 32px rgba(250, 173, 20, 0.1),
+        0 4px 16px rgba(0, 0, 0, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+    overflow: hidden !important;
+    animation: slideInGlass 0.5s ease-out !important;
+    margin: 8px !important;
+    position: relative !important;
+    min-width: 500px !important;
+    max-width: 600px !important;
+}
+
+.modern-warning-notification .ant-notification-notice-content {
+    background: transparent !important;
+    padding: 10px 35px 10px 14px !important;
+    position: relative !important;
+    z-index: 2 !important;
+}
+
+.modern-warning-notification .ant-notification-notice-content .ant-notification-notice-with-icon {
+    display: block !important;
+}
+
+/* Glass overlay effect */
+.modern-warning-notification::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.2) 0%,
+        rgba(255, 193, 7, 0.1) 50%,
+        rgba(255, 255, 255, 0.1) 100%);
+    z-index: 1;
+    pointer-events: none;
+}
+
+.modern-warning-notification .ant-notification-notice-icon {
+    margin-right: 8px !important;
+    font-size: 16px !important;
+    color: #faad14 !important;
+    margin-top: 0px !important;
+    filter: drop-shadow(0 2px 4px rgba(250, 173, 20, 0.2)) !important;
+    position: relative !important;
+    z-index: 3 !important;
+    flex-shrink: 0 !important;
+    height: 16px !important;
+    line-height: 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    float: left !important;
+}
+
+.modern-warning-notification .ant-notification-notice-message {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #8b4513 !important;
+    margin-bottom: 4px !important;
+    letter-spacing: -0.2px !important;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5) !important;
+    position: relative !important;
+    z-index: 3 !important;
+    line-height: 16px !important;
+    margin-top: 0px !important;
+    display: inline !important;
+    margin-left: 22px !important;
+}
+
+.modern-warning-notification .ant-notification-notice-description {
+    font-size: 12px !important;
+    color: #a0622d !important;
+    line-height: 1.3 !important;
+    font-weight: 400 !important;
+    margin: 0 !important;
+    margin-left: 22px !important;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3) !important;
+    position: relative !important;
+    z-index: 3 !important;
+}
+
+/* Clear float after title */
+.modern-warning-notification .ant-notification-notice-message::after {
+    content: '';
+    display: table;
+    clear: both;
+}
+
+.modern-warning-notification .ant-notification-notice-close {
+    right: 10px !important;
+    top: 10px !important;
+    color: rgba(139, 69, 19, 0.6) !important;
+    font-size: 14px !important;
+    transition: all 0.2s ease !important;
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-radius: 50% !important;
+    width: 22px !important;
+    height: 22px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    backdrop-filter: blur(4px) !important;
+    position: absolute !important;
+    z-index: 4 !important;
+}
+
+.modern-warning-notification .ant-notification-notice-close:hover {
+    color: #faad14 !important;
+    background: rgba(255, 255, 255, 0.4) !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 2px 8px rgba(250, 173, 20, 0.2) !important;
+}
+
+/* Modern Success Notification Styles */
+.modern-success-notification {
+    background: linear-gradient(135deg, 
+        rgba(246, 255, 237, 0.9) 0%,
+        rgba(251, 255, 248, 0.85) 100%) !important;
+    backdrop-filter: blur(16px) saturate(150%) !important;
+    border: 1px solid rgba(82, 196, 26, 0.3) !important;
+    border-left: 4px solid #52c41a !important;
+    border-radius: 12px !important;
+    box-shadow: 
+        0 8px 32px rgba(82, 196, 26, 0.1),
+        0 4px 16px rgba(0, 0, 0, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+    overflow: hidden !important;
+    animation: slideInGlass 0.5s ease-out !important;
+    margin: 8px !important;
+    position: relative !important;
+    min-width: 500px !important;
+    max-width: 600px !important;
+}
+
+.modern-success-notification .ant-notification-notice-content {
+    background: transparent !important;
+    padding: 0px 0px 0px 0px !important;
+    position: relative !important;
+    z-index: 2 !important;
+}
+
+.modern-success-notification .ant-notification-notice-content .ant-notification-notice-with-icon {
+    display: block !important;
+}
+
+/* Glass overlay effect */
+.modern-success-notification::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.2) 0%,
+        rgba(82, 196, 26, 0.1) 50%,
+        rgba(255, 255, 255, 0.1) 100%);
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Header row with icon + title */
+.modern-success-notification .ant-notification-notice-content > .ant-notification-notice-with-icon-title {
+    display: flex !important;
+    align-items: center !important;
+    margin-bottom: 0px !important;
+}
+
+.modern-success-notification .ant-notification-notice-icon {
+    margin-right: 8px !important;
+    font-size: 16px !important;
+    color: #52c41a !important;
+    margin-top: 0px !important;
+    filter: drop-shadow(0 2px 4px rgba(82, 196, 26, 0.2)) !important;
+    position: relative !important;
+    z-index: 3 !important;
+    flex-shrink: 0 !important;
+    height: 16px !important;
+    line-height: 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    float: left !important;
+}
+
+.modern-success-notification .ant-notification-notice-message {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #237804 !important;
+    margin-bottom: 4px !important;
+    letter-spacing: -0.2px !important;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5) !important;
+    position: relative !important;
+    z-index: 3 !important;
+    line-height: 16px !important;
+    margin-top: 0px !important;
+    display: inline !important;
+    margin-left: 0px !important;
+}
+
+.modern-success-notification .ant-notification-notice-description {
+    font-size: 12px !important;
+    color: #389e0d !important;
+    line-height: 1.3 !important;
+    font-weight: 400 !important;
+    margin: 0 !important;
+    margin-left: 2px !important;
+    margin-top: -10px !important;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3) !important;
+    position: relative !important;
+    z-index: 3 !important;
+}
+
+/* Clear float after title */
+.modern-success-notification .ant-notification-notice-message::after {
+    content: '';
+    display: table;
+    clear: both;
+}
+
+.modern-success-notification .ant-notification-notice-close {
+    right: 10px !important;
+    top: 10px !important;
+    color: rgba(35, 120, 4, 0.6) !important;
+    font-size: 14px !important;
+    transition: all 0.2s ease !important;
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-radius: 50% !important;
+    width: 22px !important;
+    height: 22px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    backdrop-filter: blur(4px) !important;
+    position: absolute !important;
+    z-index: 4 !important;
+}
+
+.modern-success-notification .ant-notification-notice-close:hover {
+    color: #52c41a !important;
+    background: rgba(255, 255, 255, 0.4) !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 2px 8px rgba(82, 196, 26, 0.2) !important;
+}
+
+/* Success and other notification types */
+.ant-notification-notice {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(12px) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+    animation: slideInSmooth 0.4s ease-out !important;
 } 

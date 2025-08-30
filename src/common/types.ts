@@ -27,6 +27,8 @@ export interface CustomQueryOptions {
     refetchOnWindowFocus?: boolean;
     directApi?: boolean;
     headers?: Record<string, string>;
+    showAutoSuccess?: boolean; // Default: true - Otomatik success notification gösterilsin mi
+    suppressSuccess?: boolean; // Success notification'ı tamamen bastır (showAutoSuccess: false ile aynı)
 }
 
 export interface CustomMutationOptions {
@@ -48,6 +50,10 @@ export interface CustomMutationOptions {
     collection: string;
     headers?: Record<string, string>;
     elchi_discovery?: any[];
+    showAutoSuccess?: boolean; // Default: true - Otomatik success notification gösterilsin mi
+    suppressSuccess?: boolean; // Success notification'ı tamamen bastır (showAutoSuccess: false ile aynı)
+    customSuccessMessage?: string; // Özel success mesajı
+    successTitle?: string; // Success notification başlığı
 }
 
 export interface Permissions {
@@ -117,12 +123,20 @@ export interface ScenarioMutationOptions {
 
 export interface DeleteMutationOptions {
     path: string;
+    showAutoSuccess?: boolean; // Default: true - Otomatik success notification gösterilsin mi
+    suppressSuccess?: boolean; // Success notification'ı tamamen bastır (showAutoSuccess: false ile aynı)
+    customSuccessMessage?: string; // Özel success mesajı
+    successTitle?: string; // Success notification başlığı
 }
 
 export interface CustomApiMutationOptions {
     path: string;
     method: Method;
     data: any;
+    showAutoSuccess?: boolean; // Default: true - Otomatik success notification gösterilsin mi
+    suppressSuccess?: boolean; // Success notification'ı tamamen bastır (showAutoSuccess: false ile aynı)
+    customSuccessMessage?: string; // Özel success mesajı
+    successTitle?: string; // Success notification başlığı
 }
 
 export interface OperationsApiMutationOptions {

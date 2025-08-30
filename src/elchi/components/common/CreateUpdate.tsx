@@ -1,8 +1,7 @@
 import { message, Divider, Col, Dropdown, Button, Space } from 'antd';
 import { useCustomMutation, useDeleteMutation } from "@/common/api";
 import { CustomMutationOptions, ConfigDiscovery } from "@/common/types";
-import { successMessage, errorMessage } from '@/common/message'
-import { AxiosError, Method } from "axios"
+import { Method } from "axios"
 import { useNavigate } from "react-router-dom";
 import { SaveOutlined, ArrowLeftOutlined, DownOutlined, RocketOutlined, DeleteOutlined, CloudDownloadOutlined, DeploymentUnitOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
@@ -10,11 +9,9 @@ import { compareReduxStoreAndNameAndConfigDiscovery, memorizeComponent } from "@
 import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { GetYaml } from '@/utils/get-yaml';
-import ResourceDrawer from './Result';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import useDeleteResource from './DeleteResource';
 import { GTypeFieldsBase } from '@/common/statics/gtypes';
-import ErrResourceDrawer from './ErrResult';
 import DependenciesModal from './dependency';
 
 
@@ -35,11 +32,6 @@ interface RenderFormItemProps {
     rawQuery?: any;
 }
 
-interface ResultMessage {
-    message: string;
-    data: { Listeners: string[], Depends: string[] };
-}
-
 export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
     const mutate = useCustomMutation();
     const deleteMutate = useDeleteMutation()
@@ -47,16 +39,12 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
     const [messageApi, contextHolder] = message.useMessage();
     const [loading, setLoading] = useState(false);
     const { project } = useProjectVariable();
-    
+
     // Redux'dan elchi_discovery'yi al
-    const elchiDiscovery = useSelector((state: any) => 
+    const elchiDiscovery = useSelector((state: any) =>
         state.VersionedResources[options.envoyVersion]?.ElchiDiscovery || []
     );
 
-    const [drawerVisible, setDrawerVisible] = useState(false);
-    const [errDrawerVisible, setErrDrawerVisible] = useState(false);
-    const [drawerMessage, setDrawerMessage] = useState<ResultMessage>();
-    const [errDrawerMessage, setErrDrawerMessage] = useState<string>();
     const [isModalVisible, setIsModalVisible] = useState({
         visible: false,
         name: '',
@@ -64,7 +52,7 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
         gtype: '',
         version: '',
     });
-    const deleteResource = useDeleteResource(messageApi, deleteMutate);
+    const deleteResource = useDeleteResource(deleteMutate);
 
     const goBack = () => {
         navigate(-1);
@@ -99,16 +87,6 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
         ],
     };
 
-    const handleError = (error: unknown) => {
-        if (error instanceof AxiosError) {
-            const message = error.response?.data || { message: error.message };
-            setErrDrawerMessage(message);
-            setErrDrawerVisible(true);
-            setLoading(false);
-        } else {
-            errorMessage(messageApi, "An unknown error occurred.");
-        }
-    };
 
     const handleResource = async (method: Method, saveORpublish: string) => {
         if (options.callBack) { options.callBack(); }
@@ -142,19 +120,17 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
                 groups: []
             },
             managed: options?.managed,
-            elchi_discovery: elchiDiscovery
+            elchi_discovery: elchiDiscovery,
+            customSuccessMessage: method === 'post' ?
+                `${options.GType.type} "${options.name}" created successfully!` :
+                `${options.GType.type} "${options.name}" updated successfully!`
         }
 
         try {
             await mutate.mutateAsync(defaultMO, {
                 onSuccess: (data: any) => {
-                    if (saveORpublish === "publish") {
-                        setDrawerMessage(data.data);
-                        setDrawerVisible(true);
-                    } else if (saveORpublish === "download") {
+                    if (saveORpublish === "download") {
                         GetYaml(data.data?.data);
-                    } else {
-                        successMessage(messageApi, data?.data?.message);
                     }
 
                     if (method === 'post') {
@@ -165,21 +141,11 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
                         options.queryResource.resource.version = (parseInt(options.queryResource.resource.version) + 1).toString();
                     }
                 },
-                onError: (error: any) => {
-                    handleError(error);
-                    return Promise.resolve();
-                },
                 onSettled: () => {
                     setLoading(false);
                 },
             });
         } catch (error) {
-            if (saveORpublish === "publish") {
-                setErrDrawerMessage(error.response?.data || { message: error.message });
-                setErrDrawerVisible(true);
-                setLoading(false);
-                return;
-            }
             setLoading(false);
         }
     }
@@ -335,18 +301,6 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
                     </Button>
                 </div>
             </Col>
-
-            <ResourceDrawer
-                visible={drawerVisible}
-                onClose={() => setDrawerVisible(false)}
-                message={drawerMessage}
-            />
-
-            <ErrResourceDrawer
-                visible={errDrawerVisible}
-                onClose={() => setErrDrawerVisible(false)}
-                message={errDrawerMessage}
-            />
 
             <DependenciesModal
                 visible={isModalVisible.visible}

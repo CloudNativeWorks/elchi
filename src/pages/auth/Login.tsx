@@ -1,9 +1,6 @@
 import { FormEvent, useEffect, useState } from 'react';
-import { message } from 'antd';
 import { useAuthMutation } from "@/common/api";
 import { useNavigate } from "react-router-dom";
-import { AxiosError } from "axios"
-import { errorMessage } from '@/common/message'
 import Cookies from 'js-cookie';
 import { DecodeToken } from '@utils/tools';
 import { CheckDate } from "@/utils/date-time-tool";
@@ -15,7 +12,6 @@ import { useProjectVariable } from '@/hooks/useProjectVariable';
 
 
 const Login = () => {
-    const [messageApi, contextHolder] = message.useMessage();
     const mutate = useAuthMutation("/auth/login");
     const navigate = useNavigate();
     const [userDetail, setUserDetail] = useState<any>({});
@@ -25,8 +21,8 @@ const Login = () => {
 
     useEffect(() => {
         if (userDetail.token) {
-        const tokenExp = DecodeToken(userDetail.token);
-        if (!CheckDate(tokenExp.exp)) {
+            const tokenExp = DecodeToken(userDetail.token);
+            if (!CheckDate(tokenExp.exp)) {
                 navigate(`/`);
             }
         }
@@ -59,44 +55,34 @@ const Login = () => {
                 }
             })
         } catch (error) {
-            if (error instanceof AxiosError) {
-                errorMessage(messageApi, error?.response?.data?.message || "backend connection error!");
-            }
             setButtonState('Log in');
             setWorking(false);
         }
     };
 
     return (
-        <>
-            {contextHolder}
-
-            <div className="wrapper2">
-                <form className={`login ${buttonState === 'Username or Password incorrect!' ? 'ok' : ''} ${buttonState === 'Authenticating' ? 'loading' : ''}`} onSubmit={handleSubmit}>
-
-                    <div className="brand" style={{ textAlign: 'center', marginBottom: 4 }}>
-                        <span><img alt='Elchi' src={logoelchi} /></span>
-                    </div>
-
-                    <input type="text" placeholder="Username" name="username" />
-                    <i className="fa fa-user"> <UserOutlined /></i>
-                    <input type="password" placeholder="Password" name="password" />
-                    <i className="fa fa-key"><KeyOutlined /></i>
-                    <button type='submit' style={{ cursor: "pointer" }}>
-                        <i className="spinner"></i>
-                        <span className="state">{buttonState}</span>
-                    </button>
-                </form>
-
-                <footer>
-                    {
-                        window.APP_CONFIG?.ENABLE_DEMO ?
-                            <a target="blank" style={{ cursor: 'pointer' }} onClick={handleDemo}>Create Demo Account</a>
-                            : <a target="_blank" href="#">Elchi</a>
-                    }
-                </footer>
-            </div >
-        </>
+        <div className="wrapper2">
+            <form className={`login ${buttonState === 'Username or Password incorrect!' ? 'ok' : ''} ${buttonState === 'Authenticating' ? 'loading' : ''}`} onSubmit={handleSubmit}>
+                <div className="brand" style={{ textAlign: 'center', marginBottom: 4 }}>
+                    <span><img alt='Elchi' src={logoelchi} /></span>
+                </div>
+                <input type="text" placeholder="Username" name="username" />
+                <i className="fa fa-user"> <UserOutlined /></i>
+                <input type="password" placeholder="Password" name="password" />
+                <i className="fa fa-key"><KeyOutlined /></i>
+                <button type='submit' style={{ cursor: "pointer" }}>
+                    <i className="spinner"></i>
+                    <span className="state">{buttonState}</span>
+                </button>
+            </form>
+            <footer>
+                {
+                    window.APP_CONFIG?.ENABLE_DEMO ?
+                        <a target="blank" style={{ cursor: 'pointer' }} onClick={handleDemo}>Create Demo Account</a>
+                        : <a target="_blank" href="#">Elchi</a>
+                }
+            </footer>
+        </div>
     );
 };
 

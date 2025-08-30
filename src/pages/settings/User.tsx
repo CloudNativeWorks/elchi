@@ -4,8 +4,6 @@ import { UserOutlined, MailOutlined, KeyOutlined, TeamOutlined, ProjectOutlined,
 import { useCustomGetQuery } from '@/common/api';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useCustomApiMutation } from '@/common/custom-api';
-import { AxiosError } from "axios"
-import { errorMessage, successMessage } from '@/common/message';
 import Permissions from './permissions';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import useAuth from '@/hooks/useUserDetails';
@@ -34,7 +32,6 @@ const User: React.FC = () => {
     const navigate = useNavigate();
     const mutate = useCustomApiMutation();
     const [baseGroupCleared, setBaseGroupCleared] = useState(false);
-    const [messageApi, contextHolder] = message.useMessage();
     const [changedValues, setChangedValues] = useState<Partial<UserFormValues>>({});
     const [permissions, setPermissions] = useState({});
     const { project } = useProjectVariable();
@@ -97,24 +94,15 @@ const User: React.FC = () => {
             finalValues.permissions = permissions;
         }
 
-        try {
-            await mutate.mutateAsync({
-                data: finalValues,
-                method: 'put',
-                path: `api/v3/setting/user/${isCreatePage ? finalValues.username : user_id}?project=${project}`
-            }, {
-                onSuccess: (data: any) => {
-                    successMessage(messageApi, data.message);
-                    navigate('/settings/users');
-                },
-                onError: (error: any) => {
-                    const errorMsg = error?.response?.data?.message || 'An error occurred while saving user';
-                    errorMessage(messageApi, errorMsg);
-                },
-            })
-        } catch (error) {
-            if (error instanceof AxiosError) { errorMessage(messageApi, error?.response?.data?.message) }
-        }
+        await mutate.mutateAsync({
+            data: finalValues,
+            method: 'put',
+            path: `api/v3/setting/user/${isCreatePage ? finalValues.username : user_id}?project=${project}`
+        }, {
+            onSuccess: () => {
+                navigate('/settings/users');
+            }
+        })
     };
 
     const goBack = () => {
@@ -142,7 +130,6 @@ const User: React.FC = () => {
         }
         if (isError) {
             form.resetFields();
-            errorMessage(messageApi, 'Error fetching user details');
         }
     }, [dataUser, form, isCreatePage, dataGroups, selectedProject]);
 
@@ -172,7 +159,6 @@ const User: React.FC = () => {
 
     return (
         <>
-            {contextHolder}
             {/* Header Section */}
             <div style={{ marginBottom: 24 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
@@ -182,9 +168,9 @@ const User: React.FC = () => {
                             {isCreatePage ? 'Create User' : 'User Details'}
                         </Title>
                     </Space>
-                    <ElchiButton 
-                        type="text" 
-                        icon={<ArrowLeftOutlined />} 
+                    <ElchiButton
+                        type="text"
+                        icon={<ArrowLeftOutlined />}
                         onClick={goBack}
                         onlyText
                     >
@@ -192,7 +178,7 @@ const User: React.FC = () => {
                     </ElchiButton>
                 </div>
                 <Text type="secondary">
-                    {isCreatePage 
+                    {isCreatePage
                         ? 'Create a new user account with role-based permissions and access controls.'
                         : 'Manage user account settings, roles, and permissions.'
                     }
@@ -200,7 +186,7 @@ const User: React.FC = () => {
             </div>
 
             {/* Main Form Card */}
-            <Card 
+            <Card
                 style={{
                     borderRadius: 12,
                     boxShadow: '0 2px 8px rgba(5,117,230,0.06)',
@@ -225,28 +211,28 @@ const User: React.FC = () => {
                         </Title>
                         <Row gutter={24}>
                             <Col xs={24} lg={12}>
-                                <Form.Item 
-                                    name={['user', 'username']} 
-                                    label="Username" 
+                                <Form.Item
+                                    name={['user', 'username']}
+                                    label="Username"
                                     rules={[{ required: true, message: 'User name is required!' }]}
                                 >
-                                    <Input 
+                                    <Input
                                         prefix={<UserOutlined style={{ color: '#bfbfbf' }} />}
                                         placeholder="Enter username"
-                                        autoComplete="nope" 
-                                        disabled={username === 'admin'} 
+                                        autoComplete="nope"
+                                        disabled={username === 'admin'}
                                         size="large"
                                     />
                                 </Form.Item>
                             </Col>
                             <Col xs={24} lg={12}>
-                                <Form.Item 
-                                    name={['user', 'email']} 
-                                    label="Email" 
-                                    rules={[{ type: 'email', required: true, message: 'Email is not a valid email!' }]} 
+                                <Form.Item
+                                    name={['user', 'email']}
+                                    label="Email"
+                                    rules={[{ type: 'email', required: true, message: 'Email is not a valid email!' }]}
                                     hasFeedback
                                 >
-                                    <Input 
+                                    <Input
                                         prefix={<MailOutlined style={{ color: '#bfbfbf' }} />}
                                         placeholder="Enter email address"
                                         size="large"
@@ -264,10 +250,10 @@ const User: React.FC = () => {
                         </Title>
                         <Row gutter={24}>
                             <Col xs={24} lg={12}>
-                                <Form.Item 
-                                    name={['user', 'password']} 
-                                    label="Password" 
-                                    hasFeedback 
+                                <Form.Item
+                                    name={['user', 'password']}
+                                    label="Password"
+                                    hasFeedback
                                     rules={[
                                         { required: isCreatePage, message: 'Please input your password!' },
                                         () => ({
@@ -286,7 +272,7 @@ const User: React.FC = () => {
                                         }),
                                     ]}
                                 >
-                                    <Input.Password 
+                                    <Input.Password
                                         prefix={<KeyOutlined style={{ color: '#bfbfbf' }} />}
                                         placeholder="Enter password"
                                         autoComplete="new-password"
@@ -295,10 +281,10 @@ const User: React.FC = () => {
                                 </Form.Item>
                             </Col>
                             <Col xs={24} lg={12}>
-                                <Form.Item 
-                                    name="confirm" 
-                                    label="Confirm Password" 
-                                    dependencies={['user', 'password']} 
+                                <Form.Item
+                                    name="confirm"
+                                    label="Confirm Password"
+                                    dependencies={['user', 'password']}
                                     hasFeedback
                                     rules={[
                                         {
@@ -321,7 +307,7 @@ const User: React.FC = () => {
                                         }),
                                     ]}
                                 >
-                                    <Input.Password 
+                                    <Input.Password
                                         prefix={<KeyOutlined style={{ color: '#bfbfbf' }} />}
                                         placeholder="Confirm password"
                                         autoComplete="new-password"
@@ -339,14 +325,14 @@ const User: React.FC = () => {
                         </Title>
                         <Row gutter={24}>
                             <Col xs={24} lg={8}>
-                                <Form.Item 
-                                    name={['user', 'role']} 
-                                    label="Role" 
-                                    rules={[{ required: true, message: 'Please select a role' }]} 
+                                <Form.Item
+                                    name={['user', 'role']}
+                                    label="Role"
+                                    rules={[{ required: true, message: 'Please select a role' }]}
                                     hasFeedback
                                 >
-                                    <Select 
-                                        placeholder="Select a role" 
+                                    <Select
+                                        placeholder="Select a role"
                                         disabled={username === 'admin'}
                                         size="large"
                                     >
@@ -359,10 +345,10 @@ const User: React.FC = () => {
                             </Col>
                             <Col xs={24} lg={8}>
                                 <Form.Item name={['user', 'base_group']} label="Base Group">
-                                    <Select 
-                                        allowClear 
-                                        placeholder="Select base group" 
-                                        onClear={clearField} 
+                                    <Select
+                                        allowClear
+                                        placeholder="Select base group"
+                                        onClear={clearField}
                                         disabled={username === 'admin'}
                                         size="large"
                                     >
@@ -379,8 +365,8 @@ const User: React.FC = () => {
                             </Col>
                             <Col xs={24} lg={8}>
                                 <Form.Item name={['user', 'groups']} label="Groups">
-                                    <Select 
-                                        mode="multiple" 
+                                    <Select
+                                        mode="multiple"
                                         disabled
                                         placeholder="Groups will be assigned"
                                         size="large"
@@ -402,9 +388,9 @@ const User: React.FC = () => {
                         </Title>
                         <Row gutter={24}>
                             <Col xs={24} lg={12}>
-                                <Form.Item 
-                                    name={['user', 'base_project']} 
-                                    initialValue={selectedProject} 
+                                <Form.Item
+                                    name={['user', 'base_project']}
+                                    initialValue={selectedProject}
                                     label="Base Project"
                                 >
                                     <Select
@@ -444,36 +430,36 @@ const User: React.FC = () => {
                                 <SettingOutlined />
                                 Permissions
                             </Title>
-                            <Permissions 
-                                kind='user' 
-                                userOrGroupID={user_id || username} 
-                                onPermissionsChange={handlePermissionsChange} 
-                                form={form} 
+                            <Permissions
+                                kind='user'
+                                userOrGroupID={user_id || username}
+                                onPermissionsChange={handlePermissionsChange}
+                                form={form}
                             />
                         </div>
                     )}
 
                     {/* Action Buttons */}
-                    <div style={{ 
-                        display: 'flex', 
-                        justifyContent: 'flex-end', 
-                        gap: 12, 
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                        gap: 12,
                         paddingTop: 24,
                         borderTop: '1px solid #f0f0f0'
                     }}>
-                        <ElchiButton 
-                            type="default" 
+                        <ElchiButton
+                            type="default"
                             icon={<CloseOutlined />}
-                            onClick={goBack} 
+                            onClick={goBack}
                             onlyText
                             size="large"
                         >
                             Cancel
                         </ElchiButton>
-                        <ElchiButton 
-                            type="primary" 
+                        <ElchiButton
+                            type="primary"
                             icon={isCreatePage ? <PlusOutlined /> : <SaveOutlined />}
-                            htmlType="submit" 
+                            htmlType="submit"
                             onlyText
                             size="large"
                         >

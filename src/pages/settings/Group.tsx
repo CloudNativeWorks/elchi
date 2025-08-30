@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Transfer, message, Card, Typography, Space, Badge, Divider } from 'antd';
+import { Form, Input, Transfer, Card, Typography, Space, Badge, Divider } from 'antd';
 import { TeamOutlined, UserOutlined, SettingOutlined, ArrowLeftOutlined, CloseOutlined, SaveOutlined, PlusOutlined } from '@ant-design/icons';
 import { useCustomGetQuery } from '@/common/api';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { errorMessage, successMessage } from '@/common/message';
-import { AxiosError } from 'axios';
 import { useCustomApiMutation } from '@/common/custom-api';
 import Permissions from './permissions';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
@@ -22,22 +20,15 @@ const Group: React.FC = () => {
     const group_id = query.get('group_id');
 
     const [targetKeys, setTargetKeys] = useState([]);
-    const [messageApi, contextHolder] = message.useMessage();
     const [permissions, setPermissions] = useState({});
     const isCreatePage = location.pathname === `/settings/create/group`;
     const [form] = Form.useForm();
-    const { error: isError, data: dataGroup } = useCustomGetQuery({
+    const { data: dataGroup } = useCustomGetQuery({
         queryKey: `group_details_${project}`,
         enabled: !isCreatePage,
         path: `api/v3/setting/group/${group_id}?project=${project}`,
         directApi: true
     });
-
-    useEffect(() => {
-        if (isError) {
-            errorMessage(messageApi, "Failed to fetch group details");
-        }
-    }, [isError, messageApi]);
 
     const { data: userList } = useCustomGetQuery({
         queryKey: `userlist_groups_${project}`,
@@ -65,20 +56,15 @@ const Group: React.FC = () => {
             values.group["permissions"] = permissions;
         }
 
-        try {
-            await mutate.mutateAsync({ data: values.group, method: 'put', path: `api/v3/setting/group/${groupName}?project=${project}` }, {
-                onSuccess: (data: any) => {
-                    successMessage(messageApi, data.message);
-                    navigate('/settings/groups');
-                },
-                onError: (error: any) => {
-                    const errorMsg = error?.response?.data?.message || 'An error occurred while saving group';
-                    errorMessage(messageApi, errorMsg);
-                },
-            })
-        } catch (error) {
-            if (error instanceof AxiosError) { errorMessage(messageApi, error?.response?.data?.message) }
-        }
+        await mutate.mutateAsync({
+            data: values.group,
+            method: 'put',
+            path: `api/v3/setting/group/${groupName}?project=${project}`
+        }, {
+            onSuccess: () => {
+                navigate('/settings/groups');
+            }
+        })
     };
 
     const goBack = () => {
@@ -119,7 +105,6 @@ const Group: React.FC = () => {
 
     return (
         <>
-            {contextHolder}
             {/* Header Section */}
             <div style={{ marginBottom: 24 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
@@ -129,9 +114,9 @@ const Group: React.FC = () => {
                             {isCreatePage ? 'Create Group' : 'Group Details'}
                         </Title>
                     </Space>
-                    <ElchiButton 
-                        type="text" 
-                        icon={<ArrowLeftOutlined />} 
+                    <ElchiButton
+                        type="text"
+                        icon={<ArrowLeftOutlined />}
                         onClick={goBack}
                         onlyText
                     >
@@ -139,7 +124,7 @@ const Group: React.FC = () => {
                     </ElchiButton>
                 </div>
                 <Text type="secondary">
-                    {isCreatePage 
+                    {isCreatePage
                         ? 'Create a new user group with member management and resource permissions.'
                         : 'Manage group settings, members, and resource permissions.'
                     }
@@ -147,7 +132,7 @@ const Group: React.FC = () => {
             </div>
 
             {/* Main Form Card */}
-            <Card 
+            <Card
                 style={{
                     borderRadius: 12,
                     boxShadow: '0 2px 8px rgba(5,117,230,0.06)',
@@ -168,13 +153,13 @@ const Group: React.FC = () => {
                             <TeamOutlined />
                             Group Information
                         </Title>
-                        <Form.Item 
-                            name={['group', 'groupname']} 
-                            label="Group Name" 
+                        <Form.Item
+                            name={['group', 'groupname']}
+                            label="Group Name"
                             rules={[{ required: true, message: 'Group name is required!' }]}
                             style={{ maxWidth: 400 }}
                         >
-                            <Input 
+                            <Input
                                 prefix={<TeamOutlined style={{ color: '#bfbfbf' }} />}
                                 placeholder="Enter group name"
                                 disabled={!isCreatePage}
@@ -189,7 +174,7 @@ const Group: React.FC = () => {
                             <UserOutlined />
                             Group Members
                         </Title>
-                        
+
                         <Card
                             style={{
                                 background: '#fafafa',
@@ -208,15 +193,15 @@ const Group: React.FC = () => {
                                         <UserOutlined />
                                         <Text strong style={{ fontSize: 14 }}>Member Management</Text>
                                     </div>
-                                    <Badge 
+                                    <Badge
                                         count={`${targetKeys.length}/${(dataSource || []).length}`}
-                                        style={{ 
+                                        style={{
                                             backgroundColor: targetKeys.length > 0 ? '#52c41a' : '#d9d9d9',
                                             color: targetKeys.length > 0 ? '#fff' : '#666'
-                                        }} 
+                                        }}
                                     />
                                 </div>
-                                
+
                                 <Text type="secondary" style={{ fontSize: 12 }}>
                                     Select users to add to this group. Group members inherit all group permissions automatically.
                                 </Text>
@@ -232,7 +217,7 @@ const Group: React.FC = () => {
                                         Assign users to this group for resource access management
                                     </Text>
                                 </div>
-                                
+
                                 <Form.Item name={['group', 'members']} style={{ margin: 0 }}>
                                     <Transfer
                                         dataSource={dataSource || []}
@@ -265,10 +250,10 @@ const Group: React.FC = () => {
                             </div>
 
                             {targetKeys.length > 0 && (
-                                <div style={{ 
-                                    marginTop: 16, 
-                                    padding: '12px 16px', 
-                                    background: '#e6f7ff', 
+                                <div style={{
+                                    marginTop: 16,
+                                    padding: '12px 16px',
+                                    background: '#e6f7ff',
                                     border: '1px solid #91d5ff',
                                     borderRadius: 6
                                 }}>
@@ -291,35 +276,35 @@ const Group: React.FC = () => {
                                 Configure resource permissions that will be inherited by all group members.
                             </Text>
                         </div>
-                        <Permissions 
-                            kind='group' 
-                            userOrGroupID={group_id || groupname} 
-                            onPermissionsChange={handlePermissionsChange} 
-                            form={form} 
+                        <Permissions
+                            kind='group'
+                            userOrGroupID={group_id || groupname}
+                            onPermissionsChange={handlePermissionsChange}
+                            form={form}
                         />
                     </div>
 
                     {/* Action Buttons */}
-                    <div style={{ 
-                        display: 'flex', 
-                        justifyContent: 'flex-end', 
-                        gap: 12, 
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                        gap: 12,
                         paddingTop: 24,
                         borderTop: '1px solid #f0f0f0'
                     }}>
-                        <ElchiButton 
-                            type="default" 
+                        <ElchiButton
+                            type="default"
                             icon={<CloseOutlined />}
-                            onClick={goBack} 
+                            onClick={goBack}
                             onlyText
                             size="large"
                         >
                             Cancel
                         </ElchiButton>
-                        <ElchiButton 
-                            type="primary" 
+                        <ElchiButton
+                            type="primary"
                             icon={isCreatePage ? <PlusOutlined /> : <SaveOutlined />}
-                            htmlType="submit" 
+                            htmlType="submit"
                             onlyText
                             size="large"
                         >

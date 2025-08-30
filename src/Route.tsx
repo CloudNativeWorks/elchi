@@ -18,6 +18,7 @@ import QuickStart from "@/pages/QuickStart";
 import ProtectedRoute from '@/ProtectedRoute';
 import Main from "@/components/layout/Main";
 import Settings from "@/pages/settings/settings";
+import RegistryInfo from "@/pages/RegistryInfo";
 import ExtensionsMain from "@/pages/ExtensionsMain";
 import SnapshotDump from '@/pages/SnapshotDump';
 import Scenario from '@/elchi/components/scenario_old/Scenario';
@@ -78,6 +79,9 @@ const AppRoutes: React.FC = () => (
                 <Route path="/extensions" element={<ExtensionsMain />} />
                 <Route path="/extensions/:resource" element={<Resources />} />
                 <Route path="/extensions/:resource/*" element={<Resource />} />
+
+                {/* Registry Info Route */}
+                <Route path="/registry" element={<RegistryInfo />} />
 
                 {/* Settings Routes */}
                 <Route path="/settings" element={<Settings />} />

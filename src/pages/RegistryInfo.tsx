@@ -4,6 +4,7 @@ import MonacoEditor from '@monaco-editor/react';
 import { DatabaseOutlined, ClusterOutlined, ControlOutlined, SearchOutlined, GlobalOutlined, NodeIndexOutlined, TeamOutlined, ApiOutlined, EyeOutlined, DeleteOutlined, ExclamationCircleOutlined, ShareAltOutlined, AimOutlined, AppstoreOutlined, CloudOutlined, SettingOutlined, KeyOutlined, ReloadOutlined } from '@ant-design/icons';
 import { useCustomGetQuery, api } from '@/common/api';
 import { useMutation } from '@tanstack/react-query';
+import ElchiButton from '@/elchi/components/common/ElchiButton';
 
 const { Text, Title } = Typography;
 
@@ -720,7 +721,7 @@ const RegistryInfo: React.FC = () => {
     return (
         <>
             {contextHolder}
-            <div style={{ width: '100%', padding: '12px' }}>
+            <div style={{ width: '100%', padding: '0px' }}>
                 <div style={{ marginBottom: '24px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <div>
@@ -731,7 +732,7 @@ const RegistryInfo: React.FC = () => {
                             <Text type="secondary">Monitor and manage system components, control planes, and controllers</Text>
                         </div>
                         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                            <Button
+                            <ElchiButton
                                 icon={<ReloadOutlined />}
                                 onClick={handleRefresh}
                                 loading={isLoading}
@@ -739,7 +740,7 @@ const RegistryInfo: React.FC = () => {
                                 size="small"
                             >
                                 Refresh
-                            </Button>
+                            </ElchiButton>
                             <Divider type="vertical" />
                             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                                 <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#52c41a' }} />

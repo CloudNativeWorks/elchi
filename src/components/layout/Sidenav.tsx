@@ -23,7 +23,8 @@ import {
     ApiOutlined,
     RadarChartOutlined,
     RobotOutlined,
-    ScheduleOutlined
+    ScheduleOutlined,
+    DatabaseOutlined
 } from '@ant-design/icons';
 import { useProjectVariable } from "@/hooks/useProjectVariable";
 import { UserDetail } from "@/common/types";
@@ -139,6 +140,12 @@ const menuConfig = [
 		label: "Discovery",
 	},
 	{
+		key: "/registry",
+		to: "/registry",
+		icon: "DatabaseOutlined",
+		label: "Registry",
+	},
+	{
 		key: "/Administration",
 		to: "#",
 		label: "Administration",
@@ -199,6 +206,7 @@ const iconMap = {
 	RadarChartOutlined: RadarChartOutlined,
 	RobotOutlined: RobotOutlined,
 	ScheduleOutlined: ScheduleOutlined,
+	DatabaseOutlined: DatabaseOutlined,
 };
 
 function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {

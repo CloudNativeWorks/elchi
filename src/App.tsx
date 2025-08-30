@@ -7,9 +7,34 @@ import "./assets/styles/app.css";
 import "./assets/styles/responsive.css";
 import "./assets/styles/elchi.scss";
 import { LoadingProvider } from '@/hooks/loadingContext';
+import { setNotificationApi } from './common/notificationHandler';
+import { useEffect } from 'react';
 
 
 const queryClient = new QueryClient()
+
+const AppContent = () => {
+    const { notification } = AntdApp.useApp();
+    
+    useEffect(() => {
+        setNotificationApi(notification);
+    }, [notification]);
+    
+    return (
+        <div className="App" key={"app"}>
+            <QueryClientProvider client={queryClient}>
+                <ProjectVariableProvider>
+                    <HashRouter>
+                        <LoadingProvider>
+                            <AppRoutes />
+                        </LoadingProvider>
+                    </HashRouter>
+                </ProjectVariableProvider>
+            </QueryClientProvider>
+        </div>
+    );
+};
+
 function App() {
     return (
         <ConfigProvider
@@ -24,17 +49,7 @@ function App() {
             }}
         >
             <AntdApp>
-                <div className="App" key={"app"}>
-                    <QueryClientProvider client={queryClient}>
-                        <ProjectVariableProvider>
-                            <HashRouter>
-                                <LoadingProvider>
-                                    <AppRoutes />
-                                </LoadingProvider>
-                            </HashRouter>
-                        </ProjectVariableProvider>
-                    </QueryClientProvider>
-                </div>
+                <AppContent />
             </AntdApp>
         </ConfigProvider>
     );

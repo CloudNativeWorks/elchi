@@ -1,9 +1,9 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { Card, Typography, Spin, Alert, Tabs } from 'antd';
+import { Card, Typography, Spin, Alert, Tabs, Drawer, Tag, Space, Button, Tooltip, Collapse } from 'antd';
 import { useCustomGetQuery } from '@/common/api';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
-import { InfoCircleOutlined, FileTextOutlined, ClusterOutlined } from '@ant-design/icons';
+import { InfoCircleOutlined, FileTextOutlined, ClusterOutlined, CloseOutlined, WarningOutlined } from '@ant-design/icons';
 import { useServiceStatus, useServiceAction } from '@/hooks/useServiceActions';
 import { OperationsSubType, OperationsType } from '@/common/types';
 import EnvoysCard from '@/elchi/components/services/EnvoysCard';
@@ -18,6 +18,7 @@ interface ServiceState {
     isDeployDialogOpen: boolean;
     actionStatusData: any[] | null;
     needsRefresh: boolean;
+    isErrorDrawerOpen: boolean;
 }
 
 const Service: React.FC = () => {
@@ -29,7 +30,8 @@ const Service: React.FC = () => {
     const [state, setState] = useState<ServiceState>({
         isDeployDialogOpen: false,
         actionStatusData: null,
-        needsRefresh: false
+        needsRefresh: false,
+        isErrorDrawerOpen: false
     });
 
     const { isLoading, data: serviceData, error: serviceError, refetch: refetchService } = useCustomGetQuery({
@@ -73,8 +75,9 @@ const Service: React.FC = () => {
                 actionStatusData: result
             }));
             await refreshStatus();
+            await refetchService();
         }
-    }, [callAction, actionLoading, refreshStatus]);
+    }, [callAction, actionLoading, refreshStatus, refetchService]);
 
     const handleRefreshStatus = useCallback(async () => {
         if (actionLoading) return;
@@ -107,7 +110,24 @@ const Service: React.FC = () => {
     }, [refreshStatus, refetchService]);
 
     const statusToShow = state.actionStatusData || statusData;
-    const statusBadge = renderStatusBadge(serviceData?.service?.clients, statusToShow);
+    const enhancedErrors = serviceData?.envoys?.enhanced_errors || [];
+    
+    const handleErrorIconClick = () => {
+        setState(prev => ({ ...prev, isErrorDrawerOpen: true }));
+    };
+    
+    const handleErrorDrawerClose = () => {
+        setState(prev => ({ ...prev, isErrorDrawerOpen: false }));
+    };
+    
+    const statusBadge = (
+        <div 
+            style={{ display: 'flex', alignItems: 'center', cursor: enhancedErrors.length > 0 ? 'pointer' : 'default' }}
+            onClick={enhancedErrors.length > 0 ? handleErrorIconClick : undefined}
+        >
+            {renderStatusBadge(serviceData?.service?.clients, statusToShow, enhancedErrors)}
+        </div>
+    );
 
     if (isLoading) {
         return (
@@ -238,6 +258,194 @@ const Service: React.FC = () => {
                 onSuccess={handleDeploymentSuccess}
                 version={urlVersion || serviceData?.service?.version}
             />
+            
+            <Drawer
+                title={
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <WarningOutlined style={{ color: '#ff4d4f' }} />
+                        <span>Configuration Errors</span>
+                        <Tag color="error">{enhancedErrors.length}</Tag>
+                    </div>
+                }
+                placement="right"
+                width={720}
+                onClose={handleErrorDrawerClose}
+                open={state.isErrorDrawerOpen}
+                extra={
+                    <Button
+                        type="text"
+                        icon={<CloseOutlined />}
+                        onClick={handleErrorDrawerClose}
+                    />
+                }
+            >
+                <div style={{ padding: '0 4px' }}>
+                    {enhancedErrors.length > 0 ? (() => {
+                        const activeErrors = enhancedErrors.filter((error: any) => error.status === 'active');
+                        const resolvedErrors = enhancedErrors.filter((error: any) => error.status === 'resolved');
+                        
+                        const renderErrorCard = (error: any, index: number) => {
+                            const isResolved = error.status === 'resolved';
+                            const borderColor = isResolved ? '#52c41a' : (error.severity === 'critical' ? '#ff4d4f' : '#faad14');
+                            const tagColor = isResolved ? 'success' : (error.severity === 'critical' ? 'error' : 'warning');
+                            const textColor = isResolved ? '#52c41a' : (error.severity === 'critical' ? '#cf1322' : '#d46b08');
+                            const statusTagColor = isResolved ? 'success' : 'processing';
+                            
+                            return (
+                                <div
+                                    key={error.id || index}
+                                    style={{
+                                        background: '#fff',
+                                        border: `1px solid ${borderColor}`,
+                                        borderRadius: 8,
+                                        padding: 16,
+                                        boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                                    }}
+                                >
+                                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 8 }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                            <Tag color={tagColor} style={{ margin: 0 }}>
+                                                {error.severity?.toUpperCase()}
+                                            </Tag>
+                                            <Typography.Text strong style={{ color: textColor, fontSize: 14 }}>
+                                                {error.userFriendlyMessage}
+                                            </Typography.Text>
+                                        </div>
+                                        <Tag color={statusTagColor} style={{ margin: 0 }}>{error.status}</Tag>
+                                    </div>
+                                    
+                                    <div style={{ marginBottom: 12, padding: '8px 12px', background: '#fafafa', borderRadius: 6 }}>
+                                        <Typography.Text style={{ fontSize: 12, color: '#666', fontFamily: 'monospace' }}>
+                                            {error.message}
+                                        </Typography.Text>
+                                    </div>
+                                    
+                                    <div style={{
+                                        marginBottom: 12,
+                                        padding: 12,
+                                        background: 'linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%)',
+                                        border: '1px solid #e8e8e8',
+                                        borderRadius: 8,
+                                        fontSize: 12,
+                                        boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
+                                    }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                <span style={{ color: '#1890ff', fontWeight: 600, fontSize: 13 }}>{error.resourceName}</span>
+                                                <div style={{ background: '#ff4d4f', color: 'white', padding: '2px 6px', borderRadius: 10, fontSize: 10, fontWeight: 600 }}>
+                                                    {error.occurrenceCount}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, fontSize: 11 }}>
+                                            <div>
+                                                <div style={{ color: '#999', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 2 }}>Type</div>
+                                                <Tooltip title={error.resourceType}>
+                                                    <div style={{ color: '#595959', fontWeight: 500, cursor: 'help', fontFamily: 'monospace', lineHeight: 1.3 }}>
+                                                        {error.resourceType?.substring(0, 30)}
+                                                        {error.resourceType?.length > 30 && '...'}
+                                                    </div>
+                                                </Tooltip>
+                                            </div>
+                                            <div>
+                                                <div style={{ color: '#999', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 2 }}>First Seen</div>
+                                                <div style={{ color: '#52c41a', fontWeight: 600, lineHeight: 1.3 }}>
+                                                    {new Date(error.firstOccurred).toLocaleString()}
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div style={{ color: '#999', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 2 }}>Node ID</div>
+                                                <Tooltip title={error.nodeId}>
+                                                    <div style={{ color: '#595959', fontWeight: 500, cursor: 'help', fontFamily: 'monospace', lineHeight: 1.3 }}>
+                                                        {error.nodeId?.substring(0, 30)}
+                                                        {error.nodeId?.length > 30 && '...'}
+                                                    </div>
+                                                </Tooltip>
+                                            </div>
+                                            <div>
+                                                <div style={{ color: '#999', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 2 }}>Last Seen</div>
+                                                <div style={{ color: '#722ed1', fontWeight: 600, lineHeight: 1.3 }}>
+                                                    {new Date(error.lastOccurred).toLocaleString()}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    {error.suggestedFix && (
+                                        <div style={{
+                                            background: '#f6ffed',
+                                            border: '1px solid #b7eb8f',
+                                            borderRadius: 6,
+                                            padding: 8,
+                                            marginTop: 8
+                                        }}>
+                                            <Typography.Text style={{ fontSize: 11, color: '#389e0d' }}>
+                                                💡 {error.suggestedFix}
+                                            </Typography.Text>
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        };
+
+                        return (
+                            <>
+                                {activeErrors.length > 0 && (
+                                    <Collapse 
+                                        defaultActiveKey={['active']}
+                                        ghost
+                                        items={[{
+                                            key: 'active',
+                                            label: (
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                    <WarningOutlined style={{ color: '#ff4d4f' }} />
+                                                    <span style={{ fontWeight: 600, color: '#ff4d4f' }}>
+                                                        Active Errors ({activeErrors.length})
+                                                    </span>
+                                                </div>
+                                            ),
+                                            children: (
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                                    {activeErrors.map(renderErrorCard)}
+                                                </div>
+                                            )
+                                        }]}
+                                    />
+                                )}
+                                
+                                {resolvedErrors.length > 0 && (
+                                    <Collapse 
+                                        ghost
+                                        items={[{
+                                            key: 'resolved',
+                                            label: (
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                    <InfoCircleOutlined style={{ color: '#52c41a' }} />
+                                                    <span style={{ fontWeight: 600, color: '#52c41a' }}>
+                                                        Resolved Errors ({resolvedErrors.length})
+                                                    </span>
+                                                </div>
+                                            ),
+                                            children: (
+                                                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                                    {resolvedErrors.map(renderErrorCard)}
+                                                </div>
+                                            )
+                                        }]}
+                                    />
+                                )}
+                            </>
+                        );
+                    })() : (
+                        <Alert
+                            message="No configuration errors"
+                            description="All configurations are valid and no errors detected."
+                            type="success"
+                            showIcon
+                        />
+                    )}
+                </div>
+            </Drawer>
         </div>
     );
 };

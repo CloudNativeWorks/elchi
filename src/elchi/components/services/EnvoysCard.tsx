@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { WarningOutlined, ReloadOutlined, DatabaseOutlined, ExpandAltOutlined, ShrinkOutlined } from '@ant-design/icons';
-import { Divider, Typography, Select, Button, Card, Row, Col, Statistic, Alert, Spin, Badge, Collapse, Input, Pagination } from 'antd';
+import { ReloadOutlined, DatabaseOutlined, ExpandAltOutlined, ShrinkOutlined } from '@ant-design/icons';
+import { Typography, Select, Button, Card, Row, Col, Statistic, Alert, Spin, Badge, Collapse, Input, Pagination } from 'antd';
 import { useEnvoyDetails } from '@/hooks/useEnvoyDetails';
 import JsonView from 'react18-json-view';
 import 'react18-json-view/src/style.css';
@@ -39,7 +39,6 @@ const EnvoysCard: React.FC<EnvoysCardProps> = ({ envoys, name, project, version 
     const [selectedClient, setSelectedClient] = useState<string>();
     const [manualRefreshLoading, setManualRefreshLoading] = useState(false);
     let filteredEnvoys = envoys?.envoys || [];
-    const errors = envoys?.errors || [];
     const [searchText, setSearchText] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(20);
@@ -655,38 +654,6 @@ const EnvoysCard: React.FC<EnvoysCardProps> = ({ envoys, name, project, version 
                                             ) : (
                                                 <Text type="secondary">No configuration data available</Text>
                                             )}
-                                        </div>
-                                    )
-                                },
-                                {
-                                    key: 'errors',
-                                    label: (
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                            <WarningOutlined style={{ color: '#ff4d4f' }} />
-                                            <Text strong>Runtime Errors</Text>
-                                            <Badge count={errors.length} style={{ backgroundColor: '#ff4d4f' }} />
-                                        </div>
-                                    ),
-                                    children: (
-                                        <div style={{ maxHeight: 320, overflowY: 'auto' }}>
-                                            {errors.map((err: any, i: number) => (
-                                                <div key={i} style={{
-                                                    marginBottom: 8,
-                                                    padding: 12,
-                                                    borderRadius: 6,
-                                                    background: '#fff1f0',
-                                                    border: '1px solid #ffccc7'
-                                                }}>
-                                                    <div style={{ fontWeight: 600, color: '#cf1322' }}>{err.message}</div>
-                                                    <div style={{ fontSize: 12, color: '#888', marginTop: 4 }}>
-                                                        <span><b>Type:</b> {err.type}</span>
-                                                        <Divider type="vertical" />
-                                                        <span><b>Time:</b> {new Date(err.timestamp).toLocaleString()}</span>
-                                                        <Divider type="vertical" />
-                                                        <span><b>Node:</b> {err.nodeid}</span>
-                                                    </div>
-                                                </div>
-                                            ))}
                                         </div>
                                     )
                                 }

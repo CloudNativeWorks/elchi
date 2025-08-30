@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { Button, Card, message, Result } from 'antd';
 import { useDemoMutation } from "@/common/api";
-import { AxiosError } from "axios";
-import { errorMessage } from '@/common/message';
 import { MailOutlined } from '@ant-design/icons';
 import '@/assets/styles/loginPage.scss';
 import logoelchi from "@/assets/images/logo_black.png";
@@ -35,9 +33,6 @@ const Demo = () => {
                 }
             });
         } catch (error) {
-            if (error instanceof AxiosError) {
-                errorMessage(messageApi, error?.response?.data?.message || "Backend connection error!");
-            }
             setButtonState('Create Demo Account');
         }
     };
