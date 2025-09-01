@@ -37,6 +37,8 @@ import NewAIConfigGenerator from './components/ai/AIConfigGenerator';
 import Discovery from './pages/discovery/Discovery';
 import JobList from './pages/jobs/JobList';
 import JobDetail from './pages/jobs/JobDetail';
+import AuditList from './pages/audit/AuditList';
+import AuditDetail from './pages/audit/AuditDetail';
 
 
 const AppRoutes: React.FC = () => (
@@ -117,6 +119,10 @@ const AppRoutes: React.FC = () => (
                 {/* Jobs Routes */}
                 <Route path="/jobs" element={<JobList />} />
                 <Route path="/jobs/:jobId" element={<JobDetail />} />
+
+                {/* Audit Routes */}
+                <Route path="/audit" element={<AuditList />} />
+                <Route path="/audit/:auditId" element={<AuditDetail />} />
 
                 {/* Catch-All Route */}
                 <Route path="*" element={<Dashboard />} />

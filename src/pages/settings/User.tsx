@@ -131,7 +131,7 @@ const User: React.FC = () => {
         if (isError) {
             form.resetFields();
         }
-    }, [dataUser, form, isCreatePage, dataGroups, selectedProject]);
+    }, [dataUser, form, isCreatePage, dataGroups, selectedProject, isError]);
 
     useEffect(() => {
         if (isCreatePage) {
@@ -413,12 +413,12 @@ const User: React.FC = () => {
                                     name={['user', 'active']}
                                     label="Account Status"
                                     valuePropName="checked"
-                                    initialValue={true}
+                                    preserve={false}
                                 >
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                                        <Switch />
-                                        <Text type="secondary">Active account</Text>
-                                    </div>
+                                    <Switch 
+                                        checkedChildren="Active"
+                                        unCheckedChildren="Inactive"
+                                    />
                                 </Form.Item>
                             </Col>
                         </Row>

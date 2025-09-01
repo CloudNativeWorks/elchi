@@ -223,10 +223,21 @@ export const useJobOperations = () => {
   };
 
   // Get job statistics
-  const getJobStats = useCallback(async (): Promise<JobStatsResponse | null> => {
+  const getJobStats = useCallback(async (filters?: JobListRequest): Promise<JobStatsResponse | null> => {
     setLoading(true);
     try {
-      const response = await api.get(`/api/v3/jobs/stats?project=${project}`);
+      const queryParams = new URLSearchParams();
+      queryParams.append('project', project);
+      
+      if (filters?.status) queryParams.append('status', filters.status);
+      if (filters?.created_by) queryParams.append('created_by', filters.created_by);
+      if (filters?.resource_name) queryParams.append('resource_name', filters.resource_name);
+      if (filters?.affected_listener) queryParams.append('affected_listener', filters.affected_listener);
+      if (filters?.username) queryParams.append('username', filters.username);
+      if (filters?.start_date) queryParams.append('start_date', filters.start_date);
+      if (filters?.end_date) queryParams.append('end_date', filters.end_date);
+      
+      const response = await api.get(`/api/v3/jobs/stats?${queryParams.toString()}`);
       const data = response.data.data || response.data || {};
       const statusCounts = data.jobs_by_status || {};
       

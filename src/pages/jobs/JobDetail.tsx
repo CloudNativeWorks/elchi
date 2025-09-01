@@ -228,7 +228,7 @@ const JobDetail: React.FC = () => {
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <Text strong style={{ fontSize: 18 }}>Job {job.job_id}</Text>
-                  <Tag className='auto-width-tag' color="blue" style={{ borderRadius: 12 }}>{job.type.replace(/_/g, ' ')}</Tag>
+                  <Tag className='auto-width-tag' color="blue" style={{ borderRadius: 6 }}>{job.type.replace(/_/g, ' ')}</Tag>
                 </div>
                 <Text type="secondary" style={{ fontSize: 12 }}>
                   Created {dayjs(job.created_at).fromNow()}

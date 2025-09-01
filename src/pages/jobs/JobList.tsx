@@ -8,7 +8,8 @@ import {
   ReloadOutlined, DeleteOutlined, RedoOutlined, ExclamationCircleOutlined,
   ScheduleOutlined, CheckCircleOutlined, CloseCircleOutlined,
   EyeOutlined, WarningOutlined, PlayCircleOutlined,
-  ClockCircleOutlined, SearchOutlined, UserOutlined, GlobalOutlined
+  ClockCircleOutlined, SearchOutlined, UserOutlined, GlobalOutlined,
+  ClearOutlined
 } from '@ant-design/icons';
 import { ActionsSVG } from '@/assets/svg/icons';
 import { useNavigate } from 'react-router-dom';
@@ -45,12 +46,22 @@ const JobList: React.FC = () => {
     getJobStats
   } = useJobOperations();
 
+  // Default last 1 month filter
+  const defaultEndDate = dayjs();
+  const defaultStartDate = dayjs().subtract(1, 'month');
+
   const [jobs, setJobs] = useState<BackgroundJob[]>([]);
   const [total, setTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
-  const [filters, setFilters] = useState<JobListRequest>({});
-  const [tempFilters, setTempFilters] = useState<JobListRequest>({});
+  const [filters, setFilters] = useState<JobListRequest>({
+    start_date: defaultStartDate.format('YYYY-MM-DD'),
+    end_date: defaultEndDate.format('YYYY-MM-DD')
+  });
+  const [tempFilters, setTempFilters] = useState<JobListRequest>({
+    start_date: defaultStartDate.format('YYYY-MM-DD'),
+    end_date: defaultEndDate.format('YYYY-MM-DD')
+  });
   const [stats, setStats] = useState<JobStatsResponse | null>(null);
   const [stuckJobsCount, setStuckJobsCount] = useState(0);
 
@@ -74,7 +85,7 @@ const JobList: React.FC = () => {
   }, [currentPage, pageSize, filters, listJobs]);
 
   const loadStatsOnly = useCallback(async () => {
-    const statsResponse = await getJobStats();
+    const statsResponse = await getJobStats(filters);
     if (statsResponse) {
       setStats(statsResponse);
     }
@@ -83,7 +94,7 @@ const JobList: React.FC = () => {
     if (stuckResponse) {
       setStuckJobsCount(stuckResponse.count || 0);
     }
-  }, []); 
+  }, [filters]); 
 
   const applyFilters = useCallback(() => {
     setFilters(tempFilters);
@@ -91,8 +102,12 @@ const JobList: React.FC = () => {
   }, [tempFilters]);
 
   const clearAllFilters = useCallback(() => {
-    setTempFilters({});
-    setFilters({});
+    const defaultFilters = {
+      start_date: defaultStartDate.format('YYYY-MM-DD'),
+      end_date: defaultEndDate.format('YYYY-MM-DD')
+    };
+    setTempFilters(defaultFilters);
+    setFilters(defaultFilters);
     setCurrentPage(1);
   }, []);
 
@@ -102,7 +117,7 @@ const JobList: React.FC = () => {
 
   useEffect(() => {
     loadStatsOnly();
-  }, []);
+  }, [loadStatsOnly]);
 
   const getStatusTag = (status: JobStatus) => {
     const statusConfig = {
@@ -492,6 +507,7 @@ const JobList: React.FC = () => {
             <RangePicker
               style={{ width: '100%' }}
               format="YYYY-MM-DD"
+              allowClear
               value={[
                 tempFilters.start_date ? dayjs(tempFilters.start_date) : null,
                 tempFilters.end_date ? dayjs(tempFilters.end_date) : null
@@ -504,11 +520,10 @@ const JobList: React.FC = () => {
                     end_date: dates[1]?.format('YYYY-MM-DD'),
                   }));
                 } else {
-                  setTempFilters(prev => ({
-                    ...prev,
-                    start_date: undefined,
-                    end_date: undefined,
-                  }));
+                  setTempFilters(prev => {
+                    const { start_date, end_date, ...rest } = prev;
+                    return rest;
+                  });
                 }
               }}
             />
@@ -517,15 +532,30 @@ const JobList: React.FC = () => {
             <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
               <Space>
                 <Button
-                  type="primary"
                   icon={<SearchOutlined />}
                   onClick={applyFilters}
-                  style={{ borderRadius: 6 }}
+                  style={{ 
+                    borderRadius: 6,
+                    background: 'white',
+                    border: '1px solid #d9d9d9',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)';
+                    e.currentTarget.style.color = 'white';
+                    e.currentTarget.style.borderColor = '#056ccd';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'white';
+                    e.currentTarget.style.color = 'rgba(0, 0, 0, 0.88)';
+                    e.currentTarget.style.borderColor = '#d9d9d9';
+                  }}
                 >
                   Search
                 </Button>
                 {(Object.keys(tempFilters).length > 0 || Object.keys(filters).length > 0) && (
                   <Button
+                    icon={<ClearOutlined />}
                     onClick={clearAllFilters}
                     style={{ borderRadius: 6 }}
                   >

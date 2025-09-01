@@ -24,7 +24,8 @@ import {
     RadarChartOutlined,
     RobotOutlined,
     ScheduleOutlined,
-    DatabaseOutlined
+    DatabaseOutlined,
+    AuditOutlined
 } from '@ant-design/icons';
 import { useProjectVariable } from "@/hooks/useProjectVariable";
 import { UserDetail } from "@/common/types";
@@ -176,6 +177,12 @@ const menuConfig = [
 		label: "Jobs",
 	},
 	{
+		key: "/audit",
+		to: "/audit",
+		icon: "AuditOutlined",
+		label: "Audit",
+	},
+	{
 		key: "/settings",
 		to: "/settings",
 		icon: "SettingOutlined",
@@ -207,6 +214,7 @@ const iconMap = {
 	RobotOutlined: RobotOutlined,
 	ScheduleOutlined: ScheduleOutlined,
 	DatabaseOutlined: DatabaseOutlined,
+	AuditOutlined: AuditOutlined,
 };
 
 function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
@@ -256,6 +264,10 @@ function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
 			const itemClassName = `icon ${isActive ? 'active' : ''}`;
 
 			if (item.key.startsWith("/settings") && !["owner", "admin"].includes(userDetail.role)) {
+				return null;
+			}
+
+			if (item.key.startsWith("/audit") && !["owner", "admin"].includes(userDetail.role)) {
 				return null;
 			}
 
