@@ -1,5 +1,6 @@
 import { useOperationsApiMutation } from '@/common/operations-api';
 import { OperationsType, OperationsSubType } from '@/common/types';
+import { useProjectVariable } from '@/hooks/useProjectVariable';
 
 // Proto-based type definitions
 export interface NetplanConfig {
@@ -88,6 +89,7 @@ export interface NetworkResponse {
 }
 
 export const useNetworkOperations = () => {
+    const { project } = useProjectVariable();
     const mutate = useOperationsApiMutation();
 
     const handleNetworkResponse = (response: any[]): NetworkResponse => {
@@ -116,7 +118,7 @@ export const useNetworkOperations = () => {
                 test_timeout_seconds: netplanConfig.test_timeout_seconds ?? 10
             }
         };
-        const response = await mutate.mutateAsync({ data: requestData });
+        const response = await mutate.mutateAsync({ data: requestData, project });
         return handleNetworkResponse(response);
     };
 
@@ -127,7 +129,7 @@ export const useNetworkOperations = () => {
             clients: [{ client_id: clientId }],
             route_operations: operations
         };
-        const response = await mutate.mutateAsync({ data: requestData });
+        const response = await mutate.mutateAsync({ data: requestData, project });
         return handleNetworkResponse(response);
     };
 
@@ -138,7 +140,7 @@ export const useNetworkOperations = () => {
             clients: [{ client_id: clientId }],
             policy_operations: operations
         };
-        const response = await mutate.mutateAsync({ data: requestData });
+        const response = await mutate.mutateAsync({ data: requestData, project });
         return handleNetworkResponse(response);
     };
 
@@ -148,7 +150,7 @@ export const useNetworkOperations = () => {
             sub_type: OperationsSubType.SUB_GET_NETWORK_STATE,
             clients: [{ client_id: clientId }]
         };
-        const response = await mutate.mutateAsync({ data: requestData });
+        const response = await mutate.mutateAsync({ data: requestData, project });
         return handleNetworkResponse(response);
     };
 
@@ -158,7 +160,7 @@ export const useNetworkOperations = () => {
             sub_type: OperationsSubType.SUB_NETPLAN_GET,
             clients: [{ client_id: clientId }]
         };
-        const response = await mutate.mutateAsync({ data: requestData });
+        const response = await mutate.mutateAsync({ data: requestData, project });
         return handleNetworkResponse(response);
     };
 
@@ -168,7 +170,7 @@ export const useNetworkOperations = () => {
             sub_type: OperationsSubType.SUB_NETPLAN_ROLLBACK,
             clients: [{ client_id: clientId }]
         };
-        const response = await mutate.mutateAsync({ data: requestData });
+        const response = await mutate.mutateAsync({ data: requestData, project });
         return handleNetworkResponse(response);
     };
 
@@ -178,7 +180,7 @@ export const useNetworkOperations = () => {
             sub_type: OperationsSubType.SUB_ROUTE_LIST,
             clients: [{ client_id: clientId }]
         };
-        const response = await mutate.mutateAsync({ data: requestData });
+        const response = await mutate.mutateAsync({ data: requestData, project });
         return handleNetworkResponse(response);
     };
 
@@ -188,7 +190,7 @@ export const useNetworkOperations = () => {
             sub_type: OperationsSubType.SUB_POLICY_LIST,
             clients: [{ client_id: clientId }]
         };
-        const response = await mutate.mutateAsync({ data: requestData });
+        const response = await mutate.mutateAsync({ data: requestData, project });
         return handleNetworkResponse(response);
     };
 
@@ -199,7 +201,7 @@ export const useNetworkOperations = () => {
             clients: [{ client_id: clientId }],
             table_operations: operations
         };
-        const response = await mutate.mutateAsync({ data: requestData });
+        const response = await mutate.mutateAsync({ data: requestData, project });
         return handleNetworkResponse(response);
     };
 
@@ -209,7 +211,7 @@ export const useNetworkOperations = () => {
             sub_type: OperationsSubType.SUB_TABLE_LIST,
             clients: [{ client_id: clientId }]
         };
-        const response = await mutate.mutateAsync({ data: requestData });
+        const response = await mutate.mutateAsync({ data: requestData, project });
         return handleNetworkResponse(response);
     };
 

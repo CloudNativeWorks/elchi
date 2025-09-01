@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Button, Input, Modal, Typography, Space, message, Divider } from 'antd';
+import { Card, Button, Input, Modal, Typography, Space, Divider } from 'antd';
 import { PlusOutlined, DeleteOutlined, ApiOutlined, ThunderboltOutlined, EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
 import { useCustomGetQuery } from '@/common/api';
 import { useCustomApiMutation } from '@/common/custom-api';
@@ -16,7 +16,6 @@ const Tokens: React.FC = () => {
     const [showTokenModal, setShowTokenModal] = useState(false);
     const [deleteModal, setDeleteModal] = useState<{ visible: boolean; tokenName: string; tokenId: string | null }>({ visible: false, tokenName: '', tokenId: null });
     const { project } = useProjectVariable();
-    const [messageApi, contextHolder] = message.useMessage();
     const mutate = useCustomApiMutation();
     
     const {
@@ -48,30 +47,23 @@ const Tokens: React.FC = () => {
 
     const handleCreateToken = async () => {
         if (!newTokenName.trim()) {
-            messageApi.warning('Please enter a name!');
             return;
         }
         setCreating(true);
 
         try {
-            await mutate.mutateAsync({
+            const response = await mutate.mutateAsync({
                 data: null,
                 method: 'post',
                 path: `api/v3/setting/tokens?project=${project}&name=${newTokenName}`
-            }, {
-                onSuccess: (response: any) => {
-                    setCreatedToken(response.token.token);
-                    setShowTokenModal(true);
-                    setNewTokenName('');
-                    refetch();
-                    messageApi.success('Token created successfully!');
-                },
-                onError: (error: any) => {
-                    messageApi.error(error.response?.data?.message || 'Token not created!');
-                }
             });
+            
+            setCreatedToken(response.token?.token || response.token);
+            setShowTokenModal(true);
+            setNewTokenName('');
+            refetch();
         } catch (error: any) {
-            messageApi.error(error.response?.data?.message || 'Token not created!');
+            console.error(error.response?.data?.message || 'Token not created!');
         }
 
         setCreating(false);
@@ -89,18 +81,12 @@ const Tokens: React.FC = () => {
                 data: null,
                 method: 'delete',
                 path: `api/v3/setting/tokens/${deleteModal.tokenId}?project=${project}`
-            }, {
-                onSuccess: () => {
-                    messageApi.success(`Token "${deleteModal.tokenName}" deleted successfully!`);
-                    refetch();
-                    setDeleteModal({ visible: false, tokenName: '', tokenId: null });
-                },
-                onError: (error: any) => {
-                    messageApi.error(error.response?.data?.message || 'Failed to delete token!');
-                }
             });
+            
+            refetch();
+            setDeleteModal({ visible: false, tokenName: '', tokenId: null });
         } catch (error: any) {
-            messageApi.error(error.response?.data?.message || 'Failed to delete token!');
+            console.error(error.response?.data?.message || 'Failed to delete token!');
         }
     };
 
@@ -113,9 +99,8 @@ const Tokens: React.FC = () => {
     const handleDeleteDiscoveryToken = async () => {
         try {
             await deleteDiscoveryTokenFn();
-            messageApi.success('Discovery token deleted successfully!');
         } catch (error: any) {
-            messageApi.error(error?.message || 'Failed to delete discovery token!');
+            console.error(error?.message || 'Failed to delete discovery token!');
         }
     };
 
@@ -123,9 +108,8 @@ const Tokens: React.FC = () => {
         try {
             const generatedToken = await generateDiscoveryToken();
             setShowGeneratedToken(generatedToken);
-            messageApi.success('Discovery token generated successfully!');
         } catch (error: any) {
-            messageApi.error(error?.message || 'Failed to generate discovery token!');
+            console.error(error?.message || 'Failed to generate discovery token!');
         }
     };
 
@@ -138,7 +122,6 @@ const Tokens: React.FC = () => {
 
     return (
         <>
-            {contextHolder}
             <Card variant="borderless" style={{ boxShadow: 'none', background: 'transparent' }}>
                 
                 <Title level={5} style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>

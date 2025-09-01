@@ -4,6 +4,7 @@ import { DownloadOutlined, CheckCircleOutlined, ExclamationCircleOutlined, Reloa
 import { useCustomGetQuery } from '@/common/api';
 import { useMutation } from '@tanstack/react-query';
 import { api } from '@/common/api';
+import { useProjectVariable } from '@/hooks/useProjectVariable';
 
 const { Text } = Typography;
 
@@ -59,6 +60,7 @@ interface VersionOperationResponse {
 
 const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAddress }) => {
     const [messageApi, contextHolder] = message.useMessage();
+    const { project } = useProjectVariable();
 
     // Get available versions from API
     const { data: availableVersions, isLoading: loadingAvailable } = useCustomGetQuery({
@@ -75,7 +77,7 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
     // Version operations mutation
     const versionMutation = useMutation({
         mutationFn: async (payload: any) => {
-            const response = await api.post('/api/op/clients', payload);
+            const response = await api.post(`/api/op/clients?project=${project}`, payload);
             return response.data;
         }
     });

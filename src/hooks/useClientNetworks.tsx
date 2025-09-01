@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useOperationsApiMutation } from '@/common/operations-api';
 import { BaseResponse, OperationsSubType, OperationsType } from '@/common/types';
+import { useProjectVariable } from '@/hooks/useProjectVariable';
 
 export interface Interface {
     name: string;
@@ -45,6 +46,7 @@ export interface NetworkStateResponse extends BaseResponse {
 
 
 export function useClientNetworks({ clientId }: { clientId: string }) {
+    const { project } = useProjectVariable();
     const mutate = useOperationsApiMutation();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -59,7 +61,8 @@ export function useClientNetworks({ clientId }: { clientId: string }) {
                     type: OperationsType.NETWORK,
                     sub_type: OperationsSubType.SUB_GET_NETWORK_STATE,
                     clients: [{ client_id: clientId }]
-                }
+                },
+                project
             });
 
             if (Array.isArray(response) && response.length > 0) {

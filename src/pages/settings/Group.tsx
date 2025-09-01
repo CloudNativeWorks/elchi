@@ -194,10 +194,10 @@ const Group: React.FC = () => {
                                         <Text strong style={{ fontSize: 14 }}>Member Management</Text>
                                     </div>
                                     <Badge
-                                        count={`${targetKeys.length}/${(dataSource || []).length}`}
+                                        count={`${(targetKeys || []).length}/${(dataSource || []).length}`}
                                         style={{
-                                            backgroundColor: targetKeys.length > 0 ? '#52c41a' : '#d9d9d9',
-                                            color: targetKeys.length > 0 ? '#fff' : '#666'
+                                            backgroundColor: (targetKeys || []).length > 0 ? '#52c41a' : '#d9d9d9',
+                                            color: (targetKeys || []).length > 0 ? '#fff' : '#666'
                                         }}
                                     />
                                 </div>
@@ -249,7 +249,7 @@ const Group: React.FC = () => {
                                 </Form.Item>
                             </div>
 
-                            {targetKeys.length > 0 && (
+                            {(targetKeys || []).length > 0 && (
                                 <div style={{
                                     marginTop: 16,
                                     padding: '12px 16px',
@@ -258,7 +258,7 @@ const Group: React.FC = () => {
                                     borderRadius: 6
                                 }}>
                                     <Text style={{ fontSize: 12, color: '#1890ff' }}>
-                                        <strong>Summary:</strong> {targetKeys.length} user{targetKeys.length !== 1 ? 's' : ''} will be added to this group and inherit group permissions.
+                                        <strong>Summary:</strong> {(targetKeys || []).length} user{(targetKeys || []).length !== 1 ? 's' : ''} will be added to this group and inherit group permissions.
                                     </Text>
                                 </div>
                             )}

@@ -151,7 +151,7 @@ function Header({ userDetail }: Readonly<HeaderProps>) {
 				.error-dropdown-menu .ant-dropdown-menu-item:hover {
 					background: transparent !important;
 				}
-				.ant-dropdown {
+				.header .ant-dropdown {
 					top: 100% !important;
 					margin-top: 4px !important;
 				}

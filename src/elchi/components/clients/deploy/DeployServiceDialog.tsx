@@ -129,7 +129,7 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                 }
             };
             
-            const response = await api.post('/api/op/clients', payload);
+            const response = await api.post(`/api/op/clients?project=${currentProject}`, payload);
             const data = response.data;
             
             // Process response - it should be an array of results for each client

@@ -39,7 +39,7 @@ export const executeScenario = createAsyncThunk(
         };
         
         try {
-            const response = await api.post('/api/v3/scenario/execute', requestData);
+            const response = await api.post(`/api/v3/scenario/execute?project=${params.project}`, requestData);
             
             // Backend returns { data: { success, message, resources }, message: "OK" }
             // We want the inner data object

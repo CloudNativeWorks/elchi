@@ -78,11 +78,15 @@ const RoutingTableManager: React.FC<RoutingTableManagerProps> = ({
     const handleDelete = async (tableId: number) => {
         setLoading(true);
         try {
+            // Find the table name for the delete operation
+            const tableToDelete = tables.find(table => table.id === tableId);
+            const tableName = tableToDelete?.name || '';
+            
             const operation: TableOperation = {
                 action: 'DELETE',
                 table: {
                     id: tableId,
-                    name: '' // Name not required for delete
+                    name: tableName
                 }
             };
             

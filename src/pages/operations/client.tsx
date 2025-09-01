@@ -4,6 +4,7 @@ import { Card, Spin, Typography, Tag, Descriptions, Alert, Tabs, Divider, Drawer
 import { FileTextOutlined, InfoCircleOutlined, AppstoreOutlined, BarChartOutlined, CloudDownloadOutlined } from '@ant-design/icons';
 import { useCustomGetQuery } from '@/common/api';
 import { DateTimeTool } from '@/utils/date-time-tool';
+import { useProjectVariable } from '@/hooks/useProjectVariable';
 import ServiceInfoCard from '@components/services/ServiceInfoCard';
 import ClientLogs from '@components/clients/ClientLogs';
 import ClientStats from '@components/clients/ClientStats';
@@ -14,11 +15,12 @@ const { Title, Text } = Typography;
 
 const ClientDetail: React.FC = () => {
     const { client_id } = useParams();
+    const { project } = useProjectVariable();
     const [metadataDrawerVisible, setMetadataDrawerVisible] = useState(false);
     const { isLoading: isLoadingClient, data: dataClient, error: errorClient } = useCustomGetQuery({
         queryKey: `client_detail_${client_id}`,
         enabled: !!client_id,
-        path: `api/op/clients/${client_id}`,
+        path: `api/op/clients/${client_id}?project=${project}`,
         directApi: true
     });
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Tag, Space, Typography, Button, Alert, Row, Col, Badge } from 'antd';
+import { Card, Tag, Typography, Button, Alert, Row, Col, Badge } from 'antd';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useAuditLogs, AuditLog } from '@/hooks/useAudit';
 import {
@@ -11,6 +11,7 @@ import {
     ApiOutlined
 } from '@ant-design/icons';
 import { formatDistanceToNow } from 'date-fns';
+import MonacoEditor from '@monaco-editor/react';
 
 const { Text } = Typography;
 
@@ -176,7 +177,7 @@ const AuditDetail: React.FC = () => {
             </div>
 
             <Row gutter={24}>
-                <Col span={16}>
+                <Col span={18}>
                     {/* User & Request Information */}
                     <Card
                         style={{
@@ -258,60 +259,6 @@ const AuditDetail: React.FC = () => {
                         </Row>
                     </Card>
 
-                    {/* API Information */}
-                    <Card
-                        style={{
-                            borderRadius: 16,
-                            marginBottom: 24,
-                            border: 'none',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
-                        }}
-                    >
-                        <div style={{ marginBottom: 20 }}>
-                            <Text type="secondary" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>
-                                API DETAILS
-                            </Text>
-                        </div>
-                        <Row gutter={[24, 24]}>
-                            <Col span={12}>
-                                <div style={{ marginBottom: 16 }}>
-                                    <Text type="secondary" style={{ fontSize: 12 }}>Method & Path</Text>
-                                    <div style={{ marginTop: 4 }}>
-                                        <Space>
-                                            <Tag className='auto-width-tag' color={getMethodColor(auditLog.method)} style={{ fontWeight: 600 }}>
-                                                {auditLog.method}
-                                            </Tag>
-                                        </Space>
-                                        <div style={{ marginTop: 8 }}>
-                                            <Text code style={{ fontSize: 12, wordBreak: 'break-all' }}>{auditLog.path}</Text>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Col>
-                            <Col span={12}>
-                                <div style={{ marginBottom: 16 }}>
-                                    <Text type="secondary" style={{ fontSize: 12 }}>Resource</Text>
-                                    <div style={{ marginTop: 4 }}>
-                                        <Text strong style={{ fontSize: 14 }}>{auditLog.resource_name || auditLog.resource_id}</Text>
-                                        <div>
-                                            <Text style={{ fontSize: 12, color: '#8c8c8c' }}>
-                                                {auditLog.resource_type} • {auditLog.api_type}
-                                            </Text>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Col>
-                        </Row>
-                        {auditLog.error_message && (
-                            <Alert
-                                message="Error Details"
-                                description={auditLog.error_message}
-                                type="error"
-                                showIcon
-                                style={{ marginTop: 16, borderRadius: 8 }}
-                            />
-                        )}
-                    </Card>
 
                     {/* Changes Information */}
                     {auditLog.changes && Object.keys(auditLog.changes).length > 0 && (
@@ -431,7 +378,7 @@ const AuditDetail: React.FC = () => {
                                                         justifyContent: 'space-between',
                                                         alignItems: 'center'
                                                     }}>
-                                                        <Text strong style={{ color: '#52c41a', fontSize: 13 }}>CREATED</Text>
+                                                        <Text strong style={{ color: '#52c41a', fontSize: 13 }}>ADDED</Text>
                                                         <Badge count={changesByType.create.length} style={{ backgroundColor: '#52c41a' }} />
                                                     </div>
                                                     <div style={{ background: '#fafafa', padding: 16 }}>
@@ -661,9 +608,112 @@ const AuditDetail: React.FC = () => {
                             </div>
                         </Card>
                     )}
+                    {/* Command Information */}
+                    {auditLog.command && auditLog.api_type === 'CLIENT_COMMAND' && (
+                        <Card
+                            style={{
+                                borderRadius: 16,
+                                marginBottom: 24,
+                                border: 'none',
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                            }}
+                        >
+                            <div style={{ marginBottom: 20 }}>
+                                <Text type="secondary" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>
+                                    COMMAND DETAILS
+                                </Text>
+                            </div>
+                            <MonacoEditor
+                                height="400px"
+                                width="100%"
+                                language="json"
+                                value={JSON.stringify(auditLog.command, null, 2)}
+                                theme="vs-light"
+                                options={{
+                                    readOnly: true,
+                                    minimap: { enabled: false },
+                                    automaticLayout: true,
+                                    scrollBeyondLastLine: false,
+                                    padding: { top: 10 },
+                                    bracketPairColorization: { enabled: true },
+                                    renderWhitespace: "all",
+                                    renderLineHighlight: "all",
+                                    folding: true,
+                                    foldingHighlight: true,
+                                    foldingImportsByDefault: false,
+                                    showUnused: false,
+                                    wordWrap: "on",
+                                    contextmenu: false,
+                                    scrollbar: {
+                                        vertical: 'auto',
+                                        horizontal: 'auto'
+                                    }
+                                }}
+                            />
+                        </Card>
+                    )}
                 </Col>
 
-                <Col span={8}>
+                <Col span={6}>
+                    {/* API Information */}
+                    <Card
+                        style={{
+                            borderRadius: 16,
+                            marginBottom: 24,
+                            border: 'none',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                        }}
+                    >
+                        <div style={{ marginBottom: 20 }}>
+                            <Text type="secondary" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>
+                                API DETAILS
+                            </Text>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                            <div>
+                                <Text type="secondary" style={{ fontSize: 12 }}>Method</Text>
+                                <div style={{ marginTop: 4 }}>
+                                    <Tag className='auto-width-tag' color={getMethodColor(auditLog.method)} style={{ fontWeight: 600 }}>
+                                        {auditLog.method}
+                                    </Tag>
+                                </div>
+                            </div>
+                            <div>
+                                <Text type="secondary" style={{ fontSize: 12 }}>Path</Text>
+                                <div style={{ marginTop: 4 }}>
+                                    <Text code style={{ fontSize: 11, wordBreak: 'break-all' }}>{auditLog.path}</Text>
+                                </div>
+                            </div>
+                            <div>
+                                <Text type="secondary" style={{ fontSize: 12 }}>Resource Name</Text>
+                                <div style={{ marginTop: 4 }}>
+                                    <Text strong style={{ fontSize: 13 }}>{auditLog.resource_name || auditLog.resource_id}</Text>
+                                </div>
+                            </div>
+                            <div>
+                                <Text type="secondary" style={{ fontSize: 12 }}>Resource Type</Text>
+                                <div style={{ marginTop: 4 }}>
+                                    <Text style={{ fontSize: 12 }}>{auditLog.resource_type}</Text>
+                                </div>
+                            </div>
+                            <div>
+                                <Text type="secondary" style={{ fontSize: 12 }}>API Type</Text>
+                                <div style={{ marginTop: 4 }}>
+                                    <Text style={{ fontSize: 12 }}>{auditLog.api_type}</Text>
+                                </div>
+                            </div>
+                        </div>
+                        {auditLog.error_message && (
+                            <Alert
+                                message="Error Details"
+                                description={auditLog.error_message}
+                                type="error"
+                                showIcon
+                                style={{ marginTop: 16, borderRadius: 8 }}
+                            />
+                        )}
+                    </Card>
+
                     {/* Quick Stats */}
                     <Card
                         style={{
@@ -731,48 +781,6 @@ const AuditDetail: React.FC = () => {
                         </div>
                     </Card>
 
-                    {/* Command Information */}
-                    {auditLog.command && auditLog.api_type === 'CLIENT_COMMAND' && (
-                        <Card
-                            style={{
-                                borderRadius: 16,
-                                border: 'none',
-                                boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
-                            }}
-                        >
-                            <div style={{ marginBottom: 20 }}>
-                                <Text type="secondary" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>
-                                    COMMAND DETAILS
-                                </Text>
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                                <div>
-                                    <Text type="secondary" style={{ fontSize: 12 }}>Type</Text>
-                                    <div style={{ marginTop: 4 }}>
-                                        <Tag className='auto-width-tag' color="green" style={{ borderRadius: 6 }}>{auditLog.command.type || 'N/A'}</Tag>
-                                    </div>
-                                </div>
-                                <div>
-                                    <Text type="secondary" style={{ fontSize: 12 }}>Subtype</Text>
-                                    <div style={{ marginTop: 4 }}>
-                                        <Tag className='auto-width-tag' color="blue" style={{ borderRadius: 6 }}>{auditLog.command.sub_type || 'N/A'}</Tag>
-                                    </div>
-                                </div>
-                                <div>
-                                    <Text type="secondary" style={{ fontSize: 12 }}>Command Name</Text>
-                                    <div style={{ marginTop: 4 }}>
-                                        <Text code style={{ fontSize: 12 }}>{auditLog.command.command?.name || 'N/A'}</Text>
-                                    </div>
-                                </div>
-                                <div>
-                                    <Text type="secondary" style={{ fontSize: 12 }}>Command Project</Text>
-                                    <div style={{ marginTop: 4 }}>
-                                        <Text code style={{ fontSize: 12 }}>{auditLog.command.command?.project || 'N/A'}</Text>
-                                    </div>
-                                </div>
-                            </div>
-                        </Card>
-                    )}
 
                 </Col>
             </Row>

@@ -47,7 +47,7 @@ const Project: React.FC = () => {
             values.project.members = values.project.members.filter(member => member !== null);
         }
 
-        await mutate.mutateAsync({ data: values.project, method: 'put', path: `api/v3/setting/project/${projectName}` }, {
+        await mutate.mutateAsync({ data: values.project, method: 'put', path: `api/v3/setting/project/${projectName}?project=${project}` }, {
             onSuccess: () => {
                 navigate('/settings/projects');
             }

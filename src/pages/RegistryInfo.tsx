@@ -1,10 +1,11 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Card, Typography, Spin, Alert, Tag, Space, Collapse, Badge, Table, Input, Row, Col, Statistic, Pagination, Progress, Tooltip, Empty, Divider, Button, Drawer, Modal, message, Tabs } from 'antd';
 import MonacoEditor from '@monaco-editor/react';
 import { DatabaseOutlined, ClusterOutlined, ControlOutlined, SearchOutlined, GlobalOutlined, NodeIndexOutlined, TeamOutlined, ApiOutlined, EyeOutlined, DeleteOutlined, ExclamationCircleOutlined, ShareAltOutlined, AimOutlined, AppstoreOutlined, CloudOutlined, SettingOutlined, KeyOutlined, ReloadOutlined } from '@ant-design/icons';
 import { useCustomGetQuery, api } from '@/common/api';
 import { useMutation } from '@tanstack/react-query';
 import ElchiButton from '@/elchi/components/common/ElchiButton';
+import { useProjectVariable } from '@/hooks/useProjectVariable';
 
 const { Text, Title } = Typography;
 
@@ -95,6 +96,7 @@ const safeNumberCompare = (a: number | null | undefined, b: number | null | unde
 };
 
 const RegistryInfo: React.FC = () => {
+    const { project } = useProjectVariable();
     const [controlPlaneSearchTerm, setControlPlaneSearchTerm] = useState('');
     const [controllerSearchTerm, setControllerSearchTerm] = useState('');
     const [controlPlanePage, setControlPlanePage] = useState(1);
@@ -104,6 +106,7 @@ const RegistryInfo: React.FC = () => {
     const [snapshotDrawerOpen, setSnapshotDrawerOpen] = useState(false);
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
     const [selectedControlPlaneVersion, setSelectedControlPlaneVersion] = useState<string | null>(null);
+    const [localSnapshotData, setLocalSnapshotData] = useState<any>(null);
     const [messageApi, contextHolder] = message.useMessage();
     const pageSize = 10;
 
@@ -122,6 +125,11 @@ const RegistryInfo: React.FC = () => {
         path: `bridge/nodes/${selectedNodeId}/snapshot${selectedControlPlaneVersion ? `?version=${selectedControlPlaneVersion}` : ''}`,
         refetchOnWindowFocus: false
     });
+
+    // Update local snapshot data when API data changes
+    useEffect(() => {
+        setLocalSnapshotData(snapshotData);
+    }, [snapshotData]);
 
     // Custom delete hooks for Registry (with directApi support)
     const useRegistryDeleteMutation = () => {
@@ -207,14 +215,24 @@ const RegistryInfo: React.FC = () => {
             cancelText: 'Cancel',
             onOk() {
                 clearSnapshotMutation.mutate(
-                    { path: `bridge/nodes/${selectedNodeId}/snapshot${selectedControlPlaneVersion ? `?version=${selectedControlPlaneVersion}` : ''}` },
+                    { 
+                        path: `bridge/nodes/${selectedNodeId}/snapshot${
+                            selectedControlPlaneVersion 
+                                ? `?version=${selectedControlPlaneVersion}&project=${project}` 
+                                : `?project=${project}`
+                        }` 
+                    },
                     {
                         onSuccess: () => {
                             messageApi.success('Snapshot cleared successfully');
-                            refetchSnapshot();
+                            setLocalSnapshotData(null);
+                            setSnapshotDrawerOpen(false);
+                            setSelectedNodeId(null);
+                            setSelectedControlPlaneVersion(null);
                         },
                         onError: (error: any) => {
-                            messageApi.error(`Failed to clear snapshot: ${error.message || 'Unknown error'}`);
+                            console.error(`Failed to clear snapshot: ${error.message || 'Unknown error'}`);
+                            setSnapshotDrawerOpen(false);
                         }
                     }
                 );
@@ -1103,7 +1121,7 @@ const RegistryInfo: React.FC = () => {
                                 <Text type="secondary">Loading snapshot data...</Text>
                             </Space>
                         </div>
-                    ) : snapshotData?.data ? (
+                    ) : localSnapshotData?.data ? (
                         <div>
                             {/* Overview Statistics */}
                             <Card size="small" style={{ marginBottom: 16, background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)', border: '1px solid #e6f7ff' }}>
@@ -1111,7 +1129,7 @@ const RegistryInfo: React.FC = () => {
                                     <Col span={6}>
                                         <Statistic
                                             title="Total Resources"
-                                            value={snapshotData.data.resources.length}
+                                            value={localSnapshotData.data.resources.length}
                                             prefix={<DatabaseOutlined style={{ color: '#1890ff' }} />}
                                             valueStyle={{ color: '#1890ff', fontSize: '16px' }}
                                         />
@@ -1119,7 +1137,7 @@ const RegistryInfo: React.FC = () => {
                                     <Col span={6}>
                                         <Statistic
                                             title="Active Watches"
-                                            value={snapshotData.data.num_watches}
+                                            value={localSnapshotData.data.num_watches}
                                             prefix={<EyeOutlined style={{ color: '#52c41a' }} />}
                                             valueStyle={{ color: '#52c41a', fontSize: '16px' }}
                                         />
@@ -1127,7 +1145,7 @@ const RegistryInfo: React.FC = () => {
                                     <Col span={6}>
                                         <Statistic
                                             title="Active Types"
-                                            value={snapshotData.data.resources.filter((r: any) => Object.keys(r.data).length > 0).length}
+                                            value={localSnapshotData.data.resources.filter((r: any) => Object.keys(r.data).length > 0).length}
                                             prefix={<SettingOutlined style={{ color: '#722ed1' }} />}
                                             valueStyle={{ color: '#722ed1', fontSize: '16px' }}
                                         />
@@ -1136,7 +1154,7 @@ const RegistryInfo: React.FC = () => {
                                         <div style={{ textAlign: 'center' }}>
                                             <div style={{ fontSize: '12px', color: '#666', marginBottom: 4 }}>Last Watch</div>
                                             <div style={{ fontSize: '13px', fontWeight: 600, color: '#1890ff' }}>
-                                                {new Date(snapshotData.data.last_watch).toLocaleString()}
+                                                {new Date(localSnapshotData.data.last_watch).toLocaleString()}
                                             </div>
                                         </div>
                                     </Col>
@@ -1168,19 +1186,19 @@ const RegistryInfo: React.FC = () => {
                                         <Col span={8}>
                                             <div>
                                                 <Typography.Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 4 }}>Listener Name</Typography.Text>
-                                                <Typography.Text strong style={{ fontSize: 14 }}>{parseNodeId(snapshotData.data.node_id).listenerName}</Typography.Text>
+                                                <Typography.Text strong style={{ fontSize: 14 }}>{parseNodeId(localSnapshotData.data.node_id).listenerName}</Typography.Text>
                                             </div>
                                         </Col>
                                         <Col span={8}>
                                             <div>
                                                 <Typography.Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 4 }}>Project ID</Typography.Text>
-                                                <Typography.Text strong style={{ fontSize: 14 }}>{parseNodeId(snapshotData.data.node_id).projectId}</Typography.Text>
+                                                <Typography.Text strong style={{ fontSize: 14 }}>{parseNodeId(localSnapshotData.data.node_id).projectId}</Typography.Text>
                                             </div>
                                         </Col>
                                         <Col span={8}>
                                             <div>
                                                 <Typography.Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 4 }}>Downstream IP</Typography.Text>
-                                                <Typography.Text strong style={{ fontSize: 14 }}>{parseNodeId(snapshotData.data.node_id).downstreamIp}</Typography.Text>
+                                                <Typography.Text strong style={{ fontSize: 14 }}>{parseNodeId(localSnapshotData.data.node_id).downstreamIp}</Typography.Text>
                                             </div>
                                         </Col>
                                     </Row>
@@ -1241,7 +1259,7 @@ const RegistryInfo: React.FC = () => {
                                                 }
                                             };
 
-                                            const allTabItems = snapshotData.data.resources.map((resource: any, index: number) => {
+                                            const allTabItems = localSnapshotData.data.resources.map((resource: any, index: number) => {
                                                 const resourceCount = Object.keys(resource.data).length;
                                                 const hasData = resourceCount > 0;
                                                 const config = getResourceConfig(resource.type);
@@ -1378,11 +1396,11 @@ const RegistryInfo: React.FC = () => {
 
                                             const tabItems = [
                                                 ...allTabItems.filter(item => {
-                                                    const resource = snapshotData.data.resources[parseInt(item.key.split('-')[1])];
+                                                    const resource = localSnapshotData.data.resources[parseInt(item.key.split('-')[1])];
                                                     return Object.keys(resource.data).length > 0;
                                                 }),
                                                 ...allTabItems.filter(item => {
-                                                    const resource = snapshotData.data.resources[parseInt(item.key.split('-')[1])];
+                                                    const resource = localSnapshotData.data.resources[parseInt(item.key.split('-')[1])];
                                                     return Object.keys(resource.data).length === 0;
                                                 })
                                             ];
@@ -1414,7 +1432,7 @@ const RegistryInfo: React.FC = () => {
                                                             borderRadius: '6px',
                                                             overflow: 'hidden'
                                                         }}>
-                                                            <JsonViewer data={snapshotData.data} height={500} />
+                                                            <JsonViewer data={localSnapshotData.data} height={500} />
                                                         </div>
                                                     </div>
                                                 )

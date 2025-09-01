@@ -3,6 +3,7 @@ import { Spin, Alert } from 'antd';
 import { useOperationsApiMutation } from '@/common/operations-api';
 import { OperationsType } from '@/common/types';
 import LogToolbar from '../../common/LogToolBar';
+import { useProjectVariable } from '@/hooks/useProjectVariable';
 
 function wrapWithIndent(line: string, indent: string, maxLen: number) {
     if (!line) return [indent];
@@ -41,6 +42,7 @@ interface LogItem {
 }
 
 const BgpLogs: React.FC<BgpLogProps> = ({ clientId }) => {
+    const { project } = useProjectVariable();
     const mutate = useOperationsApiMutation();
     const [searchText, setSearchText] = useState('');
     const [logs, setLogs] = useState<LogItem[]>([]);
@@ -97,7 +99,8 @@ const BgpLogs: React.FC<BgpLogProps> = ({ clientId }) => {
                         type: OperationsType.FRR_LOGS,
                         clients: [{ client_id: clientId }],
                         command: { count: logLineCount },
-                    }
+                    },
+                    project
                 });
                 if (isMounted) {
                     const logsArr: LogItem[] =

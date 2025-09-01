@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import { useOperationsApiMutation } from '@/common/operations-api';
 import { OperationsType } from '@/common/types';
 import { message } from 'antd';
+import { useProjectVariable } from '@/hooks/useProjectVariable';
 
 export enum BGPOperationType {
     UNKNOWN = "BGP_UNKNOWN",
@@ -546,6 +547,7 @@ export interface BGPNeighborRequest {
 }
 
 export const useBGPOperations = () => {
+    const { project } = useProjectVariable();
     const mutate = useOperationsApiMutation();
     const [loading, setLoading] = useState(false);
 
@@ -570,7 +572,7 @@ export const useBGPOperations = () => {
                     }
                 };
 
-                const response = await mutate.mutateAsync({ data: requestData });
+                const response = await mutate.mutateAsync({ data: requestData, project });
 
                 if (Array.isArray(response) && response.length > 0) {
                     const firstResponse = response[0];

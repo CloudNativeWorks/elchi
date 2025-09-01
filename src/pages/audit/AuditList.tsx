@@ -4,9 +4,9 @@ import { ColumnsType } from 'antd/es/table';
 import { useAuditLogs, useAuditStats } from '@/hooks/useAudit';
 import { AuditLog } from '@/hooks/useAudit';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
-import { 
-    SearchOutlined, 
-    ClearOutlined, 
+import {
+    SearchOutlined,
+    ClearOutlined,
     InboxOutlined,
     AuditOutlined,
     CheckCircleOutlined,
@@ -30,7 +30,7 @@ const AuditList: React.FC = () => {
     // Default last 1 month filter
     const defaultEndDate = dayjs();
     const defaultStartDate = dayjs().subtract(1, 'month');
-    
+
     const [filters, setFilters] = useState<Record<string, any>>({
         start_time: defaultStartDate.toISOString(),
         end_time: defaultEndDate.toISOString()
@@ -100,7 +100,7 @@ const AuditList: React.FC = () => {
     const totalRecords = auditResponse?.pagination?.total || 0;
 
     const getSuccessTag = (success: boolean) => (
-        <Tag 
+        <Tag
             icon={success ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
             color={success ? 'green' : 'red'}
             style={{ fontWeight: 600 }}
@@ -246,7 +246,7 @@ const AuditList: React.FC = () => {
                         <Title level={4} style={{ margin: 0 }}>Audit Logs</Title>
                     </Space>
                 </div>
-                
+
                 <Text type="secondary">
                     Track and monitor all system activities, user actions, and API calls across your infrastructure.
                 </Text>
@@ -258,8 +258,8 @@ const AuditList: React.FC = () => {
                 <Col span={6}>
                     <Row gutter={[12, 8]} style={{ height: '100%' }}>
                         <Col span={12}>
-                            <Card 
-                                size="small" 
+                            <Card
+                                size="small"
                                 style={{ borderRadius: 8, textAlign: 'center', padding: '8px 0', height: '100%' }}
                                 loading={isStatsLoading}
                             >
@@ -273,8 +273,8 @@ const AuditList: React.FC = () => {
                             </Card>
                         </Col>
                         <Col span={12}>
-                            <Card 
-                                size="small" 
+                            <Card
+                                size="small"
                                 style={{ borderRadius: 8, textAlign: 'center', padding: '8px 0', height: '100%' }}
                                 loading={isStatsLoading}
                             >
@@ -288,8 +288,8 @@ const AuditList: React.FC = () => {
                             </Card>
                         </Col>
                         <Col span={12}>
-                            <Card 
-                                size="small" 
+                            <Card
+                                size="small"
                                 style={{ borderRadius: 8, textAlign: 'center', padding: '8px 0', height: '100%' }}
                                 loading={isStatsLoading}
                             >
@@ -303,8 +303,8 @@ const AuditList: React.FC = () => {
                             </Card>
                         </Col>
                         <Col span={12}>
-                            <Card 
-                                size="small" 
+                            <Card
+                                size="small"
                                 style={{ borderRadius: 8, textAlign: 'center', padding: '8px 0', height: '100%' }}
                                 loading={isStatsLoading}
                             >
@@ -324,53 +324,8 @@ const AuditList: React.FC = () => {
                 <Col span={18} style={{ display: 'flex' }}>
                     <Row gutter={[12, 0]} style={{ flex: 1 }}>
                         <Col span={8}>
-                            <Card 
-                                size="small" 
-                                style={{ borderRadius: 8, height: '100%' }}
-                                loading={isStatsLoading}
-                            >
-                                <div style={{ fontSize: 12, color: '#8c8c8c', marginBottom: 8, fontWeight: 600 }}>
-                                    <BarChartOutlined style={{ marginRight: 4 }} />
-                                    Top Actions
-                                </div>
-                                <div style={{ 
-                                    height: 'calc(100% - 32px)',
-                                    maxHeight: '160px',
-                                    overflowY: 'auto',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    gap: 4
-                                }}>
-                                    {Object.entries(statsResponse?.data?.top_actions || {}).length > 0 ? (
-                                        Object.entries(statsResponse.data.top_actions)
-                                            .sort(([,a], [,b]) => (b as number) - (a as number))
-                                            .map(([action, count]) => (
-                                            <div key={action} style={{ 
-                                                display: 'flex', 
-                                                justifyContent: 'space-between', 
-                                                alignItems: 'center',
-                                                padding: '2px 8px',
-                                                background: '#f5f5f5',
-                                                borderRadius: 4,
-                                                fontSize: 11
-                                            }}>
-                                                <span>{action.replace(/_/g, ' ')}</span>
-                                                <Tag color="default" style={{ margin: 0, fontSize: 10 }}>
-                                                    {count as number}
-                                                </Tag>
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <div style={{ textAlign: 'center', color: '#ccc', fontSize: 11, marginTop: 20 }}>
-                                            No data available
-                                        </div>
-                                    )}
-                                </div>
-                            </Card>
-                        </Col>
-                        <Col span={8}>
-                            <Card 
-                                size="small" 
+                            <Card
+                                size="small"
                                 style={{ borderRadius: 8, height: '100%' }}
                                 loading={isStatsLoading}
                             >
@@ -378,7 +333,7 @@ const AuditList: React.FC = () => {
                                     <UserOutlined style={{ marginRight: 4 }} />
                                     Top Users
                                 </div>
-                                <div style={{ 
+                                <div style={{
                                     height: 'calc(100% - 32px)',
                                     maxHeight: '160px',
                                     overflowY: 'auto',
@@ -388,23 +343,23 @@ const AuditList: React.FC = () => {
                                 }}>
                                     {Object.entries(statsResponse?.data?.top_users || {}).length > 0 ? (
                                         Object.entries(statsResponse.data.top_users)
-                                            .sort(([,a], [,b]) => (b as number) - (a as number))
+                                            .sort(([, a], [, b]) => (b as number) - (a as number))
                                             .map(([user, count]) => (
-                                            <div key={user} style={{ 
-                                                display: 'flex', 
-                                                justifyContent: 'space-between', 
-                                                alignItems: 'center',
-                                                padding: '2px 8px',
-                                                background: '#f0f8ff',
-                                                borderRadius: 4,
-                                                fontSize: 11
-                                            }}>
-                                                <span>{user}</span>
-                                                <Tag color="blue" style={{ margin: 0, fontSize: 10 }}>
-                                                    {count as number}
-                                                </Tag>
-                                            </div>
-                                        ))
+                                                <div key={user} style={{
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center',
+                                                    padding: '2px 8px',
+                                                    background: '#f0f8ff',
+                                                    borderRadius: 4,
+                                                    fontSize: 11
+                                                }}>
+                                                    <span>{user}</span>
+                                                    <Tag color="blue" style={{ margin: 0, fontSize: 10 }}>
+                                                        {count as number}
+                                                    </Tag>
+                                                </div>
+                                            ))
                                     ) : (
                                         <div style={{ textAlign: 'center', color: '#ccc', fontSize: 11, marginTop: 20 }}>
                                             No data available
@@ -414,8 +369,53 @@ const AuditList: React.FC = () => {
                             </Card>
                         </Col>
                         <Col span={8}>
-                            <Card 
-                                size="small" 
+                            <Card
+                                size="small"
+                                style={{ borderRadius: 8, height: '100%' }}
+                                loading={isStatsLoading}
+                            >
+                                <div style={{ fontSize: 12, color: '#8c8c8c', marginBottom: 8, fontWeight: 600 }}>
+                                    <BarChartOutlined style={{ marginRight: 4 }} />
+                                    Top Actions
+                                </div>
+                                <div style={{
+                                    height: 'calc(100% - 32px)',
+                                    maxHeight: '160px',
+                                    overflowY: 'auto',
+                                    display: 'flex',
+                                    flexDirection: 'column',
+                                    gap: 4
+                                }}>
+                                    {Object.entries(statsResponse?.data?.top_actions || {}).length > 0 ? (
+                                        Object.entries(statsResponse.data.top_actions)
+                                            .sort(([, a], [, b]) => (b as number) - (a as number))
+                                            .map(([action, count]) => (
+                                                <div key={action} style={{
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center',
+                                                    padding: '2px 8px',
+                                                    background: '#f5f5f5',
+                                                    borderRadius: 4,
+                                                    fontSize: 11
+                                                }}>
+                                                    <span>{action.replace(/_/g, ' ')}</span>
+                                                    <Tag color="default" style={{ margin: 0, fontSize: 10 }}>
+                                                        {count as number}
+                                                    </Tag>
+                                                </div>
+                                            ))
+                                    ) : (
+                                        <div style={{ textAlign: 'center', color: '#ccc', fontSize: 11, marginTop: 20 }}>
+                                            No data available
+                                        </div>
+                                    )}
+                                </div>
+                            </Card>
+                        </Col>
+                        <Col span={8}>
+                            <Card
+                                size="small"
                                 style={{ borderRadius: 8, height: '100%' }}
                                 loading={isStatsLoading}
                             >
@@ -423,7 +423,7 @@ const AuditList: React.FC = () => {
                                     <DatabaseOutlined style={{ marginRight: 4 }} />
                                     Top Resources
                                 </div>
-                                <div style={{ 
+                                <div style={{
                                     height: 'calc(100% - 32px)',
                                     maxHeight: '160px',
                                     overflowY: 'auto',
@@ -433,23 +433,23 @@ const AuditList: React.FC = () => {
                                 }}>
                                     {Object.entries(statsResponse?.data?.top_resources || {}).length > 0 ? (
                                         Object.entries(statsResponse.data.top_resources)
-                                            .sort(([,a], [,b]) => (b as number) - (a as number))
+                                            .sort(([, a], [, b]) => (b as number) - (a as number))
                                             .map(([resource, count]) => (
-                                            <div key={resource} style={{ 
-                                                display: 'flex', 
-                                                justifyContent: 'space-between', 
-                                                alignItems: 'center',
-                                                padding: '2px 8px',
-                                                background: '#f9f0ff',
-                                                borderRadius: 4,
-                                                fontSize: 11
-                                            }}>
-                                                <span>{resource.replace(/_/g, ' ')}</span>
-                                                <Tag color="purple" style={{ margin: 0, fontSize: 10 }}>
-                                                    {count as number}
-                                                </Tag>
-                                            </div>
-                                        ))
+                                                <div key={resource} style={{
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center',
+                                                    padding: '2px 8px',
+                                                    background: '#f9f0ff',
+                                                    borderRadius: 4,
+                                                    fontSize: 11
+                                                }}>
+                                                    <span>{resource.replace(/_/g, ' ')}</span>
+                                                    <Tag color="purple" style={{ margin: 0, fontSize: 10 }}>
+                                                        {count as number}
+                                                    </Tag>
+                                                </div>
+                                            ))
                                     ) : (
                                         <div style={{ textAlign: 'center', color: '#ccc', fontSize: 11, marginTop: 20 }}>
                                             No data available
@@ -463,9 +463,9 @@ const AuditList: React.FC = () => {
             </Row>
 
             {/* Filter Bar */}
-            <Card 
-                size="small" 
-                style={{ 
+            <Card
+                size="small"
+                style={{
                     marginBottom: 16,
                     borderRadius: 12,
                     boxShadow: '0 2px 8px rgba(5,117,230,0.06)'
@@ -499,6 +499,16 @@ const AuditList: React.FC = () => {
                                 { value: "SERVICE_STOP", label: "SERVICE STOP" },
                                 { value: "SERVICE_RESTART", label: "SERVICE RESTART" },
                                 { value: "SERVICE_RELOAD", label: "SERVICE RELOAD" },
+                                { value: "EXECUTE_SCENARIO", label: "EXECUTE SCENARIO" },
+                                { value: "FRR", label: "FRR" },
+                                { value: "PROXY", label: "PROXY" },
+                                { value: "ENVOY_VERSION", label: "ENVOY VERSION" },
+                                { value: "NETWORK_ROUTE_MANAGE", label: "NETWORK ROUTE MANAGE" },
+                                { value: "NETWORK_POLICY_MANAGE", label: "NETWORK POLICY MANAGE" },
+                                { value: "NETWORK_TABLE_MANAGE", label: "NETWORK TABLE MANAGE" },
+                                { value: "NETWORK_NETPLAN_APPLY", label: "NETWORK NETPLAN APPLY" },
+                                { value: "CLIENT_DELETE", label: "CLIENT DELETE" },
+                                { value: "DELETE_SNAPSHOT", label: "DELETE SNAPSHOT" },
                             ]}
                         />
                     </Col>
@@ -511,12 +521,24 @@ const AuditList: React.FC = () => {
                             style={{ width: '100%' }}
                             options={[
                                 { value: "service", label: "Service" },
-                                { value: "client", label: "Client" },
-                                { value: "listener", label: "Listener" },
-                                { value: "cluster", label: "Cluster" },
-                                { value: "route", label: "Route" },
-                                { value: "user", label: "User" },
-                                { value: "project", label: "Project" }
+                                { value: "client_command", label: "Client Cmd" },
+                                { value: "bootstrap", label: "Bootstrap" },
+                                { value: "listeners", label: "Listener" },
+                                { value: "clusters", label: "Cluster" },
+                                { value: "endpoints", label: "Endpoint" },
+                                { value: "routes", label: "Route" },
+                                { value: "virtual_hosts", label: "Virtual Host" },
+                                { value: "tls", label: "TLS" },
+                                { value: "secrets", label: "Secret" },
+                                { value: "filters", label: "Filter" },
+                                { value: "extensions", label: "Extension" },
+                                { value: "users", label: "User" },
+                                { value: "groups", label: "Group" },
+                                { value: "projects", label: "Project" },
+                                { value: "scenarios", label: "Scenario" },
+                                { value: "client_token", label: "Client Token" },
+                                { value: "cloud_configs", label: "Cloud Config" },
+                                { value: "snapshot", label: "Snapshot" },
                             ]}
                         />
                     </Col>
@@ -545,10 +567,10 @@ const AuditList: React.FC = () => {
                     <Col span={3}>
                         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                             <Space>
-                                <Button 
+                                <Button
                                     icon={<SearchOutlined />}
                                     onClick={applyFilters}
-                                    style={{ 
+                                    style={{
                                         borderRadius: 6,
                                         background: 'white',
                                         border: '1px solid #d9d9d9',
@@ -568,7 +590,7 @@ const AuditList: React.FC = () => {
                                     Search
                                 </Button>
                                 {(Object.keys(tempFilters).length > 0 || Object.keys(filters).length > 0) && (
-                                    <Button 
+                                    <Button
                                         icon={<ClearOutlined />}
                                         onClick={clearFilters}
                                         style={{ borderRadius: 6 }}

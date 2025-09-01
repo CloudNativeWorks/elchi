@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useOperationsApiMutation } from '@/common/operations-api';
 import { OperationsType } from '@/common/types';
+import { useProjectVariable } from '@/hooks/useProjectVariable';
 
 
 interface ClientStatsResponse {
@@ -68,6 +69,7 @@ interface ClientStatsResponse {
 }
 
 export function useClientStats({ clientId }: { clientId: string }) {
+    const { project } = useProjectVariable();
     const mutate = useOperationsApiMutation();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -95,7 +97,8 @@ export function useClientStats({ clientId }: { clientId: string }) {
                     command: {
                         count: 100
                     }
-                }
+                },
+                project
             });
 
             if (Array.isArray(response) && response.length > 0) {

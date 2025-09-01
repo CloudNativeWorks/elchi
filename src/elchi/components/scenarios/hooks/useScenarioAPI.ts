@@ -249,7 +249,8 @@ export const useScenarioAPI = () => {
     const useCreateScenario = () => {
         return useMutation({
             mutationFn: async (data: CreateScenarioRequest): Promise<Scenario> => {
-                const response = await api.post('/api/v3/scenario/scenarios', data);
+                const url = `/api/v3/scenario/scenarios?project=${project}`;
+                const response = await api.post(url, data);
                 return response.data;
             },
             onSuccess: () => {
@@ -268,7 +269,7 @@ export const useScenarioAPI = () => {
                 scenarioId: string; 
                 data: UpdateScenarioRequest 
             }): Promise<Scenario> => {
-                const response = await api.put(`/api/v3/scenario/scenarios/${scenarioId}`, data);
+                const response = await api.put(`/api/v3/scenario/scenarios/${scenarioId}?project=${project}`, data);
                 return response.data;
             },
             onSuccess: () => {
@@ -281,7 +282,7 @@ export const useScenarioAPI = () => {
     const useDeleteScenario = () => {
         return useMutation({
             mutationFn: async (scenarioId: string): Promise<void> => {
-                await api.delete(`/api/v3/scenario/scenarios/${scenarioId}`);
+                await api.delete(`/api/v3/scenario/scenarios/${scenarioId}?project=${project}`);
             },
             onSuccess: () => {
                 queryClient.invalidateQueries({ queryKey: ['scenarios'] });
@@ -289,35 +290,6 @@ export const useScenarioAPI = () => {
         });
     };
 
-    // Execute scenario mutation
-    const useExecuteScenario = () => {
-        return useMutation({
-            mutationFn: async (data: ExecuteScenarioRequest): Promise<ExecuteScenarioResponse> => {
-                try {
-                    const response = await api.post('/api/v3/scenario/execute', data);
-                    // Handle nested response format where actual data is in response.data.data
-                    return response.data.data || response.data;
-                } catch (error: any) {
-                    // Handle validation errors and other 400-level errors
-                    if (error.response?.status === 400 && error.response?.data) {
-                        // Extract the error message from the response
-                        const errorData = error.response.data;
-                        const errorMessage = errorData.message || 'Validation failed';
-                        
-                        // Return a failed response with proper error message
-                        return {
-                            success: false,
-                            message: errorMessage,
-                            resources: []
-                        };
-                    }
-                    
-                    // Re-throw other errors
-                    throw error;
-                }
-            },
-        });
-    };
 
     // Get component catalog
     const useGetComponentCatalog = () => {
@@ -332,10 +304,12 @@ export const useScenarioAPI = () => {
     };
 
     // Validate scenario components
-    const useValidateScenario = () => {
+    const useValidateScenario = (projectParam?: string) => {
         return useMutation({
             mutationFn: async (components: ComponentInstance[]): Promise<ValidateScenarioResponse> => {
-                const response = await api.post('/api/v3/scenario/validate', components);
+                const targetProject = projectParam || project;
+                const url = `/api/v3/scenario/validate${targetProject ? `?project=${targetProject}` : ''}`;
+                const response = await api.post(url, components);
                 return response.data;
             },
         });
@@ -379,7 +353,6 @@ export const useScenarioAPI = () => {
         useCreateScenario,
         useUpdateScenario,
         useDeleteScenario,
-        useExecuteScenario,
         useGetComponentCatalog,
         useValidateScenario,
         useExportScenarios,
