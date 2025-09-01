@@ -509,6 +509,9 @@ const AuditList: React.FC = () => {
                                 { value: "NETWORK_NETPLAN_APPLY", label: "NETWORK NETPLAN APPLY" },
                                 { value: "CLIENT_DELETE", label: "CLIENT DELETE" },
                                 { value: "DELETE_SNAPSHOT", label: "DELETE SNAPSHOT" },
+                                { value: "CREATE_LDAP_CONFIG", label: "CREATE LDAP CONFIG" },
+                                { value: "UPDATE_LDAP_CONFIG", label: "UPDATE LDAP CONFIG" },
+                                { value: "DELETE_LDAP_CONFIG", label: "DELETE LDAP CONFIG" },
                             ]}
                         />
                     </Col>
@@ -539,6 +542,7 @@ const AuditList: React.FC = () => {
                                 { value: "client_token", label: "Client Token" },
                                 { value: "cloud_configs", label: "Cloud Config" },
                                 { value: "snapshot", label: "Snapshot" },
+                                { value: "ldap", label: "LDAP" },
                             ]}
                         />
                     </Col>

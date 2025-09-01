@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Select, message, Switch, Card, Typography, Space, Row, Col } from 'antd';
-import { UserOutlined, MailOutlined, KeyOutlined, TeamOutlined, ProjectOutlined, SettingOutlined, ArrowLeftOutlined, CloseOutlined, SaveOutlined, PlusOutlined } from '@ant-design/icons';
+import { Form, Input, Select, message, Switch, Card, Typography, Space, Row, Col, Tag } from 'antd';
+import { UserOutlined, MailOutlined, KeyOutlined, TeamOutlined, ProjectOutlined, SettingOutlined, ArrowLeftOutlined, CloseOutlined, SaveOutlined, PlusOutlined, SafetyOutlined } from '@ant-design/icons';
 import { useCustomGetQuery } from '@/common/api';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useCustomApiMutation } from '@/common/custom-api';
@@ -17,6 +17,7 @@ interface UserFormValues {
     email?: string;
     password?: string;
     role?: string;
+    auth_type?: string;
     base_group?: string;
     base_project?: string;
     groups?: string[];
@@ -121,6 +122,7 @@ const User: React.FC = () => {
                     email: dataUser.email,
                     password: '',
                     role: dataUser.role,
+                    auth_type: dataUser.auth_type,
                     base_group: dataUser.base_group,
                     base_project: dataUser.base_project,
                     groups: updatedGroups,
@@ -167,6 +169,14 @@ const User: React.FC = () => {
                         <Title level={4} style={{ margin: 0 }}>
                             {isCreatePage ? 'Create User' : 'User Details'}
                         </Title>
+                        {!isCreatePage && dataUser?.auth_type && (
+                            <Tag 
+                                icon={<SafetyOutlined />} 
+                                color={dataUser.auth_type === 'ldap' ? 'cyan' : 'geekblue'}
+                            >
+                                {dataUser.auth_type.toUpperCase()}
+                            </Tag>
+                        )}
                     </Space>
                     <ElchiButton
                         type="text"
@@ -220,7 +230,7 @@ const User: React.FC = () => {
                                         prefix={<UserOutlined style={{ color: '#bfbfbf' }} />}
                                         placeholder="Enter username"
                                         autoComplete="nope"
-                                        disabled={username === 'admin'}
+                                        disabled={username === 'admin' || (dataUser?.auth_type === 'ldap' && !isCreatePage)}
                                         size="large"
                                     />
                                 </Form.Item>
@@ -235,6 +245,7 @@ const User: React.FC = () => {
                                     <Input
                                         prefix={<MailOutlined style={{ color: '#bfbfbf' }} />}
                                         placeholder="Enter email address"
+                                        disabled={dataUser?.auth_type === 'ldap' && !isCreatePage}
                                         size="large"
                                     />
                                 </Form.Item>
@@ -258,6 +269,11 @@ const User: React.FC = () => {
                                         { required: isCreatePage, message: 'Please input your password!' },
                                         () => ({
                                             validator(_, value) {
+                                                // Skip password validation for LDAP users
+                                                if (dataUser?.auth_type === 'ldap') {
+                                                    return Promise.resolve();
+                                                }
+                                                
                                                 if (!value && isCreatePage) {
                                                     return Promise.reject(new Error('Please input your password!'));
                                                 }
@@ -274,9 +290,10 @@ const User: React.FC = () => {
                                 >
                                     <Input.Password
                                         prefix={<KeyOutlined style={{ color: '#bfbfbf' }} />}
-                                        placeholder="Enter password"
+                                        placeholder={dataUser?.auth_type === 'ldap' ? "LDAP users authenticate via LDAP server" : "Enter password"}
                                         autoComplete="new-password"
                                         size="large"
+                                        disabled={dataUser?.auth_type === 'ldap' && !isCreatePage}
                                     />
                                 </Form.Item>
                             </Col>
@@ -284,7 +301,7 @@ const User: React.FC = () => {
                                 <Form.Item
                                     name="confirm"
                                     label="Confirm Password"
-                                    dependencies={['user', 'password']}
+                                    dependencies={['user', 'password', 'user', 'auth_type']}
                                     hasFeedback
                                     rules={[
                                         {
@@ -293,6 +310,11 @@ const User: React.FC = () => {
                                         },
                                         ({ getFieldValue }) => ({
                                             validator(_, value) {
+                                                // Skip validation for LDAP users
+                                                if (dataUser?.auth_type === 'ldap') {
+                                                    return Promise.resolve();
+                                                }
+                                                
                                                 const password = getFieldValue(['user', 'password']);
                                                 if (!value && isCreatePage) {
                                                     return Promise.reject(new Error('Please confirm your password!'));
@@ -309,9 +331,10 @@ const User: React.FC = () => {
                                 >
                                     <Input.Password
                                         prefix={<KeyOutlined style={{ color: '#bfbfbf' }} />}
-                                        placeholder="Confirm password"
+                                        placeholder={dataUser?.auth_type === 'ldap' ? "LDAP users authenticate via LDAP server" : "Confirm password"}
                                         autoComplete="new-password"
                                         size="large"
+                                        disabled={dataUser?.auth_type === 'ldap' && !isCreatePage}
                                     />
                                 </Form.Item>
                             </Col>

@@ -17,6 +17,7 @@ interface DataType {
     groups: string[];
     user_id: string;
     role: string;
+    auth_type: string;
     created_at: string;
     updated_at: string;
 }
@@ -87,6 +88,7 @@ const Users: React.FC = () => {
             item.username?.toLowerCase().includes(lower) ||
             item.email?.toLowerCase().includes(lower) ||
             item.role?.toLowerCase().includes(lower) ||
+            item.auth_type?.toLowerCase().includes(lower) ||
             (item.groups && item.groups.join(',').toLowerCase().includes(lower))
         );
     }, [searchText, tableData]);
@@ -143,7 +145,7 @@ const Users: React.FC = () => {
             title: 'Role',
             dataIndex: 'role',
             key: 'role',
-            width: '20%',
+            width: '15%',
             fixed: 'left',
             render: (_, record) => (
                 <Dropdown menu={{ items: listenerActions, onClick: (e) => onClick(record, e.key) }} trigger={['contextMenu']}>
@@ -154,6 +156,22 @@ const Users: React.FC = () => {
                                     record.role === 'editor' ? 'green' :
                                         record.role === 'viewer' ? 'blue' : 'default'
                         }>{record.role}</Tag>
+                    </div>
+                </Dropdown>
+            )
+        },
+        {
+            title: 'Auth Type',
+            dataIndex: 'auth_type',
+            key: 'auth_type',
+            width: '15%',
+            fixed: 'left',
+            render: (_, record) => (
+                <Dropdown menu={{ items: listenerActions, onClick: (e) => onClick(record, e.key) }} trigger={['contextMenu']}>
+                    <div>
+                        <Tag className='auto-width-tag' color={
+                            record.auth_type === 'ldap' ? 'cyan' : 'geekblue'
+                        }>{record.auth_type || 'local'}</Tag>
                     </div>
                 </Dropdown>
             )

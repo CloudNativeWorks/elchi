@@ -82,11 +82,13 @@ const Project: React.FC = () => {
         });
     };
 
-    const dataSource = userList?.map((user: any) => ({
-        key: user.user_id,
-        title: user.username,
-        description: user.email,
-    }));
+    const dataSource = userList
+        ?.filter((user: any) => user.auth_type !== 'ldap')
+        ?.map((user: any) => ({
+            key: user.user_id,
+            title: user.username,
+            description: user.email,
+        }));
 
     useEffect(() => {
         if (isCreatePage) {

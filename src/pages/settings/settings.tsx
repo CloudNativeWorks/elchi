@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, Tabs, Typography, Space } from 'antd';
-import { UserOutlined, TeamOutlined, ProjectOutlined, SettingOutlined, AppstoreOutlined, KeyOutlined, RobotOutlined, CloudOutlined } from '@ant-design/icons';
+import { UserOutlined, TeamOutlined, ProjectOutlined, SettingOutlined, AppstoreOutlined, KeyOutlined, RobotOutlined, CloudOutlined, SafetyOutlined } from '@ant-design/icons';
 import General from './General';
 import Users from './users';
 import Groups from './Groups';
@@ -8,6 +8,7 @@ import Projects from './Projects';
 import AI from './AI';
 import Tokens from './Tokens';
 import CloudsConfig from './CloudsConfig';
+import LdapConfig from './LdapConfig';
 
 const { Title, Text } = Typography;
 
@@ -82,6 +83,16 @@ const Settings: React.FC = () => {
                 </span>
             ),
             children: <CloudsConfig />
+        },
+        {
+            key: 'ldap',
+            label: (
+                <span className="tabLabel">
+                    <SafetyOutlined style={{ fontSize: 18 }} />
+                    LDAP
+                </span>
+            ),
+            children: <LdapConfig />
         }
     ];
 
@@ -97,7 +108,7 @@ const Settings: React.FC = () => {
                 </div>
                 
                 <Text type="secondary">
-                    Manage your application settings, users, groups, projects, AI configuration, API tokens, and cloud providers.
+                    Manage your application settings, users, groups, projects, AI configuration, API tokens, cloud providers, and LDAP authentication.
                 </Text>
             </div>
 
