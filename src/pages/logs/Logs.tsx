@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Spin, Alert, Select, Button, Card, Modal, message, Typography, Space, Row, Col, Input } from 'antd';
-import { SettingOutlined, RobotOutlined } from '@ant-design/icons';
+import { SettingOutlined, RobotOutlined, FileTextOutlined } from '@ant-design/icons';
 import { useOperationsApiMutation } from '@/common/operations-api';
 import { OperationsSubType, OperationsType } from '@/common/types';
 import { OperationsResponse, ServiceLogsApiResult, ServiceLogItem } from './model';
@@ -524,22 +524,23 @@ const Logs: React.FC = () => {
                             alignItems: 'center',
                             justifyContent: 'center',
                             height: '100%',
-                            padding: '115px 10px',
+                            minHeight: 700,
+                            padding: '40px 10px',
                             textAlign: 'center',
                             background: 'linear-gradient(135deg, rgb(240, 242, 245) 0%, rgb(230, 247, 255) 100%)'
                         }}>
                             <div style={{
                                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                                 borderRadius: '50%',
-                                width: 120,
-                                height: 120,
+                                width: 80,
+                                height: 80,
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
                                 marginBottom: 32,
                                 boxShadow: '0 10px 30px rgba(102, 126, 234, 0.3)'
                             }}>
-                                <div style={{ fontSize: 48, color: '#fff' }}>📊</div>
+                                <div style={{ fontSize: 32, color: '#fff' }}><FileTextOutlined /></div>
                             </div>
 
                             <h1 style={{
@@ -548,7 +549,7 @@ const Logs: React.FC = () => {
                                 color: '#2c3e50',
                                 margin: 0,
                                 marginBottom: 16,
-                                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                background: 'linear-gradient(135deg,rgb(5, 26, 119) 0%,rgb(0, 0, 0) 100%)',
                                 WebkitBackgroundClip: 'text',
                                 WebkitTextFillColor: 'transparent'
                             }}>

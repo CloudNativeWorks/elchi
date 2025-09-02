@@ -597,7 +597,7 @@ const AuditList: React.FC = () => {
                             format="YYYY-MM-DD"
                         />
                     </Col>
-                    <Col span={3}>
+                    <Col span={4}>
                         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                             <Space>
                                 <Button

@@ -626,7 +626,7 @@ export function ClientListTable({
                         {/* Network Details Component */}
                         <OpenStackNetworkDetails
                             networkId={interfaceDetailModal.interface.network_id}
-                            subnetIds={interfaceDetailModal.interface.fixed_ips.map(ip => ip.subnet_id)}
+                            subnetIds={[...new Set(interfaceDetailModal.interface.fixed_ips.map(ip => ip.subnet_id))]}
                             osProjectId={interfaceDetailModal.clientRecord.metadata?.os_project_id}
                             project={project}
                         />

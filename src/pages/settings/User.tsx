@@ -436,6 +436,7 @@ const User: React.FC = () => {
                                     name={['user', 'active']}
                                     label="Account Status"
                                     valuePropName="checked"
+                                    initialValue={isCreatePage ? true : undefined}
                                     preserve={false}
                                 >
                                     <Switch 
