@@ -337,17 +337,9 @@ const LdapConfig: React.FC = () => {
                                 </Form.Item>
                             </Col>
                         </Row>
-
-                        <Alert
-                            message="Security Notice"
-                            description="Enabling 'Skip TLS Verification' reduces security. Only use in development environments."
-                            type="warning"
-                            showIcon
-                            style={{ marginBottom: 24 }}
-                        />
                     </Form>
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 16 }}>
                         <Space>
                             <ElchiButton
                                 type="primary"

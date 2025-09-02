@@ -140,7 +140,9 @@ const ClientStats: React.FC<ClientStatsProps> = ({ clientId }) => {
                     onClick={fetchClientStats}
                     title="Refresh metrics"
                     disabled={loading}
-                />
+                >
+                    Refresh
+                </Button>
             </div>
 
             {loading && (
@@ -261,13 +263,20 @@ const ClientStats: React.FC<ClientStatsProps> = ({ clientId }) => {
 
             <Row gutter={[16, 16]}>
                 <Col span={12}>
-                    <Card
-                        title="Storage"
-                        styles={{
-                            header: { background: '#1890ff' },
-                            title: { color: '#fff' }
-                        }}
-                    >
+                    <Card>
+                        <div style={{
+                            background: 'linear-gradient(90deg, rgba(107, 114, 128, 0.05) 0%, rgba(107, 114, 128, 0.02) 100%)',
+                            margin: '-16px -16px 16px -16px',
+                            padding: '12px 16px',
+                            borderRadius: '6px 6px 0 0',
+                            border: '1px solid rgba(107, 114, 128, 0.1)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 12
+                        }}>
+                            <DatabaseOutlined style={{ fontSize: '18px', color: '#111827' }} />
+                            <Text strong style={{ color: '#111827', fontSize: '14px' }}>Storage</Text>
+                        </div>
                         <Table
                             dataSource={stats.disk.map((disk: any) => ({
                                 ...disk,
@@ -280,13 +289,20 @@ const ClientStats: React.FC<ClientStatsProps> = ({ clientId }) => {
                     </Card>
                 </Col>
                 <Col span={12}>
-                    <Card
-                        title="Network Interfaces"
-                        styles={{
-                            header: { background: '#1890ff' },
-                            title: { color: '#fff' }
-                        }}
-                    >
+                    <Card>
+                        <div style={{
+                            background: 'linear-gradient(90deg, rgba(107, 114, 128, 0.05) 0%, rgba(107, 114, 128, 0.02) 100%)',
+                            margin: '-16px -16px 16px -16px',
+                            padding: '12px 16px',
+                            borderRadius: '6px 6px 0 0',
+                            border: '1px solid rgba(107, 114, 128, 0.1)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 12
+                        }}>
+                            <ApiOutlined style={{ fontSize: '18px', color: '#111827' }} />
+                            <Text strong style={{ color: '#111827', fontSize: '14px' }}>Network Interfaces</Text>
+                        </div>
                         <Table
                             dataSource={networkInterfaces}
                             columns={networkColumns}

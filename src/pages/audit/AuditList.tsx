@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Table, Typography, Pagination, Tag, Input, Space, Card, Select, Button, Row, Col, DatePicker, Tooltip } from 'antd';
+import { Table, Typography, Pagination, Tag, Input, Space, Card, Select, Button, Row, Col, DatePicker, Tooltip, Dropdown, MenuProps } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { useAuditLogs, useAuditStats } from '@/hooks/useAudit';
 import { AuditLog } from '@/hooks/useAudit';
@@ -19,6 +19,7 @@ import {
     ExclamationCircleOutlined,
     DatabaseOutlined
 } from '@ant-design/icons';
+import { ActionsSVG } from '@/assets/svg/icons';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import dayjs from 'dayjs';
@@ -122,6 +123,47 @@ const AuditList: React.FC = () => {
 
     const columns: ColumnsType<AuditLog> = [
         {
+            title: '',
+            key: 'actions',
+            width: '5%',
+            render: (_, record: AuditLog) => (
+                <div style={{ display: 'flex', justifyContent: 'center', minWidth: 1 }} onClick={e => e.stopPropagation()}>
+                    <Dropdown
+                        trigger={['click']}
+                        menu={{
+                            items: [
+                                {
+                                    key: 'view',
+                                    label: 'View Details',
+                                    icon: <EyeOutlined />,
+                                }
+                            ],
+                            onClick: ({ key }) => {
+                                if (key === 'view') {
+                                    handleViewDetails(record);
+                                }
+                            }
+                        }}
+                    >
+                        <div
+                            style={{
+                                background: 'none',
+                                border: 'none',
+                                cursor: 'pointer',
+                                padding: '4px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
+                            aria-label="Actions"
+                        >
+                            <ActionsSVG />
+                        </div>
+                    </Dropdown>
+                </div>
+            )
+        },
+        {
             title: 'Timestamp',
             dataIndex: 'timestamp',
             key: 'timestamp',
@@ -216,22 +258,6 @@ const AuditList: React.FC = () => {
                     <ClockCircleOutlined style={{ color: '#faad14' }} />
                     <Text style={{ fontSize: 12 }}>{duration}ms</Text>
                 </Space>
-            )
-        },
-        {
-            title: 'Actions',
-            key: 'actions',
-            width: '8%',
-            render: (_, record: AuditLog) => (
-                <Button
-                    type="primary"
-                    size="small"
-                    icon={<EyeOutlined />}
-                    onClick={() => handleViewDetails(record)}
-                    style={{ borderRadius: 6 }}
-                >
-                    Details
-                </Button>
             )
         }
     ];
@@ -559,13 +585,16 @@ const AuditList: React.FC = () => {
                             ]}
                         />
                     </Col>
-                    <Col span={5}>
+                    <Col span={4}>
                         <RangePicker
-                            placeholder={['Start Date', 'End Date']}
+                            placeholder={['Start', 'End']}
                             value={tempFilters.start_time && tempFilters.end_time ? [dayjs(tempFilters.start_time), dayjs(tempFilters.end_time)] : null}
                             onChange={handleDateRangeChange}
                             style={{ width: '100%' }}
-                            showTime
+                            showTime={{
+                                format: 'HH:mm'
+                            }}
+                            format="YYYY-MM-DD"
                         />
                     </Col>
                     <Col span={3}>

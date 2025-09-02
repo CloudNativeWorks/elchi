@@ -238,32 +238,31 @@ export const useJobOperations = () => {
       if (filters?.end_date) queryParams.append('end_date', filters.end_date);
       
       const response = await api.get(`/api/v3/jobs/stats?${queryParams.toString()}`);
-      const data = response.data.data || response.data || {};
-      const statusCounts = data.jobs_by_status || {};
       
-      return {
-        total_jobs: data.total_jobs || 0,
-        pending: statusCounts['PENDING'] || statusCounts[''] || 0,
-        running: statusCounts['RUNNING'] || 0,
-        completed: statusCounts['COMPLETED'] || 0,
-        failed: statusCounts['FAILED'] || 0,
-        no_work_needed: statusCounts['NO_WORK_NEEDED'] || 0,
-        average_duration_seconds: 0,
-        last_24h_jobs: data.total_jobs || 0
-      };
+      // Return the full response structure as expected by the new JobStatsResponse type
+      return response.data;
     } catch (error: any) {
       const errorMessage = error?.response?.data?.error || error?.message || 'Failed to fetch job statistics';
       console.error('Stats fetch error:', error);
       message.error(errorMessage);
       return {
-        total_jobs: 0,
-        pending: 0,
-        running: 0,
-        completed: 0,
-        failed: 0,
-        no_work_needed: 0,
-        average_duration_seconds: 0,
-        last_24h_jobs: 0
+        data: {
+          total_jobs: 0,
+          jobs_by_status: {},
+          jobs_by_resource: {},
+          jobs_by_user: {},
+          recent_jobs: null,
+          queue_size: 0,
+          active_workers: 0,
+          processing_jobs: 0,
+          last_updated: new Date().toISOString()
+        },
+        filters: {
+          end_date: filters?.end_date || new Date().toISOString().split('T')[0],
+          project: project,
+          start_date: filters?.start_date || new Date().toISOString().split('T')[0]
+        },
+        message: "Error"
       };
     } finally {
       setLoading(false);

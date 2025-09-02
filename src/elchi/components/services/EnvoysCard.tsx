@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { ReloadOutlined, DatabaseOutlined, ExpandAltOutlined, ShrinkOutlined } from '@ant-design/icons';
-import { Typography, Select, Button, Card, Row, Col, Statistic, Alert, Spin, Badge, Collapse, Input, Pagination } from 'antd';
+import { ReloadOutlined, CodeOutlined, DatabaseOutlined, ClusterOutlined, GlobalOutlined, ShareAltOutlined, AimOutlined, AppstoreOutlined, KeyOutlined, SettingOutlined } from '@ant-design/icons';
+import { Typography, Select, Button, Card, Row, Col, Statistic, Alert, Spin, Badge, Collapse, Input, Pagination, Tabs, Tag } from 'antd';
 import { useEnvoyDetails } from '@/hooks/useEnvoyDetails';
 import JsonView from 'react18-json-view';
 import 'react18-json-view/src/style.css';
@@ -34,6 +34,26 @@ const getErrorMessage = (error: string): string => {
     return error.replace('error: ', '');
 };
 
+// Get resource config for different config dump types (matching registry snapshot icons)
+const getResourceConfig = (type: string) => {
+    const configs = {
+        'BootstrapConfigDump': { icon: <CodeOutlined />, color: '#1890ff', name: 'Bootstrap' },
+        'ClustersConfigDump': { icon: <ClusterOutlined />, color: '#1890ff', name: 'Cluster' },
+        'ListenersConfigDump': { icon: <GlobalOutlined />, color: '#52c41a', name: 'Listener' },
+        'RoutesConfigDump': { icon: <ShareAltOutlined />, color: '#722ed1', name: 'Route' },
+        'SecretsConfigDump': { icon: <KeyOutlined />, color: '#eb2f96', name: 'Secret' },
+        'ScopedRoutesConfigDump': { icon: <ShareAltOutlined />, color: '#722ed1', name: 'Scoped Route' },
+        'EndpointsConfigDump': { icon: <AimOutlined />, color: '#fa8c16', name: 'Endpoint' },
+        'ExtensionsConfigDump': { icon: <AppstoreOutlined />, color: '#13c2c2', name: 'Extension' },
+        'RuntimeConfigDump': { icon: <SettingOutlined />, color: '#1890ff', name: 'Runtime' }
+    };
+
+    // Extract type from @type field (e.g., "type.googleapis.com/envoy.admin.v3.BootstrapConfigDump" -> "BootstrapConfigDump")
+    const extractedType = type.split('.').pop() || type;
+
+    return configs[extractedType] || { icon: <DatabaseOutlined />, color: '#1890ff', name: extractedType };
+};
+
 const EnvoysCard: React.FC<EnvoysCardProps> = ({ envoys, name, project, version }) => {
     const { loading, error, envoyData, fetchEnvoyDetails } = useEnvoyDetails({ name, project, version });
     const [selectedClient, setSelectedClient] = useState<string>();
@@ -42,7 +62,6 @@ const EnvoysCard: React.FC<EnvoysCardProps> = ({ envoys, name, project, version 
     const [searchText, setSearchText] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(20);
-    const [isJsonExpanded, setIsJsonExpanded] = useState(false);
 
     useEffect(() => {
         fetchEnvoyDetails();
@@ -101,7 +120,7 @@ const EnvoysCard: React.FC<EnvoysCardProps> = ({ envoys, name, project, version 
                     return null;
                 })}
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: -4 }}>
-                    <DatabaseOutlined style={{ fontSize: 16, color: '#1890ff' }} />
+                    <CodeOutlined style={{ fontSize: 16, color: '#1890ff' }} />
                     <Select
                         style={{ width: 200 }}
                         value={selectedClient}
@@ -225,22 +244,20 @@ const EnvoysCard: React.FC<EnvoysCardProps> = ({ envoys, name, project, version 
 
                     <Row gutter={[16, 16]}>
                         <Col span={8}>
-                            <Card
-                                title={
-                                    <div style={{ display: 'flex', color: '#fff', alignItems: 'center', gap: 8 }}>
-                                        <Text strong style={{ color: '#fff' }}>Memory Usage</Text>
-                                    </div>
-                                }
-                                styles={{
-                                    header: {
-                                        background: '#1890ff',
-                                    },
-                                    title: {
-                                        color: '#fff',
-                                    }
-                                }}
-                                style={{ height: '100%' }}
-                            >
+                            <Card style={{ height: '100%' }}>
+                                <div style={{
+                                    background: 'linear-gradient(90deg, rgba(107, 114, 128, 0.05) 0%, rgba(107, 114, 128, 0.02) 100%)',
+                                    margin: '-16px -16px 16px -16px',
+                                    padding: '12px 16px',
+                                    borderRadius: '6px 6px 0 0',
+                                    border: '1px solid rgba(107, 114, 128, 0.1)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 12
+                                }}>
+                                    <DatabaseOutlined style={{ fontSize: '18px', color: '#111827' }} />
+                                    <Text strong style={{ color: '#111827', fontSize: '14px' }}>Memory Usage</Text>
+                                </div>
                                 {isErrorResponse(selectedEnvoyData?.Result?.EnvoyAdmin?.body?.memory) ? (
                                     <Alert
                                         type="error"
@@ -278,26 +295,27 @@ const EnvoysCard: React.FC<EnvoysCardProps> = ({ envoys, name, project, version 
                             </Card>
                         </Col>
                         <Col span={8}>
-                            <Card
-                                title={
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                        <Text strong style={{ color: '#fff' }}>Listeners</Text>
-                                        <Badge
-                                            count={selectedEnvoyData?.Result?.EnvoyAdmin?.body?.listeners?.listener_statuses?.length || 0}
-                                            style={{ backgroundColor: '#fff', color: '#1890ff' }}
-                                        />
+                            <Card style={{ height: '100%' }}>
+                                <div style={{
+                                    background: 'linear-gradient(90deg, rgba(107, 114, 128, 0.05) 0%, rgba(107, 114, 128, 0.02) 100%)',
+                                    margin: '-16px -16px 16px -16px',
+                                    padding: '12px 16px',
+                                    borderRadius: '6px 6px 0 0',
+                                    border: '1px solid rgba(107, 114, 128, 0.1)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 12,
+                                    justifyContent: 'space-between'
+                                }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                        <GlobalOutlined style={{ fontSize: '18px', color: '#111827' }} />
+                                        <Text strong style={{ color: '#111827', fontSize: '14px' }}>Listeners</Text>
                                     </div>
-                                }
-                                styles={{
-                                    header: {
-                                        background: '#1890ff',
-                                    },
-                                    title: {
-                                        color: '#fff',
-                                    }
-                                }}
-                                style={{ height: '100%' }}
-                            >
+                                    <Badge
+                                        count={selectedEnvoyData?.Result?.EnvoyAdmin?.body?.listeners?.listener_statuses?.length || 0}
+                                        style={{ backgroundColor: '#6b7280', color: '#fff' }}
+                                    />
+                                </div>
                                 {isErrorResponse(selectedEnvoyData?.Result?.EnvoyAdmin?.body?.listeners) ? (
                                     <Alert
                                         type="error"
@@ -335,22 +353,20 @@ const EnvoysCard: React.FC<EnvoysCardProps> = ({ envoys, name, project, version 
                             </Card>
                         </Col>
                         <Col span={8}>
-                            <Card
-                                title={
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                        <Text strong style={{ color: '#fff' }}>Runtime</Text>
-                                    </div>
-                                }
-                                styles={{
-                                    header: {
-                                        background: '#1890ff',
-                                    },
-                                    title: {
-                                        color: '#fff',
-                                    }
-                                }}
-                                style={{ height: '100%' }}
-                            >
+                            <Card style={{ height: '100%' }}>
+                                <div style={{
+                                    background: 'linear-gradient(90deg, rgba(107, 114, 128, 0.05) 0%, rgba(107, 114, 128, 0.02) 100%)',
+                                    margin: '-16px -16px 16px -16px',
+                                    padding: '12px 16px',
+                                    borderRadius: '6px 6px 0 0',
+                                    border: '1px solid rgba(107, 114, 128, 0.1)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 12
+                                }}>
+                                    <SettingOutlined style={{ fontSize: '18px', color: '#111827' }} />
+                                    <Text strong style={{ color: '#111827', fontSize: '14px' }}>Runtime</Text>
+                                </div>
                                 {isErrorResponse(selectedEnvoyData?.Result?.EnvoyAdmin?.body?.runtime) ? (
                                     <Alert
                                         type="error"
@@ -614,42 +630,112 @@ const EnvoysCard: React.FC<EnvoysCardProps> = ({ envoys, name, project, version 
                                                 <>
                                                     <div style={{
                                                         display: 'flex',
-                                                        justifyContent: 'flex-end',
-                                                        gap: 4,
-                                                        position: 'sticky',
-                                                        top: 0,
-                                                        zIndex: 1,
-                                                        padding: '4px 0',
-                                                        marginRight: 4
+                                                        alignItems: 'center',
+                                                        gap: 8,
+                                                        marginBottom: 16
                                                     }}>
-                                                        <Button
-                                                            size="small"
-                                                            type="text"
-                                                            style={{ padding: '4px 8px' }}
-                                                            onClick={() => setIsJsonExpanded(true)}
-                                                            icon={<ExpandAltOutlined />}
-                                                            title="Expand All"
-                                                        />
-                                                        <Button
-                                                            size="small"
-                                                            type="text"
-                                                            style={{ padding: '4px 8px' }}
-                                                            onClick={() => setIsJsonExpanded(false)}
-                                                            icon={<ShrinkOutlined />}
-                                                            title="Collapse All"
-                                                        />
+                                                        <ClusterOutlined style={{ fontSize: '16px', color: '#52c41a' }} />
+                                                        <span style={{ fontWeight: 600, fontSize: '14px', color: '#2c3e50' }}>Resources by Type</span>
                                                     </div>
-                                                    <JsonView
-                                                        src={selectedEnvoyData.Result.EnvoyAdmin.body.config_dump}
-                                                        theme="atom"
-                                                        collapsed={isJsonExpanded ? false : 4}
-                                                        enableClipboard={true}
-                                                        style={{
-                                                            fontSize: '13px',
-                                                            fontFamily: 'monospace',
-                                                            backgroundColor: 'transparent'
-                                                        }}
-                                                    />
+                                                    {(() => {
+                                                        const configDump = selectedEnvoyData.Result.EnvoyAdmin.body.config_dump;
+                                                        const configs = configDump.configs || [];
+
+                                                        // Create tabs only for configs that exist (have @type)
+                                                        const tabItems = configs
+                                                            .filter((config: any) => config['@type'])
+                                                            .map((config: any, index: number) => {
+                                                                const configType = config['@type']?.split('.').pop() || `Config_${index}`;
+                                                                const resourceConfig = getResourceConfig(configType);
+
+                                                                // Filter out extensions field
+                                                                const filteredConfig = { ...config };
+                                                                if (filteredConfig.bootstrap?.node?.extensions) {
+                                                                    delete filteredConfig.bootstrap.node.extensions;
+                                                                }
+
+                                                                return {
+                                                                    key: `${configType}-${index}`,
+                                                                    label: (
+                                                                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 100 }}>
+                                                                            <span style={{ color: resourceConfig.color, fontSize: '14px' }}>
+                                                                                {resourceConfig.icon}
+                                                                            </span>
+                                                                            <span style={{ fontSize: '13px', fontWeight: 600 }}>
+                                                                                {resourceConfig.name}
+                                                                            </span>
+                                                                        </div>
+                                                                    ),
+                                                                    children: (
+                                                                        <div style={{
+                                                                            background: '#ffffff',
+                                                                            padding: '20px',
+                                                                            borderRadius: '12px',
+                                                                            border: '1px solid #e8f4f8',
+                                                                            boxShadow: '0 2px 8px rgba(24,144,255,0.06)',
+                                                                            margin: '8px 0'
+                                                                        }}>
+                                                                            <div style={{
+                                                                                display: 'flex',
+                                                                                alignItems: 'center',
+                                                                                gap: 12,
+                                                                                marginBottom: 16,
+                                                                                paddingBottom: 12,
+                                                                                borderBottom: '2px solid #f0f2f5'
+                                                                            }}>
+                                                                                <span style={{ color: resourceConfig.color, fontSize: '20px' }}>
+                                                                                    {resourceConfig.icon}
+                                                                                </span>
+                                                                                <Typography.Text strong style={{ fontSize: '16px', color: resourceConfig.color }}>
+                                                                                    {resourceConfig.name} Configuration
+                                                                                </Typography.Text>
+                                                                            </div>
+                                                                            <Typography.Text type="secondary" style={{ fontSize: '13px', display: 'block', marginBottom: 16 }}>
+                                                                                Configuration details for {resourceConfig.name.toLowerCase()} resources in this running instance.
+                                                                            </Typography.Text>
+
+                                                                            <div style={{
+                                                                                background: '#f6f8fa',
+                                                                                padding: '16px',
+                                                                                borderRadius: '8px',
+                                                                                border: '1px solid #e1e4e8',
+                                                                                maxHeight: '500px',
+                                                                                overflow: 'auto'
+                                                                            }}>
+                                                                                <JsonView
+                                                                                    src={filteredConfig}
+                                                                                    theme="atom"
+                                                                                    collapsed={false}
+                                                                                    enableClipboard={true}
+                                                                                    style={{
+                                                                                        fontSize: '13px',
+                                                                                        fontFamily: 'monospace',
+                                                                                        backgroundColor: 'transparent'
+                                                                                    }}
+                                                                                />
+                                                                            </div>
+                                                                        </div>
+                                                                    )
+                                                                };
+                                                            });
+
+                                                        return (
+                                                            <Tabs
+                                                                type="card"
+                                                                size="small"
+                                                                tabPosition="top"
+                                                                items={tabItems}
+                                                                style={{
+                                                                    background: 'transparent'
+                                                                }}
+                                                                tabBarStyle={{
+                                                                    background: 'transparent',
+                                                                    margin: 0,
+                                                                    padding: 0
+                                                                }}
+                                                            />
+                                                        );
+                                                    })()}
                                                 </>
                                             ) : (
                                                 <Text type="secondary">No configuration data available</Text>

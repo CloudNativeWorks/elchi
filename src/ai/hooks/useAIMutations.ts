@@ -84,28 +84,35 @@ export const useAIFeatures = (enabled = true) => {
   });
 };
 
-// Get Available Resources by Resource Type Hook  
-export const useAvailableResources = (resourceTypeKey: string, enabled = true) => {
+// Get Available Resources by Resource Type Hook with Search
+export const useAvailableResources = (resourceTypeKey: string, searchQuery = '', enabled = true) => {
   const { project } = useProjectVariable();
   
   return useQuery({
-    queryKey: ['available-resources', resourceTypeKey, project],
+    queryKey: ['available-resources', resourceTypeKey, project, searchQuery],
     queryFn: async (): Promise<ResourceOption[]> => {
       if (!resourceTypeKey) return [];
       
       // Check if it's a component type (gtype) or collection
       const componentType = COMPONENT_TYPES.find(ct => ct.gtype === resourceTypeKey);
       
+      // Build query parameters
+      let queryParams = `project=${project}&search=${encodeURIComponent(searchQuery || '')}`;
+      
       if (componentType) {
-        // It's a specific component type - use the backendPath from gtypes directly
-        const { backendPath } = componentType;
+        // It's a specific component type - get gtype and collection info
+        const { gtype, collection } = componentType;
+        queryParams += `&gtype=${encodeURIComponent(gtype)}&collection=${collection}`;
         
         try {
-          const response = await api.get<any[]>(
-            `${Config.baseApi}${backendPath}?project=${project}`
+          const response = await api.get<any>(
+            `${Config.baseApi}custom/resource_list_search?${queryParams}`
           );
           
-          return response.data.map((resource: any) => ({
+          // Handle paginated response structure
+          const data = response.data.data || response.data;
+          
+          return data.map((resource: any) => ({
             name: resource.name || resource.general?.name,
             project: resource.project || resource.general?.project || project,
             version: resource.version || resource.general?.version || '1.33.5',
@@ -113,20 +120,25 @@ export const useAvailableResources = (resourceTypeKey: string, enabled = true) =
             created_at: resource.created_at || resource.general?.created_at || new Date().toISOString()
           }));
         } catch (error) {
-          console.warn(`Failed to fetch ${backendPath}:`, error);
+          console.warn(`Failed to fetch resources for ${gtype}:`, error);
           return [];
         }
       } else {
-        // It's a standard collection - use XDS endpoint
+        // It's a standard collection
         const collectionConfig = RESOURCE_COLLECTIONS.find(c => c.name === resourceTypeKey);
         if (!collectionConfig) return [];
         
+        queryParams += `&collection=${resourceTypeKey}`;
+        
         try {
-          const response = await api.get<any[]>(
-            `${Config.baseApi}${collectionConfig.endpoint}?project=${project}`
+          const response = await api.get<any>(
+            `${Config.baseApi}custom/resource_list_search?${queryParams}`
           );
           
-          return response.data.map((resource: any) => ({
+          // Handle paginated response structure
+          const data = response.data.data || response.data;
+          
+          return data.map((resource: any) => ({
             name: resource.name || resource.general?.name,
             project: resource.project || resource.general?.project || project,
             version: resource.version || resource.general?.version || '1.33.5',
@@ -146,7 +158,7 @@ export const useAvailableResources = (resourceTypeKey: string, enabled = true) =
 
 // Get Available Listeners Hook (backward compatibility)
 export const useAvailableListeners = (enabled = true) => {
-  return useAvailableResources('listeners', enabled);
+  return useAvailableResources('listeners', '', enabled);
 };
 
 // Analyze Service Logs Hook

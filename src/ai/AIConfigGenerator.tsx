@@ -543,11 +543,13 @@ const AIConfigAnalyzer: React.FC = () => {
   const [question, setQuestion] = useState('');
   const [includeDependencies, setIncludeDependencies] = useState(true);
   const [analysisResult, setAnalysisResult] = useState<ConfigAnalysisResult | null>(null);
+  const [resourceSearchQuery, setResourceSearchQuery] = useState<string>('');
 
   // API hooks
   const analyzeConfigMutation = useAnalyzeConfigMutation();
   const { data: availableResources, isLoading: resourcesLoading } = useAvailableResources(
     selectedResourceType,
+    resourceSearchQuery,
     !!selectedResourceType
   );
   const { data: aiStatus } = useAIStatus();
@@ -639,12 +641,19 @@ const AIConfigAnalyzer: React.FC = () => {
     setQuestion('');
     setAnalysisResult(null);
     setIncludeDependencies(true);
+    setResourceSearchQuery('');
   };
 
   // Reset selected resource when resource type changes
   const handleResourceTypeChange = (resourceType: string) => {
     setSelectedResourceType(resourceType);
     setSelectedResource(''); // Clear selected resource
+    setResourceSearchQuery(''); // Clear search query
+  };
+
+  // Handle resource search with debounce
+  const handleResourceSearch = (searchValue: string) => {
+    setResourceSearchQuery(searchValue);
   };
 
   // Show AI status warning if not available
@@ -729,7 +738,10 @@ const AIConfigAnalyzer: React.FC = () => {
                 loading={resourcesLoading}
                 disabled={!selectedResourceType}
                 showSearch
-                optionFilterProp="label"
+                onSearch={handleResourceSearch}
+                filterOption={false}
+                searchValue={resourceSearchQuery}
+                notFoundContent={resourcesLoading ? <Spin size="small" /> : "No resources found"}
               >
                 {availableResources?.map((resource) => (
                   <Option key={`${resource.name}-${resource.version}`} value={resource.name} label={resource.name}>

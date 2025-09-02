@@ -133,14 +133,23 @@ export interface StuckJobsResponse {
 }
 
 export interface JobStatsResponse {
-  total_jobs: number;
-  pending: number;
-  running: number;
-  completed: number;
-  failed: number;
-  no_work_needed: number;
-  average_duration_seconds: number;
-  last_24h_jobs: number;
+  data: {
+    total_jobs: number;
+    jobs_by_status: Record<string, number>;
+    jobs_by_resource: Record<string, number>;
+    jobs_by_user: Record<string, number>;
+    recent_jobs: any;
+    queue_size: number;
+    active_workers: number;
+    processing_jobs: number;
+    last_updated: string;
+  };
+  filters: {
+    end_date: string;
+    project: string;
+    start_date: string;
+  };
+  message: string;
 }
 
 // WebSocket message types for real-time updates
