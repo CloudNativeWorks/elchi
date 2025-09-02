@@ -84,8 +84,6 @@ const CustomListenerDataTable: React.FC<CustomListenerDataTableProps> = ({ path,
 
     const listenerActions: MenuProps['items'] = [
         { key: '1', label: 'Show Dependencies', icon: <DeploymentUnitOutlined /> },
-        { key: '3', label: 'Bootstrap', icon: <PlaySquareOutlined /> },
-        { key: '5', label: 'Snapshot Dump', icon: <AliyunOutlined /> },
         { key: '7', label: 'Duplicate', icon: <CopyOutlined /> },
         { type: 'divider' },
         { key: '6', label: 'Delete', danger: true, icon: <DeleteOutlined /> },
