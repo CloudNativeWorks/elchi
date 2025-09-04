@@ -1,0 +1,10 @@
+npm config set @buf:registry  https://buf.build/gen/npm/v1/
+
+
+npm install @buf/googleapis_googleapis.bufbuild_es@latest
+npm install @buf/opencensus_opencensus.bufbuild_es@latest
+npm install @buf/prometheus_client-model.bufbuild_es@latest
+npm install @buf/opentelemetry_opentelemetry.bufbuild_es@latest
+npm install @buf/gogo_protobuf.bufbuild_es@latest
+npm install @buf/cncf_xds.bufbuild_es@latest
+npm install @buf/envoyproxy_protoc-gen-validate.bufbuild_es@latest
