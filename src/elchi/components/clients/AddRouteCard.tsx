@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Form, Input, Typography, Row, Col, Select, Divider, Switch, Card, Space } from 'antd';
+import { Button, Form, Input, Typography, Row, Col, Select, Divider, Switch, Card, Space, Checkbox } from 'antd';
 import { CheckOutlined, CloseOutlined, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 
 const { Title } = Typography;
@@ -27,6 +27,7 @@ const AddRouteCard: React.FC<AddRouteCardProps> = ({ interfaces, routingTables, 
                 table: values[`table_${index}`],
                 metric: values[`metric_${index}`],
                 protocol: values[`protocol_${index}`],
+                onlink: values[`onlink_${index}`],
             })).filter(route => route.to && route.via && route.interface);
             
             onSave({ routes: routeList });
@@ -168,6 +169,15 @@ const AddRouteCard: React.FC<AddRouteCardProps> = ({ interfaces, routingTables, 
                                 { label: 'Boot', value: 'boot' }
                             ]}
                         />
+                    </Form.Item>
+                </Col>
+                <Col xs={24} sm={12} md={12} lg={12} xl={12}>
+                    <Form.Item
+                        name={multipleMode ? `onlink_${index}` : 'onlink'}
+                        valuePropName="checked"
+                        extra="Gateway is on-link (directly accessible without routing)"
+                    >
+                        <Checkbox>On-link Gateway</Checkbox>
                     </Form.Item>
                 </Col>
             </Row>

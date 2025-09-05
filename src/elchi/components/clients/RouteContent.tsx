@@ -58,7 +58,8 @@ const RouteContent: React.FC<RouteContentProps> = ({ routes, loading, interfaces
                     ...(route.table && { table: Number(route.table) }),
                     ...(route.metric && { metric: Number(route.metric) }),
                     ...(route.scope && { scope: route.scope }),
-                    ...(route.protocol && { protocol: route.protocol })
+                    ...(route.protocol && { protocol: route.protocol }),
+                    ...(route.onlink && { onlink: route.onlink })
                 }
             }));
 

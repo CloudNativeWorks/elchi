@@ -42,6 +42,7 @@ export interface Route {
     scope?: string;
     protocol?: string;
     is_default?: boolean;
+    onlink?: boolean; // Maps to netplan's "on-link" field
 }
 
 export interface RoutingPolicy {

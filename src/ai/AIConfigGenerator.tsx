@@ -525,7 +525,7 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
 const { Title, Text } = Typography;
 const { TextArea } = Input;
 const { Option } = Select;
-const { Panel } = Collapse;
+// Removed Panel destructuring - using items prop instead
 
 interface ResourceTypeOption {
   key: string;
@@ -874,81 +874,91 @@ const AIConfigAnalyzer: React.FC = () => {
               )}
 
               {/* Configuration Details */}
-              <Collapse>
-                <Panel header="Resource Configuration Details" key="config">
-                  <Space direction="vertical" style={{ width: '100%' }}>
-                    <div>
-                      <Text strong>Name: </Text>
-                      <Text>{analysisResult.resource_config.general.name}</Text>
-                    </div>
-                    <div>
-                      <Text strong>Type: </Text>
-                      <Tag className="auto-width-tag" color="blue">{analysisResult.resource_config.general.gtype}</Tag>
-                    </div>
-                    <div>
-                      <Text strong>Collection: </Text>
-                      <Tag className="auto-width-tag" color="geekblue">{analysisResult.resource_config.general.collection}</Tag>
-                    </div>
-                    <div>
-                      <Text strong>Project: </Text>
-                      <Text>{analysisResult.resource_config.general.project}</Text>
-                    </div>
-                    <div>
-                      <Text strong>Version: </Text>
-                      <Text>{analysisResult.resource_config.general.version}</Text>
-                    </div>
-                    {analysisResult.resource_config.general.metadata?.ai_generated && (
-                      <div>
-                        <Tag className="auto-width-tag" color="purple">AI Generated</Tag>
-                      </div>
-                    )}
-                  </Space>
-                </Panel>
-
-                {/* Dependencies */}
-                {analysisResult.dependencies && (
-                  <Panel header={`Dependencies (${analysisResult.dependencies.nodes.length} resources)`} key="deps">
-                    <List
-                      size="small"
-                      dataSource={analysisResult.dependencies.nodes}
-                      renderItem={(node) => (
-                        <List.Item>
-                          <Space>
-                            <Tag color="geekblue">{node.data.category}</Tag>
-                            <Text strong>{node.data.label}</Text>
-                            <Text type="secondary">{node.data.gtype}</Text>
-                          </Space>
-                        </List.Item>
-                      )}
-                    />
-                  </Panel>
-                )}
-
-                {/* Related Resources */}
-                {Object.keys(analysisResult.related_resources).length > 0 && (
-                  <Panel header="Related Resources" key="related">
-                    {Object.entries(analysisResult.related_resources).map(([collection, resources]) => (
-                      <div key={collection} style={{ marginBottom: 16 }}>
-                        <Title level={5} style={{ marginBottom: 8 }}>
-                          {collection.toUpperCase()} ({resources.length})
-                        </Title>
-                        <List
-                          size="small"
-                          dataSource={resources}
-                          renderItem={(resource) => (
-                            <List.Item style={{ paddingLeft: 16 }}>
-                              <Space>
-                                <Text strong>{resource.general.name}</Text>
-                                <Text type="secondary">{resource.general.gtype}</Text>
-                              </Space>
-                            </List.Item>
-                          )}
-                        />
-                      </div>
-                    ))}
-                  </Panel>
-                )}
-              </Collapse>
+              <Collapse
+                items={[
+                  {
+                    key: 'config',
+                    label: 'Resource Configuration Details',
+                    children: (
+                      <Space direction="vertical" style={{ width: '100%' }}>
+                        <div>
+                          <Text strong>Name: </Text>
+                          <Text>{analysisResult.resource_config.general.name}</Text>
+                        </div>
+                        <div>
+                          <Text strong>Type: </Text>
+                          <Tag className="auto-width-tag" color="blue">{analysisResult.resource_config.general.gtype}</Tag>
+                        </div>
+                        <div>
+                          <Text strong>Collection: </Text>
+                          <Tag className="auto-width-tag" color="geekblue">{analysisResult.resource_config.general.collection}</Tag>
+                        </div>
+                        <div>
+                          <Text strong>Project: </Text>
+                          <Text>{analysisResult.resource_config.general.project}</Text>
+                        </div>
+                        <div>
+                          <Text strong>Version: </Text>
+                          <Text>{analysisResult.resource_config.general.version}</Text>
+                        </div>
+                        {analysisResult.resource_config.general.metadata?.ai_generated && (
+                          <div>
+                            <Tag className="auto-width-tag" color="purple">AI Generated</Tag>
+                          </div>
+                        )}
+                      </Space>
+                    )
+                  },
+                  // Dependencies panel
+                  ...(analysisResult.dependencies ? [{
+                    key: 'deps',
+                    label: `Dependencies (${analysisResult.dependencies.nodes.length} resources)`,
+                    children: (
+                      <List
+                        size="small"
+                        dataSource={analysisResult.dependencies.nodes}
+                        renderItem={(node) => (
+                          <List.Item>
+                            <Space>
+                              <Tag color="geekblue">{node.data.category}</Tag>
+                              <Text strong>{node.data.label}</Text>
+                              <Text type="secondary">{node.data.gtype}</Text>
+                            </Space>
+                          </List.Item>
+                        )}
+                      />
+                    )
+                  }] : []),
+                  // Related Resources panel
+                  ...(Object.keys(analysisResult.related_resources).length > 0 ? [{
+                    key: 'related',
+                    label: 'Related Resources',
+                    children: (
+                      <>
+                        {Object.entries(analysisResult.related_resources).map(([collection, resources]) => (
+                          <div key={collection} style={{ marginBottom: 16 }}>
+                            <Title level={5} style={{ marginBottom: 8 }}>
+                              {collection.toUpperCase()} ({resources.length})
+                            </Title>
+                            <List
+                              size="small"
+                              dataSource={resources}
+                              renderItem={(resource) => (
+                                <List.Item style={{ paddingLeft: 16 }}>
+                                  <Space>
+                                    <Text strong>{resource.general.name}</Text>
+                                    <Text type="secondary">{resource.general.gtype}</Text>
+                                  </Space>
+                                </List.Item>
+                              )}
+                            />
+                          </div>
+                        ))}
+                      </>
+                    )
+                  }] : [])
+                ]}
+              />
 
               {/* Token Usage Statistics */}
               {analysisResult.token_usage && (
