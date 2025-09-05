@@ -1,0 +1,60 @@
+import React, { useState } from "react";
+import { Col, Form, Divider, Card } from 'antd';
+import { useDispatch } from "react-redux";
+import { ActionType, ResourceType } from "@redux/reducerHelpers/common";
+import { extractNestedKeys } from "@/utils/getActiveTags";
+import { handleChangeResources } from "@/redux/dispatcher";
+import { handleAddRemoveTags } from "@elchi/helpers/tagOperations";
+import { compareVeri, memorizeComponent } from "@/hooks/useMemoComponent";
+import { ResourceAction } from "@/redux/reducers/slice";
+
+
+type GeneralProps = {
+    veri: {
+        version: string;
+        index: number;
+        reduxStore: { [key: string]: any } | undefined;
+        keyPrefix: string;
+        tagMatchPrefix: string;
+    }
+};
+
+
+const CommonComponentMetaData: React.FC<GeneralProps> = ({ veri }) => {
+/*     const dispatch = useDispatch();
+    const [selectedTags, setSelectedTags] = useState<string[]>(extractNestedKeys(veri.reduxStore));
+
+
+    const handleUpdateRedux = (keys: string, val: string | boolean | number) => {
+        handleChangeResources({ version: veri.version, type: ActionType.Update, keys, val, resourceType: ResourceType.Resource }, dispatch, ResourceAction);
+    };
+
+    const handleDeleteRedux = (keys: string, val?: string | boolean | number) => {
+        handleChangeResources({
+            version: veri.version, type: ActionType.Delete, keys: `${veri.keyPrefix}.${keys}`, val, resourceType: ResourceType.Resource
+        }, dispatch, ResourceAction);
+    };
+
+    const handleChangeTag = (keyPrefix: string, tagPrefix: string, tag: string, checked: boolean) => {
+        handleAddRemoveTags(keyPrefix, tagPrefix, tag, checked, selectedTags, setSelectedTags, handleDeleteRedux);
+    } */
+
+    return (
+        <Card size="small" title={"Locality"} styles={{ header: {  background: 'white', color: 'black' }}} style={{ marginBottom: 8, width: "100%" }}>
+            <Divider style={{ marginTop: '8px', marginBottom: '8px' }} type="horizontal" />
+            <Col md={24}>
+                <Form
+                    labelCol={{ span: 24 }}
+                    wrapperCol={{ span: 24 }}
+                    layout="vertical"
+                    size="small"
+                    style={{ maxWidth: "100%" }}
+                >
+                </Form>
+            </Col>
+        </Card>
+    )
+};
+
+
+export default memorizeComponent(CommonComponentMetaData, compareVeri);

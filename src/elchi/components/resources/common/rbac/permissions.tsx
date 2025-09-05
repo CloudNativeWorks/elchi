@@ -1,0 +1,125 @@
+import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { Divider, Button, Table } from "antd";
+import { ActionType, ResourceType } from "@/redux/reducer-helpers/common";
+import { handleChangeResources } from "@/redux/dispatcher";
+import { compareVeriReduxStoreOnly, memorizeComponent } from "@/hooks/useMemoComponent";
+import type { ColumnsType } from 'antd/es/table';
+import { ResourceAction } from "@/redux/reducers/slice";
+import { AddSVG } from "@/assets/svg/icons";
+import { DeleteTwoTone, InboxOutlined } from '@ant-design/icons';
+import ComponentPermission from "./permission";
+import ECard from "@/elchi/components/common/ECard";
+
+
+type GeneralProps = {
+    veri: {
+        version: string;
+        keyPrefix: string;
+        reduxStore: any[] | undefined;
+    }
+};
+
+interface VirtualHostWithIndex {
+    tableIndex: number;
+    [key: string]: any;
+}
+
+const ComponentPermissions: React.FC<GeneralProps> = ({ veri }) => {
+    const dispatch = useDispatch();
+    const [dataSource, setDataSource] = useState<VirtualHostWithIndex[]>([]);
+
+    useEffect(() => {
+        if (Array.isArray(veri.reduxStore)) {
+            const updatedData = veri.reduxStore?.map((data: any, index: number) => ({
+                ...data,
+                tableIndex: index,
+            }));
+            setDataSource(updatedData);
+        }
+    }, [veri.reduxStore]);
+
+    const handleDeleteRedux = ({ index, event }: { keys?: string, index?: number, event?: React.MouseEvent<HTMLElement> }) => {
+        if (event) { event.stopPropagation(); }
+        const fullKey = veri.keyPrefix ? `${veri.keyPrefix}.${index}` : `${index}`;
+        handleChangeResources({ version: veri.version, type: ActionType.Delete, keys: fullKey, resourceType: ResourceType.Resource }, dispatch, ResourceAction);
+    };
+
+    const addPermission = () => {
+        handleChangeResources({
+            version: veri.version,
+            type: ActionType.Append,
+            keys: veri.keyPrefix,
+            val: { any: true },
+            resourceType: ResourceType.Resource
+        }, dispatch, ResourceAction);
+    };
+
+    const columns: ColumnsType<VirtualHostWithIndex> = [
+        {
+            title: 'Name',
+            width: "90%",
+            key: 'name',
+            render: () => { return "Permission" }
+        },
+        {
+            title: 'Delete',
+            width: "10%",
+            key: 'x',
+            render: (_, __, index) =>
+                <Button
+                    icon={<DeleteTwoTone twoToneColor="#eb2f96" />}
+                    size='small'
+                    onClick={(e) => handleDeleteRedux({ event: e, index: index })}
+                    style={{ marginRight: 8 }}
+                    iconPosition={"end"}
+                />,
+        },
+    ];
+
+    return (
+        <ECard title={"Permissions"}>
+            <AddSVG onClick={() => addPermission()} />
+            <Divider type="horizontal" style={{ marginBottom: 3, marginTop: -1 }} />
+            <Table
+                size="small"
+                scroll={{ y: 950 }}
+                pagination={false}
+                rowClassName="cursor-row"
+                dataSource={dataSource}
+                columns={columns}
+                rowKey={(record) => `item-${record.tableIndex}`}
+                locale={{
+                    emptyText: (
+                        <div>
+                            <InboxOutlined style={{ fontSize: 48, marginBottom: 8 }} />
+                            <div>No Permissions</div>
+                        </div>
+                    )
+                }}
+                expandable={{
+                    fixed: true,
+                    expandRowByClick: true,
+                    expandedRowRender: (data, index) => expandedRowRenderFunction(data, index, veri)
+                }}
+            />
+
+        </ECard>
+    )
+}
+
+memorizeComponent(ComponentPermission, compareVeriReduxStoreOnly);
+export default ComponentPermissions;
+
+const expandedRowRenderFunction = (data: any, index: number, veri: any) => {
+    return (
+        <ComponentPermission
+            veri={{
+                version: veri.version,
+                reduxStore: data,
+                keyPrefix: `${veri.keyPrefix}.${index}`,
+                title: "Permission",
+            }}
+        />
+    );
+};
