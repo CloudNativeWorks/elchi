@@ -1,4 +1,4 @@
-import { DeleteOutlined, DeploymentUnitOutlined, ExclamationCircleFilled, InboxOutlined, CopyOutlined } from '@ant-design/icons';
+import { DeleteOutlined, DeploymentUnitOutlined, ExclamationCircleFilled, InboxOutlined, CopyOutlined, ShareAltOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { message, Dropdown, Table, Typography, Modal, Tag, Pagination } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
@@ -9,11 +9,13 @@ import { useNavigate } from "react-router-dom";
 import { ActionsSVG } from '@/assets/svg/icons';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import DependenciesModal from "@/elchi/components/common/dependency";
+import RouteMapModal from "@/elchi/components/common/routemap";
 import useDeleteResource from './DeleteResource';
 import { getGTypeFields } from '@/hooks/useGtypes';
 import { getFieldsByGType, GTypes } from '@/common/statics/gtypes';
 import { getLastDotPart } from '@/utils/tools';
 import { getVersionAntdColor } from '@/utils/versionColors';
+import { useRouteMapOperations } from '@/hooks/useRouteMapOperations';
 
 
 const { Text } = Typography;
@@ -57,6 +59,7 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({ path, filters = {}, i
     const [updateData, setUpdateData] = useState(1);
     const [queryKey, setQueryKey] = useState(`listResources-${path}`);
     const [isModalVisible, setIsModalVisible] = useState<dependenciesType>({ name: '', collection: '', gtype: '', version: '', visible: false });
+    const [isRouteMapVisible, setIsRouteMapVisible] = useState<dependenciesType>({ name: '', collection: '', gtype: '', version: '', visible: false });
     const deleteResource = useDeleteResource(deleteMutate);
     const [deleteModal, setDeleteModal] = useState<{ visible: boolean; record: DataType | null }>({ visible: false, record: null });
     const [currentPage, setCurrentPage] = useState(1);
@@ -64,6 +67,7 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({ path, filters = {}, i
     const [sortBy, setSortBy] = useState<string>('');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
     const navigate = useNavigate();
+    const { isRouteMapSupported } = useRouteMapOperations();
 
     // Build query parameters for backend pagination
     const buildQueryParams = () => {
@@ -94,9 +98,13 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({ path, filters = {}, i
 
     const isBootstrapPath = path.startsWith('xds/bootstrap');
 
-    const resourceActions: MenuProps['items'] = [
+    const getResourceActions = (record: DataType): MenuProps['items'] => [
         { key: '1', label: 'Show Dependencies', icon: <DeploymentUnitOutlined /> },
+        ...(isRouteMapSupported(record.gtype) ? [
+            { key: '4', label: 'Show Route Map', icon: <ShareAltOutlined /> },
+        ] : []),
         ...(isBootstrapPath ? [] : [
+            { type: 'divider' as const },
             { key: isListener ? '7' : '3', label: 'Duplicate', icon: <CopyOutlined /> },
             { type: 'divider' as const },
             { key: isListener ? '6' : '2', label: 'Delete', danger: true, icon: <DeleteOutlined /> },
@@ -105,6 +113,13 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({ path, filters = {}, i
 
     const hideModal = () => {
         setIsModalVisible((prevState) => ({
+            ...prevState,
+            visible: false,
+        }));
+    };
+
+    const hideRouteMapModal = () => {
+        setIsRouteMapVisible((prevState) => ({
             ...prevState,
             visible: false,
         }));
@@ -148,6 +163,14 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({ path, filters = {}, i
                 version: record?.version,
                 visible: true,
             });
+        } else if (key === "4" && isRouteMapSupported(record.gtype)) {
+            setIsRouteMapVisible({
+                name: record?.name,
+                collection: record?.collection,
+                gtype: record?.gtype,
+                version: record?.version,
+                visible: true,
+            });
         } else if ((key === "2" || key === "6") && !isBootstrapPath) {
             setDeleteModal({ visible: true, record });
         } else if ((key === "3" || key === "7") && !isBootstrapPath) {
@@ -171,7 +194,7 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({ path, filters = {}, i
             width: '3%',
             render: (record) => (
                 <div style={{ display: 'flex', justifyContent: 'center', minWidth: 1 }} onClick={e => e.stopPropagation()}>
-                    <Dropdown trigger={['click']} menu={{ items: resourceActions, onClick: (e) => onClick(record, e.key) }}>
+                    <Dropdown trigger={['click']} menu={{ items: getResourceActions(record), onClick: (e) => onClick(record, e.key) }}>
                         <div
                             style={{
                                 background: 'none',
@@ -197,7 +220,7 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({ path, filters = {}, i
             width: '37%',
             fixed: 'left',
             render: (_, record) => (
-                <Dropdown menu={{ items: resourceActions, onClick: (e) => onClick(record, e.key) }} trigger={['contextMenu']}>
+                <Dropdown menu={{ items: getResourceActions(record), onClick: (e) => onClick(record, e.key) }} trigger={['contextMenu']}>
                     <div>
                         <Text strong>{`${record.name}`}</Text>
                     </div>
@@ -211,7 +234,7 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({ path, filters = {}, i
             width: isListener ? '10%' : '15%',
             ellipsis: true,
             render: (_, record) => (
-                <Dropdown menu={{ items: resourceActions, onClick: (e) => onClick(record, e.key) }} trigger={['contextMenu']}>
+                <Dropdown menu={{ items: getResourceActions(record), onClick: (e) => onClick(record, e.key) }} trigger={['contextMenu']}>
                     <div>
                         <Text>
                             <div
@@ -234,8 +257,8 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({ path, filters = {}, i
             dataIndex: ['managed'],
             key: 'managed',
             width: '15%',
-            render: (enabled: boolean) => (
-                <Dropdown menu={{ items: resourceActions }} trigger={['contextMenu']}>
+            render: (enabled: boolean, record: DataType) => (
+                <Dropdown menu={{ items: getResourceActions(record) }} trigger={['contextMenu']}>
                     <div>
                         {enabled ? (
                             <span style={{
@@ -276,7 +299,7 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({ path, filters = {}, i
             key: 'version',
             width: isListener ? '10%' : '15%',
             render: (_, record) => (
-                <Dropdown menu={{ items: resourceActions, onClick: (e) => onClick(record, e.key) }} trigger={['contextMenu']}>
+                <Dropdown menu={{ items: getResourceActions(record), onClick: (e) => onClick(record, e.key) }} trigger={['contextMenu']}>
                     <div>
                         <Tag className='auto-width-tag' color={getVersionAntdColor(record.version)}>{record.version}</Tag>
                     </div>
@@ -291,7 +314,7 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({ path, filters = {}, i
             sorter: (a, b) => a.created_at.length - b.created_at.length,
             sortDirections: ['descend', 'ascend'],
             render: (record) => (
-                <Dropdown menu={{ items: resourceActions }} trigger={['contextMenu']}>
+                <Dropdown menu={{ items: getResourceActions(record) }} trigger={['contextMenu']}>
                     <div>
                         {DateTimeTool(record)}
                     </div>
@@ -306,7 +329,7 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({ path, filters = {}, i
             sorter: (a, b) => a.updated_at.length - b.updated_at.length,
             sortDirections: ['descend', 'ascend'],
             render: (record) => (
-                <Dropdown menu={{ items: resourceActions }} trigger={['contextMenu']}>
+                <Dropdown menu={{ items: getResourceActions(record) }} trigger={['contextMenu']}>
                     <div>
                         {DateTimeTool(record)}
                     </div>
@@ -421,6 +444,14 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({ path, filters = {}, i
             collection={isModalVisible.collection}
             gtype={isModalVisible.gtype}
             version={isModalVisible.version}
+        />
+        <RouteMapModal
+            visible={isRouteMapVisible.visible}
+            onClose={hideRouteMapModal}
+            name={isRouteMapVisible.name}
+            collection={isRouteMapVisible.collection}
+            gtype={isRouteMapVisible.gtype}
+            version={isRouteMapVisible.version}
         />
         <Modal
             title={

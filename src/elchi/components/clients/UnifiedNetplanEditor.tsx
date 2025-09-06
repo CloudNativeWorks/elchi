@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
-    Button, Form, Typography, Card, Space, Divider, Switch, Tag
+    Button, Form, Typography, Space, Divider, Switch, Tag
 } from 'antd';
 import { CheckOutlined, CloseOutlined, SafetyCertificateOutlined, ApiOutlined, BookOutlined } from '@ant-design/icons';
 import { useNetworkOperations, InterfaceState } from '@/hooks/useNetworkOperations';
@@ -89,43 +89,50 @@ const UnifiedNetplanEditor: React.FC<UnifiedNetplanEditorProps> = ({
 `;
 
     return (
-        <Card
-            title={
-                <Space>
-                    <SafetyCertificateOutlined style={{ color: safetyMode ? '#52c41a' : '#ff4d4f' }} />
-                    <span>Netplan Configuration Editor</span>
-                </Space>
-            }
-            style={{ 
-                width: '100%',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
-            }}
-            extra={
-                <Space>
-                    <Button
-                        size="small"
-                        icon={<BookOutlined />}
-                        onClick={() => setShowExamples(true)}
-                        style={{
-                            borderColor: '#ffffff40',
-                            color: '#ffffff',
-                            background: 'rgba(255,255,255,0.1)'
-                        }}
-                    >
-                        Examples
-                    </Button>
-                    <Divider type="vertical" style={{ borderColor: '#ffffff40', margin: '0 8px' }} />
-                    <Text style={{ fontSize: 12, color: '#ffffff' }}>Safety Mode</Text>
-                    <Switch 
-                        checked={safetyMode}
-                        onChange={setSafetyMode}
-                        size="small"
-                        checkedChildren="ON"
-                        unCheckedChildren="OFF"
-                    />
-                </Space>
-            }
-        >
+        <div style={{ borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.06)', marginBottom: 16 }}>
+            <div style={{
+                background: 'linear-gradient(135deg, #f1f3f4 0%, #e8eaed 100%)',
+                borderRadius: '12px 12px 0 0',
+                padding: 16,
+                borderBottom: '1px solid #e8eaed'
+            }}>
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <SafetyCertificateOutlined style={{ color: safetyMode ? '#52c41a' : '#ff4d4f' }} />
+                        <Text strong style={{ color: '#212529', fontSize: 14 }}>
+                            Netplan Configuration Editor
+                        </Text>
+                    </div>
+                    <Space>
+                        <Button
+                            size="middle"
+                            icon={<BookOutlined />}
+                            onClick={() => setShowExamples(true)}
+                            style={{ borderRadius: 6 }}
+                        >
+                            Examples
+                        </Button>
+                        <Divider type="vertical" style={{ margin: '0 8px' }} />
+                        <Text style={{ fontSize: 12, color: '#495057' }}>Safety Mode</Text>
+                        <Switch 
+                            checked={safetyMode}
+                            onChange={setSafetyMode}
+                            size="small"
+                            checkedChildren="ON"
+                            unCheckedChildren="OFF"
+                        />
+                    </Space>
+                </div>
+            </div>
+            <div style={{ 
+                background: '#fff',
+                borderRadius: '0 0 12px 12px',
+                padding: 16
+            }}>
             {/* Network Interruption Warning */}
             <div style={{ 
                 marginBottom: 16, 
@@ -297,7 +304,8 @@ const UnifiedNetplanEditor: React.FC<UnifiedNetplanEditorProps> = ({
                 onClose={() => setShowExamples(false)}
                 onSelectExample={handleExampleSelect}
             />
-        </Card>
+            </div>
+        </div>
     );
 };
 

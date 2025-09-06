@@ -193,5 +193,23 @@ export const NETPLAN_EXAMPLES: NetplanExample[] = [
       parameters:
         stp: true
         forward-delay: 4`
+    },
+    {
+        id: 'upstream-downstream',
+        title: 'Link-Local Interfaces',
+        description: 'Configuration with upstream DHCP and downstream link-local addresses',
+        category: 'Basic',
+        yaml: `network:
+  version: 2
+  ethernets:
+    ens3: #upstream
+      dhcp4: true
+      dhcp4-overrides:
+        use-domains: false
+      dhcp6: false
+      link-local: []
+    ens8: #downstream
+      dhcp4: false
+      link-local: [ipv4]`
     }
 ];
