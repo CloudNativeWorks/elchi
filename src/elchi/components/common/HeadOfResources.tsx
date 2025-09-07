@@ -1,8 +1,8 @@
-import { Row, Col, Input, Button, Switch, Card, Space, Typography } from 'antd';
+import { Row, Col, Input, Button, Switch, Card, Space, Typography, Tooltip } from 'antd';
 import { RenderCreateUpdate } from './CreateUpdate';
 import { ConfigDiscovery } from '@/common/types';
 import { GTypeFieldsBase } from '@/common/statics/gtypes';
-import { FileTextOutlined, CodeOutlined, RocketOutlined, CloudServerOutlined, FileOutlined } from '@ant-design/icons';
+import { FileTextOutlined, CodeOutlined, RocketOutlined, CloudServerOutlined, FileOutlined, InfoCircleOutlined, CheckCircleOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { ResourceAction } from '@/redux/reducers/slice';
@@ -24,6 +24,9 @@ interface RenderFormItemProps {
     managed?: boolean;
     changeGeneralManaged?: any;
     callBack?: any;
+    // Optional validate field props - if string provided, show validate switch
+    validate?: string;
+    changeGeneralValidate?: any;
 }
 
 type createUpdate = {
@@ -40,14 +43,24 @@ type createUpdate = {
     rawQuery?: any;
 }
 
-export const HeadOfResource = ({ generalName, version, changeGeneralName, locationCheck, createUpdate, managed, changeGeneralManaged, callBack }: RenderFormItemProps) => {
+export const HeadOfResource = ({ generalName, version, changeGeneralName, locationCheck, createUpdate, managed, changeGeneralManaged, callBack, validate, changeGeneralValidate }: RenderFormItemProps) => {
     const dispatch = useDispatch();
     const [showHowTo, setShowHowTo] = useState(false);
     const [showDiscovery, setShowDiscovery] = useState(false);
     const [showTemplate, setShowTemplate] = useState(false);
     
+    // Internal state for validate if not controlled from parent
+    const [internalValidateEnabled, setInternalValidateEnabled] = useState(true);
+    
+    // Use internal state if no changeGeneralValidate provided  
+    const validateEnabled = changeGeneralValidate ? 
+        (typeof validate === 'string' ? internalValidateEnabled : validate) : 
+        internalValidateEnabled;
+    const handleValidateChange = changeGeneralValidate || setInternalValidateEnabled;
+    
+
     // These parameters are used conditionally in JSX
-    void managed; void changeGeneralManaged; void callBack;
+    void managed; void changeGeneralManaged; void callBack; void validate; void changeGeneralValidate;
 
     const isEndpointType = createUpdate.gtype === "envoy.config.endpoint.v3.ClusterLoadAssignment";
 
@@ -196,6 +209,45 @@ export const HeadOfResource = ({ generalName, version, changeGeneralName, locati
                                 </div>
                             </Col>
                         )}
+                        {validate && (
+                            <Col span={4}>
+                                <div>
+                                    <Space style={{ marginBottom: 6 }}>
+                                        <Text style={{ fontSize: 12, fontWeight: 500, color: '#595959' }}>
+                                            Validate
+                                        </Text>
+                                        <Tooltip title={validate}>
+                                            <InfoCircleOutlined style={{ color: '#8c8c8c', fontSize: 12 }} />
+                                        </Tooltip>
+                                    </Space>
+                                    <div style={{
+                                        background: validateEnabled ? '#e6f7ff' : '#f5f5f5',
+                                        border: `1px solid ${validateEnabled ? '#91d5ff' : '#d9d9d9'}`,
+                                        borderRadius: 6,
+                                        padding: '4px 12px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        height: 32,
+                                        fontSize: 14
+                                    }}>
+                                        <Space size={4}>
+                                            {validateEnabled && <CheckCircleOutlined style={{ color: '#52c41a', fontSize: 12 }} />}
+                                            <Text style={{ fontSize: 13, color: validateEnabled ? '#096dd9' : '#595959' }}>
+                                                {validateEnabled ? 'Enabled' : 'Disabled'}
+                                            </Text>
+                                        </Space>
+                                        <Switch
+                                            size="small"
+                                            checked={validateEnabled}
+                                            onChange={(val) => {
+                                                handleValidateChange(val);
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                            </Col>
+                        )}
                         <Col span={4}>
                             <div>
                                 <Text style={{ fontSize: 12, fontWeight: 500, color: '#595959', display: 'block', marginBottom: 6 }}>
@@ -239,6 +291,7 @@ export const HeadOfResource = ({ generalName, version, changeGeneralName, locati
                             rawQuery={createUpdate.rawQuery}
                             callBack={callBack}
                             managed={managed}
+                            validate={validateEnabled}
                         />
                     </div>
                 </Col>

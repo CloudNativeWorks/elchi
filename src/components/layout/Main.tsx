@@ -1,5 +1,5 @@
-import { useEffect, useCallback, useRef, useState } from "react";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Outlet, useLocation } from "react-router-dom";
 import { Layout, notification } from "antd";
 import Sidenav from "./Sidenav";
 import Header from "./Header";
@@ -9,7 +9,6 @@ import BreadCrumb from "./BreadCrumb";
 
 const { Header: AntHeader, Content, Sider } = Layout;
 function Main() {
-	const navigate = useNavigate();
 	const sidenavColor = "#1890ff"
 	const location = useLocation();
 	const userDetail = DecodeToken(Cookies.get('bb_token'))
@@ -20,15 +19,9 @@ function Main() {
 		return savedMenuCollapsed === 'true';
 	});
 	const [demoWarningShown, setDemoWarningShown] = useState(false);
-	const checkExpiry = useCallback(() => {
-		const timeRemaining = Math.floor(((userDetail?.exp * 1000) - new Date().getTime()) / 1000);
-
-		if (timeRemaining <= 0) {
-			Cookies.remove('bb_token');
-			navigate('/login');
-		}
-	}, [navigate, userDetail]);
-
+	// Removed checkExpiry - let API interceptor handle token refresh
+	// Token expiry should be handled by API calls, not by a timer
+	
 	useEffect(() => {
 		const domainKey = window.location.hostname;
 		localStorage.setItem(`menuCollapsed-${domainKey}`, collapsed.toString());
@@ -51,15 +44,6 @@ function Main() {
 			});
 		}
 	}, [demoWarningShown]);
-
-
-	useEffect(() => {
-		const intervalId = setInterval(checkExpiry, 10000);
-
-		return () => {
-			clearInterval(intervalId);
-		};
-	}, [checkExpiry]);
 
 	useEffect(() => {
 		return () => {

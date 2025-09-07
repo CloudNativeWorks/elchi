@@ -279,6 +279,7 @@ const BGPSummaryContent: React.FC<BGPSummaryContentProps> = ({ clientId }) => {
                                 value={summaryData.asNumber}
                                 prefix={<GlobalOutlined style={{ color: '#52c41a' }} />}
                                 valueStyle={{ fontSize: '16px', fontWeight: 'bold' }}
+                                formatter={(value) => value?.toString()}
                             />
                         </Card>
                     </Col>

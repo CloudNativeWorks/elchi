@@ -62,8 +62,6 @@ const RouteMap: React.FC<RouteMapProps> = ({ name, collection, gtype, visible, v
     } | null>(null);
     const [graphInitialized, setGraphInitialized] = useState(false);
     const [forceRender, setForceRender] = useState(0);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [filterType, setFilterType] = useState('all');
 
     const { isLoading, error, data: routeMapData, isFetching, refetch } = getRouteMap(name, gtype, collection, version);
 
@@ -156,7 +154,6 @@ const RouteMap: React.FC<RouteMapProps> = ({ name, collection, gtype, visible, v
     };
 
     const handleSearch = (searchValue: string) => {
-        setSearchTerm(searchValue);
         if (cyRef.current) {
             cyRef.current.nodes().forEach(node => {
                 const label = node.data('label').toLowerCase();
@@ -174,7 +171,6 @@ const RouteMap: React.FC<RouteMapProps> = ({ name, collection, gtype, visible, v
     };
 
     const handleFilter = (filterValue: string) => {
-        setFilterType(filterValue);
         if (cyRef.current) {
             cyRef.current.nodes().forEach(node => {
                 const category = node.data('category').toLowerCase();
@@ -190,8 +186,6 @@ const RouteMap: React.FC<RouteMapProps> = ({ name, collection, gtype, visible, v
     };
 
     const handleClearFilters = () => {
-        setSearchTerm('');
-        setFilterType('all');
         if (cyRef.current) {
             cyRef.current.nodes().forEach(node => {
                 node.style({

@@ -10,7 +10,6 @@ import logoelchi from "@/assets/images/logo_black.png";
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 
 
-
 const Login = () => {
     const mutate = useAuthMutation("/auth/login");
     const navigate = useNavigate();
@@ -45,6 +44,7 @@ const Login = () => {
         try {
             await mutate.mutateAsync(values, {
                 onSuccess: (data: any) => {
+                    // Set tokens (backend handles expiry, no security flags for compatibility)
                     Cookies.set('bb_token', data.data.token);
                     Cookies.set('bb_refresh_token', data.data.refresh_token);
 

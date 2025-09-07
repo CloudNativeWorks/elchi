@@ -38,6 +38,21 @@ export const extractErrorMessage = (error: any): string => {
   // String error
   if (typeof error === 'string') return error;
   
+  // Check for validation errors with structured error list
+  const responseData = error?.response?.data || error?.data;
+  if (responseData?.data?.valid === false && responseData?.data?.errors) {
+    const errors = responseData.data.errors;
+    const mainMessage = responseData.message || 'Validation failed';
+    
+    if (errors.length > 0) {
+      const errorList = errors.map((err: any, index: number) => 
+        `${index + 1}. ${err.field || 'Unknown field'}: ${err.message || 'Unknown error'}`
+      ).join('\n');
+      
+      return `${mainMessage}\n\nError Details:\n${errorList}`;
+    }
+  }
+  
   // Check different possible error message locations
   const possibleMessages = [
     error?.response?.data?.message,
@@ -96,6 +111,23 @@ export const extractErrorMessage = (error: any): string => {
     return validMessages.join('\n ');
   }
   
+  // Check for network/connection errors first
+  if (error?.code === 'ERR_NETWORK' || error?.message?.includes('Network Error')) {
+    return 'Unable to connect to Elchi Controller. Please check your connection.';
+  }
+  
+  if (error?.code === 'ECONNREFUSED' || error?.message?.includes('ECONNREFUSED')) {
+    return 'Server is not responding. The service may be temporarily unavailable.';
+  }
+  
+  if (error?.code === 'ENOTFOUND' || error?.message?.includes('ENOTFOUND')) {
+    return 'Server not found. Please check the server address.';
+  }
+  
+  if (error?.code === 'ERR_CONNECTION_TIMED_OUT' || error?.message?.includes('timeout')) {
+    return 'Connection timed out. Please try again.';
+  }
+
   // Fallback for status codes
   if (error?.response?.status) {
     switch (error.response.status) {
@@ -109,9 +141,20 @@ export const extractErrorMessage = (error: any): string => {
         return 'Resource not found';
       case 500:
         return 'Internal server error';
+      case 502:
+        return 'Bad gateway - server is temporarily unavailable';
+      case 503:
+        return 'Service unavailable - server is temporarily down';
+      case 504:
+        return 'Gateway timeout - server took too long to respond';
       default:
         return `Server error (${error.response.status})`;
     }
+  }
+  
+  // Check if there's no response at all (server completely down)
+  if (error?.request && !error?.response) {
+    return 'Server is not responding. Please check if the service is running.';
   }
   
   return 'An unexpected error occurred';

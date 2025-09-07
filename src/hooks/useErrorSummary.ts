@@ -1,15 +1,6 @@
 import { useCustomGetQuery } from '@/common/api';
+import Cookies from 'js-cookie';
 
-interface ServiceError {
-    name: string;
-    status: 'Critical' | 'Error' | 'Warning';
-    count: number;
-}
-
-interface ErrorSummaryResponse {
-    total_error: number;
-    services: ServiceError[];
-}
 
 interface UseErrorSummaryProps {
     project: string;
@@ -17,12 +8,12 @@ interface UseErrorSummaryProps {
 }
 
 export const useErrorSummary = ({ project, enabled = true }: UseErrorSummaryProps) => {
-    return useCustomGetQuery<ErrorSummaryResponse>({
+    const hasToken = !!Cookies.get('bb_token');
+    
+    return useCustomGetQuery({
         queryKey: `error_summary_${project}`,
-        enabled: enabled && !!project,
+        enabled: enabled && !!project && hasToken,
         path: `api/v3/custom/error_summary?project=${project}`,
-        directApi: true,
-        staleTime: 30000, // 30 seconds
-        refetchInterval: 60000, // 1 minute
+        directApi: true
     });
 };

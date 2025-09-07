@@ -30,6 +30,7 @@ interface RenderFormItemProps {
     callBack?: any;
     GType: GTypeFieldsBase;
     rawQuery?: any;
+    validate?: boolean;
 }
 
 export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
@@ -121,6 +122,7 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
             },
             managed: options?.managed,
             elchi_discovery: elchiDiscovery,
+            validate: options?.validate,
             customSuccessMessage: method === 'post' ?
                 `${options.GType.type} "${options.name}" created successfully!` :
                 `${options.GType.type} "${options.name}" updated successfully!`

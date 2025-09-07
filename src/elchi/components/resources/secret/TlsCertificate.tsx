@@ -104,6 +104,7 @@ const TlsCertificateComponent: React.FC<GeneralProps> = ({ veri }) => {
                 changeGeneralName={veri.changeGeneralName}
                 version={veri.version}
                 locationCheck={GType.createPath === location.pathname}
+                validate="Validate Certificate before save!"
                 createUpdate={{
                     location_path: location.pathname,
                     GType: GType,

@@ -66,7 +66,8 @@ export function compareReduxStoreAndNameAndConfigDiscovery(prevProps: any, nextP
     return _.isEqual(prevProps.reduxStore, nextProps.reduxStore)
         && _.isEqual(prevProps.name, nextProps.name)
         && _.isEqual(prevProps.configDiscovery, nextProps.configDiscovery)
-        && _.isEqual(prevProps.managed, nextProps.managed);
+        && _.isEqual(prevProps.managed, nextProps.managed)
+        && _.isEqual(prevProps.validate, nextProps.validate);
 }
 
 export function compareTagsOnly(prevProps: any, nextProps: any) {

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Select, Switch, Card, Typography, Space, Row, Col, Tag } from 'antd';
+import { Form, Input, Select, Switch, Card, Typography, Space, Row, Col, Tag, Table, Alert } from 'antd';
 import { UserOutlined, MailOutlined, KeyOutlined, TeamOutlined, ProjectOutlined, SettingOutlined, ArrowLeftOutlined, CloseOutlined, SaveOutlined, PlusOutlined, SafetyOutlined } from '@ant-design/icons';
 import { useCustomGetQuery } from '@/common/api';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -36,7 +36,6 @@ const User: React.FC = () => {
     const [changedValues, setChangedValues] = useState<Partial<UserFormValues>>({});
     const [permissions, setPermissions] = useState({});
     const { project } = useProjectVariable();
-    const [selectedProject, setSelectedProject] = useState("");
     const userDetail = useAuth();
 
     const handlePermissionsChange = (newPermissions: any) => {
@@ -59,12 +58,6 @@ const User: React.FC = () => {
         directApi: true
     });
 
-    const { data: dataProject } = useCustomGetQuery({
-        queryKey: "project_list_for_users",
-        enabled: true,
-        path: `api/v3/setting/project_list`,
-        directApi: true
-    });
 
     const onValuesChange = (changed: any) => {
         setChangedValues(prev => ({ ...prev, ...changed.user }));
@@ -124,7 +117,7 @@ const User: React.FC = () => {
                     role: dataUser.role,
                     auth_type: dataUser.auth_type,
                     base_group: dataUser.base_group,
-                    base_project: dataUser.base_project,
+                    base_project: project,
                     groups: updatedGroups,
                     active: dataUser.active
                 }
@@ -133,31 +126,20 @@ const User: React.FC = () => {
         if (isError) {
             form.resetFields();
         }
-    }, [dataUser, form, isCreatePage, dataGroups, selectedProject, isError]);
+    }, [dataUser, form, isCreatePage, dataGroups, isError, project]);
 
     useEffect(() => {
         if (isCreatePage) {
             form.resetFields();
-        }
-    }, [isCreatePage, form]);
-
-    useEffect(() => {
-        if (dataProject?.length > 0 && project) {
-            const domainKey = window.location.hostname;
-            const savedProject = localStorage.getItem(`selectedProject-${domainKey}`);
-            setSelectedProject(savedProject || project);
-        }
-    }, [dataProject, project]);
-
-    useEffect(() => {
-        if (selectedProject && dataProject?.length > 0) {
+            // Set current project as default for create page
             form.setFieldsValue({
                 user: {
-                    base_project: selectedProject,
+                    base_project: project,
                 }
             });
         }
-    }, [selectedProject, dataProject, form]);
+    }, [isCreatePage, form, project]);
+
 
     return (
         <>
@@ -278,9 +260,31 @@ const User: React.FC = () => {
                                                     return Promise.reject(new Error('Please input your password!'));
                                                 }
                                                 if (value) {
-                                                    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-                                                    if (!passwordRegex.test(value)) {
-                                                        return Promise.reject(new Error('Password must include at least one uppercase letter, one lowercase letter, one number, and one special character.'));
+                                                    // Minimum 12 characters
+                                                    if (value.length < 12) {
+                                                        return Promise.reject(new Error('Password must be at least 12 characters long.'));
+                                                    }
+                                                    
+                                                    // Require uppercase
+                                                    if (!/[A-Z]/.test(value)) {
+                                                        return Promise.reject(new Error('Password must contain at least one uppercase letter.'));
+                                                    }
+                                                    
+                                                    // Require lowercase
+                                                    if (!/[a-z]/.test(value)) {
+                                                        return Promise.reject(new Error('Password must contain at least one lowercase letter.'));
+                                                    }
+                                                    
+                                                    // Require numbers
+                                                    if (!/\d/.test(value)) {
+                                                        return Promise.reject(new Error('Password must contain at least one number.'));
+                                                    }
+                                                    
+                                                    // Require at least 1 special character
+                                                    const specialChars = /[@$!%*?&]/.test(value);
+                                                    const specialCharCount = (value.match(/[@$!%*?&]/g) || []).length;
+                                                    if (!specialChars || specialCharCount < 1) {
+                                                        return Promise.reject(new Error('Password must contain at least 1 special character (@$!%*?&).'));
                                                     }
                                                 }
                                                 return Promise.resolve();
@@ -290,7 +294,7 @@ const User: React.FC = () => {
                                 >
                                     <Input.Password
                                         prefix={<KeyOutlined style={{ color: '#bfbfbf' }} />}
-                                        placeholder={dataUser?.auth_type === 'ldap' ? "LDAP users authenticate via LDAP server" : "Enter password"}
+                                        placeholder={dataUser?.auth_type === 'ldap' ? "LDAP users authenticate via LDAP server" : "Min 12 chars, 1 uppercase, 1 lowercase, 1 number, 1 special (@$!%*?&)"}
                                         autoComplete="new-password"
                                         size="large"
                                         disabled={dataUser?.auth_type === 'ldap' && !isCreatePage}
@@ -401,6 +405,74 @@ const User: React.FC = () => {
                                 </Form.Item>
                             </Col>
                         </Row>
+                        
+                        {/* Role Permissions Info */}
+                        <div style={{ marginTop: 20 }}>
+                            <Alert
+                                message="Role Permissions Overview"
+                                description={
+                                    <div style={{ marginTop: 12 }}>
+                                        <Table
+                                            size="small"
+                                            pagination={false}
+                                            dataSource={[
+                                                { key: '1', category: 'XDS Resources', owner: '✅', admin: '✅', editor: '✅', viewer: '👁️' },
+                                                { key: '2', category: 'Extensions', owner: '✅', admin: '✅', editor: '✅', viewer: '👁️' },
+                                                { key: '3', category: 'User Management', owner: '✅', admin: '✅', editor: '❌', viewer: '❌' },
+                                                { key: '4', category: 'Group Management', owner: '✅', admin: '✅', editor: '❌', viewer: '❌' },
+                                                { key: '5', category: 'Role Assignment', owner: '✅', admin: '✅', editor: '❌', viewer: '❌' },
+                                                { key: '6', category: 'System Settings', owner: '✅', admin: '✅', editor: '❌', viewer: '❌' },
+                                                { key: '7', category: 'Project Management', owner: '✅', admin: '❌', editor: '❌', viewer: '❌' },
+                                                { key: '8', category: 'Audit Logs', owner: '✅', admin: '✅', editor: '❌', viewer: '❌' },
+                                                { key: '9', category: 'Client Management', owner: '✅', admin: '✅', editor: '🟨', viewer: '❌' },
+                                            ]}
+                                            columns={[
+                                                {
+                                                    title: 'Operation Category',
+                                                    dataIndex: 'category',
+                                                    key: 'category',
+                                                    width: 200,
+                                                },
+                                                {
+                                                    title: 'Owner',
+                                                    dataIndex: 'owner',
+                                                    key: 'owner',
+                                                    width: 80,
+                                                    align: 'center',
+                                                },
+                                                {
+                                                    title: 'Admin',
+                                                    dataIndex: 'admin',
+                                                    key: 'admin',
+                                                    width: 80,
+                                                    align: 'center',
+                                                },
+                                                {
+                                                    title: 'Editor',
+                                                    dataIndex: 'editor',
+                                                    key: 'editor',
+                                                    width: 80,
+                                                    align: 'center',
+                                                },
+                                                {
+                                                    title: 'Viewer',
+                                                    dataIndex: 'viewer',
+                                                    key: 'viewer',
+                                                    width: 80,
+                                                    align: 'center',
+                                                },
+                                            ]}
+                                            style={{ marginTop: 8 }}
+                                        />
+                                        <Text type="secondary" style={{ fontSize: '12px', marginTop: 8, display: 'block' }}>
+                                            🟨 Editor role has limited permissions for Client Management
+                                        </Text>
+                                    </div>
+                                }
+                                type="info"
+                                showIcon
+                            />
+                        </div>
                     </div>
 
                     {/* Project & Settings Section */}
@@ -413,21 +485,18 @@ const User: React.FC = () => {
                             <Col xs={24} lg={12}>
                                 <Form.Item
                                     name={['user', 'base_project']}
-                                    initialValue={selectedProject}
+                                    initialValue={project}
                                     label="Base Project"
                                 >
                                     <Select
-                                        placeholder="Select base project"
-                                        disabled={userDetail?.role !== 'owner' || !isCreatePage}
+                                        placeholder="Current project"
+                                        disabled={true}
                                         size="large"
+                                        value={project}
                                     >
-                                        {dataProject
-                                            ?.filter((projecta) => projecta["_id"] !== "")
-                                            .map((projectv) => (
-                                                <Select.Option key={projectv["_id"]} value={projectv["_id"]}>
-                                                    {projectv.projectname}
-                                                </Select.Option>
-                                            ))}
+                                        <Select.Option value={project}>
+                                            {project}
+                                        </Select.Option>
                                     </Select>
                                 </Form.Item>
                             </Col>

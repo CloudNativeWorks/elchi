@@ -54,6 +54,7 @@ export interface CustomMutationOptions {
     suppressSuccess?: boolean; // Success notification'ı tamamen bastır (showAutoSuccess: false ile aynı)
     customSuccessMessage?: string; // Özel success mesajı
     successTitle?: string; // Success notification başlığı
+    validate?: boolean; // Validation enabled/disabled flag for query param
 }
 
 export interface Permissions {

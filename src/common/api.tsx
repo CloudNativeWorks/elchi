@@ -18,10 +18,8 @@ export const api: AxiosInstanceExtended = axios.create({
 api.interceptors.request.use(
     async (config: any): Promise<any> => {
         const token = Cookies.get('bb_token');
-        const refresh_token = Cookies.get('bb_refresh_token');
         if (token) {
-            config.headers['token'] = token;
-            config.headers['refresh-token'] = refresh_token;
+            config.headers['Authorization'] = `Bearer ${token}`;
         }
         return config;
     },
@@ -30,10 +28,74 @@ api.interceptors.request.use(
     }
 );
 
+// Refresh token function
+const refreshAccessToken = async () => {
+    const refreshToken = Cookies.get('bb_refresh_token');
+    if (!refreshToken) {
+        throw new Error('No refresh token available');
+    }
+
+    try {
+        const response = await axios.post(`${window.APP_CONFIG?.API_URL}/refresh`, {}, {
+            headers: {
+                'Authorization': `Bearer ${refreshToken}`,
+                'Content-Type': 'application/json',
+                'from-elchi': 'yes'
+            }
+        });
+
+        const newAccessToken = response.data.token;
+        const newRefreshToken = response.data.refresh_token;
+        
+        Cookies.set('bb_token', newAccessToken);
+        
+        // Update refresh token if provided (token rotation)
+        if (newRefreshToken) {
+            Cookies.set('bb_refresh_token', newRefreshToken);
+        }
+
+        return newAccessToken;
+    } catch (error) {
+        // Refresh failed, clear tokens and redirect to login
+        Cookies.remove('bb_token');
+        Cookies.remove('bb_refresh_token');
+        window.location.hash = '#/403';
+        throw error;
+    }
+};
+
 api.interceptors.response.use(
     (response) => response,
-    (error) => {
-        if (error.response && [403, 401].includes(error.response.status)) {
+    async (error) => {
+        const originalRequest = error.config;
+
+        // Only attempt refresh for 401 TOKEN_EXPIRED errors
+        if (error.response?.status === 401 && 
+            error.response?.data?.error_type === 'TOKEN_EXPIRED' && 
+            !originalRequest._retry) {
+            
+            originalRequest._retry = true;
+
+            try {
+                const newToken = await refreshAccessToken();
+                
+                // Retry original request with new token
+                originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
+                return api(originalRequest);
+                
+            } catch (refreshError) {
+                // Refresh failed, redirect to login
+                console.error('Refresh token failed:', refreshError);
+                return Promise.reject(refreshError);
+            }
+        }
+
+        // Handle auth errors based on status code and error type
+        if (error.response?.status === 401 || error.response?.status === 403) {
+            // 401 without TOKEN_EXPIRED or 403 = redirect to login
+            window.location.hash = '#/403';
+        } else if (error.response?.status === 422 && error.response?.data?.error_type?.startsWith('TOKEN_')) {
+            // 422 TOKEN_INVALID or TOKEN_ERROR = redirect to login (don't refresh)
             window.location.hash = '#/403';
         } else if (!isAuthError(error)) {
             // Check if this is a template check request - don't show error notifications for these
@@ -74,7 +136,7 @@ export const useCustomMutation = () => {
         const { 
             name, envoyVersion, type: type, gtype, canonical_name, metadata, category, 
             resource, version, method, path, config_discovery, managed, service, collection, 
-            elchi_discovery, showAutoSuccess, customSuccessMessage, successTitle 
+            elchi_discovery, showAutoSuccess, customSuccessMessage, successTitle, validate 
         } = options;
         
         const general: General = {
@@ -105,7 +167,14 @@ export const useCustomMutation = () => {
             }
         };
 
-        const response = await api[method](Config.baseApi + path, data, {
+        // Add validate query param if provided
+        let finalPath = Config.baseApi + path;
+        if (validate !== undefined) {
+            const separator = finalPath.includes('?') ? '&' : '?';
+            finalPath += `${separator}validate=${validate}`;
+        }
+
+        const response = await api[method](finalPath, data, {
             headers: {
                 'envoy-version': envoyVersion,
             }
