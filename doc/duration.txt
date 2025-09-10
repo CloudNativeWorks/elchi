@@ -1,0 +1,39 @@
+/Users/spehlivan/Documents/REACT-PROJECT/elchi/src/elchi/versions/v1.31.3/models/google/protobuf/duration.ts 
+yukarıdaki dizinde Duration'ın fonksiyonlarını her yeni buf generate'den sonra şimdilik bu şekilde değiştir.
+
+
+  fromJSON(object: any): Duration {
+    // Eğer object string tipinde ve 's' ile bitiyorsa bu formatı işleyeceğiz
+    if (typeof object === 'string' && object.endsWith('s')) {
+      const [secondsPart, nanosPart] = object.slice(0, -1).split('.');
+      
+      return {
+        $type: Duration.$type,
+        seconds: isSet(secondsPart) ? Number(secondsPart) : 0,
+        nanos: isSet(nanosPart) ? Number(nanosPart) : 0,
+      };
+    } 
+    // Eğer object bir nesne ise orijinal yöntemi kullanacağız
+    else {
+      return {
+        $type: Duration.$type,
+        seconds: isSet(object.seconds) ? Number(object.seconds) : undefined,
+        nanos: isSet(object.nanos) ? Number(object.nanos) : undefined,
+      };
+    }
+  },
+
+  toJSON(message: Duration): unknown {
+    if (message.seconds === undefined && message.nanos === undefined) {
+      return undefined;
+    }
+  
+    const seconds = message.seconds ?? 0;
+    const nanos = message.nanos ?? 0;
+  
+    if (nanos || seconds > 1) {
+      return `${seconds}.${String(nanos)}s`;
+    } else {
+      return `${seconds}s`;
+    }
+  },

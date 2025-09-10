@@ -1,0 +1,14 @@
+http-filters
+------------
+2 - Decompressor
+4 - External Authorization
+3 - JWT Authentication
+1 - OAuth
+Rate limit
+
+
+network-filters
+---------------
+envoy.filters.network.ext_authz
+envoy.filters.network.ratelimit
+envoy.filters.network.wasm
