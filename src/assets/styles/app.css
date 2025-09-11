@@ -1,0 +1,1157 @@
+body {
+    padding: 0 0 0 0;
+    background-color: #fafafa;
+    letter-spacing: -0.3px;
+    color: rgba(0, 0, 0, 0.65);
+    font-size: 14px;
+    line-height: 1.6;
+    font-weight: 400;
+    height: 100%;
+    font-family: open sans, Helvetica, Arial, sans-serif;
+
+    overflow: hidden
+}
+
+/* Hide password manager icons specifically */
+.no-password-manager {
+    background-image: none !important;
+}
+
+/* Hide LastPass specific icon */
+input[data-lpignore="true"]::-ms-reveal,
+input[data-lpignore="true"]::-ms-clear {
+    display: none !important;
+}
+
+/* Target LastPass icon container */
+div[data-lastpass-icon-root],
+div[data-lastpass-root] {
+    display: none !important;
+}
+
+/* Additional password manager icon hiding */
+input.no-password-manager + div[style*="background-image"],
+input.no-password-manager ~ div[data-lastpass-icon-root] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(82, 196, 26, 0.7);
+    }
+
+    70% {
+        box-shadow: 0 0 0 8px rgba(82, 196, 26, 0);
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 rgba(82, 196, 26, 0);
+    }
+}
+
+.App {
+    text-align: left;
+}
+
+.add-icon-shadow {
+    filter: drop-shadow(0 0 8px #056ccd) drop-shadow(0 2px 8px #0008);
+}
+
+.service-name-cell {
+    position: relative;
+    background: #f0f7ff;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.service-name-cell::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, #056ccd 0%, #00c6fb 100%);
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+
+.auto-width-tag {
+    align-self: flex-start !important;
+    font-weight: bold !important;
+    width: auto !important;
+    max-width: none !important;
+    display: inline-flex !important;
+}
+
+.modern-add-btn:hover {
+    filter: brightness(1.08) drop-shadow(0 2px 8px #00c6fb55);
+    transform: translateY(-1px) scale(1.03);
+    background: linear-gradient(90deg, #00c6fb 0%, #056ccd 100%);
+}
+
+.modern-add-icon-btn:hover {
+    background: linear-gradient(90deg, #056ccd 0%, #00c6fb 100%) !important;
+    transform: scale(1.20) !important;
+    box-shadow: 0 4px 16px 0 rgba(5, 117, 230, 0.18) !important;
+}
+
+.modern-add-icon-btn-info:hover {
+    background: linear-gradient(90deg, #056ccd 0%, #00c6fb 100%) !important;
+    transform: scale(1.08) !important;
+    box-shadow: 0 4px 16px 0 rgba(5, 117, 230, 0.18) !important;
+}
+
+.custom-steps .ant-steps-item-process .ant-steps-item-icon {
+    background: linear-gradient(90deg, #056ccd 0%, #00c6fb 100%);
+    color: #fff !important;
+    box-shadow: 0 4px 16px 0 rgba(5, 117, 230, 0.18);
+}
+
+.ant-switch-checked {
+    background: linear-gradient(90deg, #056ccd 0%, #00c6fb 100%) !important;
+    border-color: transparent !important;
+}
+
+.ant-card-head {
+    background: linear-gradient(90deg, #056ccd 0%, #00c6fb 100%) !important;
+    color: #fff !important;
+}
+
+.ant-card-head {
+    min-height: 32px !important;
+    font-size: 12px !important;
+}
+
+.ant-menu-inline,
+.ant-menu {
+    border-inline-end: none !important;
+    box-shadow: none !important;
+}
+
+.ant-collapse .ant-collapse-arrow {
+    color: #fff !important;
+}
+
+.ecard-collapse-icon {
+    cursor: pointer;
+    color: #fff;
+    background: transparent;
+    border-radius: 50%;
+    transition: background 0.2s, color 0.2s;
+}
+
+.ecard-collapse-icon:hover {
+    background: #fff;
+    color: #000;
+}
+
+
+.ADDSVGContainer {
+    width: 24px;
+    max-width: 24px;
+    height: 24px;
+    cursor: pointer;
+    border: unset;
+    padding: 0;
+    background-color: unset;
+    color: #fff;
+    stroke: #fff;
+    fill: #fff;
+}
+
+.ADDSVGContainer:hover path {
+    stroke: linear-gradient(90deg, #056ccd 0%, #00c6fb 100%);
+    fill: url(#myGradient);
+}
+
+.ADDSVGContainer:active path {
+    stroke: linear-gradient(90deg, #056ccd 0%, #00c6fb 100%);
+    fill: url(#myGradient);
+}
+
+.header-control {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+}
+
+.brand img {
+    height: 40px;
+    font-weight: 600;
+    vertical-align: middle;
+    margin-left: 3px;
+    white-space: nowrap;
+}
+
+.ant-card-small>.ant-card-head {
+    min-height: 38px;
+    padding: 0 12px;
+    font-size: 14px;
+    color: rgb(255, 252, 231);
+    background: #1990FF;
+}
+
+.main-header {
+    background-color: #056ccd;
+    padding: 0 0px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 64px;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.content-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    max-width: 100%;
+    margin-left: 1px;
+    flex-grow: 1;
+    overflow-x: hidden;
+    overflow-y: auto;
+    flex: 1;
+
+    height: calc(100vh - 64px);
+    margin: 0;
+    padding: 0;
+}
+
+
+
+.main-content {
+    padding: 10px;
+    flex-grow: 1;
+    min-width: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    transition: width 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        margin-left: 60px;
+        width: calc(100% - 60px);
+    }
+}
+
+@media (max-width: 480px) {
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+    }
+}
+
+.collapse-button {
+    position: relative;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    transition: all 0.3s ease;
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+}
+
+@media (max-width: 768px) {
+    .collapse-button {
+        bottom: 20px;
+        left: auto;
+        right: 10px;
+        transform: none;
+    }
+}
+
+.main-menu {
+    height: 100%;
+    max-height: 100vh;
+    overflow-y: auto;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    width: 250px;
+    transition: all 0.3s ease;
+    background-color: #fff;
+}
+
+@media (max-width: 768px) {
+    .main-menu {
+        width: 60px;
+        overflow: hidden;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-menu {
+        display: none;
+    }
+}
+
+.menu-item-header {
+    padding: 10px 5px !important;
+    color: #727272;
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    display: block;
+}
+
+.menu-item-header:hover {
+    color: inherit;
+    background-color: unset !important;
+}
+
+.ant-menu-item .icon {
+    display: inline-flex;
+    width: 32px;
+    height: 32px;
+    box-shadow: 0 4px 6px rgb(0 0 0 / 12%);
+    border-radius: 6px;
+    justify-content: center;
+    margin-right: 11px;
+}
+
+.ant-menu-submenu .icon {
+    display: inline-flex;
+    width: 32px;
+    height: 32px;
+    box-shadow: 0 4px 6px rgb(0 0 0 / 12%);
+    border-radius: 6px;
+    justify-content: center;
+    margin-right: 11px;
+}
+
+.ant-layout-sider-collapsed .menu-item-header {
+    display: none;
+}
+
+.ant-layout-sider-collapsed .ant-menu-item .ant-menu-item-icon :active,
+.ant-layout-sider-collapsed .ant-menu-item .ant-menu-item-icon {
+    display: flex;
+    justify-content: center;
+}
+
+.ant-layout-sider-collapsed .ant-menu-submenu .ant-menu-submenu-title :active,
+.ant-layout-sider-collapsed .ant-menu-submenu .ant-menu-submenu-title {
+    display: flex;
+    justify-content: center;
+}
+
+.ant-layout-sider-collapsed .ant-menu-item .icon {
+    display: flex;
+    justify-content: center;
+    margin: unset;
+}
+
+
+.ant-layout-sider-collapsed .ant-menu-submenu .ant-menu-submenu-title .icon {
+    display: flex;
+    justify-content: center;
+    margin: unset;
+}
+
+.ant-layout-sider-collapsed .ant-menu-item .ant-menu-item-icon .menu-label {
+    display: none;
+}
+
+.ant-layout-sider-collapsed .ant-menu-submenu .ant-menu-submenu-title .ant-menu-item-icon .menu-label {
+    display: none;
+}
+
+.cursor-row {
+    cursor: pointer;
+}
+
+.ant-card.criclebox {
+    box-shadow: 0px 20px 27px #0000000d;
+    border-radius: 12px;
+    width: calc(20% - 10px);
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.ant-card.criclebox2 {
+    box-shadow: 0px 20px 27px #0000000d;
+    border-radius: 12px;
+    width: calc(100% - 10px);
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+.ant-menu-inline-collapsed .ant-menu-submenu-vertical .ant-menu-submenu-title {
+    transform: translatex(0px) translatey(0px);
+    padding-right: 4px;
+}
+
+.ant-menu-submenu .ant-menu-submenu-title .ant-menu-item-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    min-height: 32px;
+}
+
+.ant-menu-submenu .ant-menu-submenu-title .ant-menu-item-icon .icon svg {
+    width: 100%;
+    height: auto;
+}
+
+.container-border {
+    padding: 3px;
+    margin-bottom: 8px;
+    width: 95%;
+    max-width: 300px;
+    display: flex;
+    flex-direction: column;
+}
+
+.row-disabled {
+    background-color: #ffcccc !important;
+}
+
+.ant-menu-submenu .ant-menu-submenu-title a {
+    margin-left: -2px !important;
+}
+
+.route-match {
+    font-size: 10px;
+    color: gray;
+    text-transform: 'lowercase';
+    margin-bottom: '1px';
+}
+
+.infos-button {
+    background-color: white;
+    border: 1px solid #056ccd;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 3px;
+    transition: background-color 0.3s, color 0.3s, stroke-width 0.3s;
+
+}
+
+.infos-icon {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: stroke-width 0.3s;
+}
+
+.infos-button:hover {
+    background-color: #056ccd;
+    border-color: #056ccd;
+}
+
+.infos-button:hover .infos-icon {
+    fill: white;
+    stroke: white;
+}
+
+.only-one-button {
+    display: flex;
+    align-items: center;
+    flex: 1 1 auto;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+}
+
+.point-button {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    display: inline;
+}
+
+.norm-button {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    display: inline;
+    font-family: sans-serif;
+}
+
+.arc-div-style {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+@keyframes slidePaddingRightAndBack {
+    0% {
+        padding-left: 0;
+    }
+
+    20%,
+    80% {
+        padding-left: 32px;
+    }
+
+    100% {
+        padding-left: 0;
+    }
+}
+
+.highlight-target {
+    animation: slidePaddingRightAndBack 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.customRadioGroup {
+    :global(.ant-radio-button-wrapper) {
+        border: 1px solid #d9d9d9 !important;
+    }
+
+    :global(.ant-radio-button-wrapper:first-child) {
+        border-left: 1px solid #d9d9d9 !important;
+    }
+
+    :global(.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)) {
+        border-color: inherit !important;
+    }
+
+    :global(.ant-radio-button-wrapper::before) {
+        display: none !important;
+    }
+} 
+
+
+
+
+.tabLabel {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #64748b;
+    border-radius: 8px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    position: relative;
+    border-left: 3px solid transparent;
+}
+
+.tabLabel svg {
+    transition: all 0.2s ease;
+    color: #94a3b8;
+}
+
+
+
+.tabLabel:hover svg {
+    transform: translateY(-1px);
+    color: #0ea5e9;
+}
+
+.ant-tabs {
+    width: 100%;
+}
+
+.ant-tabs .ant-tabs-tab {
+    padding: 0 !important;
+    margin: 0 4px !important;
+    transition: all 0.2s !important;
+    border: none !important;
+    position: relative;
+    min-height: unset !important;
+}
+
+.ant-tabs .ant-tabs-tab .ant-tabs-tab-btn {
+    display: flex !important;
+    align-items: center !important;
+    height: 100% !important;
+    gap: 6px !important;
+    padding: 6px 14px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    color: #64748b !important;
+    border-radius: 8px !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    white-space: nowrap !important;
+    position: relative !important;
+    border-left: 3px solid transparent !important;
+    line-height: 1.2 !important;
+}
+
+.ant-tabs .ant-tabs-tab:first-child {
+    margin-left: 0 !important;
+}
+
+.ant-tabs .ant-tabs-tab:not(.ant-tabs-tab-active):hover .ant-tabs-tab-btn {
+    color: #0ea5e9 !important;
+    background: #f8fafc !important;
+}
+
+.ant-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
+    color: #0284c7 !important;
+    background: linear-gradient(to right, #f0f9ff, #e0f2fe) !important;
+    box-shadow: 
+        0 3px 10px rgba(14, 165, 233, 0.1) !important;
+    border-left: 3px solid #0284c7 !important;
+    padding-left: 16px !important;
+    margin-left: 2px !important;
+    font-weight: 600 !important;
+}
+
+.ant-tabs .ant-tabs-nav {
+    margin-bottom: 12px !important;
+    background: #ffffff !important;
+    border-radius: 10px !important;
+    padding: 4px !important;
+    border: 1px solid #e2e8f0 !important;
+    min-height: unset !important;
+}
+
+.ant-tabs .ant-tabs-nav::before {
+    display: none !important;
+}
+
+.ant-tabs .ant-tabs-ink-bar {
+    display: none !important;
+}
+
+.ant-tabs .ant-tabs-nav-list {
+    background: #f8fafc !important;
+    padding: 4px !important;
+    border-radius: 8px !important;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03) !important;
+}
+
+.ant-tabs .ant-tabs-nav-operations {
+    display: none !important;
+}
+
+.tabContainer .ant-tabs-tab {
+    padding: 0 !important;
+    margin: 0 4px !important;
+}
+
+.tabContainer .ant-tabs-tab .ant-tabs-tab-btn {
+    padding: 6px 14px !important;
+    font-size: 13px !important;
+    color: #64748b !important;
+}
+
+.tabContainer .ant-tabs-tab-active .ant-tabs-tab-btn {
+    color: #0284c7 !important;
+    background: linear-gradient(to right, #f0f9ff, #e0f2fe) !important;
+    border-left: 3px solid #0284c7 !important;
+}
+
+.tabContainer.ant-tabs .ant-tabs-tab:not(.ant-tabs-tab-active):hover .ant-tabs-tab-btn {
+    color: #0ea5e9 !important;
+    background: #f8fafc !important;
+}
+
+.tabContainer.ant-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
+    color: #0284c7 !important;
+    background: linear-gradient(to right, #f0f9ff, #e0f2fe) !important;
+    box-shadow: 
+        0 3px 10px rgba(14, 165, 233, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
+    border-left: 3px solid #0284c7 !important;
+    padding-left: 16px !important;
+    margin-left: 2px !important;
+    font-weight: 600 !important;
+}
+
+.tabContainer.ant-tabs .ant-tabs-tab-active:hover .ant-tabs-tab-btn {
+    background: linear-gradient(to right, #f0f9ff, #e0f2fe) !important;
+}
+
+.ant-collapse-ghost {
+    background: transparent !important;
+}
+
+.ant-collapse-ghost > .ant-collapse-item {
+    margin-bottom: 4px;
+    background: #fff;
+    border-radius: 6px;
+    border: 1px solid #f0f0f0 !important;
+}
+
+.ant-collapse-ghost > .ant-collapse-item > .ant-collapse-header {
+    padding: 4px 12px !important;
+    align-items: center !important;
+    display: flex !important;
+    border-bottom: 1px solid #f0f0f0 !important;
+}
+
+.ant-collapse-ghost > .ant-collapse-item > .ant-collapse-header .ant-collapse-expand-icon {
+    padding-right: 8px !important;
+    margin: 0 !important;
+}
+
+.ant-collapse-ghost > .ant-collapse-item > .ant-collapse-header .anticon {
+    font-size: 14px !important;
+    color: rgba(0, 0, 0, 0.88) !important;
+    display: inline-flex !important;
+    align-items: center !important;
+}
+
+.ant-collapse-ghost > .ant-collapse-item > .ant-collapse-content {
+    background: #fff;
+    border-top: none !important;
+}
+
+.ant-collapse-ghost > .ant-collapse-item.ant-collapse-item-active {
+    border-bottom: 1px solid #f0f0f0 !important;
+}
+
+/* Modern Error Notification Styles - Glass Morphism */
+.modern-error-notification {
+    background: linear-gradient(135deg, 
+        rgba(255, 240, 245, 0.9) 0%,
+        rgba(255, 245, 248, 0.85) 100%) !important;
+    backdrop-filter: blur(16px) saturate(150%) !important;
+    border: 1px solid rgba(255, 182, 193, 0.3) !important;
+    border-left: 4px solid #ff4757 !important;
+    border-radius: 12px !important;
+    box-shadow: 
+        0 8px 32px rgba(255, 71, 87, 0.1),
+        0 4px 16px rgba(0, 0, 0, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+    overflow: hidden !important;
+    animation: slideInGlass 0.5s ease-out !important;
+    margin: 8px !important;
+    position: relative !important;
+    min-width: 500px !important;
+    max-width: 600px !important;
+}
+
+/* Remove wrapper background */
+.ant-notification-notice-wrapper {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Remove container backgrounds */
+.ant-notification {
+    background: transparent !important;
+}
+
+.ant-notification .ant-notification-notice {
+    margin-bottom: 16px !important;
+}
+
+.modern-error-notification.ant-notification-notice-wrapper {
+    background: transparent !important;
+}
+
+.modern-error-notification .ant-notification-notice-content {
+    background: transparent !important;
+    padding: 0px 0px 0px 0px !important;
+    position: relative !important;
+    z-index: 2 !important;
+}
+
+.modern-error-notification .ant-notification-notice-content .ant-notification-notice-with-icon {
+    display: block !important;
+}
+
+/* Glass overlay effect */
+.modern-error-notification::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.2) 0%,
+        rgba(255, 182, 193, 0.1) 50%,
+        rgba(255, 255, 255, 0.1) 100%);
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Header row with icon + title */
+.modern-error-notification .ant-notification-notice-content > .ant-notification-notice-with-icon-title {
+    display: flex !important;
+    align-items: center !important;
+    margin-bottom: 0px !important;
+}
+
+.modern-error-notification .ant-notification-notice-icon {
+    margin-right: 8px !important;
+    font-size: 16px !important;
+    color: #ff4757 !important;
+    margin-top: 0px !important;
+    filter: drop-shadow(0 2px 4px rgba(255, 71, 87, 0.2)) !important;
+    position: relative !important;
+    z-index: 3 !important;
+    flex-shrink: 0 !important;
+    height: 16px !important;
+    line-height: 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    float: left !important;
+}
+
+.modern-error-notification .ant-notification-notice-message {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #2d1b1b !important;
+    margin-bottom: 4px !important;
+    letter-spacing: -0.2px !important;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5) !important;
+    position: relative !important;
+    z-index: 3 !important;
+    line-height: 16px !important;
+    margin-top: 0px !important;
+    display: inline !important;
+    margin-left: 0px !important;
+}
+
+.modern-error-notification .ant-notification-notice-description {
+    font-size: 12px !important;
+    color: #5a3a3a !important;
+    line-height: 1.3 !important;
+    font-weight: 400 !important;
+    margin: 0 !important;
+    margin-left: 2px !important;
+    margin-top: -10px !important;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3) !important;
+    position: relative !important;
+    z-index: 3 !important;
+}
+
+/* Clear float after title */
+.modern-error-notification .ant-notification-notice-message::after {
+    content: '';
+    display: table;
+    clear: both;
+}
+
+.modern-error-notification .ant-notification-notice-close {
+    right: 10px !important;
+    top: 10px !important;
+    color: rgba(93, 58, 58, 0.6) !important;
+    font-size: 14px !important;
+    transition: all 0.2s ease !important;
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-radius: 50% !important;
+    width: 22px !important;
+    height: 22px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    backdrop-filter: blur(4px) !important;
+    position: absolute !important;
+    z-index: 4 !important;
+}
+
+.modern-error-notification .ant-notification-notice-close:hover {
+    color: #ff4757 !important;
+    background: rgba(255, 255, 255, 0.4) !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 2px 8px rgba(255, 71, 87, 0.2) !important;
+}
+
+@keyframes slideInGlass {
+    0% {
+        opacity: 0;
+        transform: translateX(100%) scale(0.95);
+        backdrop-filter: blur(0px);
+    }
+    50% {
+        opacity: 0.7;
+        transform: translateX(-5%) scale(1.02);
+        backdrop-filter: blur(8px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+        backdrop-filter: blur(16px);
+    }
+}
+
+/* Modern Warning Notification Styles */
+.modern-warning-notification {
+    background: linear-gradient(135deg, 
+        rgba(255, 248, 220, 0.9) 0%,
+        rgba(255, 251, 235, 0.85) 100%) !important;
+    backdrop-filter: blur(16px) saturate(150%) !important;
+    border: 1px solid rgba(255, 193, 7, 0.3) !important;
+    border-left: 4px solid #faad14 !important;
+    border-radius: 12px !important;
+    box-shadow: 
+        0 8px 32px rgba(250, 173, 20, 0.1),
+        0 4px 16px rgba(0, 0, 0, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+    overflow: hidden !important;
+    animation: slideInGlass 0.5s ease-out !important;
+    margin: 8px !important;
+    position: relative !important;
+    min-width: 500px !important;
+    max-width: 600px !important;
+}
+
+.modern-warning-notification .ant-notification-notice-content {
+    background: transparent !important;
+    padding: 10px 35px 10px 14px !important;
+    position: relative !important;
+    z-index: 2 !important;
+}
+
+.modern-warning-notification .ant-notification-notice-content .ant-notification-notice-with-icon {
+    display: block !important;
+}
+
+/* Glass overlay effect */
+.modern-warning-notification::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.2) 0%,
+        rgba(255, 193, 7, 0.1) 50%,
+        rgba(255, 255, 255, 0.1) 100%);
+    z-index: 1;
+    pointer-events: none;
+}
+
+.modern-warning-notification .ant-notification-notice-icon {
+    margin-right: 8px !important;
+    font-size: 16px !important;
+    color: #faad14 !important;
+    margin-top: 0px !important;
+    filter: drop-shadow(0 2px 4px rgba(250, 173, 20, 0.2)) !important;
+    position: relative !important;
+    z-index: 3 !important;
+    flex-shrink: 0 !important;
+    height: 16px !important;
+    line-height: 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    float: left !important;
+}
+
+.modern-warning-notification .ant-notification-notice-message {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #8b4513 !important;
+    margin-bottom: 4px !important;
+    letter-spacing: -0.2px !important;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5) !important;
+    position: relative !important;
+    z-index: 3 !important;
+    line-height: 16px !important;
+    margin-top: 0px !important;
+    display: inline !important;
+    margin-left: 22px !important;
+}
+
+.modern-warning-notification .ant-notification-notice-description {
+    font-size: 12px !important;
+    color: #a0622d !important;
+    line-height: 1.3 !important;
+    font-weight: 400 !important;
+    margin: 0 !important;
+    margin-left: 22px !important;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3) !important;
+    position: relative !important;
+    z-index: 3 !important;
+}
+
+/* Clear float after title */
+.modern-warning-notification .ant-notification-notice-message::after {
+    content: '';
+    display: table;
+    clear: both;
+}
+
+.modern-warning-notification .ant-notification-notice-close {
+    right: 10px !important;
+    top: 10px !important;
+    color: rgba(139, 69, 19, 0.6) !important;
+    font-size: 14px !important;
+    transition: all 0.2s ease !important;
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-radius: 50% !important;
+    width: 22px !important;
+    height: 22px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    backdrop-filter: blur(4px) !important;
+    position: absolute !important;
+    z-index: 4 !important;
+}
+
+.modern-warning-notification .ant-notification-notice-close:hover {
+    color: #faad14 !important;
+    background: rgba(255, 255, 255, 0.4) !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 2px 8px rgba(250, 173, 20, 0.2) !important;
+}
+
+/* Modern Success Notification Styles */
+.modern-success-notification {
+    background: linear-gradient(135deg, 
+        rgba(246, 255, 237, 0.9) 0%,
+        rgba(251, 255, 248, 0.85) 100%) !important;
+    backdrop-filter: blur(16px) saturate(150%) !important;
+    border: 1px solid rgba(82, 196, 26, 0.3) !important;
+    border-left: 4px solid #52c41a !important;
+    border-radius: 12px !important;
+    box-shadow: 
+        0 8px 32px rgba(82, 196, 26, 0.1),
+        0 4px 16px rgba(0, 0, 0, 0.05),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+    overflow: hidden !important;
+    animation: slideInGlass 0.5s ease-out !important;
+    margin: 8px !important;
+    position: relative !important;
+    min-width: 500px !important;
+    max-width: 600px !important;
+}
+
+.modern-success-notification .ant-notification-notice-content {
+    background: transparent !important;
+    padding: 0px 0px 0px 0px !important;
+    position: relative !important;
+    z-index: 2 !important;
+}
+
+.modern-success-notification .ant-notification-notice-content .ant-notification-notice-with-icon {
+    display: block !important;
+}
+
+/* Glass overlay effect */
+.modern-success-notification::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, 
+        rgba(255, 255, 255, 0.2) 0%,
+        rgba(82, 196, 26, 0.1) 50%,
+        rgba(255, 255, 255, 0.1) 100%);
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Header row with icon + title */
+.modern-success-notification .ant-notification-notice-content > .ant-notification-notice-with-icon-title {
+    display: flex !important;
+    align-items: center !important;
+    margin-bottom: 0px !important;
+}
+
+.modern-success-notification .ant-notification-notice-icon {
+    margin-right: 8px !important;
+    font-size: 16px !important;
+    color: #52c41a !important;
+    margin-top: 0px !important;
+    filter: drop-shadow(0 2px 4px rgba(82, 196, 26, 0.2)) !important;
+    position: relative !important;
+    z-index: 3 !important;
+    flex-shrink: 0 !important;
+    height: 16px !important;
+    line-height: 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    float: left !important;
+}
+
+.modern-success-notification .ant-notification-notice-message {
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    color: #237804 !important;
+    margin-bottom: 4px !important;
+    letter-spacing: -0.2px !important;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5) !important;
+    position: relative !important;
+    z-index: 3 !important;
+    line-height: 16px !important;
+    margin-top: 0px !important;
+    display: inline !important;
+    margin-left: 0px !important;
+}
+
+.modern-success-notification .ant-notification-notice-description {
+    font-size: 12px !important;
+    color: #389e0d !important;
+    line-height: 1.3 !important;
+    font-weight: 400 !important;
+    margin: 0 !important;
+    margin-left: 2px !important;
+    margin-top: -10px !important;
+    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3) !important;
+    position: relative !important;
+    z-index: 3 !important;
+}
+
+/* Clear float after title */
+.modern-success-notification .ant-notification-notice-message::after {
+    content: '';
+    display: table;
+    clear: both;
+}
+
+.modern-success-notification .ant-notification-notice-close {
+    right: 10px !important;
+    top: 10px !important;
+    color: rgba(35, 120, 4, 0.6) !important;
+    font-size: 14px !important;
+    transition: all 0.2s ease !important;
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-radius: 50% !important;
+    width: 22px !important;
+    height: 22px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    backdrop-filter: blur(4px) !important;
+    position: absolute !important;
+    z-index: 4 !important;
+}
+
+.modern-success-notification .ant-notification-notice-close:hover {
+    color: #52c41a !important;
+    background: rgba(255, 255, 255, 0.4) !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 2px 8px rgba(82, 196, 26, 0.2) !important;
+}
+
+/* Success and other notification types */
+.ant-notification-notice {
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(12px) !important;
+    border: none !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+    animation: slideInSmooth 0.4s ease-out !important;
+} 

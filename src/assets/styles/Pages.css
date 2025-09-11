@@ -1,0 +1,24 @@
+.grid-container-element { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    grid-gap: 10px;  
+    width: 90%; 
+    margin: auto;
+    margin-top: 2%;
+    margin-bottom: 2%;
+}
+
+.grid-container-element-barStats { 
+    display: grid; 
+    grid-template-columns: 1fr; 
+    grid-gap: 10px; 
+    width: 90%; 
+    margin: auto;
+    margin-top: 2%;
+    margin-bottom: 2%;
+} 
+
+.grid-child-element { 
+    width: 90%;
+    margin: 10px; 
+}
