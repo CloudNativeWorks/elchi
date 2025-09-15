@@ -39,7 +39,9 @@ export const useServiceData = ({ project, version, serviceName, enabled = true }
 
     // Extract IP addresses from the clients array - data.data is the array, then we get the first service
     const service = data?.data?.data?.[0];
-    const clientIPs = service?.clients?.map((client: ServiceClient) => client.downstream_address) || [];
+    const allIPs = service?.clients?.map((client: ServiceClient) => client.downstream_address) || [];
+    // Remove duplicates using Set
+    const clientIPs = [...new Set(allIPs)];
 
     return {
         data: data as ServiceData,

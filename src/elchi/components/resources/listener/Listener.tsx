@@ -196,7 +196,7 @@ const ListenerComponent: React.FC<GeneralProps> = ({ veri }) => {
                             alignItems: 'center',
                             gap: '8px'
                         }}>
-                            <span style={{ color: '#1890ff' }}>Client IPs:</span>
+                            <span style={{ color: '#1890ff' }}>Service IPs:</span>
                             <span>{clientIPs.join(', ')}</span>
                         </div>
                     )}
