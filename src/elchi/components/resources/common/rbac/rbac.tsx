@@ -7,6 +7,7 @@ import useResourceForm from "@/hooks/useResourceForm";
 import ECard from "@/elchi/components/common/ECard";
 import { modtag_rbac_rules } from "./_modtag_";
 import { useTags } from "@/hooks/useTags";
+import { useModels } from "@/hooks/useModels";
 import { generateFields } from "@/common/generate-fields";
 import { FieldTypes } from "@/common/statics/general";
 import CommonComponentPolicies from "./policies";
@@ -26,11 +27,17 @@ type GeneralProps = {
 
 const ComponentRBAC: React.FC<GeneralProps> = ({ veri }) => {
     const { vTags } = useTags(veri.version, modtag_rbac_rules);
+    const { vModels } = useModels(veri.version, modtag_rbac_rules);
     const [stateModal, setStateModal] = useState(false);
     const { selectedTags, handleChangeRedux, handleChangeTag } = useResourceForm({
         version: veri.version,
         reduxStore: veri.reduxStore,
     });
+
+    // Snippet apply fonksiyonu - ECard için uygun format
+    const handleApplySnippet = (keys: string, data: any) => {
+        handleChangeRedux(keys, data);
+    };
 
     const fieldConfigs: FieldConfigType[] = [
         ...generateFields({
@@ -41,7 +48,15 @@ const ComponentRBAC: React.FC<GeneralProps> = ({ veri }) => {
     ];
 
     return (
-        <ECard title={veri.title}>
+        <ECard 
+            title={veri.title}
+            reduxStore={veri.reduxStore}
+            ctype="rbac"
+            toJSON={vModels.rr?.RBAC.toJSON}
+            onApply={handleApplySnippet}
+            keys={veri.keyPrefix}
+            version={veri.version}
+        >
             <HorizonTags veri={{
                 tags: vTags.rr?.RBAC,
                 selectedTags: selectedTags,

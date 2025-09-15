@@ -165,13 +165,21 @@ input.no-password-manager ~ div[data-lastpass-icon-root] {
 }
 
 .ADDSVGContainer:hover path {
-    stroke: linear-gradient(90deg, #056ccd 0%, #00c6fb 100%);
-    fill: url(#myGradient);
+    stroke: #056ccd;
+    fill: #056ccd;
+}
+
+.ADDSVGContainer:hover circle {
+    fill: #056ccd;
 }
 
 .ADDSVGContainer:active path {
-    stroke: linear-gradient(90deg, #056ccd 0%, #00c6fb 100%);
-    fill: url(#myGradient);
+    stroke: #056ccd;
+    fill: #056ccd;
+}
+
+.ADDSVGContainer:active circle {
+    fill: #056ccd;
 }
 
 .header-control {

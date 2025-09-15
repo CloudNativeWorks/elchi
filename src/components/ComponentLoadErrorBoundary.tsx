@@ -154,7 +154,7 @@ class ComponentLoadErrorBoundary extends Component<Props, State> {
                             title={
                                 <Space>
                                     <BugOutlined />
-                                    <Text strong>Development Error Details</Text>
+                                    <Text strong style={{color: "white"}}>Development Error Details</Text>
                                 </Space>
                             }
                             style={{ marginTop: 16 }}

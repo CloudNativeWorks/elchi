@@ -39,7 +39,15 @@ const ComponentOutlierDetection: React.FC<GeneralProps> = ({ veri }) => {
     ]
 
     return (
-        <CCard reduxStore={veri.reduxStore} toJSON={vModels.o?.OutlierDetection.toJSON} keys={veri.keyPrefix} Paste={handleChangeRedux} ctype="outlier_detection" title="Outlier Detection">
+        <CCard 
+            reduxStore={veri.reduxStore} 
+            toJSON={vModels.o?.OutlierDetection.toJSON} 
+            keys={veri.keyPrefix} 
+            Paste={handleChangeRedux} 
+            ctype="outlier_detection" 
+            title="Outlier Detection"
+            version={veri.version}
+        >
             <HorizonTags veri={{
                 tags: vTags.o?.OutlierDetection,
                 unsupportedTags: ["monitors"],

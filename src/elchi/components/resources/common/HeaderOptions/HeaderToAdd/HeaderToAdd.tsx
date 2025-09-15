@@ -10,6 +10,7 @@ import { handleChangeResources } from "@/redux/dispatcher";
 import { FieldTypes } from "@/common/statics/general";
 import { DeleteTwoTone, InboxOutlined } from '@ant-design/icons';
 import { useTags } from "@/hooks/useTags";
+import { useModels } from "@/hooks/useModels";
 import { modtag_header_value_option } from "./_modtag_";
 import { EForm } from "@/elchi/components/common/e-components/EForm";
 import ECard from "@/elchi/components/common/ECard";
@@ -113,6 +114,7 @@ const ExpandedRowComponent: React.FC<ExpandedRowProps> = ({ record, index, veri,
 
 const HeaderToAdd: React.FC<GeneralProps> = ({ veri }) => {
     const { vTags } = useTags(veri.version, modtag_header_value_option);
+    const { vModels } = useModels(veri.version, modtag_header_value_option);
     const dispatch = useDispatch();
     const [form] = Form.useForm();
     const [state, setState] = useState<State>({
@@ -148,6 +150,12 @@ const HeaderToAdd: React.FC<GeneralProps> = ({ veri }) => {
 
     const handleChangeRedux = (keys: string, val: string | boolean | number) => {
         handleChangeResources({ version: veri.version, type: ActionType.Update, keys, val, resourceType: ResourceType.Resource }, dispatch, veri.reduxAction);
+    };
+
+    // Snippet apply fonksiyonu - ECard için uygun format
+    const handleApplySnippet = (keys: string, data: any) => {
+        // Keys parametresini kullan (snippet'ın kendi path'i yerine current context)
+        handleChangeResources({ version: veri.version, type: ActionType.Update, keys: keys, val: data, resourceType: ResourceType.Resource }, dispatch, veri.reduxAction);
     };
 
     const columns: ColumnsType<any> = [
@@ -271,7 +279,15 @@ const HeaderToAdd: React.FC<GeneralProps> = ({ veri }) => {
                 </Form>
             </Modal>
 
-            <ECard title={veri.title}>
+            <ECard 
+                title={veri.title}
+                reduxStore={veri.reduxStore}
+                ctype="header_to_add"
+                toJSON={vModels.hvo?.HeaderValueOption.toJSON}
+                onApply={handleApplySnippet}
+                keys={veri.keyPrefix}
+                version={veri.version}
+            >
                 <Col md={24}>
                     <ElchiIconButton
                         style={{ marginBottom: 5 }}

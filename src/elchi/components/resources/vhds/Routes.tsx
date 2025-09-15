@@ -153,7 +153,7 @@ const VhdsRoutesComponent: React.FC<GeneralProps> = ({ veri }) => {
     if (!vModels || !vTags) { return <div>Module not found!...</div>; }
 
     return (
-        <CCard reduxStore={veri.reduxStore} toJSON={vModels.r?.Route.toJSON} keys={veri.keyPrefix} Paste={handleChangeRedux} ctype="routes" title="Routes">
+        <CCard reduxStore={veri.reduxStore} toJSON={vModels.r?.Route.toJSON} keys={veri.keyPrefix} Paste={handleChangeRedux} version={veri.version} ctype="routes" title="Routes">
             <div style={{
                 background: '#fff',
                 padding: '4px 4px 12px 4px',

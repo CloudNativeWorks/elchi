@@ -41,7 +41,7 @@ const ComponentPolicy: React.FC<GeneralProps> = ({ veri }) => {
     ]
 
     return (
-        <CCard reduxStore={veri.reduxStore} toJSON={vModels.cp?.ClusterLoadAssignment_Policy.toJSON} keys={veri.keyPrefix} Paste={handleChangeRedux} ctype="cla_policy" title="Policy">
+        <CCard reduxStore={veri.reduxStore} toJSON={vModels.cp?.ClusterLoadAssignment_Policy.toJSON} keys={veri.keyPrefix} Paste={handleChangeRedux} ctype="cla_policy" version={veri.version} title="Policy">
             <HorizonTags veri={{
                 tags: vTags.cp?.ClusterLoadAssignment_Policy,
                 unsupportedTags: modtag_us_cla["policy"],

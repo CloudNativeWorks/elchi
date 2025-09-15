@@ -155,7 +155,7 @@ const MemorizedHorizonTags = ({ veri }: FormItemProps) => {
                 <div className="ag-courses_item">
                     <div className="ag-courses-item_link">
                         <div className="ag-courses-item_bg"></div>
-                        <Card size="small" styles={{ body: { padding: 1, width: '100%' } }} style={{ zIndex: 4, width: '100%', alignItems: 'center' }}>
+                        <Card size="small" styles={{ body: { padding: 1, width: '100%' } }} style={{ zIndex: 4, width: '100%', alignItems: 'center', borderLeft: 'none', borderRight: 'none' }}>
                             <div className="grid-container">
                                 <div className="tags-container">
                                     {[...supportedTags, ...unsupportedTags]}

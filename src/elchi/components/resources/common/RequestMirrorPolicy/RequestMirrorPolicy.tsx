@@ -121,7 +121,7 @@ const CommonComponentRequestMirrorPolicy: React.FC<GeneralProps> = ({ veri }) =>
     }));
 
     return (
-        <CCard ctype="request_mirror_policy" reduxStore={veri.reduxStore} toJSON={vModels.rmp?.RouteAction_RequestMirrorPolicy.toJSON} keys={veri.keyPrefix} Paste={handleChangeRedux} title="Request Mirror Policies">
+        <CCard ctype="request_mirror_policy" reduxStore={veri.reduxStore} toJSON={vModels.rmp?.RouteAction_RequestMirrorPolicy.toJSON} keys={veri.keyPrefix} Paste={handleChangeRedux} version={veri.version} title="Request Mirror Policies">
             <ETabs
                 onChange={onChangeTabs}
                 onEdit={addTab}

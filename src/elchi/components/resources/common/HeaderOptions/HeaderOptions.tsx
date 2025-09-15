@@ -7,7 +7,6 @@ import { handleChangeResources } from "@/redux/dispatcher";
 import { matchesEndOrStartOf } from "@/utils/tools";
 import { compareVeriReduxStoreAndSelectedTags, memorizeComponent } from "@/hooks/useMemoComponent";
 import { FieldTypes } from "@/common/statics/general";
-import CCard from "@/elchi/components/common/CopyPasteCard";
 import HeaderToAdd from "./HeaderToAdd/HeaderToAdd";
 import ECard from "@/elchi/components/common/ECard";
 import { EForm } from "@/elchi/components/common/e-components/EForm";
@@ -32,7 +31,7 @@ const CommonComponentHeaderOptions: React.FC<GeneralProps> = ({ veri }) => {
     };
 
     return (
-        <CCard toJSON={veri.toJSON} reduxStore={veri.reduxStore} keys={veri.keyPrefix} Paste={handleChangeRedux} ctype="header_options" title="Header Options">
+        <ECard title="Header Options">
             <Row>
                 <Col md={24}>
                     {
@@ -88,22 +87,20 @@ const CommonComponentHeaderOptions: React.FC<GeneralProps> = ({ veri }) => {
                                 </EForm>
 
                                 {matchesEndOrStartOf("response_headers_to_add", veri.selectedTags) &&
-                                    <>
-                                        <HeaderToAdd veri={{
-                                            version: veri.version,
-                                            reduxStore: veri.reduxStore?.response_headers_to_add,
-                                            keyPrefix: veri.keyPrefix ? `${veri.keyPrefix}.response_headers_to_add` : "response_headers_to_add",
-                                            reduxAction: veri.reduxAction,
-                                            title: "Response Headers To Add"
-                                        }} />
-                                    </>
+                                    <HeaderToAdd veri={{
+                                        version: veri.version,
+                                        reduxStore: veri.reduxStore?.response_headers_to_add,
+                                        keyPrefix: veri.keyPrefix ? `${veri.keyPrefix}.response_headers_to_add` : "response_headers_to_add",
+                                        reduxAction: veri.reduxAction,
+                                        title: "Response Headers To Add"
+                                    }} />
                                 }
                             </div>
                         </ECard>
                     }
                 </Col>
             </Row>
-        </CCard >
+        </ECard >
     )
 };
 

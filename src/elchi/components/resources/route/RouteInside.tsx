@@ -87,14 +87,14 @@ const ComponentRoute: React.FC<GeneralProps> = ({ veri }) => {
 
     return (
         <>
-            <CCard reduxStore={veri.reduxStore} keys={''} toJSON={vModels.rc?.RouteConfiguration.toJSON} Paste={handleChangeRedux} ctype="route_config" title="Route Config">
+            <CCard reduxStore={veri.reduxStore} keys={''} toJSON={vModels.rc?.RouteConfiguration.toJSON} Paste={handleChangeRedux} ctype="route_config" version={veri.version} title="Route Config">
                 <Row>
                     <Col md={24}>
                         <HorizonTags veri={{
                             tags: vTags.rc?.RouteConfiguration,
                             // this is not supported by envoy https://github.com/envoyproxy/envoy/issues/23263
                             // remove the vhds tag when supported
-                            unsupportedTags: ["vhds"],
+                            unsupportedTags: ["vhds", "metadata"],
                             selectedTags: selectedTags,
                             handleChangeTag: handleChangeTag,
                             keyPrefix: `${veri.keyPrefix}`,

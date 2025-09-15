@@ -1,8 +1,9 @@
 import React, { ReactNode, useState } from 'react';
 import { Card, Dropdown, message } from 'antd';
-import { CopySVG, CollapseSVG, ExpandSVG } from '@/assets/svg/icons';
+import { CopySVG, CollapseSVG, ExpandSVG, SnippetSVG } from '@/assets/svg/icons';
 import { CopyPaste, cpItems } from '@/utils/copy-paste-tool';
 import { useCustomMessage } from '@/common/message';
+import { SnippetDrawer } from '@/elchi/snippets/components/SnippetDrawer';
 
 
 interface CustomCardProps {
@@ -13,13 +14,15 @@ interface CustomCardProps {
     ctype: string;
     toJSON: any;
     keys?: string;
+    version?: string;  // Add version prop for snippets
     [key: string]: any;
 }
 
-const CCard: React.FC<CustomCardProps> = ({ children, reduxStore, title, ctype, keys, Paste, toJSON, ...props }) => {
+const CCard: React.FC<CustomCardProps> = ({ children, reduxStore, title, ctype, keys, Paste, toJSON, version, ...props }) => {
     const [messageApi, contextHolder] = message.useMessage();
     const { successMessage, errorMessage } = useCustomMessage(messageApi);
     const [expanded, setExpanded] = useState(true);
+    const [snippetDrawerOpen, setSnippetDrawerOpen] = useState(false);
 
     const toggleExpand = () => {
         setExpanded(!expanded);
@@ -48,12 +51,22 @@ const CCard: React.FC<CustomCardProps> = ({ children, reduxStore, title, ctype, 
                     body: { padding: expanded ? '8px' : '0px', minHeight: '8px' }
                 }} {...props}
                 extra={
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                        {/* Copy/Paste Menu */}
                         <Dropdown menu={{ items: cpItems, onClick: (e) => onCopyPaste(e) }} trigger={['click']}>
                             <div style={{ marginTop: 5 }}>
                                 <CopySVG />
                             </div>
                         </Dropdown>
+                        
+                        {/* Snippet Button */}
+                        {version && (
+                            <div style={{ display: 'inline-block', marginTop: 5 }}>
+                                <SnippetSVG onClick={() => setSnippetDrawerOpen(true)} />
+                            </div>
+                        )}
+                        
+                        {/* Collapse/Expand */}
                         {expanded ? <CollapseSVG onClick={toggleExpand} /> : <ExpandSVG onClick={toggleExpand} />}
                     </div>
                 }
@@ -69,6 +82,21 @@ const CCard: React.FC<CustomCardProps> = ({ children, reduxStore, title, ctype, 
                     children
                 )}
             </Card >
+            
+            {/* Snippet Drawer */}
+            {version && (
+                <SnippetDrawer
+                    open={snippetDrawerOpen}
+                    onClose={() => setSnippetDrawerOpen(false)}
+                    ctype={ctype}
+                    keys={keys}
+                    title={title}
+                    reduxStore={reduxStore}
+                    toJSON={toJSON}
+                    onApply={Paste}
+                    version={version}
+                />
+            )}
         </>
     );
 };

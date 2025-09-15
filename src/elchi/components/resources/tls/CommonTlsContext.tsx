@@ -9,6 +9,7 @@ import ComponentCertSdsConfig from "./CertSdsConfig";
 import useResourceForm from "@/hooks/useResourceForm";
 import ECard from "../../common/ECard";
 import { useTags } from "@/hooks/useTags";
+import { useModels } from "@/hooks/useModels";
 import { modtag_common_tls_context } from "./_modtag_";
 import { generateFields } from "@/common/generate-fields";
 import { ConditionalComponent } from "../../common/ConditionalComponent";
@@ -30,10 +31,17 @@ type GeneralProps = {
 
 const ComponentCommonTlsContext: React.FC<GeneralProps> = ({ veri }) => {
     const { vTags } = useTags(veri.version, modtag_common_tls_context);
+    const { vModels } = useModels(veri.version, modtag_common_tls_context);
     const { selectedTags, handleChangeRedux, handleChangeTag } = useResourceForm({
         version: veri.version,
         reduxStore: veri.reduxStore,
     });
+
+    // Adapter function for snippet apply (converts snippet data format to form format)
+    const handleApplySnippet = (data: any) => {
+        // Apply the entire snippet data to the current path
+        handleChangeRedux(veri.keyPrefix, data);
+    };
 
     const fieldConfigs: FieldConfigType[] = [
         ...generateFields({
@@ -43,7 +51,14 @@ const ComponentCommonTlsContext: React.FC<GeneralProps> = ({ veri }) => {
     ]
 
     return (
-        <ECard title={"Common TLS Context"}>
+        <ECard 
+            title={"Common TLS Context"}
+            reduxStore={veri.reduxStore}
+            ctype="common_tls_context"
+            toJSON={vModels.ctc?.CommonTlsContext?.toJSON}
+            onApply={handleApplySnippet}
+            keys={veri.keyPrefix}
+        >
             <HorizonTags veri={{
                 tags: vTags.ctc?.CommonTlsContext,
                 selectedTags: selectedTags,

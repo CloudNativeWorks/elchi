@@ -68,6 +68,30 @@ export const CopySVG: React.FC<SVGProps> = ({ onClick }) => {
     );
 };
 
+export const SnippetSVG: React.FC<SVGProps> = ({ onClick }) => {
+    return (
+        <Button className='ADDSVGContainer' onClick={onClick} title="Snippets">
+            <svg viewBox="-9.6 -9.6 43.20 43.20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+                <g id="SVGRepo_iconCarrier">
+                    {/* Main snippet boxes - more prominent */}
+                    <path d="M6 5C6 3.34315 7.34315 2 9 2H13C14.6569 2 16 3.34315 16 5V9C16 10.6569 14.6569 12 13 12H9C7.34315 12 6 10.6569 6 9V5Z" stroke="#ffffff" strokeWidth="2" fill="none"/>
+                    <path d="M6 15C6 13.3431 7.34315 12 9 12H13C14.6569 12 16 13.3431 16 15V19C16 20.6569 14.6569 22 13 22H9C7.34315 22 6 20.6569 6 19V15Z" stroke="#ffffff" strokeWidth="2" fill="none"/>
+                    
+                    {/* Secondary boxes */}
+                    <path opacity="0.6" d="M18 5C18 3.34315 19.3431 2 21 2H23C24.6569 2 26 3.34315 26 5V9C26 10.6569 24.6569 12 23 12H21C19.3431 12 18 10.6569 18 9V5Z" stroke="#ffffff" strokeWidth="1.5" fill="none"/>
+                    <path opacity="0.6" d="M18 15C18 13.3431 19.3431 12 21 12H23C24.6569 12 26 13.3431 26 15V19C26 20.6569 24.6569 22 23 22H21C19.3431 22 18 20.6569 18 19V15Z" stroke="#ffffff" strokeWidth="1.5" fill="none"/>
+                    
+                    {/* Connection dots */}
+                    <circle cx="3" cy="7" r="1.5" fill="#ffffff"/>
+                    <circle cx="3" cy="17" r="1.5" fill="#ffffff"/>
+                </g>
+            </svg>
+        </Button>
+    );
+};
+
 export const CollapseSVG: React.FC<SVGProps> = ({ onClick }) => {
     return (
         <Button className='ADDSVGContainer' onClick={onClick}>

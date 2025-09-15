@@ -42,7 +42,7 @@ const ComponentLoadAssignment: React.FC<GeneralProps> = ({ veri }) => {
     ]
 
     return (
-        <CCard reduxStore={veri.reduxStore} toJSON={vModels.c?.ClusterLoadAssignment?.toJSON} keys={veri.keyPrefix} Paste={handleChangeRedux} ctype="load_assignment" title="Load Assignment">
+        <CCard reduxStore={veri.reduxStore} toJSON={vModels.c?.ClusterLoadAssignment?.toJSON} keys={veri.keyPrefix} Paste={handleChangeRedux} version={veri.version} ctype="load_assignment" title="Load Assignment">
             <HorizonTags veri={{
                 tags: vTags.c?.ClusterLoadAssignment,
                 unsupportedTags: modtag_us_cluster["load_assignment"],

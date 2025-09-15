@@ -64,7 +64,7 @@ const ComponentVirtualClusters: React.FC<GeneralProps> = ({ veri }) => {
     ]
 
     return (
-        <CCard reduxStore={veri.reduxStore} toJSON={vModels.vc?.VirtualCluster.toJSON} keys={`${veri.keyPrefix}`} Paste={handleChangeRedux} ctype="virtual_clusters" title="Virtual Clusters">
+        <CCard reduxStore={veri.reduxStore} toJSON={vModels.vc?.VirtualCluster.toJSON} keys={`${veri.keyPrefix}`} Paste={handleChangeRedux} ctype="virtual_clusters" version={veri.version} title="Virtual Clusters">
             <Tabs
                 onChange={onChangeTabs}
                 type="editable-card"

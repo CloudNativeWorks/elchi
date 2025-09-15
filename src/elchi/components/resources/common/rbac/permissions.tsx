@@ -10,6 +10,8 @@ import { AddSVG } from "@/assets/svg/icons";
 import { DeleteTwoTone, InboxOutlined } from '@ant-design/icons';
 import ComponentPermission from "./permission";
 import ECard from "@/elchi/components/common/ECard";
+import { useModels } from "@/hooks/useModels";
+import { modtag_rbac_permission } from "./_modtag_";
 
 
 type GeneralProps = {
@@ -28,6 +30,18 @@ interface VirtualHostWithIndex {
 const ComponentPermissions: React.FC<GeneralProps> = ({ veri }) => {
     const dispatch = useDispatch();
     const [dataSource, setDataSource] = useState<VirtualHostWithIndex[]>([]);
+    const { vModels } = useModels(veri.version, modtag_rbac_permission);
+
+    // Snippet apply fonksiyonu - ECard için uygun format  
+    const handleApplySnippet = (keys: string, data: any) => {
+        handleChangeResources({
+            version: veri.version,
+            type: ActionType.Update,
+            keys: keys,
+            val: data,
+            resourceType: ResourceType.Resource
+        }, dispatch, ResourceAction);
+    };
 
     useEffect(() => {
         if (Array.isArray(veri.reduxStore)) {
@@ -78,7 +92,15 @@ const ComponentPermissions: React.FC<GeneralProps> = ({ veri }) => {
     ];
 
     return (
-        <ECard title={"Permissions"}>
+        <ECard 
+            title={"Permissions"}
+            reduxStore={veri.reduxStore}
+            ctype="rbac_permissions"
+            toJSON={vModels.rperm?.Permission.toJSON}
+            onApply={handleApplySnippet}
+            keys={veri.keyPrefix}
+            version={veri.version}
+        >
             <AddSVG onClick={() => addPermission()} />
             <Divider type="horizontal" style={{ marginBottom: 3, marginTop: -1 }} />
             <Table

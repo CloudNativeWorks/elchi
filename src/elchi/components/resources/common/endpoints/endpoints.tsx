@@ -72,7 +72,7 @@ const ComponentEndpoints: React.FC<GeneralProps> = ({ veri }) => {
     if (!vModels) { return <div>Module not found!...</div>; }
 
     return (
-        <CCard reduxStore={veri.reduxStore} toJSON={vModels.LocalityLbEndpoints?.toJSON} keys={veri.keyPrefix} Paste={handleChangeRedux} ctype="endpoints" title="Endpoints">
+        <CCard reduxStore={veri.reduxStore} toJSON={vModels.LocalityLbEndpoints?.LocalityLbEndpoints.toJSON} keys={veri.keyPrefix} Paste={handleChangeRedux} ctype="endpoints" version={veri.version} title="Endpoints">
             <Tabs
                 onChange={onChangeTabs}
                 type="editable-card"

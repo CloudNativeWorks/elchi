@@ -57,7 +57,7 @@ const ComponentHealthChecks: React.FC<GeneralProps> = ({ veri }) => {
     ];
 
     return (
-        <CCard ctype="health_checks" reduxStore={veri.reduxStore} toJSON={vModels.h?.HealthCheck.toJSON} keys={veri.keyPrefix} Paste={handleChangeRedux} title="Health Checks">
+        <CCard ctype="health_checks" reduxStore={veri.reduxStore} toJSON={vModels.h?.HealthCheck.toJSON} keys={veri.keyPrefix} Paste={handleChangeRedux} version={veri.version} title="Health Checks">
             <Tabs
                 onChange={onChangeTabs}
                 type="editable-card"

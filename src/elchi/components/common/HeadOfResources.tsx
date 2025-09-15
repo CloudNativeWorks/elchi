@@ -63,6 +63,9 @@ export const HeadOfResource = ({ generalName, version, changeGeneralName, locati
     void managed; void changeGeneralManaged; void callBack; void validate; void changeGeneralValidate;
 
     const isEndpointType = createUpdate.gtype === "envoy.config.endpoint.v3.ClusterLoadAssignment";
+    
+    // Check if this is create mode (not update/edit mode)
+    const isCreateMode = createUpdate.location_path === createUpdate.GType.createPath;
 
     // Get discovery data from Redux
     const discoveryData = useSelector((state: any) =>
@@ -310,6 +313,7 @@ export const HeadOfResource = ({ generalName, version, changeGeneralName, locati
                 version={version}
                 reduxStore={createUpdate.reduxStore}
                 voidToJSON={createUpdate.voidToJSON}
+                isCreateMode={isCreateMode}
             />
         </Card>
     )

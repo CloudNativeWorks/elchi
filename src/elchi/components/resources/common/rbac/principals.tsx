@@ -10,6 +10,8 @@ import { AddSVG, AddIpSVG } from "@/assets/svg/icons";
 import { DeleteTwoTone, InboxOutlined } from '@ant-design/icons';
 import ECard from "@/elchi/components/common/ECard";
 import ComponentPrincipal from "./principal";
+import { useModels } from "@/hooks/useModels";
+import { modtag_rbac_principal } from "./_modtag_";
 
 
 type GeneralProps = {
@@ -31,6 +33,18 @@ const ComponentPrincipals: React.FC<GeneralProps> = ({ veri }) => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [ipInput, setIpInput] = useState<string>("");
     const [ipType, setIpType] = useState<string>("direct_remote_ip");
+    const { vModels } = useModels(veri.version, modtag_rbac_principal);
+
+    // Snippet apply fonksiyonu - ECard için uygun format  
+    const handleApplySnippet = (keys: string, data: any) => {
+        handleChangeResources({
+            version: veri.version,
+            type: ActionType.Update,
+            keys: keys,
+            val: data,
+            resourceType: ResourceType.Resource
+        }, dispatch, ResourceAction);
+    };
 
 
     useEffect(() => {
@@ -122,7 +136,15 @@ const ComponentPrincipals: React.FC<GeneralProps> = ({ veri }) => {
     ];
 
     return (
-        <ECard title={"Principals"}>
+        <ECard 
+            title={"Principals"}
+            reduxStore={veri.reduxStore}
+            ctype="rbac_principals"
+            toJSON={vModels.rprp?.Principal.toJSON}
+            onApply={handleApplySnippet}
+            keys={veri.keyPrefix}
+            version={veri.version}
+        >
             <div style={{ display: "flex", alignItems: "center", gap: "5px", marginBottom: 5 }}>
                 <AddSVG onClick={() => addPermission()} />
                 <AddIpSVG onClick={() => handleAddIPs()} />

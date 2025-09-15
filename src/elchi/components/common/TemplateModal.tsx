@@ -17,6 +17,7 @@ interface TemplateModalProps {
   version: string;
   reduxStore: any;
   voidToJSON: any;
+  isCreateMode: boolean;
 }
 
 const TemplateModal: React.FC<TemplateModalProps> = ({
@@ -25,7 +26,8 @@ const TemplateModal: React.FC<TemplateModalProps> = ({
   gtype,
   version,
   reduxStore,
-  voidToJSON
+  voidToJSON,
+  isCreateMode
 }) => {
   const dispatch = useDispatch();
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
@@ -234,7 +236,9 @@ const TemplateModal: React.FC<TemplateModalProps> = ({
                   <Text type="secondary" style={{ fontSize: 12 }}>
                     {isBootstrap 
                       ? 'You can view, update, or delete the bootstrap template. Note: Use template is disabled for bootstrap configurations.'
-                      : 'You can use, update, or delete the existing template'
+                      : isCreateMode 
+                        ? 'You can use, update, or delete the existing template'
+                        : 'You can view, update, or delete the existing template. Note: Use template is only available in create mode.'
                     }
                   </Text>
                 </div>
@@ -243,7 +247,7 @@ const TemplateModal: React.FC<TemplateModalProps> = ({
             </Card>
 
             <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-              {!isBootstrap && (
+              {!isBootstrap && isCreateMode && (
                 <Button
                   type="primary"
                   icon={<FileOutlined />}

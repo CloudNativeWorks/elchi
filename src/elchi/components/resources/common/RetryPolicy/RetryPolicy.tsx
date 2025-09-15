@@ -26,6 +26,7 @@ type GeneralProps = {
         reduxStore: any;
         keyPrefix: string;
         tagMatchPrefix: string;
+        gtype?: string;
     }
 };
 
@@ -73,7 +74,7 @@ const CommonComponentRetryPolicy: React.FC<GeneralProps> = ({ veri }) => {
     ];
 
     return (
-        <CCard toJSON={vModels.rp?.RetryPolicy.toJSON} reduxStore={veri.reduxStore} keys={veri.keyPrefix} Paste={handleChangeRedux} ctype="retry_policy" title="Retry Policy">
+        <CCard toJSON={vModels.rp?.RetryPolicy.toJSON} reduxStore={veri.reduxStore} keys={veri.keyPrefix} Paste={handleChangeRedux} ctype="retry_policy" version={veri.version} title="Retry Policy" gtype={veri.gtype}>
             <Row>
                 <HorizonTags veri={{
                     tags: vTags.rp?.RetryPolicy,

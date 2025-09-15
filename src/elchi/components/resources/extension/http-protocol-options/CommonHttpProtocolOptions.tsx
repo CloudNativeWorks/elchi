@@ -6,10 +6,15 @@ import { FieldConfigType } from "@/utils/tools";
 import useResourceForm from "@/hooks/useResourceForm";
 import ECard from "@/elchi/components/common/ECard";
 import { useTags } from "@/hooks/useTags";
+import { useModels } from "@/hooks/useModels";
 import { modtag_chttp_protocol_options } from "./_modtag_";
 import { generateFields } from "@/common/generate-fields";
 import { EForm } from "@/elchi/components/common/e-components/EForm";
 import { EFields } from "@/elchi/components/common/e-components/EFields";
+import { handleChangeResources } from "@/redux/dispatcher";
+import { ActionType, ResourceType } from "@/redux/reducer-helpers/common";
+import { ResourceAction } from "@/redux/reducers/slice";
+import { useDispatch } from "react-redux";
 
 
 type GeneralProps = {
@@ -21,11 +26,17 @@ type GeneralProps = {
 };
 
 const ComponentCommonHttpProtocolOptions: React.FC<GeneralProps> = ({ veri }) => {
+    const dispatch = useDispatch();
+    const { vModels } = useModels(veri.version, modtag_chttp_protocol_options);
     const { vTags } = useTags(veri.version, modtag_chttp_protocol_options);
     const { selectedTags, handleChangeRedux, handleChangeTag } = useResourceForm({
         version: veri.version,
         reduxStore: veri.reduxStore,
     });
+
+    const handleApplySnippet = (keys: string, data: any) => {
+        handleChangeResources({ version: veri.version, type: ActionType.Update, keys: keys, val: data, resourceType: ResourceType.Resource }, dispatch, ResourceAction);
+    };
 
     const fieldConfigs: FieldConfigType[] = [
         ...generateFields({
@@ -35,7 +46,15 @@ const ComponentCommonHttpProtocolOptions: React.FC<GeneralProps> = ({ veri }) =>
     ];
 
     return (
-        <ECard title="Common Http Protocol Options">
+        <ECard 
+            title="Common Http Protocol Options"
+            reduxStore={veri.reduxStore}
+            ctype="http_protocol_options"
+            toJSON={vModels.chpo?.HttpProtocolOptions?.toJSON}
+            onApply={handleApplySnippet}
+            keys={veri.keyPrefix}
+            version={veri.version}
+        >
             <HorizonTags veri={{
                 tags: vTags.chpo?.HttpProtocolOptions,
                 selectedTags: selectedTags,
