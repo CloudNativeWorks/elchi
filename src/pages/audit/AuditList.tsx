@@ -541,6 +541,9 @@ const AuditList: React.FC = () => {
                                 { value: "TEMPLATE_CREATE", label: "TEMPLATE CREATE" },
                                 { value: "TEMPLATE_UPDATE", label: "TEMPLATE UPDATE" },
                                 { value: "TEMPLATE_DELETE", label: "TEMPLATE DELETE" },
+                                { value: "SNIPPET_CREATE", label: "SNIPPET CREATE" },
+                                { value: "SNIPPET_UPDATE", label: "SNIPPET UPDATE" },
+                                { value: "SNIPPET_DELETE", label: "SNIPPET DELETE" },
                             ]}
                         />
                     </Col>
@@ -573,6 +576,7 @@ const AuditList: React.FC = () => {
                                 { value: "snapshot", label: "Snapshot" },
                                 { value: "ldap", label: "LDAP" },
                                 { value: "resource_templates", label: "Resource Template" },
+                                { value: "snippets", label: "Snippet" },
                             ]}
                         />
                     </Col>
