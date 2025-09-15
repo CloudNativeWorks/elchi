@@ -22,7 +22,7 @@
     "@types/styled-components": "^5.1.34",
     "antd": "^5.24.6",
     "antd-style": "^3.6.2",
-    "axios": "^1.7.5",
+    "axios": "^1.12.2",
     "crypto-js": "^4.2.0",
     "cytoscape": "^3.30.2",
     "cytoscape-dagre": "^2.5.0",
