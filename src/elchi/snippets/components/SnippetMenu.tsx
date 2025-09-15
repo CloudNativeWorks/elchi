@@ -56,16 +56,6 @@ export const SnippetMenu: React.FC<SnippetMenuProps> = ({
     isLoading: snippetsLoading 
   } = useComponentSnippets(ctype, pathData.gtype, version);
 
-  // Debug log
-  console.log('SnippetMenu Debug:', {
-    ctype,
-    gtype: pathData.gtype,
-    version,
-    snippetsCount: snippets.length,
-    snippetsLoading,
-    snippets
-  });
-
   const { saveAsSnippet, applySnippet, deleteSnippet, isSaving, isDeleting } = useSnippetActions();
 
   /**

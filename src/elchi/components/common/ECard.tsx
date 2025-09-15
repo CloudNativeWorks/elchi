@@ -79,6 +79,7 @@ const ECard: React.FC<CustomCardProps> = ({
                     toJSON={toJSON}
                     onApply={onApply}
                     version={version}
+                    gtype={reduxStore?.$type || (Array.isArray(reduxStore) ? reduxStore[0]?.$type : undefined)}
                 />
             )}
         </>

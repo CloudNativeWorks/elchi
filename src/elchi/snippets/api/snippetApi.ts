@@ -26,9 +26,6 @@ class SnippetApiClient {
     const queryString = params.toString();
     const path = `${SNIPPET_BASE_PATH}${queryString ? `?${queryString}` : ''}`;
     
-    // Debug log for development
-    console.log('Snippet API Request:', path);
-    
     const response = await api.get(path);
     // Extract snippets array from the API response structure
     return response.data?.snippets || [];

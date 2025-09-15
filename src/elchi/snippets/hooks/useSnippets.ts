@@ -29,7 +29,6 @@ export const useSnippets = (options?: UseSnippetsOptions) => {
     queryFn: async () => {
       try {
         const result = await snippetApi.getSnippets(filter);
-        console.log('useSnippets result:', result);
         // Ensure we always return an array
         return Array.isArray(result) ? result : [];
       } catch (error) {
@@ -68,7 +67,6 @@ export const useComponentSnippets = (
     queryFn: async () => {
       try {
         const result = await snippetApi.getSnippets(filter);
-        console.log('useComponentSnippets result:', result);
         // Ensure we always return an array
         return Array.isArray(result) ? result : [];
       } catch (error) {
@@ -115,7 +113,6 @@ export const useSearchSnippets = (searchTerm: string, enabled = true) => {
     queryFn: async () => {
       try {
         const result = await snippetApi.getSnippets(filter);
-        console.log('useSearchSnippets result:', result);
         // Ensure we always return an array
         return Array.isArray(result) ? result : [];
       } catch (error) {
