@@ -94,7 +94,7 @@ const CCard: React.FC<CustomCardProps> = ({ children, reduxStore, title, ctype, 
                     toJSON={toJSON}
                     onApply={Paste}
                     version={version}
-                    gtype={reduxStore?.$type || (Array.isArray(reduxStore) ? reduxStore[0]?.$type : undefined)}
+                    gtype={reduxStore?.$type || (Array.isArray(reduxStore) ? reduxStore[0]?.$type : ctype)}
                 />
             )}
         </>

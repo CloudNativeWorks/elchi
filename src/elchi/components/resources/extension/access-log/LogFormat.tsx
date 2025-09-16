@@ -45,7 +45,7 @@ const ComponentLogFormat: React.FC<GeneralProps> = ({ veri }) => {
     ];
 
     return (
-        <CCard reduxStore={veri.reduxStore} toJSON={vModels.sfs?.SubstitutionFormatString.toJSON} keys={veri.keyPrefix} Paste={handleChangeRedux} ctype="substitutionformatstring" title='Log Format'>
+        <CCard reduxStore={veri.reduxStore} toJSON={vModels.sfs?.SubstitutionFormatString.toJSON} keys={veri.keyPrefix} Paste={handleChangeRedux} ctype="substitutionformatstring" version={veri.version} title='Log Format'>
             <Row>
                 <HorizonTags veri={{
                     tags: vTags.sfs?.SubstitutionFormatString,

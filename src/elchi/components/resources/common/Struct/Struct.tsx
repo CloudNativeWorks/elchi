@@ -31,7 +31,7 @@ const CommonComponentStruct: React.FC<GeneralProps> = ({ veri }) => {
     };
 
     return (
-        <CCard size="small" title={veri.parentName} keys={veri.tag} reduxStore={veri.reduxStore} toJSON={ToJson} Paste={handleChangeRedux} ctype={"struct"}>
+        <CCard size="small" title={veri.parentName} keys={veri.tag} reduxStore={veri.reduxStore} toJSON={ToJson} Paste={handleChangeRedux} version={veri.version} ctype={"struct"}>
             <Col md={24}>
                 <EForm>
                     <FieldComponent key={veri.tag}
