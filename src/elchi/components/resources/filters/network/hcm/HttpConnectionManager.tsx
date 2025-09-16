@@ -126,7 +126,7 @@ const ComponentHttpConnectionManager: React.FC<GeneralProps> = ({ veri }) => {
                             onlyOneTag={[["route_specifier.rds", "route_specifier.route_config"]]}
                         />
                     </Col>
-                    <Col md={20} style={{ display: "block", overflowY: "auto" }}>
+                    <Col md={20}>
                         <ConditionalComponent
                             shouldRender={selectedTags?.some(item => vTags.hcm?.HttpConnectionManager_SingleFields.includes(item))}
                             Component={CommonComponentSingleOptions}

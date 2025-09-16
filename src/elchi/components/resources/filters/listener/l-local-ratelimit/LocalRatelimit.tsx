@@ -77,7 +77,7 @@ const ComponentLocalRateLimit: React.FC<GeneralProps> = ({ veri }) => {
             />
             <Divider type='horizontal' orientation='left' orientationMargin='0'>Local Ratelimit</Divider>
             <Row>
-                <Col md={4}>
+                <Col md={4} style={{ display: "block", maxHeight: "auto", overflowY: "auto" }}>
                     <CustomAnchor
                         resourceConfKeys={vTags.lr?.LocalRateLimit}
                         singleOptionKeys={vTags.lr?.LocalRateLimit_SingleFields}

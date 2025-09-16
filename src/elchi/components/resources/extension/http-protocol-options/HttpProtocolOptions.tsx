@@ -73,7 +73,7 @@ const ComponentHttpProtocolOptions: React.FC<GeneralProps> = ({ veri }) => {
                 />
                 <Divider type="horizontal" orientation="left" orientationMargin="0">Http Protocol Options</Divider>
                 <Row>
-                    <Col md={4}>
+                    <Col md={4} style={{ display: "block", maxHeight: "auto", overflowY: "auto" }}>
                         <CustomAnchor
                             resourceConfKeys={vTags.hpo?.HttpProtocolOptions}
                             unsuportedTags={modtag_us_hpo["HttpProtocolOptions"]}

@@ -68,7 +68,7 @@ const ComponentTlsSessionTicketKeys: React.FC<GeneralProps> = ({ veri }) => {
                 />
                 <Divider type="horizontal" orientation="left" orientationMargin="0">TLS Session Ticket Keys</Divider>
                 <Row>
-                    <Col md={4}>
+                    <Col md={4} style={{ display: "block", maxHeight: "auto", overflowY: "auto" }}>
                         <CustomAnchor
                             resourceConfKeys={vTags.tstk?.TlsSessionTicketKeys}
                             singleOptionKeys={[]}
@@ -78,7 +78,7 @@ const ComponentTlsSessionTicketKeys: React.FC<GeneralProps> = ({ veri }) => {
                             required={[]}
                         />
                     </Col>
-                    <Col md={20} style={{ display: "block", maxHeight: "83vh", overflowY: "auto" }}>
+                    <Col md={20}>
                         <div id="keys_0">
                             {startsWithAny("keys", selectedTags) &&
                                 <TabComponent veri={{

@@ -76,7 +76,7 @@ const ComponentBandWidthLimit: React.FC<GeneralProps> = ({ veri }) => {
                 />
                 <Divider type="horizontal" orientation="left" orientationMargin="0">Bandwidth Limit</Divider>
                 <Row>
-                    <Col md={4}>
+                    <Col md={4} style={{ display: "block", maxHeight: "auto", overflowY: "auto" }}>
                         <CustomAnchor
                             resourceConfKeys={vTags.bl?.BandwidthLimit}
                             singleOptionKeys={vTags.bl?.BandwidthLimit_SingleFields}

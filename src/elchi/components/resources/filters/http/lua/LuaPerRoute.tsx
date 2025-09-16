@@ -77,7 +77,7 @@ const ComponentLuaPerRoute: React.FC<GeneralProps> = ({ veri }) => {
             />
             <Divider type="horizontal" orientation="left" orientationMargin="0">Lua Per Route</Divider>
             <Row>
-                <Col md={4}>
+                <Col md={4} style={{ display: "block", maxHeight: "auto", overflowY: "auto" }}>
                     <CustomAnchor
                         resourceConfKeys={vTags.luapr?.LuaPerRoute}
                         singleOptionKeys={["disabled", "name"]}

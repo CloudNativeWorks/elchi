@@ -153,7 +153,8 @@ export const modtag_us_virtualhost: TagsType = {
     ],
     'match': [
         'path_specifier.connect_matcher',
-        'dynamic_metadata'
+        'dynamic_metadata',
+        'filter_state'
     ],
     'routes': [
         'filter_action',

@@ -69,7 +69,7 @@ const ComponentCsrfPolicy: React.FC<GeneralProps> = ({ veri }) => {
                 />
                 <Divider type="horizontal" orientation="left" orientationMargin="0">Csrf Policy</Divider>
                 <Row>
-                    <Col md={4}>
+                    <Col md={4} style={{ display: "block", maxHeight: "auto", overflowY: "auto" }}>
                         <CustomAnchor
                             resourceConfKeys={vTags.cp?.CsrfPolicy}
                             singleOptionKeys={vTags.cp?.CsrfPolicy_SingleFields}

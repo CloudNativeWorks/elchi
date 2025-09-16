@@ -66,7 +66,7 @@ const ComponentOAuth2: React.FC<GeneralProps> = ({ veri }) => {
             />
             <Divider type="horizontal" orientation="left" orientationMargin="0">OAuth2</Divider>
             <Row>
-                <Col md={4}>
+                <Col md={4} style={{ display: "block", maxHeight: "auto", overflowY: "auto" }}>
                     <CustomAnchor
                         resourceConfKeys={vTags.o?.OAuth2}
                         selectedTags={selectedTags}

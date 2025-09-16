@@ -75,7 +75,7 @@ const ComponentHttpRouter: React.FC<GeneralProps> = ({ veri }) => {
                 />
                 <Divider type="horizontal" orientation="left" orientationMargin="0">HTTP Router</Divider>
                 <Row>
-                    <Col md={4}>
+                    <Col md={4} style={{ display: "block", maxHeight: "auto", overflowY: "auto" }}>
                         <CustomAnchor
                             resourceConfKeys={vTags.rtr?.Router}
                             unsuportedTags={modtag_us_router["HttpRouter"]}

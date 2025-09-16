@@ -99,7 +99,7 @@ const FluentdAccessLogConfigComponent: React.FC<GeneralProps> = ({ veri }) => {
             />
             <Divider type="horizontal" orientation="left" orientationMargin="0">Fluentd Access Log Config</Divider>
             <Row>
-                <Col md={4}>
+                <Col md={4} style={{ display: "block", maxHeight: "auto", overflowY: "auto" }}>
                     <CustomAnchor
                         resourceConfKeys={vTags.flual?.FluentdAccessLogConfig}
                         unsuportedTags={modtag_us_accesslog['fluentd']}
@@ -116,7 +116,7 @@ const FluentdAccessLogConfigComponent: React.FC<GeneralProps> = ({ veri }) => {
                         }]}
                     />
                 </Col>
-                <Col md={20} style={{ display: "block", maxHeight: "83vh", overflowY: "auto" }}>
+                <Col md={20}>
                     <ConditionalComponent
                         shouldRender={startsWithAny("cluster", selectedTags)}
                         Component={CommonComponentClusterCard}

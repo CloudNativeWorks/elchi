@@ -163,7 +163,7 @@ const TlsCertificateComponentChild: React.FC<GeneralPropsChild> = ({ veri }) => 
 
     return (
         <Row>
-            <Col md={4}>
+            <Col md={4} style={{ display: "block", maxHeight: "auto", overflowY: "auto" }}>
                 <CustomAnchor
                     resourceConfKeys={vTags.tc?.TlsCertificate}
                     unsuportedTags={modtag_us_secret['tls_certificates']}
@@ -174,7 +174,7 @@ const TlsCertificateComponentChild: React.FC<GeneralPropsChild> = ({ veri }) => 
                     keyPrefix={veri.index.toString()}
                 />
             </Col>
-            <Col md={20} style={{ display: "block", maxHeight: "83vh", overflowY: "auto" }}>
+            <Col md={20}>
                 <ConditionalComponent
                     shouldRender={startsWithAny("certificate_chain", selectedTags)}
                     Component={CommonComponentDataSource}

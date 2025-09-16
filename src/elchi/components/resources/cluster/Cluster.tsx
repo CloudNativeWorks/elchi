@@ -95,7 +95,7 @@ const ClusterComponent: React.FC<GeneralProps> = ({ veri }) => {
                             unchangeableTags={["name"]}
                         />
                     </Col>
-                    <Col md={20} style={{ display: "block", maxHeight: "83vh", overflowY: "auto" }}>
+                    <Col md={20}>
                         <ConditionalComponent
                             shouldRender={selectedTags?.includes("name")}
                             Component={CommonComponentName}

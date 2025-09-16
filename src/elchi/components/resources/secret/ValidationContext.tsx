@@ -77,7 +77,7 @@ const ValidationContextComponent: React.FC<GeneralProps> = ({ veri }) => {
                 />
                 <Divider type="horizontal" orientation="left" orientationMargin="0">Certificate Validation Configuration</Divider>
                 <Row>
-                    <Col md={4}>
+                    <Col md={4} style={{ display: "block", maxHeight: "auto", overflowY: "auto" }}>
                         <CustomAnchor
                             resourceConfKeys={vTags.cvc?.CertificateValidationContext}
                             unsuportedTags={modtag_us_secret['validation_context']}
@@ -88,7 +88,7 @@ const ValidationContextComponent: React.FC<GeneralProps> = ({ veri }) => {
                             tagMatchPrefix={"validation_context"}
                         />
                     </Col>
-                    <Col md={20} style={{ display: "block", maxHeight: "83vh", overflowY: "auto" }}>
+                    <Col md={20}>
                         <ConditionalComponent
                             shouldRender={startsWithAny("trusted_ca", selectedTags)}
                             Component={CommonComponentDataSource}

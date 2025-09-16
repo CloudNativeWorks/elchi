@@ -77,7 +77,7 @@ const ListenerComponentChild: React.FC<GeneralPropsChild> = ({ veri }) => {
 
     return (
         <Row>
-            <Col md={4}>
+            <Col md={4} style={{ display: "block", maxHeight: "auto", overflowY: "auto" }}>
                 <CustomAnchor
                     resourceConfKeys={vTags.l?.Listener}
                     unsuportedTags={modtag_us_listener['listener']}

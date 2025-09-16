@@ -35,9 +35,44 @@ const EmptyObjectComponent: React.FC<ComponentProps> = ({ veri }) => {
 
 
     return (
-        <Button className="infos-button" disabled>
-            <IconBracet className="" />
-            <div className="bang_badge_disable" />
+        <Button 
+            type="text"
+            disabled
+            style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 28,
+                height: 28,
+                borderRadius: 8,
+                border: '1px solid rgba(156, 163, 175, 0.2)',
+                background: 'linear-gradient(135deg, rgba(156, 163, 175, 0.05) 0%, rgba(156, 163, 175, 0.08) 100%)',
+                position: 'relative',
+                transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                opacity: 0.6,
+                cursor: 'not-allowed',
+                padding: 0,
+            }}
+        >
+            <IconBracet 
+                className=""
+                width="14"
+                height="14"
+                fill="#9ca3af"
+            />
+            <div 
+                style={{
+                    position: 'absolute',
+                    top: -2,
+                    right: -2,
+                    width: 8,
+                    height: 8,
+                    borderRadius: '50%',
+                    background: 'linear-gradient(45deg, #9ca3af, #d1d5db)',
+                    boxShadow: '0 1px 2px rgba(156, 163, 175, 0.2)',
+                    border: '1px solid rgba(255, 255, 255, 0.8)'
+                }}
+            />
         </Button>
     );
 };

@@ -79,7 +79,7 @@ const FileAccessLogComponent: React.FC<GeneralProps> = ({ veri }) => {
             />
             <Divider type="horizontal" orientation="left" orientationMargin="0">File Access Log</Divider>
             <Row>
-                <Col md={4}>
+                <Col md={4} style={{ display: "block", maxHeight: "auto", overflowY: "auto" }}>
                     <CustomAnchor
                         resourceConfKeys={vTags.fal?.FileAccessLog}
                         unsuportedTags={modtag_us_accesslog["file"]}
@@ -97,7 +97,7 @@ const FileAccessLogComponent: React.FC<GeneralProps> = ({ veri }) => {
                         }]}
                     />
                 </Col>
-                <Col md={20} style={{ display: "block", maxHeight: "83vh", overflowY: "auto" }}>
+                <Col md={20}>
                     <ConditionalComponent
                         shouldRender={selectedTags?.some(item => vTags.fal?.FileAccessLog_SingleFields?.includes(item))}
                         Component={CommonComponentSingleOptions}

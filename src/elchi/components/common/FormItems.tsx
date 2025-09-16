@@ -215,9 +215,55 @@ const FormItem = ({ veri }: RenderFormItemProps) => {
             break;
         case FieldTypes.ArrayIcon:
             component =
-                <Button className="infos-button" onClick={veri.drawerShow}>
-                    <IconBracet className="bang_Icon" />
-                    {veri.condition && <div className="bang_badge" />}
+                <Button 
+                    type="text"
+                    onClick={veri.drawerShow}
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: 28,
+                        height: 28,
+                        borderRadius: 8,
+                        border: '1px solid rgba(5, 117, 230, 0.2)',
+                        background: 'linear-gradient(135deg, rgba(5, 117, 230, 0.05) 0%, rgba(0, 198, 251, 0.08) 100%)',
+                        position: 'relative',
+                        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                        backdropFilter: 'blur(8px)',
+                        padding: 0,
+                    }}
+                    onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-1px)';
+                        e.currentTarget.style.boxShadow = '0 2px 8px rgba(5, 117, 230, 0.15)';
+                        e.currentTarget.style.borderColor = 'rgba(5, 117, 230, 0.4)';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = 'none';
+                        e.currentTarget.style.borderColor = 'rgba(5, 117, 230, 0.2)';
+                    }}
+                >
+                    <IconBracet 
+                        className="bang_Icon"
+                        width="14"
+                        height="14"
+                        fill="#056ccd"
+                    />
+                    {veri.condition && 
+                        <div 
+                            style={{
+                                position: 'absolute',
+                                top: -2,
+                                right: -2,
+                                width: 8,
+                                height: 8,
+                                borderRadius: '50%',
+                                background: 'linear-gradient(45deg,rgb(0, 157, 26),rgb(111, 238, 82))',
+                                boxShadow: '0 1px 2px rgba(238, 90, 82, 0.3)',
+                                border: '1px solid white'
+                            }}
+                        />
+                    }
                 </Button>
             break;
         case FieldTypes.TagsNum:

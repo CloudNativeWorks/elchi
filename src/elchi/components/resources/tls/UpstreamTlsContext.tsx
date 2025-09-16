@@ -78,7 +78,7 @@ const UpstreamTLSContextComponent: React.FC<GeneralProps> = ({ veri }) => {
                 />
                 <Divider type="horizontal" orientation="left" orientationMargin="0">Upstream TLS Configuration</Divider>
                 <Row>
-                    <Col md={4}>
+                    <Col md={4} style={{ display: "block", maxHeight: "auto", overflowY: "auto" }}>
                         <CustomAnchor
                             resourceConfKeys={vTags.utc?.UpstreamTlsContext}
                             singleOptionKeys={vTags.utc?.UpstreamTlsContext_SingleFields}
@@ -88,7 +88,7 @@ const UpstreamTLSContextComponent: React.FC<GeneralProps> = ({ veri }) => {
                             tagMatchPrefix={"UpstreamTlsContext"}
                         />
                     </Col>
-                    <Col md={20} style={{ display: "block", maxHeight: "83vh", overflowY: "auto" }}>
+                    <Col md={20}>
                         <ConditionalComponent
                             shouldRender={matchesEndOrStartOf("common_tls_context", selectedTags)}
                             Component={ComponentCommonTlsContext}

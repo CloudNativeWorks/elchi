@@ -70,7 +70,7 @@ const StdoutAccessLogComponent: React.FC<GeneralProps> = ({ veri }) => {
             />
             <Divider type="horizontal" orientation="left" orientationMargin="0">Stdout Access Log</Divider>
             <Row>
-                <Col md={4}>
+                <Col md={4} style={{ display: "block", maxHeight: "auto", overflowY: "auto" }}>
                     <CustomAnchor
                         resourceConfKeys={vTags.outal?.StdoutAccessLog}
                         selectedTags={selectedTags}
@@ -86,7 +86,7 @@ const StdoutAccessLogComponent: React.FC<GeneralProps> = ({ veri }) => {
                         }]}
                     />
                 </Col>
-                <Col md={20} style={{ display: "block", maxHeight: "83vh", overflowY: "auto" }}>
+                <Col md={20}>
                     <ConditionalComponent
                         shouldRender={matchesEndOrStartOf("access_log_format", selectedTags)}
                         Component={ComponentLogFormat}

@@ -77,7 +77,7 @@ const OpenTelemetryComponent: React.FC<GeneralProps> = ({ veri }) => {
             />
             <Divider type="horizontal" orientation="left" orientationMargin="0">Open Telemetry</Divider>
             <Row>
-                <Col md={4}>
+                <Col md={4} style={{ display: "block", maxHeight: "auto", overflowY: "auto" }}>
                     <CustomAnchor
                         resourceConfKeys={vTags.otel?.SinkConfig}
                         selectedTags={selectedTags}
@@ -87,7 +87,7 @@ const OpenTelemetryComponent: React.FC<GeneralProps> = ({ veri }) => {
                         required={['grpc_service']}
                     />
                 </Col>
-                <Col md={20} style={{ display: "block", maxHeight: "83vh", overflowY: "auto" }}>
+                <Col md={20}>
                     <ConditionalComponent
                         shouldRender={startsWithAny("protocol_specifier.grpc_service", selectedTags)}
                         Component={CommonComponentGrpcService}

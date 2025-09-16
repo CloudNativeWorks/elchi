@@ -81,7 +81,7 @@ const ComponentHCEFS: React.FC<GeneralProps> = ({ veri }) => {
                 />
                 <Divider type="horizontal" orientation="left" orientationMargin="0">Health Check Event File Sink</Divider>
                 <Row>
-                    <Col md={4}>
+                    <Col md={4} style={{ display: "block", maxHeight: "auto", overflowY: "auto" }}>
                         <CustomAnchor
                             resourceConfKeys={vTags.hcefs?.HealthCheckEventFileSink}
                             singleOptionKeys={vTags.hcefs?.HealthCheckEventFileSink_SingleFields}

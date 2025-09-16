@@ -80,7 +80,7 @@ const ComponentOriginalSrc: React.FC<GeneralProps> = ({ veri }) => {
             />
             <Divider type='horizontal' orientation='left' orientationMargin='0'>Proxy Protocol</Divider>
             <Row>
-                <Col md={4}>
+                <Col md={4} style={{ display: "block", maxHeight: "auto", overflowY: "auto" }}>
                     <CustomAnchor
                         resourceConfKeys={vTags.pp?.ProxyProtocol}
                         singleOptionKeys={vTags.pp?.ProxyProtocol_SingleFields}

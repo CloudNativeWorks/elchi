@@ -79,7 +79,7 @@ const DownstreamTLSContextComponent: React.FC<GeneralProps> = ({ veri }) => {
                 />
                 <Divider type="horizontal" orientation="left" orientationMargin="0">Downstream TLS Configuration</Divider>
                 <Row>
-                    <Col md={4}>
+                    <Col md={4} style={{ display: "block", maxHeight: "auto", overflowY: "auto" }}>
                         <CustomAnchor
                             resourceConfKeys={vTags.dtc?.DownstreamTlsContext}
                             unsuportedTags={modtag_us_secret['DownstreamTlsContext']}
@@ -93,7 +93,7 @@ const DownstreamTLSContextComponent: React.FC<GeneralProps> = ({ veri }) => {
                             specificTagPrefix={{ "disable_stateless_session_resumption": "session_ticket_keys_type", "session_ticket_keys_sds_secret_config": "session_ticket_keys_type" }}
                         />
                     </Col>
-                    <Col md={20} style={{ display: "block", maxHeight: "83vh", overflowY: "auto" }}>
+                    <Col md={20}>
                         {matchesEndOrStartOf("common_tls_context", selectedTags) &&
                             <div id="common_tls_context_0">
                                 <ComponentCommonTlsContext veri={{

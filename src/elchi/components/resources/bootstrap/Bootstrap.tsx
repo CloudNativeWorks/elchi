@@ -83,7 +83,7 @@ const ComponentBootstrap: React.FC<GeneralProps> = ({ veri }) => {
                 />
                 <Divider type="horizontal" orientation="left" orientationMargin="0">Bootstrap Configuration</Divider>
                 <Row>
-                    <Col md={4}>
+                    <Col md={4} style={{ display: "block", maxHeight: "auto", overflowY: "auto" }}>
                         <CustomAnchor
                             resourceConfKeys={vTags.b?.Bootstrap}
                             unsuportedTags={modtag_us_bootstrap["Bootstrap"]}
@@ -97,7 +97,7 @@ const ComponentBootstrap: React.FC<GeneralProps> = ({ veri }) => {
                             unchangeableTags={["admin", "node", "dynamic_resources", "static_resources"]}
                         />
                     </Col>
-                    <Col md={20} style={{ display: "block", maxHeight: "83vh", overflowY: "auto" }}>
+                    <Col md={20}>
                         <ConditionalComponent
                             shouldRender={matchesEndOrStartOf("node", selectedTags)}
                             Component={ComponentNode}

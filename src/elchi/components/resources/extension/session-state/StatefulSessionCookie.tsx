@@ -67,7 +67,7 @@ const ComponenStatefulSessionCookie: React.FC<GeneralProps> = ({ veri }) => {
             />
             <Divider type="horizontal" orientation="left" orientationMargin="0">Cookie Based Session State</Divider>
             <Row>
-                <Col md={4}>
+                <Col md={4} style={{ display: "block", maxHeight: "auto", overflowY: "auto" }}>
                     <CustomAnchor
                         resourceConfKeys={vTags.ssc?.CookieBasedSessionState}
                         singleOptionKeys={vTags.ssc?.CookieBasedSessionState_SingleFields}

@@ -76,7 +76,7 @@ const ComponentStatefulSession: React.FC<GeneralProps> = ({ veri }) => {
                 />
                 <Divider type="horizontal" orientation="left" orientationMargin="0">Stateful Session</Divider>
                 <Row>
-                    <Col md={4}>
+                    <Col md={4} style={{ display: "block", maxHeight: "auto", overflowY: "auto" }}>
                         <CustomAnchor
                             resourceConfKeys={vTags.ss?.StatefulSession}
                             singleOptionKeys={vTags.ss?.StatefulSession_SingleFields}

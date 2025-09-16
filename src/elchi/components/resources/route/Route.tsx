@@ -114,7 +114,7 @@ const RouteComponent: React.FC<GeneralProps> = ({ veri }) => {
             />
             <Divider type="horizontal" orientation="left" orientationMargin="0">HTTP Route Configuration</Divider>
             <Row>
-                <Col md={4}>
+                <Col md={4} style={{ display: "block", maxHeight: "auto", overflowY: "auto" }}>
                     <CustomAnchor
                         resourceConfKeys={vTags.rc?.RouteConfiguration}
                         unsuportedTags={modtag_us_route['RouteConfiguration']}
@@ -127,7 +127,7 @@ const RouteComponent: React.FC<GeneralProps> = ({ veri }) => {
                         unchangeableTags={["name"]}
                     />
                 </Col>
-                <Col md={20} style={{ display: "block", maxHeight: "83vh", overflowY: "auto" }}>
+                <Col md={20}>
                     <ConditionalComponent
                         shouldRender={selectedTags?.includes("name")}
                         Component={CommonComponentName}

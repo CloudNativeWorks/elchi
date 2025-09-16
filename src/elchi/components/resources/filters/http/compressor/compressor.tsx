@@ -78,7 +78,7 @@ const ComponentCompressor: React.FC<GeneralProps> = ({ veri }) => {
                 />
                 <Divider type="horizontal" orientation="left" orientationMargin="0">Compressor</Divider>
                 <Row>
-                    <Col md={4}>
+                    <Col md={4} style={{ display: "block", maxHeight: "auto", overflowY: "auto" }}>
                         <CustomAnchor
                             resourceConfKeys={vTags.cmp?.Compressor}
                             unsuportedTags={modtag_us_compressor["Compressor"]}

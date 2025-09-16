@@ -109,7 +109,7 @@ For example:
                 />
                 <Divider type="horizontal" orientation="left" orientationMargin="0">Uri Template Match</Divider>
                 <Row>
-                    <Col md={4}>
+                    <Col md={4} style={{ display: "block", maxHeight: "auto", overflowY: "auto" }}>
                         <CustomAnchor
                             resourceConfKeys={vTags.utm?.UriTemplateMatchConfig}
                             singleOptionKeys={vTags.utm?.UriTemplateMatchConfig_SingleFields}
@@ -118,7 +118,7 @@ For example:
                             required={"path_template"}
                         />
                     </Col>
-                    <Col md={20} style={{ display: "block", maxHeight: "83vh", overflowY: "auto" }}>
+                    <Col md={20}>
                         <ConditionalComponent
                             shouldRender={selectedTags?.some(item => vTags.utm?.UriTemplateMatchConfig_SingleFields?.includes(item))}
                             Component={CommonComponentSingleOptions}

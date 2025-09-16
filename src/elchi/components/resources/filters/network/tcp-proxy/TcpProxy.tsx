@@ -84,7 +84,7 @@ const ComponentTcpProxy: React.FC<GeneralProps> = ({ veri }) => {
             />
             <Divider type='horizontal' orientation='left' orientationMargin='0'>TCP Proxy</Divider>
             <Row>
-                <Col md={4}>
+                <Col md={4} style={{ display: "block", maxHeight: "auto", overflowY: "auto" }}>
                     <CustomAnchor
                         resourceConfKeys={vTags.tp?.TcpProxy}
                         unsuportedTags={modtag_us_tcpproxy['TcpProxy']}

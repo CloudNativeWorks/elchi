@@ -74,7 +74,7 @@ const ComponentTlsInspector: React.FC<GeneralProps> = ({ veri }) => {
             />
             <Divider type='horizontal' orientation='left' orientationMargin='0'>TLS Inspector</Divider>
             <Row>
-                <Col md={4}>
+                <Col md={4} style={{ display: "block", maxHeight: "auto", overflowY: "auto" }}>
                     <CustomAnchor
                         resourceConfKeys={vTags.ti?.TlsInspector}
                         singleOptionKeys={vTags.ti?.TlsInspector_SingleFields}
