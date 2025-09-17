@@ -26,6 +26,13 @@ const Discovery: React.FC = () => {
     const [setupModalVisible, setSetupModalVisible] = useState(false);
     const [usageDrawerVisible, setUsageDrawerVisible] = useState(false);
     const [selectedClusterForUsage, setSelectedClusterForUsage] = useState<ClusterDiscovery | null>(null);
+    const [pagination, setPagination] = useState({
+        current: 1,
+        pageSize: 20,
+        showSizeChanger: true,
+        showQuickJumper: true,
+        showTotal: (total: number, range: [number, number]) => `${range[0]}-${range[1]} of ${total} clusters`,
+    });
     const { data: clusters, isLoading, error, refetch } = useDiscovery();
     const deleteClusterMutation = useDeleteCluster();
     
@@ -427,10 +434,22 @@ kubectl get pods -n elchi-stack`;
                         loading={isLoading}
                         rowKey="cluster_name"
                         pagination={{
-                            pageSize: 10,
-                            showSizeChanger: true,
-                            showQuickJumper: true,
-                            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} clusters`,
+                            ...pagination,
+                            total: clustersData.length,
+                            onChange: (page, pageSize) => {
+                                setPagination(prev => ({
+                                    ...prev,
+                                    current: page,
+                                    pageSize: pageSize || prev.pageSize,
+                                }));
+                            },
+                            onShowSizeChange: (_, size) => {
+                                setPagination(prev => ({
+                                    ...prev,
+                                    current: 1,
+                                    pageSize: size,
+                                }));
+                            },
                         }}
                     />
                 </Card>
