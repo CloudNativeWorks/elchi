@@ -311,6 +311,159 @@ const AuditDetail: React.FC = () => {
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                                 {(() => {
+                                    // Special handling for DISCOVERY_UPDATE_ENDPOINT action
+                                    if (auditLog.action === 'DISCOVERY_UPDATE_ENDPOINT' && auditLog.changes.before && auditLog.changes.after) {
+                                        return (
+                                            <div>
+                                                <div style={{ 
+                                                    background: '#e6f7ff', 
+                                                    padding: '8px 12px', 
+                                                    borderRadius: '6px 6px 0 0',
+                                                    borderLeft: '3px solid #1890ff',
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center'
+                                                }}>
+                                                    <Text strong style={{ color: '#1890ff', fontSize: 13 }}>ENDPOINT DISCOVERY UPDATE</Text>
+                                                </div>
+                                                <div style={{ background: '#fafafa', padding: 16 }}>
+                                                    <Row gutter={16}>
+                                                        <Col span={12}>
+                                                            <div style={{ marginBottom: 16 }}>
+                                                                <Text type="secondary" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>
+                                                                    BEFORE
+                                                                </Text>
+                                                                <div style={{
+                                                                    background: '#fff2f0',
+                                                                    border: '1px solid #ffccc7',
+                                                                    borderRadius: 8,
+                                                                    padding: 12,
+                                                                    marginTop: 8
+                                                                }}>
+                                                                    <div style={{ marginBottom: 8 }}>
+                                                                        <Text strong>Cluster:</Text> <Text code>{auditLog.changes.before.cluster}</Text>
+                                                                    </div>
+                                                                    <div style={{ marginBottom: 8 }}>
+                                                                        <Text strong>IP Count:</Text> <Text code>{auditLog.changes.before.ip_count}</Text>
+                                                                    </div>
+                                                                    <div>
+                                                                        <Text strong>Description:</Text>
+                                                                        <div style={{ 
+                                                                            background: '#fff',
+                                                                            border: '1px solid #d9d9d9',
+                                                                            borderRadius: 4,
+                                                                            padding: 8,
+                                                                            marginTop: 4,
+                                                                            fontSize: 12,
+                                                                            fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace'
+                                                                        }}>
+                                                                            {auditLog.changes.before.cluster_ips}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </Col>
+                                                        <Col span={12}>
+                                                            <div style={{ marginBottom: 16 }}>
+                                                                <Text type="secondary" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>
+                                                                    AFTER
+                                                                </Text>
+                                                                <div style={{
+                                                                    background: '#f6ffed',
+                                                                    border: '1px solid #b7eb8f',
+                                                                    borderRadius: 8,
+                                                                    padding: 12,
+                                                                    marginTop: 8
+                                                                }}>
+                                                                    <div style={{ marginBottom: 8 }}>
+                                                                        <Text strong>Cluster:</Text> <Text code>{auditLog.changes.after.cluster}</Text>
+                                                                    </div>
+                                                                    <div style={{ marginBottom: 8 }}>
+                                                                        <Text strong>IP Count:</Text> <Text code>{auditLog.changes.after.ip_count}</Text>
+                                                                    </div>
+                                                                    {auditLog.changes.after.cluster_ips && (
+                                                                        <div style={{ marginBottom: 8 }}>
+                                                                            <Text strong>Current IPs:</Text>
+                                                                            <div style={{ 
+                                                                                background: '#fff',
+                                                                                border: '1px solid #d9d9d9',
+                                                                                borderRadius: 4,
+                                                                                padding: 8,
+                                                                                marginTop: 4,
+                                                                                maxHeight: 200,
+                                                                                overflowY: 'auto'
+                                                                            }}>
+                                                                                {Array.isArray(auditLog.changes.after.cluster_ips) ? (
+                                                                                    auditLog.changes.after.cluster_ips.map((ip: string, index: number) => (
+                                                                                        <div key={index} style={{ 
+                                                                                            fontSize: 11,
+                                                                                            fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+                                                                                            padding: 2
+                                                                                        }}>
+                                                                                            {ip}
+                                                                                        </div>
+                                                                                    ))
+                                                                                ) : (
+                                                                                    <Text style={{ fontSize: 11 }}>{auditLog.changes.after.cluster_ips}</Text>
+                                                                                )}
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+                                                                    {auditLog.changes.after.added_nodes && auditLog.changes.after.added_nodes.length > 0 && (
+                                                                        <div style={{ marginBottom: 8 }}>
+                                                                            <Text strong style={{ color: '#52c41a' }}>Added Nodes ({auditLog.changes.after.added_nodes.length}):</Text>
+                                                                            <div style={{ 
+                                                                                background: '#f6ffed',
+                                                                                border: '1px solid #b7eb8f',
+                                                                                borderRadius: 4,
+                                                                                padding: 8,
+                                                                                marginTop: 4
+                                                                            }}>
+                                                                                {auditLog.changes.after.added_nodes.map((node: string, index: number) => (
+                                                                                    <div key={index} style={{ 
+                                                                                        fontSize: 11,
+                                                                                        fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+                                                                                        padding: 2,
+                                                                                        color: '#52c41a'
+                                                                                    }}>
+                                                                                        + {node}
+                                                                                    </div>
+                                                                                ))}
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+                                                                    {auditLog.changes.after.removed_nodes && auditLog.changes.after.removed_nodes.length > 0 && (
+                                                                        <div>
+                                                                            <Text strong style={{ color: '#ff4d4f' }}>Removed Nodes ({auditLog.changes.after.removed_nodes.length}):</Text>
+                                                                            <div style={{ 
+                                                                                background: '#fff2f0',
+                                                                                border: '1px solid #ffccc7',
+                                                                                borderRadius: 4,
+                                                                                padding: 8,
+                                                                                marginTop: 4
+                                                                            }}>
+                                                                                {auditLog.changes.after.removed_nodes.map((node: string, index: number) => (
+                                                                                    <div key={index} style={{ 
+                                                                                        fontSize: 11,
+                                                                                        fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+                                                                                        padding: 2,
+                                                                                        color: '#ff4d4f'
+                                                                                    }}>
+                                                                                        - {node}
+                                                                                    </div>
+                                                                                ))}
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </Col>
+                                                    </Row>
+                                                </div>
+                                            </div>
+                                        );
+                                    }
+
                                     let changes: any;
                                     let isTextDiff = false;
                                     

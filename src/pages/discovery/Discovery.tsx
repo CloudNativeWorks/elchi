@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, Table, Tag, Space, Typography, Button, Drawer, Descriptions, Badge, List, Tooltip, Modal, Input } from 'antd';
+import { Card, Table, Tag, Space, Typography, Button, Drawer, Descriptions, Badge, List, Tooltip, Modal, Input, Popconfirm } from 'antd';
 import { copyToClipboard } from '@/utils/clipboard';
 import {
     RadarChartOutlined,
@@ -10,12 +10,13 @@ import {
     ClockCircleOutlined,
     CodeOutlined,
     InfoCircleOutlined,
-    SearchOutlined
+    SearchOutlined,
+    DeleteOutlined,
+    AppstoreOutlined
 } from '@ant-design/icons';
-import { useDiscovery } from '../../hooks/useDiscovery';
+import { useDiscovery, useDeleteCluster, useClusterUsage } from '../../hooks/useDiscovery';
 import { ClusterDiscovery, NodeInfo } from '../../types/discovery';
 import { formatDistanceToNow } from 'date-fns';
-import ElchiButton from '@/elchi/components/common/ElchiButton';
 
 const { Title, Text } = Typography;
 
@@ -23,7 +24,15 @@ const Discovery: React.FC = () => {
     const [selectedCluster, setSelectedCluster] = useState<ClusterDiscovery | null>(null);
     const [drawerVisible, setDrawerVisible] = useState(false);
     const [setupModalVisible, setSetupModalVisible] = useState(false);
+    const [usageDrawerVisible, setUsageDrawerVisible] = useState(false);
+    const [selectedClusterForUsage, setSelectedClusterForUsage] = useState<ClusterDiscovery | null>(null);
     const { data: clusters, isLoading, error, refetch } = useDiscovery();
+    const deleteClusterMutation = useDeleteCluster();
+    
+    const { data: clusterUsage, isLoading: usageLoading } = useClusterUsage(
+        selectedClusterForUsage?.id || '', 
+        usageDrawerVisible && !!selectedClusterForUsage?.id
+    );
 
     // Ensure clusters is always an array
     const clustersData = Array.isArray(clusters) ? clusters : [];
@@ -35,6 +44,24 @@ const Discovery: React.FC = () => {
 
     const handleRefresh = () => {
         refetch();
+    };
+
+    const handleDeleteCluster = async (cluster: ClusterDiscovery) => {
+        if (!cluster.id) {
+            console.error('Cluster ID not found');
+            return;
+        }
+
+        try {
+            await deleteClusterMutation.mutateAsync(cluster.id);
+        } catch (error: any) {
+            console.error('Failed to delete cluster:', error);
+        }
+    };
+
+    const handleViewUsage = (cluster: ClusterDiscovery) => {
+        setSelectedClusterForUsage(cluster);
+        setUsageDrawerVisible(true);
     };
 
     // Calculate status based on last_seen time
@@ -73,7 +100,7 @@ helm repo update
 helm install elchi-discovery elchi/discovery-agent \\
   --set config.elchiEndpoint="https://your-elchi-instance.com" \\
   --set config.token="your-discovery-token" \\
-  --set config.clusterName="my-k8s-cluster" \\
+  --set clusterName="my-k8s-cluster" \\
   --namespace elchi-stack \\
   --create-namespace
 
@@ -191,16 +218,107 @@ kubectl get pods -n elchi-stack`;
         {
             title: 'Actions',
             key: 'actions',
-            width: 50,
-            render: (_, record: ClusterDiscovery) => (
-                <ElchiButton
-                    type="primary"
-                    size="small"
-                    icon={<EyeOutlined />}
-                    onClick={() => handleViewCluster(record)}
-                >
-                    View Details
-                </ElchiButton>
+            width: 140,
+            render: (record: ClusterDiscovery) => (
+                <Space size="small">
+                    <Tooltip title="View Details">
+                        <Button
+                            type="text"
+                            size="middle"
+                            icon={<EyeOutlined style={{ fontSize: 16 }} />}
+                            onClick={() => handleViewCluster(record)}
+                            style={{
+                                color: '#1890ff',
+                                borderRadius: 8,
+                                background: 'rgba(24, 144, 255, 0.05)',
+                                border: '1px solid rgba(24, 144, 255, 0.15)',
+                                width: 36,
+                                height: 36,
+                                transition: 'all 0.2s ease',
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.background = 'rgba(24, 144, 255, 0.1)';
+                                e.currentTarget.style.transform = 'translateY(-1px)';
+                                e.currentTarget.style.boxShadow = '0 2px 6px rgba(24, 144, 255, 0.2)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.background = 'rgba(24, 144, 255, 0.05)';
+                                e.currentTarget.style.transform = 'translateY(0)';
+                                e.currentTarget.style.boxShadow = 'none';
+                            }}
+                        />
+                    </Tooltip>
+                    <Tooltip title="View Usage">
+                        <Button
+                            type="text"
+                            size="middle"
+                            icon={<AppstoreOutlined style={{ fontSize: 16 }} />}
+                            onClick={() => handleViewUsage(record)}
+                            style={{
+                                color: '#52c41a',
+                                borderRadius: 8,
+                                background: 'rgba(82, 196, 26, 0.05)',
+                                border: '1px solid rgba(82, 196, 26, 0.15)',
+                                width: 36,
+                                height: 36,
+                                transition: 'all 0.2s ease',
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.background = 'rgba(82, 196, 26, 0.1)';
+                                e.currentTarget.style.transform = 'translateY(-1px)';
+                                e.currentTarget.style.boxShadow = '0 2px 6px rgba(82, 196, 26, 0.2)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.background = 'rgba(82, 196, 26, 0.05)';
+                                e.currentTarget.style.transform = 'translateY(0)';
+                                e.currentTarget.style.boxShadow = 'none';
+                            }}
+                        />
+                    </Tooltip>
+                    <Popconfirm
+                        title="Delete Cluster"
+                        description={`Are you sure you want to delete cluster "${record.cluster_name}"? This action cannot be undone.`}
+                        onConfirm={() => handleDeleteCluster(record)}
+                        onCancel={() => {}}
+                        okText="Yes, Delete"
+                        cancelText="Cancel"
+                        okType="danger"
+                        placement="topRight"
+                    >
+                        <Tooltip title="Delete Cluster">
+                            <Button
+                                type="text"
+                                size="middle"
+                                icon={<DeleteOutlined style={{ fontSize: 16 }} />}
+                                danger
+                                loading={deleteClusterMutation.isPending}
+                                style={{
+                                    color: '#ff4d4f',
+                                    borderRadius: 8,
+                                    background: 'rgba(255, 77, 79, 0.05)',
+                                    border: '1px solid rgba(255, 77, 79, 0.15)',
+                                    width: 36,
+                                    height: 36,
+                                    transition: 'all 0.2s ease',
+                                }}
+                                onMouseEnter={(e) => {
+                                    if (!deleteClusterMutation.isPending) {
+                                        e.currentTarget.style.background = 'rgba(255, 77, 79, 0.1)';
+                                        e.currentTarget.style.transform = 'translateY(-1px)';
+                                        e.currentTarget.style.boxShadow = '0 2px 6px rgba(255, 77, 79, 0.2)';
+                                    }
+                                }}
+                                onMouseLeave={(e) => {
+                                    if (!deleteClusterMutation.isPending) {
+                                        e.currentTarget.style.background = 'rgba(255, 77, 79, 0.05)';
+                                        e.currentTarget.style.transform = 'translateY(0)';
+                                        e.currentTarget.style.boxShadow = 'none';
+                                    }
+                                }}
+                            />
+                        </Tooltip>
+                    </Popconfirm>
+                </Space>
             ),
         },
     ];
@@ -526,7 +644,7 @@ kubectl get pods -n elchi-stack`;
                             dataSource={[
                                 { key: 'config.elchiEndpoint', desc: 'Your Elchi instance URL' },
                                 { key: 'config.token', desc: 'Discovery token from Settings page' },
-                                { key: 'config.clusterName', desc: 'Unique name for your cluster' }
+                                { key: 'clusterName', desc: 'Unique name for your cluster' }
                             ]}
                             renderItem={item => (
                                 <List.Item>
@@ -555,6 +673,139 @@ kubectl get pods -n elchi-stack`;
                     </div>
                 </Space>
             </Modal>
+
+            {/* Cluster Usage Drawer */}
+            <Drawer
+                title={
+                    <Space>
+                        <AppstoreOutlined style={{ color: '#52c41a' }} />
+                        <span>Cluster Usage: {selectedClusterForUsage?.cluster_name}</span>
+                    </Space>
+                }
+                placement="right"
+                width={800}
+                open={usageDrawerVisible}
+                onClose={() => {
+                    setUsageDrawerVisible(false);
+                    setSelectedClusterForUsage(null);
+                }}
+            >
+                {usageLoading ? (
+                    <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                        <Typography.Text>Loading usage information...</Typography.Text>
+                    </div>
+                ) : clusterUsage ? (
+                    <Space direction="vertical" style={{ width: '100%' }} size="large">
+                        <div style={{
+                            background: clusterUsage.usage_count > 0 ? '#f6ffed' : '#fff7e6',
+                            border: clusterUsage.usage_count > 0 ? '1px solid #b7eb8f' : '1px solid #ffd591',
+                            borderRadius: 8,
+                            padding: 16,
+                            textAlign: 'center'
+                        }}>
+                            <Space direction="vertical" size="small">
+                                <Text strong style={{ fontSize: 18 }}>
+                                    Usage Summary
+                                </Text>
+                                <Text style={{ fontSize: 24, fontWeight: 'bold', color: clusterUsage.usage_count > 0 ? '#52c41a' : '#fa8c16' }}>
+                                    {clusterUsage.usage_count} Endpoint{clusterUsage.usage_count !== 1 ? 's' : ''} Using This Discovery Cluster
+                                </Text>
+                            </Space>
+                        </div>
+
+                        {clusterUsage.usage_count > 0 ? (
+                            <div>
+                                <Title level={5}>Endpoints Using This Discovery Cluster</Title>
+                                <List
+                                    itemLayout="vertical"
+                                    dataSource={clusterUsage.endpoints}
+                                    renderItem={(endpoint, index) => (
+                                        <List.Item
+                                            style={{
+                                                background: '#fafafa',
+                                                border: '1px solid #d9d9d9',
+                                                borderRadius: 8,
+                                                padding: 16,
+                                                marginBottom: 8
+                                            }}
+                                        >
+                                            <List.Item.Meta
+                                                avatar={
+                                                    <div style={{
+                                                        background: '#52c41a',
+                                                        color: 'white',
+                                                        width: 32,
+                                                        height: 32,
+                                                        borderRadius: '50%',
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        justifyContent: 'center',
+                                                        fontSize: 14,
+                                                        fontWeight: 600
+                                                    }}>
+                                                        {index + 1}
+                                                    </div>
+                                                }
+                                                title={
+                                                    <Space>
+                                                        <Text strong style={{ fontSize: 16 }}>
+                                                            {endpoint.endpoint_name}
+                                                        </Text>
+                                                        <Tag color="blue">{endpoint.version}</Tag>
+                                                    </Space>
+                                                }
+                                                description={
+                                                    <Space direction="vertical" size="small" style={{ width: '100%' }}>
+                                                        <Space>
+                                                            <Text type="secondary">IP Count:</Text>
+                                                            <Badge count={endpoint.ip_count} style={{ backgroundColor: '#52c41a' }} />
+                                                        </Space>
+                                                        <Space>
+                                                            <Text type="secondary">Last Updated:</Text>
+                                                            <Text>
+                                                                {formatDistanceToNow(new Date(endpoint.updated_at), { addSuffix: true })}
+                                                            </Text>
+                                                        </Space>
+                                                        <div>
+                                                            <Text type="secondary">IP Addresses:</Text>
+                                                            <div style={{ marginTop: 4, display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                                                                {endpoint.ips.map((ip) => (
+                                                                    <Tag key={ip} color="cyan" style={{ fontSize: 11 }}>
+                                                                        {ip}
+                                                                    </Tag>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    </Space>
+                                                }
+                                            />
+                                        </List.Item>
+                                    )}
+                                />
+                            </div>
+                        ) : (
+                            <div style={{
+                                textAlign: 'center',
+                                padding: '40px 20px',
+                                background: '#fafafa',
+                                borderRadius: 8,
+                                border: '1px dashed #d9d9d9'
+                            }}>
+                                <AppstoreOutlined style={{ fontSize: 48, color: '#d9d9d9', marginBottom: 16 }} />
+                                <Title level={4} style={{ color: '#8c8c8c' }}>No Endpoints Using This Discovery Cluster</Title>
+                                <Text type="secondary">
+                                    This cluster is not currently being used by any endpoint resources.
+                                    It can be safely deleted if no longer needed.
+                                </Text>
+                            </div>
+                        )}
+                    </Space>
+                ) : (
+                    <div style={{ textAlign: 'center', padding: '40px 0' }}>
+                        <Typography.Text type="secondary">No usage data available</Typography.Text>
+                    </div>
+                )}
+            </Drawer>
         </>
     );
 };
