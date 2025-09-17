@@ -544,6 +544,7 @@ const AuditList: React.FC = () => {
                                 { value: "SNIPPET_CREATE", label: "SNIPPET CREATE" },
                                 { value: "SNIPPET_UPDATE", label: "SNIPPET UPDATE" },
                                 { value: "SNIPPET_DELETE", label: "SNIPPET DELETE" },
+                                { value: "DISCOVERY_UPDATE_ENDPOINT", label: "DISCOVERY UPDATE" },
                             ]}
                         />
                     </Col>
