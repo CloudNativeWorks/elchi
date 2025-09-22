@@ -280,6 +280,7 @@ export interface OperationsCommand {
     components?: string[],
     levels?: string[],
     search?: string,
+    log_type?: number,
     protocol?: string,
     bgp?: any,
     static?: any,

@@ -41,7 +41,7 @@ const StderrAccessLogComponent: React.FC<GeneralProps> = ({ veri }) => {
         alias: "erral",
         vModels,
         vTags,
-        modelName: "StdErrAccessLog",
+        modelName: "StderrAccessLog",
     });
 
     useManagedLoading(loading, loading_m);

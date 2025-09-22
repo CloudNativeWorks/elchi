@@ -24,6 +24,8 @@ interface LogToolbarProps {
     selectedService?: string;
     onServiceChange?: (service: string) => void;
     enableServiceSearch?: boolean;
+    logType?: number;
+    onLogTypeChange?: (type: number) => void;
 }
 
 const LogToolbar: React.FC<LogToolbarProps> = ({
@@ -39,6 +41,8 @@ const LogToolbar: React.FC<LogToolbarProps> = ({
     selectedService,
     onServiceChange,
     enableServiceSearch = false,
+    logType,
+    onLogTypeChange,
 }) => {
     const [serviceSearchQuery, setServiceSearchQuery] = useState<string>('');
     const debouncedServiceSearch = useCallback(debounce((value: string) => setServiceSearchQuery(value), 300), []);
@@ -128,6 +132,19 @@ const LogToolbar: React.FC<LogToolbarProps> = ({
                     placeholder="Log Line"
                     addonBefore="Log Line"
                 />
+                {serviceLog && onLogTypeChange && (
+                    <Select
+                        value={logType}
+                        onChange={onLogTypeChange}
+                        style={{ width: 120 }}
+                        placeholder="Log Type"
+                        options={[
+                            { label: '📋 All Logs', value: 0 },
+                            { label: '⚙️ System', value: 1 },
+                            { label: '🌐 Access', value: 2 }
+                        ]}
+                    />
+                )}
                 <Tooltip title="Refresh logs">
                     <Button
                         icon={<ReloadOutlined />}

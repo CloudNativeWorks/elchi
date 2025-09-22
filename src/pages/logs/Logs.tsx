@@ -36,6 +36,72 @@ function wrapWithIndent(line: string, indent: string, maxLen: number) {
     return result;
 }
 
+function formatLogMessage(message: string, level: string) {
+    // First check if message is JSON format
+    try {
+        const jsonData = JSON.parse(message);
+        if (jsonData && typeof jsonData === 'object') {
+            // It's JSON formatted log
+            return {
+                isJsonLog: true,
+                message,
+                jsonData,
+                level: level
+            };
+        }
+    } catch (e) {
+        // Not JSON, continue with other checks
+    }
+
+    // Check if it's an HTTP access log with status codes (text format)
+    const hasHttpStatus = /"\s+\d{3}\s+/.test(message);
+    const hasHttpMethod = /"[A-Z]+\s+/.test(message);
+    const hasTimestamp = /^\[.*?\]/.test(message);
+    
+    // HTTP access log detection
+    const isAccessLog = (hasHttpStatus || hasHttpMethod) && hasTimestamp;
+    
+    if (isAccessLog) {
+        // Extract key information without strict parsing
+        const statusMatch = message.match(/"\s+(\d{3})\s+/);
+        const httpMethodMatch = message.match(/"([A-Z]+)\s+([^\s"]+)(?:\s+HTTP)?/);
+        
+        const statusCode = statusMatch ? parseInt(statusMatch[1]) : null;
+        const httpMethod = httpMethodMatch ? httpMethodMatch[1] : null;
+        const path = httpMethodMatch ? httpMethodMatch[2] : null;
+        
+        return {
+            isAccessLog: true,
+            message,
+            statusCode,
+            httpMethod,
+            path,
+            isError: statusCode ? statusCode >= 400 : false,
+            level: level
+        };
+    }
+    
+    // Check for Envoy control plane logs (CDS, LDS, etc.)
+    const isControlPlaneLog = /(?:cds|lds|rds|eds|sds):/i.test(message);
+    
+    if (isControlPlaneLog) {
+        // Extract Envoy operation info
+        const operationMatch = message.match(/(cds|lds|rds|eds|sds):\s*(.*)/i);
+        const operation = operationMatch ? operationMatch[1].toUpperCase() : null;
+        const details = operationMatch ? operationMatch[2] : message;
+        
+        return {
+            isControlPlaneLog: true,
+            message,
+            operation,
+            details,
+            level: level
+        };
+    }
+    
+    return { isAccessLog: false, isControlPlaneLog: false, isJsonLog: false, message };
+}
+
 function parseTimestamp(timestamp: string): number {
     if (!timestamp || typeof timestamp !== 'string') {
         return 0;
@@ -111,6 +177,7 @@ const Logs: React.FC = () => {
     const logListRef = useRef<HTMLDivElement>(null);
     const [activeComponents, setActiveComponents] = useState<string[]>([]);
     const [isLoggerSettingsOpen, setIsLoggerSettingsOpen] = useState(false);
+    const [logType, setLogType] = useState<number>(0); // 0: ALL, 1: SYSTEM, 2: ACCESS
 
     // AI Analysis states
     const [isAIAnalysisOpen, setIsAIAnalysisOpen] = useState(false);
@@ -167,7 +234,15 @@ const Logs: React.FC = () => {
                         type: OperationsType.SERVICE,
                         sub_type: OperationsSubType.SUB_LOGS,
                         clients: [],
-                        command: { name: name, project: project, count: logLineCount, components: activeComponents, levels: activeLevels, search: searchText },
+                        command: { 
+                            name: name, 
+                            project: project, 
+                            count: logLineCount, 
+                            components: activeComponents, 
+                            levels: activeLevels, 
+                            search: searchText,
+                            log_type: logType // Add log type to the request
+                        },
                     },
                     project: project,
                     version: serviceVersion,
@@ -201,7 +276,7 @@ const Logs: React.FC = () => {
         };
         if (name) fetchLogs();
         return () => { isMounted = false; };
-    }, [name, logLineCount, refreshKey, activeComponents, activeLevels, searchText, services]);
+    }, [name, logLineCount, refreshKey, activeComponents, activeLevels, searchText, services, logType]);
 
     useEffect(() => {
         if (logListRef.current) {
@@ -353,7 +428,7 @@ const Logs: React.FC = () => {
                 >
                     <div ref={containerRef} style={{ marginBottom: 8 }}>
                         <div style={{ marginBottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-                            <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                            <div style={{ display: 'flex', gap: 8, marginBottom: 8, alignItems: 'center' }}>
                                 <LogToolbar
                                     searchText={searchText}
                                     onSearchTextChange={setSearchText}
@@ -370,6 +445,8 @@ const Logs: React.FC = () => {
                                     selectedService={name}
                                     onServiceChange={setName}
                                     enableServiceSearch={true}
+                                    logType={logType}
+                                    onLogTypeChange={setLogType}
                                 />
                             </div>
                             <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
@@ -805,23 +882,147 @@ const Logs: React.FC = () => {
                                         color: '#2c3e50',
                                         paddingLeft: 8
                                     }}>
-                                        {log.message.split('\n').map((line, i) => {
-                                            const match = line.match(/^(\s*)(.*)$/);
-                                            const spaces = match ? match[1] : '';
-                                            const wrapped = wrapWithIndent(line, spaces, maxLineLength - 45);
-                                            return wrapped.map((wrappedLine, j) => (
-                                                <div
-                                                    key={i + '-' + j}
-                                                    style={{
-                                                        whiteSpace: 'pre',
-                                                        wordBreak: 'break-all',
-                                                        display: 'block',
-                                                    }}
-                                                >
-                                                    {wrappedLine}
-                                                </div>
-                                            ));
-                                        })}
+                                        {(() => {
+                                            const formatted = formatLogMessage(log.message, log.level);
+                                            
+                                            if (formatted.isJsonLog) {
+                                                // JSON formatted log - single line with highlighted key-value pairs
+                                                return (
+                                                    <div style={{ 
+                                                        fontFamily: 'monospace',
+                                                        fontSize: 12,
+                                                        lineHeight: '20px'
+                                                    }}>
+                                                        {Object.entries(formatted.jsonData).map(([key, value], idx) => (
+                                                            <span key={idx}>
+                                                                <span style={{ 
+                                                                    color: '#1890ff',
+                                                                    fontWeight: 600
+                                                                }}>{key}</span>
+                                                                <span style={{ color: '#666' }}>: </span>
+                                                                <span style={{ color: '#2c3e50' }}>
+                                                                    {String(value)}
+                                                                </span>
+                                                                {idx < Object.entries(formatted.jsonData).length - 1 && 
+                                                                    <span style={{ color: '#ccc' }}> | </span>
+                                                                }
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                );
+                                            } else if (formatted.isAccessLog) {
+                                                return (
+                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                                        {/* HTTP Request Info */}
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                                                            {formatted.httpMethod && (
+                                                                <span style={{
+                                                                    background: '#1890ff',
+                                                                    color: 'white',
+                                                                    padding: '2px 6px',
+                                                                    borderRadius: 3,
+                                                                    fontSize: 10,
+                                                                    fontWeight: 600
+                                                                }}>
+                                                                    {formatted.httpMethod}
+                                                                </span>
+                                                            )}
+                                                            {formatted.path && (
+                                                                <span style={{
+                                                                    background: '#f0f0f0',
+                                                                    padding: '2px 6px',
+                                                                    borderRadius: 3,
+                                                                    fontSize: 11,
+                                                                    fontFamily: 'monospace'
+                                                                }}>
+                                                                    {formatted.path}
+                                                                </span>
+                                                            )}
+                                                            {formatted.statusCode && (
+                                                                <span style={{
+                                                                    background: formatted.isError ? '#ff4d4f' : '#52c41a',
+                                                                    color: 'white',
+                                                                    padding: '2px 6px',
+                                                                    borderRadius: 3,
+                                                                    fontSize: 10,
+                                                                    fontWeight: 600
+                                                                }}>
+                                                                    {formatted.statusCode}
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        {/* Full log message - always visible */}
+                                                        <div style={{ 
+                                                            marginTop: 4, 
+                                                            fontSize: 12,
+                                                            color: '#666',
+                                                            fontFamily: "'Fira Code', 'SF Mono', Monaco, monospace"
+                                                        }}>
+                                                            {formatted.message}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            } else if (formatted.isControlPlaneLog) {
+                                                return (
+                                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                                        {/* Control Plane Operation Info */}
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                                                            <span style={{
+                                                                background: '#722ed1',
+                                                                color: 'white',
+                                                                padding: '2px 6px',
+                                                                borderRadius: 3,
+                                                                fontSize: 10,
+                                                                fontWeight: 600
+                                                            }}>
+                                                                {formatted.operation}
+                                                            </span>
+                                                            <span style={{
+                                                                background: '#f0f0f0',
+                                                                padding: '2px 6px',
+                                                                borderRadius: 3,
+                                                                fontSize: 11,
+                                                                color: '#666',
+                                                                maxWidth: '400px',
+                                                                overflow: 'hidden',
+                                                                textOverflow: 'ellipsis',
+                                                                whiteSpace: 'nowrap'
+                                                            }}>
+                                                                {formatted.details}
+                                                            </span>
+                                                        </div>
+                                                        {/* Full log message - always visible */}
+                                                        <div style={{ 
+                                                            marginTop: 4, 
+                                                            fontSize: 12,
+                                                            color: '#666',
+                                                            fontFamily: "'Fira Code', 'SF Mono', Monaco, monospace"
+                                                        }}>
+                                                            {formatted.message}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            } else {
+                                                // Regular log message display
+                                                return log.message.split('\n').map((line, i) => {
+                                                    const match = line.match(/^(\s*)(.*)$/);
+                                                    const spaces = match ? match[1] : '';
+                                                    const wrapped = wrapWithIndent(line, spaces, maxLineLength - 45);
+                                                    return wrapped.map((wrappedLine, j) => (
+                                                        <div
+                                                            key={i + '-' + j}
+                                                            style={{
+                                                                whiteSpace: 'pre',
+                                                                wordBreak: 'break-all',
+                                                                display: 'block',
+                                                            }}
+                                                        >
+                                                            {wrappedLine}
+                                                        </div>
+                                                    ));
+                                                });
+                                            }
+                                        })()}
                                     </div>
                                 </div>
                             ))}
