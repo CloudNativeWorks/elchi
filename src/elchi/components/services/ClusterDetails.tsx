@@ -199,7 +199,14 @@ const ClusterDetails: React.FC<ClusterDetailsProps> = ({ name, project, version 
 
                 const summary = {
                     total: hosts.length,
-                    healthy: hosts.filter(h => h.health_status?.eds_health_status === 'HEALTHY').length,
+                    healthy: hosts.filter(h => {
+                        // If failed_active_health_check is true, consider unhealthy
+                        if (h.health_status?.failed_active_health_check === true) {
+                            return false;
+                        }
+                        // Otherwise use eds_health_status
+                        return h.health_status?.eds_health_status === 'HEALTHY';
+                    }).length,
                     totalConnections: 0,
                     activeConnections: 0,
                     totalRequests: 0,
@@ -259,7 +266,10 @@ const ClusterDetails: React.FC<ClusterDetailsProps> = ({ name, project, version 
                                 />
                             )}
                             items={hosts.map((host, idx) => {
-                                const isHealthy = host.health_status?.eds_health_status === 'HEALTHY';
+                                // Check failed_active_health_check first, if true then unhealthy
+                                const isHealthy = host.health_status?.failed_active_health_check === true 
+                                    ? false 
+                                    : host.health_status?.eds_health_status === 'HEALTHY';
                                 const address = host.address?.socket_address ? 
                                     `${host.address.socket_address.address}:${host.address.socket_address.port_value}` :
                                     'No address';
@@ -289,7 +299,11 @@ const ClusterDetails: React.FC<ClusterDetailsProps> = ({ name, project, version 
                                                 <Text strong style={{ fontSize: '13px' }}>{host.hostname || address}</Text>
                                                 <Badge 
                                                     status={isHealthy ? 'success' : 'error'}
-                                                    text={<Text style={{ fontSize: '12px' }}>{host.health_status?.eds_health_status || 'Unknown'}</Text>}
+                                                    text={<Text style={{ fontSize: '12px' }}>
+                                                        {host.health_status?.failed_active_health_check === true 
+                                                            ? 'UNHEALTHY' 
+                                                            : (host.health_status?.eds_health_status || 'Unknown')}
+                                                    </Text>}
                                                 />
                                             </div>
 
