@@ -18,13 +18,13 @@ import { vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
 const { Text } = Typography;
 
 // JSON Syntax Highlighter Component
-const JsonValue: React.FC<{ 
+const JsonValue: React.FC<{
     value: any;
     style?: React.CSSProperties;
 }> = ({ value, style = {} }) => {
     // Check if value is JSON object/array
     const isJson = typeof value === 'object' && value !== null;
-    
+
     // Try to parse if it's a string that might be JSON
     let parsedValue = value;
     let isJsonString = false;
@@ -36,11 +36,11 @@ const JsonValue: React.FC<{
             // Not valid JSON, treat as plain string
         }
     }
-    
-    const finalValue = (isJson || isJsonString) 
-        ? JSON.stringify(parsedValue, null, 2) 
+
+    const finalValue = (isJson || isJsonString)
+        ? JSON.stringify(parsedValue, null, 2)
         : String(value);
-    
+
     if (isJson || isJsonString) {
         return (
             <div style={{
@@ -48,8 +48,8 @@ const JsonValue: React.FC<{
                 borderRadius: 4,
                 overflow: 'auto'
             }}>
-                <SyntaxHighlighter 
-                    language="json" 
+                <SyntaxHighlighter
+                    language="json"
                     style={vs}
                     customStyle={{
                         margin: 0,
@@ -67,7 +67,7 @@ const JsonValue: React.FC<{
             </div>
         );
     }
-    
+
     // For non-JSON values, use plain <pre>
     return (
         <pre style={{
@@ -312,12 +312,16 @@ const AuditDetail: React.FC = () => {
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                                 {(() => {
                                     // Special handling for DISCOVERY_UPDATE_ENDPOINT action
-                                    if (auditLog.action === 'DISCOVERY_UPDATE_ENDPOINT' && auditLog.changes.before && auditLog.changes.after) {
+                                    if (auditLog.action === 'DISCOVERY_UPDATE_ENDPOINT' && auditLog.changes.before && auditLog.changes.after && auditLog.changes.diff) {
+                                        const { before, after, diff } = auditLog.changes;
+                                        const hasAddedIPs = diff.added_ips && Array.isArray(diff.added_ips) && diff.added_ips.length > 0;
+                                        const hasRemovedIPs = diff.removed_ips && Array.isArray(diff.removed_ips) && diff.removed_ips.length > 0;
+
                                         return (
                                             <div>
-                                                <div style={{ 
-                                                    background: '#e6f7ff', 
-                                                    padding: '8px 12px', 
+                                                <div style={{
+                                                    background: '#e6f7ff',
+                                                    padding: '8px 12px',
                                                     borderRadius: '6px 6px 0 0',
                                                     borderLeft: '3px solid #1890ff',
                                                     display: 'flex',
@@ -325,11 +329,24 @@ const AuditDetail: React.FC = () => {
                                                     alignItems: 'center'
                                                 }}>
                                                     <Text strong style={{ color: '#1890ff', fontSize: 13 }}>ENDPOINT DISCOVERY UPDATE</Text>
+                                                    <div style={{ display: 'flex', gap: 8 }}>
+                                                        {hasAddedIPs && (
+                                                            <Badge count={diff.added_count || diff.added_ips.length} style={{ backgroundColor: '#52c41a' }}>
+                                                                <Tag color="green" style={{ margin: 0 }}>Added</Tag>
+                                                            </Badge>
+                                                        )}
+                                                        {hasRemovedIPs && (
+                                                            <Badge count={diff.removed_count || diff.removed_ips.length} style={{ backgroundColor: '#ff4d4f' }}>
+                                                                <Tag color="red" style={{ margin: 0 }}>Removed</Tag>
+                                                            </Badge>
+                                                        )}
+                                                    </div>
                                                 </div>
                                                 <div style={{ background: '#fafafa', padding: 16 }}>
-                                                    <Row gutter={16}>
+                                                    {/* BEFORE and AFTER in same row */}
+                                                    <Row gutter={16} style={{ marginBottom: 16 }}>
                                                         <Col span={12}>
-                                                            <div style={{ marginBottom: 16 }}>
+                                                            <div>
                                                                 <Text type="secondary" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>
                                                                     BEFORE
                                                                 </Text>
@@ -341,30 +358,16 @@ const AuditDetail: React.FC = () => {
                                                                     marginTop: 8
                                                                 }}>
                                                                     <div style={{ marginBottom: 8 }}>
-                                                                        <Text strong>Cluster:</Text> <Text code>{auditLog.changes.before.cluster}</Text>
-                                                                    </div>
-                                                                    <div style={{ marginBottom: 8 }}>
-                                                                        <Text strong>IP Count:</Text> <Text code>{auditLog.changes.before.ip_count}</Text>
+                                                                        <Text strong>Cluster:</Text> <Text code>{before.cluster}</Text>
                                                                     </div>
                                                                     <div>
-                                                                        <Text strong>Description:</Text>
-                                                                        <div style={{ 
-                                                                            background: '#fff',
-                                                                            border: '1px solid #d9d9d9',
-                                                                            borderRadius: 4,
-                                                                            padding: 8,
-                                                                            marginTop: 4,
-                                                                            fontSize: 12,
-                                                                            fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace'
-                                                                        }}>
-                                                                            {auditLog.changes.before.cluster_ips}
-                                                                        </div>
+                                                                        <Text strong>IP Count:</Text> <Text code>{before.ip_count}</Text>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </Col>
                                                         <Col span={12}>
-                                                            <div style={{ marginBottom: 16 }}>
+                                                            <div>
                                                                 <Text type="secondary" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>
                                                                     AFTER
                                                                 </Text>
@@ -376,84 +379,82 @@ const AuditDetail: React.FC = () => {
                                                                     marginTop: 8
                                                                 }}>
                                                                     <div style={{ marginBottom: 8 }}>
-                                                                        <Text strong>Cluster:</Text> <Text code>{auditLog.changes.after.cluster}</Text>
+                                                                        <Text strong>Cluster:</Text> <Text code>{after.cluster}</Text>
                                                                     </div>
-                                                                    <div style={{ marginBottom: 8 }}>
-                                                                        <Text strong>IP Count:</Text> <Text code>{auditLog.changes.after.ip_count}</Text>
+                                                                    <div>
+                                                                        <Text strong>IP Count:</Text> <Text code>{after.ip_count}</Text>
                                                                     </div>
-                                                                    {auditLog.changes.after.cluster_ips && (
-                                                                        <div style={{ marginBottom: 8 }}>
-                                                                            <Text strong>Current IPs:</Text>
-                                                                            <div style={{ 
-                                                                                background: '#fff',
-                                                                                border: '1px solid #d9d9d9',
-                                                                                borderRadius: 4,
-                                                                                padding: 8,
-                                                                                marginTop: 4,
-                                                                                maxHeight: 200,
-                                                                                overflowY: 'auto'
-                                                                            }}>
-                                                                                {Array.isArray(auditLog.changes.after.cluster_ips) ? (
-                                                                                    auditLog.changes.after.cluster_ips.map((ip: string, index: number) => (
-                                                                                        <div key={index} style={{ 
-                                                                                            fontSize: 11,
-                                                                                            fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
-                                                                                            padding: 2
-                                                                                        }}>
-                                                                                            {ip}
-                                                                                        </div>
-                                                                                    ))
-                                                                                ) : (
-                                                                                    <Text style={{ fontSize: 11 }}>{auditLog.changes.after.cluster_ips}</Text>
-                                                                                )}
-                                                                            </div>
-                                                                        </div>
-                                                                    )}
-                                                                    {auditLog.changes.after.added_nodes && auditLog.changes.after.added_nodes.length > 0 && (
-                                                                        <div style={{ marginBottom: 8 }}>
-                                                                            <Text strong style={{ color: '#52c41a' }}>Added Nodes ({auditLog.changes.after.added_nodes.length}):</Text>
-                                                                            <div style={{ 
+                                                                </div>
+                                                            </div>
+                                                        </Col>
+                                                    </Row>
+                                                    
+                                                    {/* CHANGES in separate row below */}
+                                                    <Row>
+                                                        <Col span={24}>
+                                                            <div>
+                                                                <Text type="secondary" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>
+                                                                    CHANGES
+                                                                </Text>
+                                                                <div style={{
+                                                                    background: '#fff7e6',
+                                                                    border: '1px solid #ffd591',
+                                                                    borderRadius: 8,
+                                                                    padding: 12,
+                                                                    marginTop: 8
+                                                                }}>
+                                                                    {hasAddedIPs && (
+                                                                        <div style={{ marginBottom: hasRemovedIPs ? 12 : 0 }}>
+                                                                            <Text strong style={{ color: '#52c41a' }}>Added IPs ({diff.added_count || diff.added_ips.length}):</Text>
+                                                                            <div style={{
                                                                                 background: '#f6ffed',
                                                                                 border: '1px solid #b7eb8f',
                                                                                 borderRadius: 4,
-                                                                                padding: 8,
-                                                                                marginTop: 4
+                                                                                padding: 6,
+                                                                                marginTop: 4,
+                                                                                maxHeight: 120,
+                                                                                overflowY: 'auto'
                                                                             }}>
-                                                                                {auditLog.changes.after.added_nodes.map((node: string, index: number) => (
-                                                                                    <div key={index} style={{ 
+                                                                                {diff.added_ips.map((ip: string, index: number) => (
+                                                                                    <div key={index} style={{
                                                                                         fontSize: 11,
                                                                                         fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
-                                                                                        padding: 2,
+                                                                                        padding: 1,
                                                                                         color: '#52c41a'
                                                                                     }}>
-                                                                                        + {node}
+                                                                                        + {ip}
                                                                                     </div>
                                                                                 ))}
                                                                             </div>
                                                                         </div>
                                                                     )}
-                                                                    {auditLog.changes.after.removed_nodes && auditLog.changes.after.removed_nodes.length > 0 && (
+                                                                    {hasRemovedIPs && (
                                                                         <div>
-                                                                            <Text strong style={{ color: '#ff4d4f' }}>Removed Nodes ({auditLog.changes.after.removed_nodes.length}):</Text>
-                                                                            <div style={{ 
+                                                                            <Text strong style={{ color: '#ff4d4f' }}>Removed IPs ({diff.removed_count || diff.removed_ips.length}):</Text>
+                                                                            <div style={{
                                                                                 background: '#fff2f0',
                                                                                 border: '1px solid #ffccc7',
                                                                                 borderRadius: 4,
-                                                                                padding: 8,
-                                                                                marginTop: 4
+                                                                                padding: 6,
+                                                                                marginTop: 4,
+                                                                                maxHeight: 120,
+                                                                                overflowY: 'auto'
                                                                             }}>
-                                                                                {auditLog.changes.after.removed_nodes.map((node: string, index: number) => (
-                                                                                    <div key={index} style={{ 
+                                                                                {diff.removed_ips.map((ip: string, index: number) => (
+                                                                                    <div key={index} style={{
                                                                                         fontSize: 11,
                                                                                         fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
-                                                                                        padding: 2,
+                                                                                        padding: 1,
                                                                                         color: '#ff4d4f'
                                                                                     }}>
-                                                                                        - {node}
+                                                                                        - {ip}
                                                                                     </div>
                                                                                 ))}
                                                                             </div>
                                                                         </div>
+                                                                    )}
+                                                                    {!hasAddedIPs && !hasRemovedIPs && (
+                                                                        <Text type="secondary" style={{ fontSize: 12 }}>No IP changes detected</Text>
                                                                     )}
                                                                 </div>
                                                             </div>
@@ -466,10 +467,10 @@ const AuditDetail: React.FC = () => {
 
                                     let changes: any;
                                     let isTextDiff = false;
-                                    
+
                                     try {
-                                        changes = typeof auditLog.changes.diff === 'string' 
-                                            ? JSON.parse(auditLog.changes.diff) 
+                                        changes = typeof auditLog.changes.diff === 'string'
+                                            ? JSON.parse(auditLog.changes.diff)
                                             : auditLog.changes.diff;
                                     } catch {
                                         // If JSON parsing fails, check if it's a text diff
@@ -485,9 +486,9 @@ const AuditDetail: React.FC = () => {
                                     if (isTextDiff) {
                                         return (
                                             <div>
-                                                <div style={{ 
-                                                    background: '#e6f7ff', 
-                                                    padding: '8px 12px', 
+                                                <div style={{
+                                                    background: '#e6f7ff',
+                                                    padding: '8px 12px',
                                                     borderRadius: '6px 6px 0 0',
                                                     borderLeft: '3px solid #1890ff',
                                                     display: 'flex',
@@ -512,7 +513,7 @@ const AuditDetail: React.FC = () => {
                                                     {changes.split('\n').map((line: string, index: number) => {
                                                         let color = '#262626';
                                                         let background = 'transparent';
-                                                        
+
                                                         if (line.startsWith('+')) {
                                                             color = '#237804';
                                                             background = '#f6ffed';
@@ -520,7 +521,7 @@ const AuditDetail: React.FC = () => {
                                                             color = '#cf1322';
                                                             background = '#fff2f0';
                                                         }
-                                                        
+
                                                         return (
                                                             <div
                                                                 key={index}
@@ -557,9 +558,9 @@ const AuditDetail: React.FC = () => {
                                         <>
                                             {changesByType.create.length > 0 && (
                                                 <div>
-                                                    <div style={{ 
-                                                        background: '#f6ffed', 
-                                                        padding: '8px 12px', 
+                                                    <div style={{
+                                                        background: '#f6ffed',
+                                                        padding: '8px 12px',
                                                         borderRadius: '6px 6px 0 0',
                                                         borderLeft: '3px solid #52c41a',
                                                         display: 'flex',
@@ -591,7 +592,7 @@ const AuditDetail: React.FC = () => {
                                                                         {change.path.join(' → ')}
                                                                     </Tag>
                                                                 </div>
-                                                                <JsonValue 
+                                                                <JsonValue
                                                                     value={change.value}
                                                                     style={{
                                                                         background: '#fff',
@@ -606,9 +607,9 @@ const AuditDetail: React.FC = () => {
 
                                             {changesByType.update.length > 0 && (
                                                 <div>
-                                                    <div style={{ 
-                                                        background: '#e6f7ff', 
-                                                        padding: '8px 12px', 
+                                                    <div style={{
+                                                        background: '#e6f7ff',
+                                                        padding: '8px 12px',
                                                         borderRadius: '6px 6px 0 0',
                                                         borderLeft: '3px solid #1890ff',
                                                         display: 'flex',
@@ -652,7 +653,7 @@ const AuditDetail: React.FC = () => {
                                                                         <div style={{ marginBottom: 4, display: 'flex', gap: 8 }}>
                                                                             <div style={{ flex: 1 }}>
                                                                                 <Text type="secondary" style={{ fontSize: 10 }}>From:</Text>
-                                                                                <JsonValue 
+                                                                                <JsonValue
                                                                                     value={change.from}
                                                                                     style={{
                                                                                         background: '#fff5f5',
@@ -663,7 +664,7 @@ const AuditDetail: React.FC = () => {
                                                                             </div>
                                                                             <div style={{ flex: 1 }}>
                                                                                 <Text type="secondary" style={{ fontSize: 10 }}>To:</Text>
-                                                                                <JsonValue 
+                                                                                <JsonValue
                                                                                     value={change.to}
                                                                                     style={{
                                                                                         background: '#f6ffed',
@@ -675,7 +676,7 @@ const AuditDetail: React.FC = () => {
                                                                         </div>
                                                                     </div>
                                                                 ) : (
-                                                                    <JsonValue 
+                                                                    <JsonValue
                                                                         value={change.value}
                                                                         style={{
                                                                             background: '#fff',
@@ -691,9 +692,9 @@ const AuditDetail: React.FC = () => {
 
                                             {changesByType.delete.length > 0 && (
                                                 <div>
-                                                    <div style={{ 
-                                                        background: '#fff2f0', 
-                                                        padding: '8px 12px', 
+                                                    <div style={{
+                                                        background: '#fff2f0',
+                                                        padding: '8px 12px',
                                                         borderRadius: '6px 6px 0 0',
                                                         borderLeft: '3px solid #ff4d4f',
                                                         display: 'flex',
@@ -725,7 +726,7 @@ const AuditDetail: React.FC = () => {
                                                                         {change.path.join(' → ')}
                                                                     </Tag>
                                                                 </div>
-                                                                <JsonValue 
+                                                                <JsonValue
                                                                     value={change.value}
                                                                     style={{
                                                                         background: '#fff',
@@ -846,8 +847,8 @@ const AuditDetail: React.FC = () => {
                                 <div>
                                     <Text type="secondary" style={{ fontSize: 12 }}>Save or Publish</Text>
                                     <div style={{ marginTop: 4 }}>
-                                        <Tag 
-                                            className='auto-width-tag' 
+                                        <Tag
+                                            className='auto-width-tag'
                                             color={(auditLog as any).save_or_publish === 'publish' ? 'blue' : 'green'}
                                             style={{ fontWeight: 600 }}
                                         >
@@ -934,8 +935,6 @@ const AuditDetail: React.FC = () => {
                             </div>
                         </div>
                     </Card>
-
-
                 </Col>
             </Row>
         </div>
