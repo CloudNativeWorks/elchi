@@ -67,17 +67,39 @@ const ListenerComponent: React.FC<GeneralProps> = ({ veri }) => {
     }, [memoReduxStore, vModels]);
 
     const [state, setState] = useState<State>({
-        freezedNames: reduxStore?.map(value => value?.name as string) || []
+        freezedNames: []
     });
+
+    const [initialLength, setInitialLength] = useState<number>(0);
+    const [wasReset, setWasReset] = useState<boolean>(false);
 
     useEffect(() => {
         if (reduxStore) {
+            if (reduxStore.length === 0 && !wasReset) {
+                setWasReset(true);
+                setInitialLength(0);
+                return;
+            }
+            
+            if (initialLength === 0 && reduxStore.length > 0 && !wasReset) {
+                setInitialLength(reduxStore.length);
+                return;
+            }
+            
+            const currentNames = reduxStore.map((value, index) => ({ name: value?.name as string, index })).filter(item => item.name);
+            const freezedNames = currentNames
+                .filter(item => {
+                    const shouldFreeze = item.index < initialLength;
+                    return shouldFreeze;
+                })
+                .map(item => item.name);
+            
             setState(prevState => ({
                 ...prevState,
-                freezedNames: reduxStore.map(value => value?.name as string)
+                freezedNames: freezedNames
             }));
         }
-    }, [reduxStore]);
+    }, [reduxStore, initialLength, wasReset]);
 
     useManagedLoading(loading_m);
 
@@ -85,6 +107,11 @@ const ListenerComponent: React.FC<GeneralProps> = ({ veri }) => {
         if (event) {
             event.stopPropagation();
         }
+        
+        if (index !== undefined && index < initialLength) {
+            setInitialLength(prev => prev - 1);
+        }
+        
         const fullKey = `${index}`;
         handleChangeResources({ version: veri.version, type: ActionType.Delete, keys: fullKey, resourceType: ResourceType.Resource }, dispatch, ResourceAction);
         deleteMatchedConfigDiscovery(reduxStore[index].name as string, configDiscoveryReduxStore, veri.version, dispatch)
