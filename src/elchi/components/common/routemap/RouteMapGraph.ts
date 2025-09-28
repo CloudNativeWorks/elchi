@@ -13,23 +13,24 @@ export const RouteMapStyles: any[] = [
             'background-color': 'transparent', // Will be overridden dynamically
             'label': 'data(type)',
             'shape': 'round-rectangle',
-            'width': '95px',
-            'height': '50px',
+            'width': '160px', // Larger width for bigger text
+            'height': '80px', // Larger height for bigger text
             'text-valign': 'center',
             'text-halign': 'center',
-            'font-size': '10px',
-            'font-weight': 'bold',
+            'font-size': '16px', // Much larger font for better readability
+            'font-family': '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+            'font-weight': 'bold', // Back to bold
             'color': 'white',
             'text-transform': 'uppercase',
             'text-outline-color': 'black',
-            'text-outline-width': 1,
-            'text-background-color': 'rgba(0, 0, 0, 0.4)',
-            'text-background-padding': '3px',
-            'text-background-shape': 'round-rectangle',
+            'text-outline-width': 2, // Thicker outline for better contrast
+            'text-outline-opacity': 1,
             'border-width': 2,
             'border-color': '#999', // Will be overridden
             'text-wrap': 'wrap',
-            'text-max-width': '100px'
+            'text-max-width': '150px', // Adjusted to new width
+            'min-zoomed-font-size': 0, // Don't limit font size when zoomed out
+            'font-smooth': 'always' // Force font smoothing
         }
     },
     // Edge styles
@@ -42,7 +43,8 @@ export const RouteMapStyles: any[] = [
             'target-arrow-shape': 'triangle',
             'curve-style': 'bezier',
             'label': 'data(label)',
-            'font-size': '9px',
+            'font-size': '14px',
+            'font-family': '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
             'font-weight': 'bold',
             'text-rotation': 'autorotate',
             'text-margin-y': -10,
@@ -61,7 +63,8 @@ export const RouteMapStyles: any[] = [
             'target-arrow-shape': 'triangle',
             'curve-style': 'bezier',
             'label': 'data(label)',
-            'font-size': '9px',
+            'font-size': '14px',
+            'font-family': '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
             'font-weight': 'bold',
             'text-rotation': 'autorotate',
             'text-margin-y': -10,
@@ -80,7 +83,8 @@ export const RouteMapStyles: any[] = [
             'target-arrow-shape': 'triangle',
             'curve-style': 'bezier',
             'label': 'data(label)',
-            'font-size': '9px',
+            'font-size': '14px',
+            'font-family': '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
             'font-weight': 'bold',
             'text-rotation': 'autorotate',
             'text-margin-y': -10,
@@ -99,7 +103,8 @@ export const RouteMapStyles: any[] = [
             'target-arrow-shape': 'triangle',
             'curve-style': 'bezier',
             'label': 'data(label)',
-            'font-size': '10px',
+            'font-size': '14px',
+            'font-family': '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
             'font-weight': 'bold',
             'text-rotation': 'autorotate',
             'text-margin-y': -10,
@@ -119,7 +124,9 @@ export const RouteMapStyles: any[] = [
             'target-arrow-shape': 'triangle',
             'curve-style': 'bezier',
             'label': 'data(label)',
-            'font-size': '9px',
+            'font-size': '13px',
+            'font-family': '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+            'font-weight': '600',
             'text-rotation': 'autorotate',
             'text-margin-y': -10,
             'color': '#2c3e50',
@@ -165,24 +172,52 @@ export const createRouteMapGraph = (
         }
     }
 
+    // Calculate adaptive spacing based on number of nodes
+    const nodeCount = elements.filter(el => el.group === 'nodes').length;
+    const adaptiveSpacing = nodeCount > 20 ? {
+        spacingFactor: 3.0,
+        nodeSep: 200,
+        edgeSep: 150,
+        rankSep: 250,
+        padding: 80
+    } : nodeCount > 10 ? {
+        spacingFactor: 2.5,
+        nodeSep: 175,
+        edgeSep: 125,
+        rankSep: 225,
+        padding: 65
+    } : {
+        spacingFactor: 2.0,
+        nodeSep: 150,
+        edgeSep: 100,
+        rankSep: 200,
+        padding: 50
+    };
+
     const cy = cytoscape({
         container: container,
         elements: elements,
         style: RouteMapStyles,
+        pixelRatio: 2.0, // Higher pixel ratio for sharper text rendering
+        hideEdgesOnViewport: false,
+        textureOnViewport: false,
+        motionBlur: false,
         layout: {
             name: 'dagre',
-            spacingFactor: 1.2,
-            nodeSep: 80,
-            edgeSep: 50,
-            rankSep: 120,
+            spacingFactor: adaptiveSpacing.spacingFactor,
+            nodeSep: adaptiveSpacing.nodeSep,
+            edgeSep: adaptiveSpacing.edgeSep,
+            rankSep: adaptiveSpacing.rankSep,
             rankDir: 'LR',
             align: 'UL',
             ranker: 'network-simplex',
             fit: true,
-            padding: 30,
+            padding: adaptiveSpacing.padding,
             animate: true,
             animationDuration: 800,
             acyclicer: 'greedy',
+            // Additional dagre-specific options
+            nodeDimensionsIncludeLabels: true, // Consider label size in node dimensions
             stop: function () {
                 setTimeout(() => {
                     if (cy) {
@@ -222,7 +257,7 @@ export const createRouteMapGraph = (
                 labelDiv.textContent = originalLabel;
                 labelDiv.style.position = 'absolute';
                 labelDiv.style.textAlign = 'center';
-                labelDiv.style.fontSize = '11px';
+                labelDiv.style.fontSize = '13px';
                 labelDiv.style.fontWeight = 'bold';
                 labelDiv.style.color = '#333';
                 labelDiv.style.backgroundColor = 'rgba(255, 255, 255, 0.9)';
@@ -247,7 +282,7 @@ export const createRouteMapGraph = (
                     labelDiv.style.left = `${pos.x - renderedWidth/2}px`;
                     labelDiv.style.top = `${pos.y + renderedHeight/2 + 10}px`;
                     labelDiv.style.width = `${renderedWidth}px`;
-                    labelDiv.style.fontSize = `${Math.max(8, 11 * zoom)}px`;
+                    labelDiv.style.fontSize = `${Math.max(10, 13 * zoom)}px`;
                 };
                 
                 // Initial position
@@ -281,8 +316,8 @@ export const createRouteMapGraph = (
                     'border-color': nodeStyle.border,
                     'border-width': 2,
                     'border-style': 'solid',
-                    'width': '95px',
-                    'height': '50px'
+                    'width': '160px',
+                    'height': '80px'
                 });
             });
 
@@ -291,12 +326,12 @@ export const createRouteMapGraph = (
                 'border-color': '#FFD700',
                 'border-width': 3,
                 'border-style': 'solid',
-                'width': '105px',
-                'height': '60px'
+                'width': '170px',
+                'height': '90px'
             });
 
             // Highlight connected edges and nodes
-            node.connectedEdges().forEach(edge => {
+            node.connectedEdges().forEach((edge: cytoscape.EdgeSingular) => {
                 edge.style({
                     'line-color': '#FFD700',
                     'target-arrow-color': '#FFD700',
@@ -348,8 +383,8 @@ export const createRouteMapGraph = (
                         'border-color': nodeStyle.border,
                         'border-width': 2,
                         'border-style': 'solid',
-                        'width': '95px',
-                        'height': '50px'
+                        'width': '120px',
+                        'height': '60px'
                     });
                 });
 
