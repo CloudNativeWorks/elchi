@@ -117,11 +117,38 @@ const ClientDetail: React.FC = () => {
                                             <Tag className='auto-width-tag' color="blue">{dataClient.version}</Tag>
                                         </Descriptions.Item>
                                         <Descriptions.Item label="Last Seen">{DateTimeTool(dataClient.last_seen)}</Descriptions.Item>
+                                        <Descriptions.Item label="Connect Time">
+                                            {dataClient.connect_time && dataClient.connect_time !== "0001-01-01T00:00:00Z" 
+                                                ? DateTimeTool(dataClient.connect_time) 
+                                                : <span style={{ color: '#bfbfbf' }}>Not seen</span>
+                                            }
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label="Connect Reason">
+                                            {dataClient.connect_reason ? (
+                                                <Tag className='auto-width-tag' color="blue">{dataClient.connect_reason}</Tag>
+                                            ) : (
+                                                <span style={{ color: '#bfbfbf' }}>Not available</span>
+                                            )}
+                                        </Descriptions.Item>
                                         <Descriptions.Item label="BGP">
                                             <Tag className='auto-width-tag' color={dataClient.bgp ? "green" : "red"}>
                                                 {dataClient.bgp ? "Enabled" : "Disabled"}
                                             </Tag>
                                         </Descriptions.Item>
+                                        <Descriptions.Item label="Disconnect Time">
+                                            {dataClient.disconnect_time && dataClient.disconnect_time !== "0001-01-01T00:00:00Z" 
+                                                ? DateTimeTool(dataClient.disconnect_time) 
+                                                : <span style={{ color: '#bfbfbf' }}>Not seen</span>
+                                            }
+                                        </Descriptions.Item>
+                                        <Descriptions.Item label="Disconnect Reason">
+                                            {dataClient.disconnect_reason ? (
+                                                <Tag className='auto-width-tag' color="red">{dataClient.disconnect_reason}</Tag>
+                                            ) : (
+                                                <span style={{ color: '#bfbfbf' }}>Not available</span>
+                                            )}
+                                        </Descriptions.Item>
+                                        
                                         {dataClient.cloud && (
                                             <Descriptions.Item label="Cloud">
                                                 <Tag className='auto-width-tag' color="cyan">{dataClient.cloud}</Tag>

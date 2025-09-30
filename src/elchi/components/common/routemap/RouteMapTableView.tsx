@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Table, Input, Select, Tag, Typography, Space, Card, Button, Tooltip } from 'antd';
+import { Table, Input, Select, Tag, Typography, Space, Card, Button } from 'antd';
 import { SearchOutlined, FilterOutlined, ClearOutlined, NodeIndexOutlined } from '@ant-design/icons';
 import { RouteMapData, RouteMapNode, RouteMapEdge } from './types';
 
@@ -202,8 +202,28 @@ const RouteMapTableView: React.FC<RouteMapTableViewProps> = ({ data }) => {
     ];
 
     return (
-        <div style={{ padding: 16 }}>
-            <Card>
+        <div style={{ 
+            height: '100%', 
+            display: 'flex', 
+            flexDirection: 'column',
+            padding: 16 
+        }}>
+            <Card 
+                style={{ 
+                    flex: 1, 
+                    display: 'flex', 
+                    flexDirection: 'column',
+                    overflow: 'hidden'
+                }}
+                styles={{
+                    body: {
+                        display: 'flex',
+                        flexDirection: 'column',
+                        height: '100%',
+                        padding: '16px'
+                    }
+                }}
+            >
                 <div style={{ marginBottom: 16 }}>
                     <Space wrap>
                         <Search
@@ -256,10 +276,11 @@ const RouteMapTableView: React.FC<RouteMapTableViewProps> = ({ data }) => {
                     pagination={false}
                     size="small"
                     rowKey="key"
-                    scroll={{ y: 650 }}
+                    scroll={{ y: 'calc(100vh - 320px)' }}
                     locale={{
                         emptyText: 'No route map data found'
                     }}
+                    style={{ flex: 1 }}
                 />
             </Card>
         </div>

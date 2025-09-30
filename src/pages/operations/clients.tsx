@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Dropdown, Table, Pagination, Tag, Typography, Input, Space, Card, Modal, message, Button } from 'antd';
+import { Dropdown, Table, Pagination, Tag, Typography, Input, Space, Card, Modal, message, Button, Progress, Tooltip, Spin } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { ActionsSVG } from '@/assets/svg/icons';
 import { DateTimeTool } from '@/utils/date-time-tool';
@@ -9,6 +9,8 @@ import { useProjectVariable } from '@/hooks/useProjectVariable';
 import { DeleteOutlined, EditOutlined, InboxOutlined, CloudServerOutlined, SearchOutlined, DownloadOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import ClientInstallationDrawer from '@/components/ClientInstallationDrawer';
+import { useOperationsApiMutation } from '@/common/operations-api';
+import { OperationsType } from '@/common/types';
 
 
 const { Title, Text } = Typography;
@@ -28,6 +30,10 @@ interface DataType {
     session_token: string;
     version: string;
     service_ips: string[];
+    cpu_usage?: number;
+    cpu_cores?: number;
+    memory_usage?: number;
+    memory_total?: number;
 }
 
 const clientActions = [
@@ -51,6 +57,9 @@ const Clients: React.FC = () => {
     const [messageApi, contextHolder] = message.useMessage();
     const deleteClientMutation = useCustomApiMutation();
     const [isInstallationDrawerOpen, setIsInstallationDrawerOpen] = useState(false);
+    const [clientStats, setClientStats] = useState<Record<string, any>>({});
+    const [loadingStats, setLoadingStats] = useState(false);
+    const mutateOperations = useOperationsApiMutation();
 
     const onClick = (record: DataType, key: string) => {
         if (key === "1") {
@@ -71,6 +80,40 @@ const Clients: React.FC = () => {
         directApi: true
     });
 
+    const fetchBulkStats = async (clients: DataType[]) => {
+        if (!clients || clients.length === 0) return;
+        
+        const connectedClients = clients.filter(c => c.connected);
+        if (connectedClients.length === 0) return;
+
+        setLoadingStats(true);
+        try {
+            const response = await mutateOperations.mutateAsync({
+                data: {
+                    type: OperationsType.CLIENT_STATS,
+                    clients: connectedClients.map(c => ({ client_id: c.client_id })),
+                    command: { count: 100 }
+                },
+                project
+            });
+
+            if (Array.isArray(response)) {
+                const statsMap: Record<string, any> = {};
+                response.forEach((stat: any) => {
+                    if (stat?.identity?.client_id && stat?.Result?.ClientStats) {
+                        statsMap[stat.identity.client_id] = stat.Result.ClientStats;
+                    }
+                });
+                setClientStats(statsMap);
+            }
+        } catch (error) {
+            // Silently fail - don't retry, just show empty stats
+            console.warn('Statistics request failed, continuing without stats:', error);
+        } finally {
+            setLoadingStats(false);
+        }
+    };
+
     useEffect(() => {
         setTableData(dataResource || []);
 
@@ -84,6 +127,9 @@ const Clients: React.FC = () => {
             });
 
             setVersionColors(newVersionColors);
+            
+            // Fetch statistics for all connected clients
+            fetchBulkStats(dataResource);
         }
     }, [dataResource]);
 
@@ -247,6 +293,87 @@ const Clients: React.FC = () => {
                     </span>
                 )
             ),
+        },
+        {
+            title: 'CPU',
+            key: 'cpu',
+            width: '10%',
+            render: (_, record) => {
+                if (!record.connected) {
+                    return <span style={{ color: '#bfbfbf' }}>-</span>;
+                }
+                
+                const stats = clientStats[record.client_id];
+                
+                // Show loading spinner if stats are being fetched
+                if (loadingStats && !stats) {
+                    return <Spin size="small" />;
+                }
+                
+                if (!stats?.cpu) {
+                    return <span style={{ color: '#bfbfbf' }}>-</span>;
+                }
+                
+                const cpuUsage = stats.cpu.usage_percent || 0;
+                const coreCount = stats.cpu.core_stats ? Object.keys(stats.cpu.core_stats).length : 0;
+                
+                return (
+                    <div>
+                        <Tooltip title={`${cpuUsage.toFixed(1)}% (${coreCount} cores)`}>
+                            <Progress
+                                percent={Math.round(cpuUsage)}
+                                size="small"
+                                status={cpuUsage > 90 ? "exception" : cpuUsage > 70 ? "active" : "normal"}
+                                style={{ width: 80 }}
+                            />
+                        </Tooltip>
+                        <div style={{ fontSize: 11, color: '#8c8c8c', marginTop: 2 }}>
+                            {coreCount} cores
+                        </div>
+                    </div>
+                );
+            }
+        },
+        {
+            title: 'Memory',
+            key: 'memory',
+            width: '10%',
+            render: (_, record) => {
+                if (!record.connected) {
+                    return <span style={{ color: '#bfbfbf' }}>-</span>;
+                }
+                
+                const stats = clientStats[record.client_id];
+                
+                // Show loading spinner if stats are being fetched
+                if (loadingStats && !stats) {
+                    return <Spin size="small" />;
+                }
+                
+                if (!stats?.memory) {
+                    return <span style={{ color: '#bfbfbf' }}>-</span>;
+                }
+                
+                const memoryUsage = stats.memory.usage_percent || 0;
+                const totalGB = (stats.memory.total / (1024 * 1024 * 1024)).toFixed(1);
+                const usedGB = (stats.memory.used / (1024 * 1024 * 1024)).toFixed(1);
+                
+                return (
+                    <div>
+                        <Tooltip title={`${usedGB}GB / ${totalGB}GB (${memoryUsage.toFixed(1)}%)`}>
+                            <Progress
+                                percent={Math.round(memoryUsage)}
+                                size="small"
+                                status={memoryUsage > 90 ? "exception" : memoryUsage > 70 ? "active" : "normal"}
+                                style={{ width: 80 }}
+                            />
+                        </Tooltip>
+                        <div style={{ fontSize: 11, color: '#8c8c8c', marginTop: 2 }}>
+                            {totalGB} GB
+                        </div>
+                    </div>
+                );
+            }
         },
         {
             title: 'Last Seen',
