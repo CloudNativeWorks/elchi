@@ -142,7 +142,7 @@ const Clients: React.FC = () => {
             item.os?.toLowerCase().includes(lower) ||
             item.arch?.toLowerCase().includes(lower) ||
             item.version?.toLowerCase().includes(lower) ||
-            (item.service_ips && item.service_ips.join(',').toLowerCase().includes(lower))
+            (item.service_ips && item.service_ips.some(ip => ip.toLowerCase().includes(lower)))
         );
     }, [searchText, tableData]);
 
@@ -314,16 +314,18 @@ const Clients: React.FC = () => {
                     return <span style={{ color: '#bfbfbf' }}>-</span>;
                 }
                 
-                const cpuUsage = stats.cpu.usage_percent || 0;
+                const loadAvg5 = stats.cpu.load_avg_5 || 0;
                 const coreCount = stats.cpu.core_stats ? Object.keys(stats.cpu.core_stats).length : 0;
+                // Calculate percentage based on load average per core (100% = 1.0 per core)
+                const loadPercent = coreCount > 0 ? (loadAvg5 / coreCount) * 100 : loadAvg5 * 100;
                 
                 return (
                     <div>
-                        <Tooltip title={`${cpuUsage.toFixed(1)}% (${coreCount} cores)`}>
+                        <Tooltip title={`Load: ${loadAvg5.toFixed(2)} (${coreCount} cores)`}>
                             <Progress
-                                percent={Math.round(cpuUsage)}
+                                percent={Math.min(Math.round(loadPercent), 100)}
                                 size="small"
-                                status={cpuUsage > 90 ? "exception" : cpuUsage > 70 ? "active" : "normal"}
+                                status={loadPercent > 90 ? "exception" : loadPercent > 70 ? "active" : "normal"}
                                 style={{ width: 80 }}
                             />
                         </Tooltip>
@@ -445,6 +447,44 @@ const Clients: React.FC = () => {
                     dataSource={paginatedData}
                     pagination={false}
                     scroll={{ y: 500 }}
+                    expandable={{
+                        expandedRowRender: (record) => {
+                            if (!record.service_ips || record.service_ips.length === 0) {
+                                return (
+                                    <div style={{ padding: '12px 0', paddingLeft: '72px', color: '#bfbfbf' }}>
+                                        No service IPs available
+                                    </div>
+                                );
+                            }
+                            
+                            return (
+                                <div style={{ 
+                                    padding: '12px 0', 
+                                    paddingLeft: '72px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    flexWrap: 'wrap'
+                                }}>
+                                    <Text strong style={{ marginRight: '4px' }}>Service IPs:</Text>
+                                    {record.service_ips.map((ip: string, index: number) => (
+                                        <Tag 
+                                            key={index} 
+                                            color="blue"
+                                            style={{ 
+                                                margin: 0,
+                                                fontFamily: 'monospace',
+                                                fontSize: '12px'
+                                            }}
+                                        >
+                                            {ip}
+                                        </Tag>
+                                    ))}
+                                </div>
+                            );
+                        },
+                        rowExpandable: (record) => record.service_ips && record.service_ips.length > 0,
+                    }}
                     locale={{
                         emptyText: (
                             <div>
@@ -454,7 +494,13 @@ const Clients: React.FC = () => {
                         )
                     }}
                     onRow={(record) => ({
-                        onClick: () => navigate(`/clients/${record.client_id}`),
+                        onClick: (event) => {
+                            // Prevent navigation when clicking expand button
+                            if ((event.target as HTMLElement).closest('.ant-table-row-expand-icon')) {
+                                return;
+                            }
+                            navigate(`/clients/${record.client_id}`);
+                        },
                         style: { cursor: 'pointer' }
                     })}
                 />
