@@ -38,6 +38,7 @@ import JobList from './pages/jobs/JobList';
 import JobDetail from './pages/jobs/JobDetail';
 import AuditList from './pages/audit/AuditList';
 import AuditDetail from './pages/audit/AuditDetail';
+import Search from './pages/Search';
 
 
 const AppRoutes: React.FC = () => (
@@ -110,6 +111,9 @@ const AppRoutes: React.FC = () => (
 
                 {/* AI Config Generator Routes */}
                 <Route path="/ai-analyzer" element={<AIConfigGenerator />} />
+
+                {/* Search Route */}
+                <Route path="/search" element={<Search />} />
 
                 {/* Discovery Route */}
                 <Route path="/discovery" element={<Discovery />} />

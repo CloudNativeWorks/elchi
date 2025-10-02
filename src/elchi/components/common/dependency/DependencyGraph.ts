@@ -79,6 +79,7 @@ export const createDependencyGraph = (
                         gtype: nodeGtype,
                         first: nodeData.first || false,
                         link: nodeData.link || '',
+                        version: nodeData.version || '',
                     },
                     group: 'nodes',
                     classes: '',

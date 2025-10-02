@@ -14,6 +14,7 @@ export interface PopoverContentProps {
     gtype: string;
     link: string;
     id: string;
+    version?: string;
 }
 
 export interface StyleOptions {

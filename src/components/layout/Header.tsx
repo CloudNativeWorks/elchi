@@ -1,7 +1,7 @@
 // Header.tsx
-import { useEffect } from "react";
-import { Row, Col, Avatar, Space, Dropdown, Button, Tooltip, Badge } from "antd";
-import { RobotOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
+import { useEffect, useState } from "react";
+import { Row, Col, Avatar, Space, Dropdown, Button, Tooltip, Badge, Input } from "antd";
+import { RobotOutlined, ExclamationCircleOutlined, SearchOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useLogout } from "../../pages/auth/Logout";
 import logoelchi from "../../assets/images/logo_white.png";
@@ -18,6 +18,7 @@ function Header({ userDetail }: Readonly<HeaderProps>) {
 	const logout = useLogout();
 	const navigate = useNavigate();
 	const { project } = useProjectVariable();
+	const [searchExpanded, setSearchExpanded] = useState(false);
 
 	const { data: errorSummary } = useErrorSummary({
 		project,
@@ -34,6 +35,12 @@ function Header({ userDetail }: Readonly<HeaderProps>) {
 
 	const handleAIClick = () => {
 		navigate('/ai-analyzer');
+	};
+
+	const handleSearch = (value: string) => {
+		if (value.trim()) {
+			navigate(`/search?q=${encodeURIComponent(value.trim())}`);
+		}
 	};
 
 	const errorMenuItems = errorSummary && errorSummary.total_error > 0 ? [
@@ -158,6 +165,39 @@ function Header({ userDetail }: Readonly<HeaderProps>) {
 					top: 100% !important;
 					margin-top: 4px !important;
 				}
+				.animated-search-container {
+					display: flex;
+					align-items: center;
+					height: 32px;
+				}
+				.animated-search-input {
+					width: 0;
+					opacity: 0;
+					transition: width 0.3s ease, opacity 0.3s ease;
+					overflow: hidden;
+					display: flex;
+					align-items: center;
+				}
+				.animated-search-input.expanded {
+					width: 280px;
+					opacity: 1;
+					margin-right: 8px;
+				}
+				.animated-search-input .ant-input {
+					height: 32px;
+					line-height: 32px;
+				}
+				.search-icon-button {
+					background: rgba(255, 255, 255, 0.15) !important;
+					border: 1px solid rgba(255, 255, 255, 0.3) !important;
+					color: white !important;
+					transition: all 0.3s ease !important;
+				}
+				.search-icon-button:hover {
+					background: rgba(255, 255, 255, 0.25) !important;
+					border-color: rgba(255, 255, 255, 0.5) !important;
+					transform: scale(1.05);
+				}
 			`}</style>
 			<div className="header" style={{ width: '100%', height: '100%', position: 'relative' }}>
 				<Row justify="space-between" align="middle" style={{ width: '100%' }}>
@@ -168,6 +208,29 @@ function Header({ userDetail }: Readonly<HeaderProps>) {
 					</Col>
 					<Col className="header-control">
 						<Space size="middle">
+							<div
+								className="animated-search-container"
+								onMouseEnter={() => setSearchExpanded(true)}
+								onMouseLeave={() => setSearchExpanded(false)}
+							>
+								<div className={`animated-search-input ${searchExpanded ? 'expanded' : ''}`}>
+									<Input
+										placeholder="Search domains or IPs..."
+										onPressEnter={(e) => handleSearch((e.target as HTMLInputElement).value)}
+										allowClear
+										size="middle"
+										style={{ width: '100%' }}
+									/>
+								</div>
+								<Tooltip title="Search Resources">
+									<Button
+										className="search-icon-button"
+										icon={<SearchOutlined />}
+										size="middle"
+										onClick={() => navigate('/search')}
+									/>
+								</Tooltip>
+							</div>
 							<Tooltip title="AI Configuration Analyzer">
 								<Button
 									type="primary"

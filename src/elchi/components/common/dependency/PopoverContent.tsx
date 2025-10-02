@@ -4,11 +4,16 @@ import { LinkOutlined, GlobalOutlined, ClusterOutlined, FilterOutlined, ShareAlt
 import { PopoverContentProps } from './types';
 import { getIconForResource, getNodeStyle } from './utils';
 
-const PopoverContent: React.FC<PopoverContentProps> = ({ nodeLabel, category, gtype, link, id }) => {
+const PopoverContent: React.FC<PopoverContentProps> = ({ nodeLabel, category, gtype, link, id, version }) => {
     const handleClick = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
-        const url = `#${link}${nodeLabel}?resource_id=${id}`;
+        const params = new URLSearchParams();
+        params.set('resource_id', id);
+        if (version) {
+            params.set('version', version);
+        }
+        const url = `#${link}${nodeLabel}?${params.toString()}`;
         window.location.href = url;
     };
 

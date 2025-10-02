@@ -138,6 +138,7 @@ const Clients: React.FC = () => {
         const lower = searchText.toLowerCase();
         return tableData.filter((item: DataType) =>
             item.name?.toLowerCase().includes(lower) ||
+            item.client_id?.toLowerCase().includes(lower) ||
             item.hostname?.toLowerCase().includes(lower) ||
             item.os?.toLowerCase().includes(lower) ||
             item.arch?.toLowerCase().includes(lower) ||

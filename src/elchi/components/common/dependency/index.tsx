@@ -25,6 +25,7 @@ const Dependencies: React.FC<CustomCardProps> = ({ name, collection, gtype, visi
         gtype: string;
         link: string;
         id: string;
+        version?: string;
     } | null>(null);
     const [graphInitialized, setGraphInitialized] = useState(false);
     const [forceRender, setForceRender] = useState(0);
@@ -279,7 +280,8 @@ const Dependencies: React.FC<CustomCardProps> = ({ name, collection, gtype, visi
                                 category: node.data('category'),
                                 gtype: node.data('gtype'),
                                 link: node.data('link'),
-                                id: node.id()
+                                id: node.id(),
+                                version: node.data('version')
                             });
                         },
                         onCanvasTap: () => {
@@ -464,6 +466,7 @@ const Dependencies: React.FC<CustomCardProps> = ({ name, collection, gtype, visi
                                     gtype={selectedNode.gtype}
                                     link={selectedNode.link}
                                     id={selectedNode.id}
+                                    version={selectedNode.version}
                                 />
                             </div>
                         </Card>
