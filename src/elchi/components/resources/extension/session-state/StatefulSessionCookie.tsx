@@ -75,7 +75,7 @@ const ComponenStatefulSessionCookie: React.FC<GeneralProps> = ({ veri }) => {
                         index={0}
                         handleChangeTag={handleChangeTag}
                         tagMatchPrefix={"CookieBasedSessionState"}
-                        required={[]}
+                        required={["cookie"]}
                     />
                 </Col>
                 <Col md={20}>

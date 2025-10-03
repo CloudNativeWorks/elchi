@@ -86,7 +86,6 @@ const ComponenStatefulSessionHeader: React.FC<GeneralProps> = ({ veri }) => {
                             title: "name",
                             reduxAction: ResourceAction,
                             reduxStore: reduxStore?.name,
-                            disabled: location.pathname !== GType.createPath,
                             id: `name_0`,
                         }}
                     />

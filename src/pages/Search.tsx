@@ -96,6 +96,7 @@ function Search() {
     const navigate = useNavigate();
     const queryParam = searchParams.get("q") || "";
     const [searchQuery, setSearchQuery] = useState(queryParam);
+    const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
 
     const { data: searchResponse, isLoading, isFetching } = useSearch({
         query: queryParam,
@@ -104,6 +105,7 @@ function Search() {
 
     useEffect(() => {
         setSearchQuery(queryParam);
+        setSelectedCollection(null);
     }, [queryParam]);
 
     const handleSearch = (value: string) => {
@@ -153,6 +155,30 @@ function Search() {
 
     const results = searchResponse?.data?.results || [];
     const totalResults = searchResponse?.data?.total_results || 0;
+
+    // Group results by collection
+    const groupedResults = results.reduce((acc, result) => {
+        if (!acc[result.collection]) {
+            acc[result.collection] = [];
+        }
+        acc[result.collection].push(result);
+        return acc;
+    }, {} as Record<string, SearchResult[]>);
+
+    // Get collection summary
+    const collectionSummary = Object.entries(groupedResults).map(([collection, items]) => ({
+        collection,
+        count: items.length,
+        color: collectionColors[collection] || 'default',
+        icon: collectionIcons[collection] || <FileTextOutlined />,
+        gradient: collectionGradients[collection] || { start: '#1890ff', end: '#096dd9' },
+        name: collectionNames[collection] || collection
+    })).sort((a, b) => b.count - a.count);
+
+    // Filter results based on selected collection
+    const filteredResults = selectedCollection
+        ? results.filter(r => r.collection === selectedCollection)
+        : results;
 
     return (
         <div style={{ padding: "0 0px 8px" }}>
@@ -224,19 +250,123 @@ function Search() {
 
             {queryParam && (
                 <Card variant="borderless">
-                    <div style={{ marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <Title level={4} style={{ margin: 0 }}>
-                            Search Results
-                            {totalResults > 0 && (
-                                <Tag className="auto-width-tag" color="blue" style={{ marginLeft: 12, fontSize: 12 }}>
-                                    {totalResults} {totalResults === 1 ? "result" : "results"}
-                                </Tag>
+                    <div style={{ marginBottom: 24 }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                            <Title level={4} style={{ margin: 0 }}>
+                                Search Results
+                                {totalResults > 0 && (
+                                    <Tag className="auto-width-tag" color="blue" style={{ marginLeft: 12, fontSize: 12 }}>
+                                        {totalResults} {totalResults === 1 ? "result" : "results"}
+                                    </Tag>
+                                )}
+                            </Title>
+                            {queryParam && (
+                                <Text type="secondary">
+                                    Searching for: <Text strong>{queryParam}</Text>
+                                </Text>
                             )}
-                        </Title>
-                        {queryParam && (
-                            <Text type="secondary">
-                                Searching for: <Text strong>{queryParam}</Text>
-                            </Text>
+                        </div>
+
+                        {/* Collection Summary Cards */}
+                        {!isLoading && !isFetching && collectionSummary.length > 0 && (
+                            <div style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                                gap: 12,
+                                marginBottom: 24
+                            }}>
+                                {collectionSummary.map((summary) => (
+                                    <div
+                                        key={summary.collection}
+                                        onClick={() => setSelectedCollection(
+                                            selectedCollection === summary.collection ? null : summary.collection
+                                        )}
+                                        style={{
+                                            background: selectedCollection === summary.collection
+                                                ? `linear-gradient(135deg, ${summary.gradient.start} 0%, ${summary.gradient.end} 100%)`
+                                                : '#fafafa',
+                                            borderRadius: 12,
+                                            padding: '16px',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.3s ease',
+                                            border: selectedCollection === summary.collection
+                                                ? `2px solid ${summary.gradient.end}`
+                                                : '2px solid transparent',
+                                            position: 'relative',
+                                            overflow: 'hidden'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            if (selectedCollection !== summary.collection) {
+                                                e.currentTarget.style.background = '#f0f0f0';
+                                                e.currentTarget.style.transform = 'translateY(-2px)';
+                                                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.08)';
+                                            }
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            if (selectedCollection !== summary.collection) {
+                                                e.currentTarget.style.background = '#fafafa';
+                                                e.currentTarget.style.transform = 'translateY(0)';
+                                                e.currentTarget.style.boxShadow = 'none';
+                                            }
+                                        }}
+                                    >
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                            <div style={{
+                                                width: 40,
+                                                height: 40,
+                                                borderRadius: 8,
+                                                background: selectedCollection === summary.collection
+                                                    ? 'rgba(255, 255, 255, 0.3)'
+                                                    : `linear-gradient(135deg, ${summary.gradient.start} 0%, ${summary.gradient.end} 100%)`,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                color: 'white',
+                                                fontSize: 20,
+                                                flexShrink: 0
+                                            }}>
+                                                {summary.icon}
+                                            </div>
+                                            <div style={{ flex: 1 }}>
+                                                <div style={{
+                                                    fontWeight: 600,
+                                                    fontSize: 14,
+                                                    color: selectedCollection === summary.collection ? 'white' : '#262626',
+                                                    marginBottom: 4
+                                                }}>
+                                                    {summary.name}
+                                                </div>
+                                                <div style={{
+                                                    fontSize: 24,
+                                                    fontWeight: 700,
+                                                    color: selectedCollection === summary.collection ? 'white' : summary.gradient.start
+                                                }}>
+                                                    {summary.count}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {selectedCollection === summary.collection && (
+                                            <div style={{
+                                                position: 'absolute',
+                                                top: 8,
+                                                right: 8,
+                                                width: 24,
+                                                height: 24,
+                                                borderRadius: '50%',
+                                                background: 'rgba(255, 255, 255, 0.3)',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                color: 'white',
+                                                fontSize: 12,
+                                                fontWeight: 600
+                                            }}>
+                                                ✓
+                                            </div>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
                         )}
                     </div>
 
@@ -265,9 +395,28 @@ function Search() {
                     )}
 
                     {!isLoading && !isFetching && results.length > 0 && (
-                        <List
-                            itemLayout="vertical"
-                            dataSource={results}
+                        <>
+                            {selectedCollection && (
+                                <div style={{ marginBottom: 16 }}>
+                                    <Button
+                                        size="small"
+                                        onClick={() => setSelectedCollection(null)}
+                                        style={{
+                                            background: 'rgba(24, 144, 255, 0.1)',
+                                            border: '1px solid #1890ff',
+                                            color: '#1890ff'
+                                        }}
+                                    >
+                                        ← Show All Results
+                                    </Button>
+                                    <Text type="secondary" style={{ marginLeft: 12 }}>
+                                        Showing {filteredResults.length} results from {collectionNames[selectedCollection]}
+                                    </Text>
+                                </div>
+                            )}
+                            <List
+                                itemLayout="vertical"
+                                dataSource={filteredResults}
                             renderItem={(result: SearchResult) => (
                                 <List.Item
                                     key={result.resource_id}
@@ -368,7 +517,8 @@ function Search() {
                                     </div>
                                 </List.Item>
                             )}
-                        />
+                            />
+                        </>
                     )}
                 </Card>
             )}
@@ -381,7 +531,7 @@ function Search() {
                             <Space direction="vertical">
                                 <Text>Enter a search query to find domains or IP addresses</Text>
                                 <Text type="secondary" style={{ fontSize: 12 }}>
-                                    Search across Virtual Hosts, Routes, Filters, Endpoints, and Discovery resources
+                                    Search across Virtual Hosts, Routes, Filters, Endpoints, Discovery etc. resources
                                 </Text>
                             </Space>
                         }
