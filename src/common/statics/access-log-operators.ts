@@ -5,7 +5,7 @@ export interface ALO {
     versions: string[];
 }
 
-const v1_35_3_36_0 = ["1.35.3", "1.36.0"]
+const v1_35_3_36_0 = ["1.35.3", "1.36.1"]
 
 export const AccessLogOperators: ALO[] = [
     {
