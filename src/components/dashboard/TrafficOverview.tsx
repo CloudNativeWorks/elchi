@@ -1147,11 +1147,56 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
 
             {/* Grouped Metrics */}
             <Row gutter={[24, 24]} style={{ position: 'relative', zIndex: 2 }}>
+                {/* Errors & Health */}
+                <Col xs={24} lg={8}>
+                    <GroupedMetricCard
+                        title="Errors & Health"
+                        icon={<ThunderboltOutlined />}
+                        gradient="linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)"
+                        metrics={[
+                            {
+                                label: '4xx Errors',
+                                value: stats.http4xxErrors,
+                                suffix: '/s',
+                                color: '#f59e0b'
+                            },
+                            {
+                                label: '5xx Errors',
+                                value: stats.http5xxErrors,
+                                suffix: '/s',
+                                color: '#ef4444'
+                            },
+                            {
+                                label: 'Server Health',
+                                value: stats.totalServers > 0
+                                    ? ((stats.totalServers - stats.unhealthyServers) / stats.totalServers) * 100
+                                    : 0,
+                                customRenderer: (val: number) => (
+                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                                        <span>{val.toFixed(0)}%</span>
+                                        <span style={{
+                                            fontSize: '10px',
+                                            color: '#9ca3af',
+                                            fontWeight: 400,
+                                            marginTop: '2px'
+                                        }}>
+                                            {stats.totalServers > 0
+                                                ? `${stats.totalServers - stats.unhealthyServers}/${stats.totalServers}`
+                                                : '0/0'
+                                            }
+                                        </span>
+                                    </div>
+                                ),
+                                color: stats.totalServers === 0 ? '#64748b' : (stats.unhealthyServers > 0 ? '#ef4444' : '#22c55e')
+                            }
+                        ]}
+                    />
+                </Col>
                 {/* Connections Breakdown */}
                 <Col xs={24} lg={8}>
                     <GroupedMetricCard
                         title="Connections"
-                        icon={<CloudServerOutlined />}
+                        icon={<LinkOutlined />}
                         gradient="linear-gradient(135deg, #0369a1 0%, #0284c7 100%)"
                         metrics={[
                             {
@@ -1204,51 +1249,6 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                     />
                 </Col>
 
-                {/* Errors & Health */}
-                <Col xs={24} lg={8}>
-                    <GroupedMetricCard
-                        title="Errors & Health"
-                        icon={<SafetyCertificateOutlined />}
-                        gradient="linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)"
-                        metrics={[
-                            {
-                                label: '4xx Errors',
-                                value: stats.http4xxErrors,
-                                suffix: '/s',
-                                color: '#f59e0b'
-                            },
-                            {
-                                label: '5xx Errors',
-                                value: stats.http5xxErrors,
-                                suffix: '/s',
-                                color: '#ef4444'
-                            },
-                            {
-                                label: 'Server Health',
-                                value: stats.totalServers > 0
-                                    ? ((stats.totalServers - stats.unhealthyServers) / stats.totalServers) * 100
-                                    : 0,
-                                customRenderer: (val: number) => (
-                                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                                        <span>{val.toFixed(0)}%</span>
-                                        <span style={{
-                                            fontSize: '10px',
-                                            color: '#9ca3af',
-                                            fontWeight: 400,
-                                            marginTop: '2px'
-                                        }}>
-                                            {stats.totalServers > 0
-                                                ? `${stats.totalServers - stats.unhealthyServers}/${stats.totalServers}`
-                                                : '0/0'
-                                            }
-                                        </span>
-                                    </div>
-                                ),
-                                color: stats.totalServers === 0 ? '#64748b' : (stats.unhealthyServers > 0 ? '#ef4444' : '#22c55e')
-                            }
-                        ]}
-                    />
-                </Col>
             </Row>
 
             {/* Detail Drawer */}

@@ -2,6 +2,6 @@ window.APP_CONFIG = {
     API_URL: 'http://localhost:8010',
     API_URL_LOCAL: 'http://localhost:8010',
     ENABLE_DEMO: false,
-    AVAILABLE_VERSIONS: ['v1.35.3', 'v1.35.0'],
+    AVAILABLE_VERSIONS: ['v1.35.3', 'v1.36.0'],
     VERSION: '0.1.0'
 };

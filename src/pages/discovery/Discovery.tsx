@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, Table, Tag, Space, Typography, Button, Drawer, Descriptions, Badge, List, Tooltip, Modal, Input, Popconfirm } from 'antd';
 import { copyToClipboard } from '@/utils/clipboard';
 import {
@@ -51,7 +51,7 @@ const Discovery: React.FC = () => {
     const [selectedClusterForUsage, setSelectedClusterForUsage] = useState<ClusterDiscovery | null>(null);
     const [pagination, setPagination] = useState({
         current: 1,
-        pageSize: 20,
+        pageSize: 100,
         showSizeChanger: true,
         showQuickJumper: true,
         showTotal: (total: number, range: [number, number]) => `${range[0]}-${range[1]} of ${total} clusters`,
@@ -74,18 +74,22 @@ const Discovery: React.FC = () => {
         return timeDifference > tenMinutesInMs ? 'inactive' : 'active';
     };
 
-    // Ensure clusters is always an array and sort by status (inactive first)
-    const clustersData = Array.isArray(clusters) ? 
+    // Ensure clusters is always an array and sort by status (inactive first), then by cluster name (A to Z)
+    const clustersData = Array.isArray(clusters) ?
         [...clusters].sort((a, b) => {
             const statusA = getClusterStatus(a.last_seen);
             const statusB = getClusterStatus(b.last_seen);
-            
+
             // Inactive clusters come first
             if (statusA === 'inactive' && statusB === 'active') return -1;
             if (statusA === 'active' && statusB === 'inactive') return 1;
-            
-            // If same status, sort by last_seen (newest first)
-            return new Date(b.last_seen).getTime() - new Date(a.last_seen).getTime();
+
+            // If same status, sort by cluster name alphabetically (A to Z), case-insensitive
+            const nameA = a.cluster_name.toLowerCase();
+            const nameB = b.cluster_name.toLowerCase();
+            if (nameA < nameB) return -1;
+            if (nameA > nameB) return 1;
+            return 0;
         }) : [];
 
     const handleViewCluster = (cluster: ClusterDiscovery) => {
