@@ -11,11 +11,11 @@ const DURATION_MODULES: Record<Version, DurationModuleType['Duration']> = {}
 
 async function initializeDurationModules() {
     await Promise.all(window.APP_CONFIG.AVAILABLE_VERSIONS.map(async (version) => {
-        // Explicit dynamic imports for each version
+        // Explicit dynamic imports for each versio
         let module
         switch (version) {
-            case 'v1.36.1':
-                module = await import('../versions/v1.36.1/models/google/protobuf/duration')
+            case 'v1.36.2':
+                module = await import('../versions/v1.36.2/models/google/protobuf/duration')
                 break
             case 'v1.35.3':
                 module = await import('../versions/v1.35.3/models/google/protobuf/duration')
