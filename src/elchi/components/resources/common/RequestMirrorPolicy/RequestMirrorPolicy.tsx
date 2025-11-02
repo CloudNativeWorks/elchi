@@ -80,7 +80,7 @@ const CommonComponentRequestMirrorPolicy: React.FC<GeneralProps> = ({ veri }) =>
                     <HorizonTags veri={{
                         tags: vTags.rmp?.RouteAction_RequestMirrorPolicy,
                         selectedTags: selectedTags[index],
-                        unsupportedTags: [],
+                        unsupportedTags: ["request_headers_mutations"],
                         index: index,
                         tagPrefix: '',
                         tagMatchPrefix: `${veri.tagMatchPrefix}`,

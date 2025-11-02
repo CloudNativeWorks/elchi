@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import { Col, Row, Divider } from "antd";
 import { HeadOfResource } from "@/elchi/components/common/HeadOfResources";
 import { ResourceAction } from "@/redux/reducers/slice";
-import { FieldConfigType, matchesEndOrStartOf } from "@/utils/tools";
+import { FieldConfigType, matchesEndOrStartOf, startsWithAny } from "@/utils/tools";
 import { navigateCases } from "@/elchi/helpers/navigate-cases";
 import { GTypes } from "@/common/statics/gtypes";
 import { useGTypeFields } from "@/hooks/useGtypes";
@@ -20,7 +20,7 @@ import { useLoading } from "@/hooks/loadingContext";
 import { useManagedLoading } from "@/hooks/useManageLoading";
 import { ConditionalComponent } from "@/elchi/components/common/ConditionalComponent";
 import { ProfileTwoTone } from "@ant-design/icons";
-
+import CommonComponentPath from "@elchi/components/resources/common/Path/Path"
 
 type GeneralProps = {
     veri: {
@@ -98,17 +98,14 @@ const FileAccessLogComponent: React.FC<GeneralProps> = ({ veri }) => {
                     />
                 </Col>
                 <Col md={20}>
-                    <ConditionalComponent
-                        shouldRender={selectedTags?.some(item => vTags.fal?.FileAccessLog_SingleFields?.includes(item))}
-                        Component={CommonComponentSingleOptions}
-                        componentProps={{
+                    {startsWithAny("path", selectedTags) &&
+                        <CommonComponentPath veri={{
                             version: veri.version,
-                            selectedTags: selectedTags,
-                            fieldConfigs: fieldConfigs,
-                            reduxStore: reduxStore,
-                            id: `single_options_0`,
-                        }}
-                    />
+                            reduxStore: reduxStore?.path,
+                            title: "path",
+                            reduxAction: ResourceAction,
+                        }} />
+                    }
                     <ConditionalComponent
                         shouldRender={matchesEndOrStartOf("access_log_format.log_format", selectedTags)}
                         Component={ComponentLogFormat}

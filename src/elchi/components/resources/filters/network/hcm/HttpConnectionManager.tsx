@@ -32,7 +32,7 @@ import ComponentHttp2ProtocolOptions from "@/elchi/components/resources/extensio
 import ComponentHttp3ProtocolOptions from "@/elchi/components/resources/extension/http-protocol-options/Http3ProtocolOptions";
 import ComponentCommonHttpProtocolOptions from "@/elchi/components/resources/extension/http-protocol-options/CommonHttpProtocolOptions";
 import { ConditionalComponent } from "@/elchi/components/common/ConditionalComponent";
-
+import ComponentUpgradeConfigs from "./UpgradeConfigs";
 
 type GeneralProps = {
     veri: {
@@ -224,6 +224,17 @@ const ComponentHttpConnectionManager: React.FC<GeneralProps> = ({ veri }) => {
                                 reduxStore: reduxStore?.access_log,
                                 reduxAction: ResourceAction,
                                 id: `access_log_0`,
+                            }}
+                        />
+                        <ConditionalComponent
+                            shouldRender={matchesEndOrStartOf("upgrade_configs", selectedTags)}
+                            Component={ComponentUpgradeConfigs}
+                            componentProps={{
+                                version: veri.version,
+                                reduxStore: reduxStore?.upgrade_configs,
+                                keyPrefix: "upgrade_configs",
+                                tagMatchPrefix: "HttpConnectionManager.upgrade_configs",
+                                id: `upgrade_configs_0`,
                             }}
                         />
                     </Col>

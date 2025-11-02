@@ -984,3 +984,28 @@ While proxy maintains all stats in shared memory, a stats-sink streams selected 
 - Per-sink **metric filters** (inclusion/exclusion) prevent noisy or sensitive stats from leaving the node.
 - Flush interval defaults to **5 s**, but overly aggressive intervals can increase CPU and network usage.
 - For pull-based sinks (Prometheus), remember to expose the admin interface securely—stats may reveal internal service names and paths.`
+
+export const D_HTTP_WASM = `
+**WASM HTTP Filter** is a powerful and extensible Envoy filter that enables execution of **WebAssembly (WASM)** modules within the HTTP request/response lifecycle.  
+It allows developers to run custom logic—such as authentication, rate limiting, logging, or request transformation—directly inside Envoy without needing to recompile the Envoy binary.
+
+### 🔍 Key Responsibilities
+- Load and instantiate a **WASM module** (e.g., \`main.wasm\`) inside Envoy as an HTTP filter.
+- Provide hooks into the HTTP lifecycle: \`onRequestHeaders\`, \`onRequestBody\`, \`onResponseHeaders\`, etc.
+- Allow manipulation of headers, body, metadata, and even dynamic state across filter chains.
+- Interact with Envoy's core via the **proxy-wasm ABI**, supporting host calls, metrics, logging, and shared data.
+
+### 🧩 Common Use Cases
+- Enforcing **custom security policies** (e.g., IP allowlists, GeoIP rules).
+- Injecting **telemetry and metrics** into tracing or logging pipelines.
+- Implementing **rate limiting or circuit breaking** beyond built-in filters.
+- Running **WAF engines** (e.g., Coraza) directly inside Envoy in a portable way.
+- Integrating with external authorization, identity, or token-based systems without custom Envoy builds.
+
+### 🧠 Good to Know
+- WASM filters are sandboxed and portable—written in **Rust**, **Go (TinyGo)**, or **AssemblyScript** and compiled to \`.wasm\`.
+- The lifecycle is fully event-driven and asynchronous, designed to minimize blocking operations.
+- Each module runs inside a VM (e.g., **v8**, **wasmtime**, or **wamr**) managed by Envoy's \`wasm\` filter runtime.
+- Configuration can be passed via **protobuf Any types**, such as \`google.protobuf.StringValue\` or \`Struct\`, and is deserialized before reaching the plugin.
+- You can set filter behavior **per route**, **per listener**, or **globally**, and hot-reload new logic without restarting Envoy.
+- Recommended for **edge-service customization** or **fine-grained traffic control** where native filters fall short.`;

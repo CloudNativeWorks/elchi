@@ -244,6 +244,17 @@ input.no-password-manager ~ div[data-lastpass-icon-root] {
     transition: width 0.3s ease;
 }
 
+.main-content .ant-layout-content::after {
+    content: '';
+    display: block;
+    height: 40px;
+}
+
+/* Alternative approach - add margin to last child */
+.main-content .ant-layout-content > *:last-child {
+    margin-bottom: 40px !important;
+}
+
 @media (max-width: 768px) {
     .main-content {
         margin-left: 60px;

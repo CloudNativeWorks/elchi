@@ -1,4 +1,4 @@
-import { Row, Col, Input, Button, Switch, Card, Space, Typography, Tooltip } from 'antd';
+import { Row, Col, Input, Button, Switch, Card, Space, Typography, Tooltip, Select } from 'antd';
 import { RenderCreateUpdate } from './CreateUpdate';
 import { ConfigDiscovery } from '@/common/types';
 import { GTypeFieldsBase } from '@/common/statics/gtypes';
@@ -27,6 +27,10 @@ interface RenderFormItemProps {
     // Optional validate field props - if string provided, show validate switch
     validate?: string;
     changeGeneralValidate?: any;
+    // Optional WAF config props - for Wasm filter only
+    wafConfig?: string;
+    changeWafConfig?: (wafName: string) => void;
+    wafConfigs?: Array<{ name: string; id: string }>;
 }
 
 type createUpdate = {
@@ -43,27 +47,28 @@ type createUpdate = {
     rawQuery?: any;
 }
 
-export const HeadOfResource = ({ generalName, version, changeGeneralName, locationCheck, createUpdate, managed, changeGeneralManaged, callBack, validate, changeGeneralValidate }: RenderFormItemProps) => {
+export const HeadOfResource = ({ generalName, version, changeGeneralName, locationCheck, createUpdate, managed, changeGeneralManaged, callBack, validate, changeGeneralValidate, wafConfig, changeWafConfig, wafConfigs }: RenderFormItemProps) => {
     const dispatch = useDispatch();
     const [showHowTo, setShowHowTo] = useState(false);
     const [showDiscovery, setShowDiscovery] = useState(false);
     const [showTemplate, setShowTemplate] = useState(false);
-    
+
     // Internal state for validate if not controlled from parent
     const [internalValidateEnabled, setInternalValidateEnabled] = useState(true);
-    
-    // Use internal state if no changeGeneralValidate provided  
-    const validateEnabled = changeGeneralValidate ? 
-        (typeof validate === 'string' ? internalValidateEnabled : validate) : 
+
+    // Use internal state if no changeGeneralValidate provided
+    const validateEnabled = changeGeneralValidate ?
+        (typeof validate === 'string' ? internalValidateEnabled : validate) :
         internalValidateEnabled;
     const handleValidateChange = changeGeneralValidate || setInternalValidateEnabled;
-    
+
 
     // These parameters are used conditionally in JSX
-    void managed; void changeGeneralManaged; void callBack; void validate; void changeGeneralValidate;
+    void managed; void changeGeneralManaged; void callBack; void validate; void changeGeneralValidate; void wafConfig; void changeWafConfig; void wafConfigs;
 
     const isEndpointType = createUpdate.gtype === "envoy.config.endpoint.v3.ClusterLoadAssignment";
-    
+    const isWasmType = createUpdate.gtype === "envoy.extensions.filters.http.wasm.v3.Wasm";
+
     // Check if this is create mode (not update/edit mode)
     const isCreateMode = createUpdate.location_path === createUpdate.GType.createPath;
 
@@ -159,6 +164,36 @@ export const HeadOfResource = ({ generalName, version, changeGeneralName, locati
                                     >
                                         {discoveryData.length > 0 ? `${discoveryData.length} Clusters` : 'Configure Discovery'}
                                     </Button>
+                                </div>
+                            </Col>
+                        )}
+                        {isWasmType && wafConfigs && changeWafConfig && (
+                            <Col span={6}>
+                                <div>
+                                    <Text style={{ fontSize: 12, fontWeight: 500, color: '#595959', display: 'block', marginBottom: 6 }}>
+                                        WAF Profile
+                                    </Text>
+                                    <Select
+                                        value={wafConfig || undefined}
+                                        onChange={(value) => changeWafConfig(value || "")}
+                                        placeholder="Select WAF config"
+                                        allowClear
+                                        showSearch
+                                        filterOption={(input, option) =>
+                                            (option?.label?.toString().toLowerCase() ?? '').includes(input.toLowerCase())
+                                        }
+                                        style={{
+                                            width: '100%',
+                                            borderRadius: 6,
+                                            fontSize: 14,
+                                            height: 32
+                                        }}
+                                        size="middle"
+                                        options={wafConfigs.map(cfg => ({
+                                            label: cfg.name,
+                                            value: cfg.name
+                                        }))}
+                                    />
                                 </div>
                             </Col>
                         )}
@@ -295,6 +330,7 @@ export const HeadOfResource = ({ generalName, version, changeGeneralName, locati
                             callBack={callBack}
                             managed={managed}
                             validate={validateEnabled}
+                            waf={wafConfig}
                         />
                     </div>
                 </Col>

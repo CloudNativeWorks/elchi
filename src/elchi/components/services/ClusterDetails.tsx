@@ -10,6 +10,7 @@ interface ClusterDetailsProps {
     name: string;
     project: string;
     version?: string;
+    envoys?: any;
 }
 
 const metricLabels: Record<string, string> = {
@@ -34,7 +35,7 @@ interface MetricChanges {
     };
 }
 
-const ClusterDetails: React.FC<ClusterDetailsProps> = ({ name, project, version }) => {
+const ClusterDetails: React.FC<ClusterDetailsProps> = ({ name, project, version, envoys }) => {
     const { loading, error, clusterData, fetchClusterDetails } = useClusterDetails({ name, project, version });
     const [selectedClient, setSelectedClient] = useState<string>();
     const [metricChanges, setMetricChanges] = useState<MetricChanges>({});
@@ -510,10 +511,28 @@ const ClusterDetails: React.FC<ClusterDetailsProps> = ({ name, project, version 
                         style={{ width: 200 }}
                         value={selectedClient}
                         onChange={setSelectedClient}
-                        options={clusterData?.map(data => ({
-                            label: data.identity.client_name,
-                            value: data.identity.client_name
-                        })) || []}
+                        options={envoys?.envoys?.map((envoy: any) => {
+                            const isConnected = envoy.connected;
+                            const isAvailable = clusterData?.some(data => data.identity.client_name === envoy.client_name);
+                            return {
+                                label: (
+                                    <span style={{
+                                        color: !isConnected ? '#999' : undefined,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 6
+                                    }}>
+                                        <Badge
+                                            status={isConnected ? 'success' : 'error'}
+                                            style={{ marginRight: 4 }}
+                                        />
+                                        {envoy.client_name}
+                                    </span>
+                                ),
+                                value: envoy.client_name,
+                                disabled: !isAvailable
+                            };
+                        }) || []}
                         loading={loading}
                         placeholder="Select client"
                     />

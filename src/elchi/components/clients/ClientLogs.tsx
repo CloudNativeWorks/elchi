@@ -107,7 +107,7 @@ const ClientLogs: React.FC<ClientLogProps> = ({ clientId }) => {
                         data && Array.isArray(data) && data[0]?.Result?.GeneralLog?.logs
                             ? data[0].Result.GeneralLog.logs
                             : [];
-                    logsArr.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+                    logsArr.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()); // Newest first
                     setLogs(logsArr);
                 }
             } catch (err: any) {
@@ -120,11 +120,12 @@ const ClientLogs: React.FC<ClientLogProps> = ({ clientId }) => {
         return () => { isMounted = false; };
     }, [clientId, logLineCount, refreshKey]);
 
-    useEffect(() => {
-        if (logListRef.current) {
-            logListRef.current.scrollTop = logListRef.current.scrollHeight;
-        }
-    }, [logs]);
+    // Removed auto-scroll effect - logs should stay at top
+    // useEffect(() => {
+    //     if (logListRef.current) {
+    //         logListRef.current.scrollTop = logListRef.current.scrollHeight;
+    //     }
+    // }, [logs]);
 
     const filteredLogs = logs.filter(log =>
         (!searchText || log.message?.toLowerCase().includes(searchText.toLowerCase()) ||

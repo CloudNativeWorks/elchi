@@ -11,7 +11,7 @@ const DURATION_MODULES: Record<Version, DurationModuleType['Duration']> = {}
 
 async function initializeDurationModules() {
     await Promise.all(window.APP_CONFIG.AVAILABLE_VERSIONS.map(async (version) => {
-        // Explicit dynamic imports for each versio
+        // Explicit dynamic imports for each version
         let module
         switch (version) {
             case 'v1.36.2':

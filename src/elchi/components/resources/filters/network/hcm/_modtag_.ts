@@ -16,6 +16,14 @@ export const modtag_http_filter = [
     },
 ];
 
+export const modtag_upgrade_configs = [
+    {
+        alias: 'uc',
+        relativePath: 'envoy/extensions/filters/network/http_connection_manager/v3/http_connection_manager',
+        names: ['HttpConnectionManager_UpgradeConfig', 'HttpConnectionManager_UpgradeConfig_SingleFields'],
+    },
+];
+
 export const modtag_us_hcm: TagsType = {
     "HCM": [
         "route_specifier.scoped_routes",
@@ -26,7 +34,6 @@ export const modtag_us_hcm: TagsType = {
         "early_header_mutation_extensions",
         "internal_address_config",
         "set_current_client_cert_details",
-        "upgrade_configs",
         "request_id_extension",
         "local_reply_config",
         "path_normalization_options",

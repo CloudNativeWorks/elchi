@@ -162,6 +162,7 @@ export const modtag_us_virtualhost: TagsType = {
         'non_forwarding_action',
         'tracing',
         'decorator',
+        'per_request_buffer_limit_bytes'
     ],
     'route': [
         'cluster_specifier.cluster_specifier_plugin',
@@ -183,7 +184,8 @@ export const modtag_us_virtualhost: TagsType = {
         'cors',
         'retry_policy_typed_config',
         'metadata',
-        'matcher'
+        'matcher',
+        'per_request_buffer_limit_bytes'
     ]
 }
 

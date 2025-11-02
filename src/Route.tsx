@@ -21,7 +21,6 @@ import Settings from "@/pages/settings/settings";
 import RegistryInfo from "@/pages/RegistryInfo";
 import ExtensionsMain from "@/pages/ExtensionsMain";
 import SnapshotDump from '@/pages/SnapshotDump';
-import Scenario from '@/elchi/components/scenario_old/Scenario';
 import ScenarioDashboard from '@/elchi/components/scenarios/ScenarioDashboard';
 import DynamicScenarioWizard from '@/elchi/components/scenarios/DynamicScenarioWizard';
 import DynamicScenarioExecutionRedux from '@/elchi/components/scenarios/DynamicScenarioExecutionRedux';
@@ -39,6 +38,8 @@ import JobDetail from './pages/jobs/JobDetail';
 import AuditList from './pages/audit/AuditList';
 import AuditDetail from './pages/audit/AuditDetail';
 import Search from './pages/Search';
+import WafList from './pages/waf/WafList';
+import WafDetail from './pages/waf/WafDetail';
 
 
 const AppRoutes: React.FC = () => (
@@ -57,8 +58,6 @@ const AppRoutes: React.FC = () => (
                 <Route path="/scenarios/create" element={<DynamicScenarioWizard />} />
                 <Route path="/scenarios/:scenarioId/execute" element={<DynamicScenarioExecutionRedux />} />
                 <Route path="/scenarios/:scenarioId/edit" element={<DynamicScenarioWizard />} />
-                {/* Legacy scenario route - for backward compatibility during transition */}
-                <Route path="/scenario/:scenarioid" element={<Scenario />} />
                 <Route path="/403" element={<Err403 />} />
                 <Route path="/snapshot_dump/:listenerName" element={<SnapshotDump />} />
                 {/* Resource Routes */}
@@ -125,6 +124,10 @@ const AppRoutes: React.FC = () => (
                 {/* Audit Routes */}
                 <Route path="/audit" element={<AuditList />} />
                 <Route path="/audit/:auditId" element={<AuditDetail />} />
+
+                {/* WAF Routes */}
+                <Route path="/waf" element={<WafList />} />
+                <Route path="/waf/:id" element={<WafDetail />} />
 
                 {/* Catch-All Route */}
                 <Route path="*" element={<Dashboard />} />

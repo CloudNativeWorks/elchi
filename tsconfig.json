@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "ignoreDeprecations": "6.0",
         "noEmitOnError": false,
         "noImplicitAny": false,
         "target": "esnext",

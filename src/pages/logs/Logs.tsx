@@ -264,7 +264,7 @@ const Logs: React.FC = () => {
                         const timeA = parseTimestamp(a.timestamp || '');
                         const timeB = parseTimestamp(b.timestamp || '');
 
-                        return timeA - timeB;
+                        return timeB - timeA; // Newest first (descending order)
                     });
                     setLogs(logsArr);
                 }
@@ -278,11 +278,12 @@ const Logs: React.FC = () => {
         return () => { isMounted = false; };
     }, [name, logLineCount, refreshKey, activeComponents, activeLevels, searchText, services, logType]);
 
-    useEffect(() => {
-        if (logListRef.current) {
-            logListRef.current.scrollTop = logListRef.current.scrollHeight;
-        }
-    }, [logs]);
+    // Removed auto-scroll effect - logs should stay at top
+    // useEffect(() => {
+    //     if (logListRef.current) {
+    //         logListRef.current.scrollTop = logListRef.current.scrollHeight;
+    //     }
+    // }, [logs]);
 
     const filteredLogs = logs.filter(log =>
         (!searchText || log.message?.toLowerCase().includes(searchText.toLowerCase()) ||
@@ -851,22 +852,29 @@ const Logs: React.FC = () => {
                                             if (formatted.isJsonLog) {
                                                 // JSON formatted log - single line with highlighted key-value pairs
                                                 return (
-                                                    <div style={{ 
+                                                    <div style={{
                                                         fontFamily: 'monospace',
                                                         fontSize: 12,
-                                                        lineHeight: '20px'
+                                                        lineHeight: '20px',
+                                                        wordBreak: 'break-word',
+                                                        overflowWrap: 'break-word'
                                                     }}>
                                                         {Object.entries(formatted.jsonData).map(([key, value], idx) => (
                                                             <span key={idx}>
-                                                                <span style={{ 
+                                                                <span style={{
                                                                     color: '#1890ff',
                                                                     fontWeight: 600
                                                                 }}>{key}</span>
                                                                 <span style={{ color: '#666' }}>: </span>
-                                                                <span style={{ color: '#2c3e50' }}>
+                                                                <span style={{
+                                                                    color: '#2c3e50',
+                                                                    wordBreak: 'break-all',
+                                                                    display: 'inline-block',
+                                                                    maxWidth: '100%'
+                                                                }}>
                                                                     {String(value)}
                                                                 </span>
-                                                                {idx < Object.entries(formatted.jsonData).length - 1 && 
+                                                                {idx < Object.entries(formatted.jsonData).length - 1 &&
                                                                     <span style={{ color: '#ccc' }}> | </span>
                                                                 }
                                                             </span>

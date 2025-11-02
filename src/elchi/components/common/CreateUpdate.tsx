@@ -32,6 +32,7 @@ interface RenderFormItemProps {
     GType: GTypeFieldsBase;
     rawQuery?: any;
     validate?: boolean;
+    waf?: string; // WAF config name for Wasm filter
 }
 
 export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
@@ -106,6 +107,8 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
             path = `${options.GType.backendPath}/${options.name}?save_or_publish=${saveORpublish}&project=${project}&resource_id=${options.queryResource?.id}&version=${options.envoyVersion}`
         }
 
+        console.log('CreateUpdate received options.waf:', options?.waf);
+
         const defaultMO: CustomMutationOptions = {
             path: path,
             name: options.name,
@@ -129,11 +132,14 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
             },
             managed: options?.managed,
             elchi_discovery: elchiDiscovery,
+            waf: options?.waf,
             validate: options?.validate,
             customSuccessMessage: method === 'post' ?
                 `${options.GType.type} "${options.name}" created successfully!` :
                 `${options.GType.type} "${options.name}" updated successfully!`
         }
+
+        console.log('CreateUpdate defaultMO.waf:', defaultMO.waf);
 
         try {
             await mutate.mutateAsync(defaultMO, {

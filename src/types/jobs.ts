@@ -8,7 +8,7 @@ export type JobStatus =
   | 'FAILED' 
   | 'NO_WORK_NEEDED';
 
-export type JobType = 'SNAPSHOT_UPDATE' | 'DISCOVERY_UPDATE';
+export type JobType = 'SNAPSHOT_UPDATE' | 'DISCOVERY_UPDATE' | 'WAF_PROPAGATION';
 
 export type PokeStatus = 'PENDING' | 'SUCCESS' | 'FAILED';
 
@@ -42,9 +42,15 @@ export interface SourceResource {
 export interface JobMetadata {
   source_resource: SourceResource;
   trigger_user: TriggerUser;
-  affected_listeners: string[];
+  affected_listeners: string[] | null;
   total_affected: number;
   analysis_duration_ms: number;
+  // WAF_PROPAGATION specific fields
+  waf_config?: {
+    name: string;
+    project: string;
+  };
+  affected_wasm?: string[];
 }
 
 export interface SnapshotExecution {

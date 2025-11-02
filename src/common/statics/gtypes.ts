@@ -59,6 +59,7 @@ export enum GTypes {
     TLSSessionTicketKeys = "envoy.extensions.transport_sockets.tls.v3.TlsSessionTicketKeys",
     OAuth2 = "envoy.extensions.filters.http.oauth2.v3.OAuth2",
     OpenTelemetry = "envoy.extensions.stat_sinks.open_telemetry.v3.SinkConfig",
+    HttpWasm = "envoy.extensions.filters.http.wasm.v3.Wasm",
 }
 
 export const resourceMapping: Record<string, GTypes> = {
@@ -108,6 +109,7 @@ export const resourceMapping: Record<string, GTypes> = {
     h_local_ratelimit: GTypes.HttpLocalRatelimit,
     oauth2: GTypes.OAuth2,
     open_telemetry: GTypes.OpenTelemetry,
+    http_wasm: GTypes.HttpWasm,
 };
 
 type EnvoyVersion = string;
@@ -944,6 +946,21 @@ const gtypeFieldMap: Record<GTypes, GTypeFieldsBase> = {
         category: "envoy.stats_sinks",
         availableVersions: AVAILABLE_VERSIONS,
         metadata: METADATA_DEFAULT
+    },
+
+    [GTypes.HttpWasm]: {
+        backendPath: `${EXTENSIONS_PATH}/envoy.filters.http.wasm`,
+        createPath: '/create/http_wasm',
+        prettyName: 'Http Wasm',
+        listPage: '/filters/http/http_wasm',
+        collection: "filters",
+        type: "http_filter",
+        canonicalName: "envoy.filters.http.wasm",
+        module: 'filters/http/wasm/Wasm',
+        initialValue: {},
+        category: "envoy.filters.http",
+        availableVersions: AVAILABLE_VERSIONS,
+        metadata: { http_filter: 'main' }
     },
 };
 

@@ -304,7 +304,7 @@ const Service: React.FC = () => {
                         )}
                     </div>
                     <div>
-                        {renderStatusBadge(serviceData?.service?.clients, statusToShow)}
+                        {renderStatusBadge(serviceData?.service?.clients, statusToShow, serviceData?.envoys)}
                     </div>
                 </div>
                 <Tabs
@@ -352,6 +352,7 @@ const Service: React.FC = () => {
                                     name={serviceData?.service?.name}
                                     project={project}
                                     version={urlVersion || serviceData?.service?.version}
+                                    envoys={serviceData?.envoys}
                                 />
                             )
                         },

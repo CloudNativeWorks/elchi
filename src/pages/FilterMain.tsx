@@ -26,7 +26,7 @@ import {
 } from '@ant-design/icons';
 import { useCustomGetQuery } from "@/common/api";
 import { useProjectVariable } from "@/hooks/useProjectVariable";
-import { D_HTTP_ADAPTIVE_CONCURRENCY, D_HTTP_ADMISSION_CONTROL, D_HTTP_BANDWIDTH_LIMIT, D_HTTP_BASIC_AUTH, D_HTTP_BUFFER, D_HTTP_COMPRESSOR, D_HTTP_CORS, D_HTTP_CSRF_POLICY, D_HTTP_LOCAL_RATE_LIMIT, D_HTTP_LUA, D_HTTP_OAUTH2, D_HTTP_RBAC, D_HTTP_ROUTER, D_HTTP_STATEFUL_SESSION, D_L_HTTP_INSPECTOR, D_L_LOCAL_RATE_LIMIT, D_L_ORIGINAL_DST, D_L_ORIGINAL_SRC, D_L_PROXY_PROTOCOL, D_L_TLS_INSPECTOR, D_N_CONNECTION_LIMIT, D_N_HTTP_CONNECTION_MANAGER, D_N_LOCAL_RATE_LIMIT, D_N_NETWORK_RBAC, D_N_TCP_PROXY, D_UDP_DNS_FILTER } from "@/common/statics/ResourceDescriptions";
+import { D_HTTP_ADAPTIVE_CONCURRENCY, D_HTTP_ADMISSION_CONTROL, D_HTTP_BANDWIDTH_LIMIT, D_HTTP_BASIC_AUTH, D_HTTP_BUFFER, D_HTTP_COMPRESSOR, D_HTTP_CORS, D_HTTP_CSRF_POLICY, D_HTTP_LOCAL_RATE_LIMIT, D_HTTP_LUA, D_HTTP_OAUTH2, D_HTTP_RBAC, D_HTTP_ROUTER, D_HTTP_STATEFUL_SESSION, D_HTTP_WASM, D_L_HTTP_INSPECTOR, D_L_LOCAL_RATE_LIMIT, D_L_ORIGINAL_DST, D_L_ORIGINAL_SRC, D_L_PROXY_PROTOCOL, D_L_TLS_INSPECTOR, D_N_CONNECTION_LIMIT, D_N_HTTP_CONNECTION_MANAGER, D_N_LOCAL_RATE_LIMIT, D_N_NETWORK_RBAC, D_N_TCP_PROXY, D_UDP_DNS_FILTER } from "@/common/statics/ResourceDescriptions";
 
 const { Title, Text } = Typography;
 
@@ -278,6 +278,13 @@ const filters = [
                 value: 50,
                 data: D_HTTP_STATEFUL_SESSION,
                 canonical_name: "envoy.filters.http.stateful_session"
+            },
+            {
+                name: 'Wasm',
+                path: '/filters/http/http_wasm',
+                value: 50,
+                data: D_HTTP_WASM,
+                canonical_name: "envoy.filters.http.wasm"
             },
         ]
     },

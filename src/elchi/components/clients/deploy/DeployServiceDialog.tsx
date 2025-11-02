@@ -244,7 +244,10 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
 
     const performAction = async () => {
         if (action === OperationsType.DEPLOY) {
-            const missing = selectedRowKeys.some(id => !downstreamAddresses[id]);
+            // Only validate new clients (non-existing)
+            const newClients = selectedRowKeys.filter(id => !isExistingClient(id));
+
+            const missing = newClients.some(id => !downstreamAddresses[id]);
             if (missing) {
                 showWarningNotification('Please enter downstream address for all selected clients.');
                 return;
@@ -256,7 +259,7 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                 return ipRegex.test(ip);
             };
 
-            const invalidIPs = selectedRowKeys.filter(id => {
+            const invalidIPs = newClients.filter(id => {
                 const address = downstreamAddresses[id];
                 return address && !isValidIP(address);
             });
@@ -266,8 +269,8 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                 return;
             }
 
-            // Validate OpenStack interface selection
-            const openStackClients = selectedRowKeys.filter(id => {
+            // Validate OpenStack interface selection - only for new clients (non-existing)
+            const openStackClients = newClients.filter(id => {
                 const client = clients?.find(c => c.client_id === id);
                 return client?.provider === 'openstack' && client.metadata?.os_uuid && client.metadata?.os_project_id;
             });
@@ -281,9 +284,9 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                 return;
             }
 
-            // Check version compatibility
+            // Check version compatibility - only for new clients (non-existing)
             if (version) {
-                const incompatibleClients = selectedRowKeys.filter(id => {
+                const incompatibleClients = newClients.filter(id => {
                     const clientVersion = clientVersions[id];
                     return clientVersion &&
                         clientVersion.downloaded_versions &&
@@ -300,7 +303,13 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
             }
         }
 
-        const result = await executeAction(action, selectedRowKeys.map(id => ({
+        // For DEPLOY: only send to new clients (non-existing)
+        // For UNDEPLOY: send to all selected clients
+        const clientsToProcess = action === OperationsType.DEPLOY
+            ? selectedRowKeys.filter(id => !isExistingClient(id))
+            : selectedRowKeys;
+
+        const result = await executeAction(action, clientsToProcess.map(id => ({
             client_id: id,
             downstream_address: downstreamAddresses[id],
             interface_id: selectedInterfaces[id] || undefined,
@@ -364,6 +373,21 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
             });
         }
     }, [open, clients, fetchClientVersions, fetchOpenStackInterfaces]);
+
+    // Filter out offline clients when action switches to UNDEPLOY
+    useEffect(() => {
+        if (action === OperationsType.UNDEPLOY && clients && selectedRowKeys.length > 0) {
+            const onlineSelectedKeys = selectedRowKeys.filter(clientId => {
+                const client = clients.find(c => c.client_id === clientId);
+                return client?.connected;
+            });
+
+            // Only update if we're actually filtering something out
+            if (onlineSelectedKeys.length !== selectedRowKeys.length) {
+                setSelectedRowKeys(onlineSelectedKeys);
+            }
+        }
+    }, [action, clients]);
 
     const handleSubmit = async () => {
         if (selectedRowKeys.length === 0) {

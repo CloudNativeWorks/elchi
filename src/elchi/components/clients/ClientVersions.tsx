@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Table, Button, Tag, message, Modal, Typography, Spin, Tooltip, Badge } from 'antd';
-import { DownloadOutlined, CheckCircleOutlined, ExclamationCircleOutlined, ReloadOutlined, CloudDownloadOutlined, CalendarOutlined, CodeOutlined, FileZipOutlined } from '@ant-design/icons';
+import { Table, Button, Tag, Modal, Typography, Spin, Tooltip, Badge, Tabs } from 'antd';
+import { DownloadOutlined, CheckCircleOutlined, ExclamationCircleOutlined, ReloadOutlined, CloudDownloadOutlined, CalendarOutlined, CodeOutlined, FileZipOutlined, CopyOutlined } from '@ant-design/icons';
 import { useCustomGetQuery } from '@/common/api';
 import { useMutation } from '@tanstack/react-query';
 import { api } from '@/common/api';
@@ -39,7 +39,24 @@ interface VersionRelease {
 interface VersionOperationResponse {
     success: boolean;
     error: string;
-    envoy_version: {
+    envoy_version?: {
+        status: number;
+        operation: string;
+        downloaded_versions?: string[];
+        installed_version?: string;
+        download_path?: string;
+        requested_version?: string;
+        force_download?: boolean;
+        success_details?: string;
+        error_message?: string;
+        operation_summary?: {
+            action: string;
+            count?: number;
+            path?: string;
+            version?: string;
+        };
+    };
+    waf_version?: {
         status: number;
         operation: string;
         downloaded_versions?: string[];
@@ -59,7 +76,6 @@ interface VersionOperationResponse {
 }
 
 const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAddress }) => {
-    const [messageApi, contextHolder] = message.useMessage();
     const { project } = useProjectVariable();
 
     // Get available versions from API
@@ -74,15 +90,26 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
     const [currentVersions, setCurrentVersions] = useState<VersionOperationResponse | null>(null);
     const [loadingCurrent, setLoadingCurrent] = useState(false);
 
-    // Version operations mutation
-    const versionMutation = useMutation({
+    // State for Coroza versions
+    const [currentCorozaVersions, setCurrentCorozaVersions] = useState<VersionOperationResponse | null>(null);
+    const [loadingCurrentCoroza, setLoadingCurrentCoroza] = useState(false);
+
+    // Version operations mutations (separate for Envoy and Coroza)
+    const envoyMutation = useMutation({
         mutationFn: async (payload: any) => {
             const response = await api.post(`/api/op/clients?project=${project}`, payload);
             return response.data;
         }
     });
 
-    const handleGetVersions = useCallback(async (showMessage: boolean = false) => {
+    const corozaMutation = useMutation({
+        mutationFn: async (payload: any) => {
+            const response = await api.post(`/api/op/clients?project=${project}`, payload);
+            return response.data;
+        }
+    });
+
+    const handleGetVersions = useCallback(async () => {
         setLoadingCurrent(true);
         const payload = {
             type: "ENVOY_VERSION",
@@ -97,32 +124,26 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
             }
         };
 
-        versionMutation.mutate(payload, {
+        envoyMutation.mutate(payload, {
             onSuccess: (data: VersionOperationResponse[] | VersionOperationResponse) => {
                 // Response comes as array, take first element
                 const responseData = Array.isArray(data) ? data[0] : data;
                 if (responseData.success) {
-                    if (showMessage) {
-                        messageApi.success('Downloaded versions retrieved successfully');
-                    }
                     setCurrentVersions(responseData);
-                } else {
-                    messageApi.error(responseData.error || responseData.envoy_version?.error_message || 'Failed to get versions');
                 }
                 setLoadingCurrent(false);
             },
-            onError: (error: any) => {
-                messageApi.error(`Failed to get versions: ${error.message || 'Unknown error'}`);
+            onError: () => {
                 setLoadingCurrent(false);
             }
         });
-    }, [clientId, downstreamAddress, messageApi]);
+    }, [clientId, downstreamAddress]);
 
     const handleSetVersion = useCallback(async (version: string) => {
         // Check if version is supported by Elchi
         const supportedVersions = window.APP_CONFIG?.AVAILABLE_VERSIONS || [];
         const isSupported = supportedVersions.includes(version);
-        
+
         if (!isSupported) {
             Modal.warning({
                 title: 'Unsupported Version',
@@ -182,39 +203,116 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                     }
                 };
 
-                versionMutation.mutate(payload, {
+                envoyMutation.mutate(payload, {
                     onSuccess: (data: VersionOperationResponse[] | VersionOperationResponse) => {
                         // Response might come as array, take first element
                         const responseData = Array.isArray(data) ? data[0] : data;
                         if (responseData.success) {
-                            const installedVersion = responseData.envoy_version?.installed_version || version;
-                            const downloadPath = responseData.envoy_version?.download_path;
-
-                            if (downloadPath) {
-                                messageApi.success(`Version ${installedVersion} installed successfully at ${downloadPath}`);
-                            } else {
-                                messageApi.success(`Version ${installedVersion} installed successfully`);
-                            }
-                            // Refresh downloaded versions after successful install (show message)
-                            handleGetVersions(true);
-                        } else {
-                            messageApi.error(responseData.error || responseData.envoy_version?.error_message || 'Failed to install version');
+                            // Refresh downloaded versions after successful install
+                            handleGetVersions();
                         }
                     },
-                    onError: (error: any) => {
-                        messageApi.error(`Failed to install version: ${error.message || 'Unknown error'}`);
+                    onError: () => {
+                        // Error handled by central notification system
                     }
                 });
             }
         });
-    }, [clientId, downstreamAddress, messageApi, handleGetVersions]);
+    }, [clientId, downstreamAddress, handleGetVersions]);
+
+    // Coroza version handlers
+    const handleGetCorozaVersions = useCallback(async () => {
+        setLoadingCurrentCoroza(true);
+        const payload = {
+            type: "WAF_VERSION",
+            clients: [
+                {
+                    client_id: clientId,
+                    downstream_address: downstreamAddress || ""
+                }
+            ],
+            waf_version: {
+                operation: "GET_VERSIONS"
+            }
+        };
+
+        corozaMutation.mutate(payload, {
+            onSuccess: (data: VersionOperationResponse[] | VersionOperationResponse) => {
+                const responseData = Array.isArray(data) ? data[0] : data;
+                if (responseData.success) {
+                    setCurrentCorozaVersions(responseData);
+                }
+                setLoadingCurrentCoroza(false);
+            },
+            onError: () => {
+                setLoadingCurrentCoroza(false);
+            }
+        });
+    }, [clientId, downstreamAddress]);
+
+    const handleSetCorozaVersion = useCallback(async (version: string) => {
+        Modal.confirm({
+            title: 'Install Coroza Version',
+            icon: <ExclamationCircleOutlined />,
+            content: (
+                <div>
+                    <p>Are you sure you want to install Coroza <strong>{version}</strong>?</p>
+                    <div style={{ marginTop: 16 }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                            <input
+                                type="checkbox"
+                                id="forceDownloadCoroza"
+                                style={{ margin: 0 }}
+                            />
+                            <span style={{ fontSize: 13 }}>Force download (re-download even if version exists)</span>
+                        </label>
+                    </div>
+                </div>
+            ),
+            okText: 'Install',
+            okType: 'primary',
+            cancelText: 'Cancel',
+            onOk() {
+                const forceDownloadCheckbox = document.getElementById('forceDownloadCoroza') as HTMLInputElement;
+                const forceDownload = forceDownloadCheckbox?.checked || false;
+
+                const payload = {
+                    type: "WAF_VERSION",
+                    clients: [
+                        {
+                            client_id: clientId,
+                            downstream_address: downstreamAddress || ""
+                        }
+                    ],
+                    waf_version: {
+                        operation: "SET_VERSION",
+                        version: version,
+                        force_download: forceDownload
+                    }
+                };
+
+                corozaMutation.mutate(payload, {
+                    onSuccess: (data: VersionOperationResponse[] | VersionOperationResponse) => {
+                        const responseData = Array.isArray(data) ? data[0] : data;
+                        if (responseData.success) {
+                            handleGetCorozaVersions();
+                        }
+                    },
+                    onError: () => {
+                        // Error handled by central notification system
+                    }
+                });
+            }
+        });
+    }, [clientId, downstreamAddress, handleGetCorozaVersions]);
 
     // Load downloaded versions on component mount (no success message)
     useEffect(() => {
         if (clientId) {
-            handleGetVersions(false);
+            handleGetVersions();
+            handleGetCorozaVersions();
         }
-    }, [clientId, handleGetVersions]);
+    }, [clientId, handleGetVersions, handleGetCorozaVersions]);
 
     const columns = [
         {
@@ -230,15 +328,15 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                 const supportedVersions = window.APP_CONFIG?.AVAILABLE_VERSIONS || [];
                 const isSupported = supportedVersions.includes(version);
                 const isDownloaded = currentVersions?.envoy_version?.downloaded_versions?.includes(version);
-                
+
                 return (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                         <div style={{ display: 'flex', flexDirection: 'column', marginLeft: 6 }}>
-                            <Text 
-                                strong 
-                                style={{ 
-                                    fontSize: 15, 
-                                    color: isSupported ? '#1890ff' : '#bfbfbf' 
+                            <Text
+                                strong
+                                style={{
+                                    fontSize: 15,
+                                    color: isSupported ? '#1890ff' : '#bfbfbf'
                                 }}
                             >
                                 {version}
@@ -347,7 +445,7 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                         size="middle"
                         icon={<DownloadOutlined />}
                         onClick={() => handleSetVersion(record.version)}
-                        loading={versionMutation.isPending}
+                        loading={envoyMutation.isPending}
                         disabled={!isSupported}
                         style={{
                             borderRadius: 8,
@@ -365,6 +463,140 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
         }
     ];
 
+    // Coroza columns
+    const corozaColumns = [
+        {
+            title: (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <CodeOutlined style={{ color: '#722ed1' }} />
+                    <span>Version</span>
+                </div>
+            ),
+            dataIndex: 'version',
+            key: 'version',
+            render: (version: string) => {
+                const isDownloaded = currentCorozaVersions?.waf_version?.downloaded_versions?.includes(version);
+
+                return (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', marginLeft: 6 }}>
+                            <Text
+                                strong
+                                style={{
+                                    fontSize: 15,
+                                    color: '#722ed1'
+                                }}
+                            >
+                                {version}
+                            </Text>
+                            <div style={{ display: 'flex', gap: 8, marginTop: 4 }}>
+                                {isDownloaded && (
+                                    <Badge
+                                        status="success"
+                                        text={<Text style={{ fontSize: 11, color: '#52c41a' }}>Downloaded</Text>}
+                                    />
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+        },
+        {
+            title: (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <CalendarOutlined style={{ color: '#722ed1' }} />
+                    <span>Release Date</span>
+                </div>
+            ),
+            dataIndex: 'date',
+            key: 'date',
+            render: (date: string) => {
+                const releaseDate = new Date(date);
+                const isRecent = (Date.now() - releaseDate.getTime()) < (30 * 24 * 60 * 60 * 1000); // 30 days
+
+                return (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                        <Text style={{ fontSize: 13, fontWeight: 500 }}>
+                            {releaseDate.toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric'
+                            })}
+                        </Text>
+                        {isRecent && (
+                            <Tag color="purple" style={{ width: 'fit-content', fontSize: 10 }}>
+                                Recent
+                            </Tag>
+                        )}
+                    </div>
+                );
+            }
+        },
+        {
+            title: (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <FileZipOutlined style={{ color: '#fa8c16' }} />
+                    <span>Architectures</span>
+                </div>
+            ),
+            dataIndex: 'binaries',
+            key: 'binaries',
+            render: (binaries: VersionRelease['binaries']) => (
+                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                    {binaries.map(binary => {
+                        const archColors: { [key: string]: string } = {
+                            'wasm-amd64': '#722ed1',
+                            'wasm-arm64': '#eb2f96'
+                        };
+
+                        return (
+                            <Tooltip key={binary.arch} title={`SHA256: ${binary.sha256.substring(0, 16)}...`}>
+                                <Tag
+                                    color={archColors[binary.arch] || 'default'}
+                                    style={{
+                                        fontSize: 11,
+                                        fontWeight: 500,
+                                        cursor: 'pointer',
+                                        borderRadius: 12
+                                    }}
+                                >
+                                    {binary.arch}
+                                </Tag>
+                            </Tooltip>
+                        );
+                    })}
+                </div>
+            )
+        },
+        {
+            title: '',
+            key: 'action',
+            width: 140,
+            render: (_: any, record: VersionRelease) => {
+                const isDownloaded = currentCorozaVersions?.waf_version?.downloaded_versions?.includes(record.version);
+
+                return (
+                    <Button
+                        type={isDownloaded ? "default" : "primary"}
+                        size="middle"
+                        icon={<DownloadOutlined />}
+                        onClick={() => handleSetCorozaVersion(record.version)}
+                        loading={corozaMutation.isPending}
+                        style={{
+                            borderRadius: 8,
+                            fontWeight: 500,
+                            height: 36,
+                            boxShadow: isDownloaded ? 'none' : '0 2px 4px rgba(114,46,209,0.2)'
+                        }}
+                    >
+                        {isDownloaded ? 'Reinstall' : 'Install'}
+                    </Button>
+                );
+            }
+        }
+    ];
+
     if (loadingAvailable) {
         return (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 200 }}>
@@ -373,11 +605,9 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
         );
     }
 
-    return (
+    const envoyTabContent = (
         <>
-            {contextHolder}
-
-            {/* Header Section */}
+            {/* Envoy Downloaded Versions Section */}
             <div style={{ marginBottom: 24 }}>
                 <div style={{
                     background: 'white',
@@ -406,8 +636,8 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                         </div>
                         <Button
                             icon={<ReloadOutlined />}
-                            onClick={() => handleGetVersions(true)}
-                            loading={versionMutation.isPending || loadingCurrent}
+                            onClick={() => handleGetVersions()}
+                            loading={envoyMutation.isPending || loadingCurrent}
                             style={{
                                 borderRadius: 6,
                                 border: '1px solid #d1d5db',
@@ -516,6 +746,215 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                 </div>
             </div>
         </>
+    );
+
+    const corozaTabContent = (
+        <>
+            {/* Coroza Downloaded Versions Section */}
+            <div style={{ marginBottom: 24 }}>
+                <div style={{
+                    background: 'white',
+                    borderRadius: 12,
+                    border: '1px solid #e5e7eb',
+                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                    overflow: 'hidden'
+                }}>
+                    {/* Header */}
+                    <div style={{
+                        background: '#faf5ff',
+                        borderBottom: '1px solid #e5e7eb',
+                        padding: '6px 10px',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                    }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                            <CloudDownloadOutlined style={{ fontSize: 18, color: '#722ed1' }} />
+                            <div>
+                                <Text strong style={{ fontSize: 16, color: '#111827' }}>Downloaded Waf Engine Versions</Text>
+                                <div style={{ fontSize: 13, color: '#6b7280', marginTop: 2 }}>
+                                    {loadingCurrentCoroza ? 'Loading...' : `${currentCorozaVersions?.waf_version?.downloaded_versions?.length || 0} Waf engine versions available in client`}
+                                </div>
+                            </div>
+                        </div>
+                        <Button
+                            icon={<ReloadOutlined />}
+                            onClick={() => handleGetCorozaVersions()}
+                            loading={corozaMutation.isPending || loadingCurrentCoroza}
+                            style={{
+                                borderRadius: 6,
+                                border: '1px solid #d1d5db',
+                                color: '#374151'
+                            }}
+                        >
+                            Refresh
+                        </Button>
+                    </div>
+                    {/* Body */}
+                    <div style={{ padding: '16px 20px' }}>
+                        {currentCorozaVersions?.waf_version?.downloaded_versions && currentCorozaVersions.waf_version.downloaded_versions.length > 0 ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                {currentCorozaVersions.waf_version.downloaded_versions.map(version => {
+                                    const wasmPath = `/var/lib/elchi/waf/${version}/coraza.wasm`;
+                                    return (
+                                        <div key={version} style={{
+                                            background: '#faf5ff',
+                                            borderRadius: 12,
+                                            padding: '12px 16px',
+                                            border: '1px solid #e9d5ff',
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center'
+                                        }}>
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                    <CheckCircleOutlined style={{ fontSize: 14, color: '#722ed1' }} />
+                                                    <Text strong style={{ color: '#722ed1', fontSize: 14 }}>
+                                                        {version}
+                                                    </Text>
+                                                </div>
+                                                <div style={{
+                                                    background: '#f3f4f6',
+                                                    padding: '4px 10px',
+                                                    borderRadius: 6,
+                                                    fontFamily: 'monospace',
+                                                    fontSize: 12,
+                                                    color: '#374151',
+                                                    display: 'inline-block',
+                                                    width: 'fit-content'
+                                                }}>
+                                                    {wasmPath}
+                                                </div>
+                                            </div>
+                                            <Tooltip title="Copy path">
+                                                <Button
+                                                    size="small"
+                                                    icon={<CopyOutlined />}
+                                                    onClick={() => {
+                                                        navigator.clipboard.writeText(wasmPath);
+                                                    }}
+                                                    style={{
+                                                        borderRadius: 6,
+                                                        color: '#722ed1',
+                                                        borderColor: '#722ed1'
+                                                    }}
+                                                >
+                                                    Copy
+                                                </Button>
+                                            </Tooltip>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        ) : (
+                            <Text style={{ color: '#9ca3af', fontStyle: 'italic' }}>
+                                No Coroza versions downloaded yet
+                            </Text>
+                        )}
+                    </div>
+                </div>
+            </div>
+
+            {/* Available Coroza Versions Table */}
+            <div style={{
+                background: 'white',
+                borderRadius: 12,
+                border: '1px solid #e5e7eb',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                overflow: 'hidden'
+            }}>
+                {/* Header */}
+                <div style={{
+                    background: '#faf5ff',
+                    borderBottom: '1px solid #e5e7eb',
+                    padding: '16px 20px',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <DownloadOutlined style={{ fontSize: 18, color: '#722ed1' }} />
+                        <div>
+                            <Text strong style={{ fontSize: 16, color: '#111827' }}>Available Waf Engine Versions</Text>
+                            <div style={{ fontSize: 13, color: '#6b7280', marginTop: 2 }}>
+                                Choose and install WAF engine versions for this client
+                            </div>
+                        </div>
+                    </div>
+                    <Badge
+                        count={availableVersions?.coroza_releases?.length || 0}
+                        style={{ backgroundColor: '#722ed1' }}
+                        showZero
+                    />
+                </div>
+                {/* Body */}
+                <div style={{ padding: '10px 14px' }}>
+                    <Table
+                        columns={corozaColumns}
+                        dataSource={availableVersions?.coroza_releases || []}
+                        rowKey="version"
+                        size="middle"
+                        pagination={{
+                            defaultPageSize: 10,
+                            showSizeChanger: true,
+                            showQuickJumper: true,
+                            showTotal: (total, range) =>
+                                `${range[0]}-${range[1]} of ${total} versions`,
+                            style: { margin: '16px 0 0 0' }
+                        }}
+                        scroll={{ x: true }}
+                        rowClassName={(record) =>
+                            currentCorozaVersions?.waf_version?.downloaded_versions?.includes(record.version)
+                                ? 'downloaded-coroza-version'
+                                : ''
+                        }
+                        bordered={false}
+                        showHeader={true}
+                    />
+
+                    <style dangerouslySetInnerHTML={{
+                        __html: `
+                            .downloaded-coroza-version {
+                                background: linear-gradient(90deg, rgba(114, 46, 209, 0.05) 0%, rgba(114, 46, 209, 0.02) 100%) !important;
+                                border-left: 3px solid #722ed1 !important;
+                            }
+                            .downloaded-coroza-version:hover {
+                                background: linear-gradient(90deg, rgba(114, 46, 209, 0.08) 0%, rgba(114, 46, 209, 0.04) 100%) !important;
+                            }
+                        `
+                    }} />
+                </div>
+            </div>
+        </>
+    );
+
+    return (
+        <Tabs
+            defaultActiveKey="envoy"
+            items={[
+                {
+                    key: 'envoy',
+                    label: (
+                        <span style={{ fontSize: 12, fontWeight: 500 }}>
+                            <CodeOutlined style={{ marginRight: 8 }} />
+                            Envoy
+                        </span>
+                    ),
+                    children: envoyTabContent
+                },
+                {
+                    key: 'coroza',
+                    label: (
+                        <span style={{ fontSize: 12, fontWeight: 500 }}>
+                            <FileZipOutlined style={{ marginRight: 8, color: '#722ed1' }} />
+                            WAF Engine
+                        </span>
+                    ),
+                    children: corozaTabContent
+                }
+            ]}
+            
+        />
     );
 };
 

@@ -4,7 +4,7 @@ import { Col, Row, Divider } from "antd";
 import { HeadOfResource } from "@/elchi/components/common/HeadOfResources";
 import { GTypes } from "@/common/statics/gtypes";
 import { useGTypeFields } from "@/hooks/useGtypes";
-import { FieldConfigType, matchesEndOrStartOf, startsWithAny } from "@/utils/tools";
+import { FieldConfigType, matchesEndOrStartOf } from "@/utils/tools";
 import { modtag_rbac } from "./_modtag_";
 import { useModels } from "@/hooks/useModels";
 import { useTags } from "@/hooks/useTags";
@@ -79,7 +79,7 @@ const ComponentHttpRBAC: React.FC<GeneralProps> = ({ veri }) => {
                 </Col>
                 <Col md={20}>
                     <ConditionalComponent
-                        shouldRender={startsWithAny("rules", selectedTags)}
+                        shouldRender={matchesEndOrStartOf("rules", selectedTags)}
                         Component={ComponentRBAC}
                         componentProps={{
                             version: veri.version,

@@ -50,6 +50,7 @@ export interface CustomMutationOptions {
     collection: string;
     headers?: Record<string, string>;
     elchi_discovery?: any[];
+    waf?: string; // WAF config name for Wasm filter
     showAutoSuccess?: boolean; // Default: true - Otomatik success notification gösterilsin mi
     suppressSuccess?: boolean; // Success notification'ı tamamen bastır (showAutoSuccess: false ile aynı)
     customSuccessMessage?: string; // Özel success mesajı
@@ -77,6 +78,7 @@ export interface General {
     managed?: boolean;
     collection: string;
     elchi_discovery?: any[];
+    waf?: string; // WAF config name for Wasm filter
 }
 
 export interface ConfigDiscovery {
@@ -157,6 +159,8 @@ export enum OperationsType {
     NETWORK = "NETWORK",
     FRR = "FRR",
     FRR_LOGS = "FRR_LOGS",
+    FILEBEAT = "FILEBEAT",
+    RSYSLOG = "RSYSLOG",
 }
 
 export enum OperationsSubType {
@@ -255,7 +259,15 @@ export enum OperationsSubType {
     BGP_EXECUTE_TRANSACTION = 'BGP_EXECUTE_TRANSACTION',
     BGP_GET_TRANSACTION_STATUS = 'BGP_GET_TRANSACTION_STATUS',
     BGP_SET_COMMUNITY = 'BGP_SET_COMMUNITY',
-    BGP_CLEAR_COMMUNITY = 'BGP_CLEAR_COMMUNITY'
+    BGP_CLEAR_COMMUNITY = 'BGP_CLEAR_COMMUNITY',
+    // Filebeat operations
+    GET_FILEBEAT_CONFIG = 'GET_FILEBEAT_CONFIG',
+    UPDATE_FILEBEAT_CONFIG = 'UPDATE_FILEBEAT_CONFIG',
+    GET_FILEBEAT_STATUS = 'GET_FILEBEAT_STATUS',
+    // Rsyslog operations
+    GET_RSYSLOG_CONFIG = 'GET_RSYSLOG_CONFIG',
+    UPDATE_RSYSLOG_CONFIG = 'UPDATE_RSYSLOG_CONFIG',
+    GET_RSYSLOG_STATUS = 'GET_RSYSLOG_STATUS',
 }
 
 export interface Operations {
@@ -263,6 +275,33 @@ export interface Operations {
     clients?: OperationsClient[],
     command?: OperationsCommand,
     sub_type?: OperationsSubType,
+    filebeat?: {
+        inputs?: Array<{
+            type: string;
+            enabled: boolean;
+            id: string;
+            paths: string[];
+        }>;
+        timestamp_processor?: {
+            field: string;
+            layouts: string[];
+        };
+        drop_fields_processor?: {
+            fields: string[];
+        };
+        logstash_output?: {
+            hosts: string[];
+        };
+    };
+    rsyslog?: {
+        rsyslog_config?: {
+            rsyslog_output?: {
+                target: string;
+                port: number;
+                protocol: 'udp' | 'tcp';
+            };
+        };
+    };
 }
 
 export interface OperationsClient {
@@ -302,6 +341,24 @@ export interface OperationsCommand {
     };
     peer_ip?: string;
     as_number?: number;
+    filebeat?: {
+        inputs?: Array<{
+            type: string;
+            enabled: boolean;
+            id: string;
+            paths: string[];
+        }>;
+        timestamp_processor?: {
+            field: string;
+            layouts: string[];
+        };
+        drop_fields_processor?: {
+            fields: string[];
+        };
+        logstash_output?: {
+            hosts: string[];
+        };
+    };
 }
 
 export interface UserDetail {

@@ -251,6 +251,10 @@ const DiscoveryModal: React.FC<DiscoveryModalProps> = ({ open, onClose, onSave, 
                                 onChange={(value) => {
                                     setSelectedClusterName(value);
                                 }}
+                                showSearch
+                                filterOption={(input, option) =>
+                                    (option?.value?.toString().toLowerCase() ?? '').includes(input.toLowerCase())
+                                }
                             >
                                 {unusedClusters.map((cluster: ClusterData, index: number) => (
                                     <Select.Option key={cluster.cluster_name || `cluster-${index}`} value={cluster.cluster_name}>

@@ -147,6 +147,12 @@ const menuConfig = [
 		label: "Registry",
 	},
 	{
+		key: "/waf",
+		to: "/waf",
+		icon: "SafetyOutlined",
+		label: "WAF",
+	},
+	{
 		key: "/Administration",
 		to: "#",
 		label: "Administration",

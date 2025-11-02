@@ -123,5 +123,6 @@ export const modtag_us_cluster: TagsType = {
 export const modtag_r_cluster: TagsType = {
     "Cluster": [
         "name",
+        "type"
     ]
 }

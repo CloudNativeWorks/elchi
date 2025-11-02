@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Card, Spin, Typography, Tag, Descriptions, Alert, Tabs, Divider, Drawer, Button, Row, Col } from 'antd';
-import { FileTextOutlined, InfoCircleOutlined, AppstoreOutlined, BarChartOutlined, CloudDownloadOutlined } from '@ant-design/icons';
+import { FileTextOutlined, InfoCircleOutlined, AppstoreOutlined, BarChartOutlined, CloudDownloadOutlined, SettingOutlined } from '@ant-design/icons';
 import { useCustomGetQuery } from '@/common/api';
 import { DateTimeTool } from '@/utils/date-time-tool';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
@@ -10,6 +10,7 @@ import ClientLogs from '@components/clients/ClientLogs';
 import ClientStats from '@components/clients/ClientStats';
 import ClientNetwork from '@components/clients/ClientNetwork';
 import ClientVersions from '@components/clients/ClientVersions';
+import ClientSettings from '@components/clients/ClientSettings';
 
 const { Title, Text } = Typography;
 
@@ -226,12 +227,27 @@ const ClientDetail: React.FC = () => {
                             label: (
                                 <span className="tabLabel">
                                     <CloudDownloadOutlined style={{ fontSize: 18 }} />
-                                    Envoy Versions
+                                    Apps
                                 </span>
                             ),
                             children: (
-                                <ClientVersions 
-                                    clientId={dataClient.client_id} 
+                                <ClientVersions
+                                    clientId={dataClient.client_id}
+                                    downstreamAddress={dataClient.downstream_address}
+                                />
+                            )
+                        },
+                        {
+                            key: 'settings',
+                            label: (
+                                <span className="tabLabel">
+                                    <SettingOutlined style={{ fontSize: 18 }} />
+                                    Settings
+                                </span>
+                            ),
+                            children: (
+                                <ClientSettings
+                                    clientId={dataClient.client_id}
                                     downstreamAddress={dataClient.downstream_address}
                                 />
                             )

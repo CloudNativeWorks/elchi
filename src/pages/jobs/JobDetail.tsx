@@ -466,6 +466,34 @@ const JobDetail: React.FC = () => {
                   </div>
                 </div>
               </Col>
+              {job.type === 'WAF_PROPAGATION' && job.metadata.waf_config && (
+                <>
+                  <Col span={12}>
+                    <div style={{ marginBottom: 16 }}>
+                      <Text type="secondary" style={{ fontSize: 12 }}>WAF Config</Text>
+                      <div style={{ marginTop: 4 }}>
+                        <Text strong style={{ fontSize: 14 }}>{job.metadata.waf_config.name}</Text>
+                      </div>
+                    </div>
+                  </Col>
+                  <Col span={12}>
+                    <div style={{ marginBottom: 16 }}>
+                      <Text type="secondary" style={{ fontSize: 12 }}>Affected Wasm Filters</Text>
+                      <div style={{ marginTop: 4 }}>
+                        {job.metadata.affected_wasm && job.metadata.affected_wasm.length > 0 ? (
+                          job.metadata.affected_wasm.map((wasm: string) => (
+                            <Tag key={wasm} className='auto-width-tag' color="blue" style={{ borderRadius: 6, marginRight: 4, marginBottom: 4 }}>
+                              {wasm}
+                            </Tag>
+                          ))
+                        ) : (
+                          <Text type="secondary" style={{ fontSize: 13 }}>None</Text>
+                        )}
+                      </div>
+                    </div>
+                  </Col>
+                </>
+              )}
             </Row>
           </Card>
 
@@ -549,9 +577,9 @@ const JobDetail: React.FC = () => {
               </Text>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
                 alignItems: 'center',
                 padding: '12px 16px',
                 background: '#fafafa',
@@ -559,7 +587,9 @@ const JobDetail: React.FC = () => {
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <FileTextOutlined style={{ color: '#1890ff' }} />
-                  <Text style={{ fontSize: 13 }}>Total Listeners</Text>
+                  <Text style={{ fontSize: 13 }}>
+                    {job.type === 'WAF_PROPAGATION' ? 'Total Wasm Filters' : 'Total Listeners'}
+                  </Text>
                 </div>
                 <Text strong style={{ fontSize: 16 }}>{job.progress.total}</Text>
               </div>

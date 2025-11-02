@@ -52,7 +52,8 @@ const ClusterComponent: React.FC<GeneralProps> = ({ veri }) => {
         ...generateFields({
             f: vTags.c?.Cluster,
             sf: vTags.c?.Cluster_SingleFields,
-            e: ["name"]
+            e: ["name"],
+            r: ["cluster_discovery_type.type"]
         })
     ];
 

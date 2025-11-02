@@ -27,6 +27,20 @@ const readOnlyTypes: Record<string, boolean> = {
     "FRR_LOGS": true,
 };
 
+// Read-only Filebeat operations that should not show notifications
+const readOnlyFilebeatOperations: Record<string, boolean> = {
+    "GET_FILEBEAT_CONFIG": true,
+    "GET_FILEBEAT_STATUS": true,
+    "SUB_LOGS": true,
+};
+
+// Read-only Rsyslog operations that should not show notifications
+const readOnlyRsyslogOperations: Record<string, boolean> = {
+    "GET_RSYSLOG_CONFIG": true,
+    "GET_RSYSLOG_STATUS": true,
+    "SUB_LOGS": true,
+};
+
 // Read-only BGP operations that should not show notifications
 const readOnlyBGPOperations: Record<string, boolean> = {
     "BGP_GET_CONFIG": true,
@@ -82,7 +96,21 @@ export const useOperationsApiMutation = (hookVersion?: string) => {
                 shouldShowNotification = false;
             }
         }
-        
+
+        // Check Filebeat read-only operations (FILEBEAT type)
+        if (data.type === 'FILEBEAT' && data.sub_type) {
+            if (readOnlyFilebeatOperations[data.sub_type]) {
+                shouldShowNotification = false;
+            }
+        }
+
+        // Check Rsyslog read-only operations (RSYSLOG type)
+        if (data.type === 'RSYSLOG' && data.sub_type) {
+            if (readOnlyRsyslogOperations[data.sub_type]) {
+                shouldShowNotification = false;
+            }
+        }
+
         // Check Envoy Version read-only operations (if ENVOY_VERSION exists in enum)
         if ((data as any).type === 'ENVOY_VERSION' && (data as any).command?.operation) {
             const envoyOperation = (data as any).command.operation;

@@ -14,7 +14,6 @@ export const modtag_us_cla: TagsType = {
         "named_endpoints",
     ],
     "policy": [
-        "drop_overloads",
     ],
     "endpoints": [
         "lb_config.load_balancer_endpoints",

@@ -125,10 +125,28 @@ const EnvoysCard: React.FC<EnvoysCardProps> = ({ envoys, name, project, version 
                         style={{ width: 200 }}
                         value={selectedClient}
                         onChange={setSelectedClient}
-                        options={Object.keys(envoyData).map(clientName => ({
-                            label: clientName,
-                            value: clientName
-                        }))}
+                        options={filteredEnvoys.map((envoy: any) => {
+                            const isConnected = envoy.connected;
+                            const isAvailable = !!envoyData[envoy.client_name];
+                            return {
+                                label: (
+                                    <span style={{
+                                        color: !isConnected ? '#999' : undefined,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 6
+                                    }}>
+                                        <Badge
+                                            status={isConnected ? 'success' : 'error'}
+                                            style={{ marginRight: 4 }}
+                                        />
+                                        {envoy.client_name}
+                                    </span>
+                                ),
+                                value: envoy.client_name,
+                                disabled: !isAvailable
+                            };
+                        })}
                         loading={loading || manualRefreshLoading}
                         placeholder="Select client"
                     />

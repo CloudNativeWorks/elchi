@@ -88,6 +88,7 @@ const DynamicScenarioExecutionRedux: React.FC = () => {
     const navigate = useNavigate();
     const { project } = useProjectVariable();
     const dispatch = useDispatch<AppDispatch>();
+    const topRef = React.useRef<HTMLDivElement>(null);
 
     // Redux state
     const scenario = useSelector((state: RootState) => selectCurrentScenario(state));
@@ -139,6 +140,15 @@ const DynamicScenarioExecutionRedux: React.FC = () => {
             }));
         }
     }, [dispatch, scenario, componentCatalog, selectedVersion, project, executionProject]);
+
+    // Scroll to top when execution result changes (success or error)
+    useEffect(() => {
+        if (executionResult) {
+            setTimeout(() => {
+                topRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
+        }
+    }, [executionResult]);
 
     const handleVersionSelect = (version: string, managedMode: boolean) => {
         setShowVersionModal(false);
@@ -426,15 +436,16 @@ const DynamicScenarioExecutionRedux: React.FC = () => {
             if (result.success) {
                 showSuccessNotification(`Scenario executed successfully! Generated ${result.resources?.length || 0} resources.`);
             }
-            // Error handling is now done via executionResult state and Alert component below
+            // Error handling and scrolling is done via executionResult state and useEffect
         } catch (error: any) {
             const responseData = error.response?.data;
-            
+
             if (responseData?.message && responseData.message.includes('Validation failed')) {
                 showErrorNotification(responseData.message);
             } else {
                 showErrorNotification(error, 'Failed to execute scenario');
             }
+            // Scrolling is handled by useEffect when executionResult changes
         }
     };
 
@@ -466,7 +477,7 @@ const DynamicScenarioExecutionRedux: React.FC = () => {
     }
 
     return (
-        <div style={{ padding: '24px' }}>
+        <div ref={topRef} style={{ padding: '24px' }}>
             {/* Version Selection Modal */}
             <SelectVersion
                 open={showVersionModal}
