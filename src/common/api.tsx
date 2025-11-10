@@ -149,8 +149,6 @@ export const useCustomMutation = () => {
             elchi_discovery, waf, showAutoSuccess, customSuccessMessage, successTitle, validate
         } = options;
 
-        console.log('API mutation received waf:', waf);
-
         const general: General = {
             name,
             version: envoyVersion,
@@ -171,8 +169,6 @@ export const useCustomMutation = () => {
             elchi_discovery: elchi_discovery || [],
             waf: waf || "", // Always include waf field (empty string if not set)
         };
-
-        console.log('API mutation general.waf:', general.waf);
 
         const data = {
             general,

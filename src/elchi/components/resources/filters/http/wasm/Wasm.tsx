@@ -66,11 +66,8 @@ const ComponentHttpWasm: React.FC<GeneralProps> = ({ veri }) => {
     }
 
     const handleWafChange = (wafName: string) => {
-        console.log('WAF changed to:', wafName);
         setGeneralWaf(wafName);
     };
-
-    console.log('Current generalWaf state:', generalWaf);
 
     return (
         reduxStore && (

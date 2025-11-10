@@ -110,6 +110,9 @@ const RegistryInfo: React.FC = () => {
     const [messageApi, contextHolder] = message.useMessage();
     const pageSize = 10;
 
+    // Get status color based on last seen time - memoized to prevent continuous updates
+    const initialLoadTime = useMemo(() => Date.now(), []);
+
     const { isLoading, error, data, refetch } = useCustomGetQuery({
         queryKey: 'registry_info',
         enabled: true,
@@ -158,12 +161,21 @@ const RegistryInfo: React.FC = () => {
     const parseNodeId = (nodeId: string) => {
         const parts = nodeId.split('::');
         if (parts.length >= 3) {
+            // Format: name::project::downstreamIp
             return {
                 listenerName: parts[0],
                 projectId: parts[1],
                 downstreamIp: parts[2]
             };
+        } else if (parts.length === 2) {
+            // Format: name::project (no downstream IP)
+            return {
+                listenerName: parts[0],
+                projectId: parts[1],
+                downstreamIp: '-'
+            };
         }
+        // Single part or empty
         return { listenerName: nodeId, projectId: '', downstreamIp: '' };
     };
 
@@ -434,11 +446,9 @@ const RegistryInfo: React.FC = () => {
         );
     }
 
-    // Get status color based on last seen time
     const getStatusColor = (lastSeen: any) => {
         const timestamp = (lastSeen?.seconds || 0) * 1000;
-        const now = Date.now();
-        const diff = now - timestamp;
+        const diff = initialLoadTime - timestamp;
 
         if (diff < 60000) return '#52c41a'; // Green - Active (< 1 min)
         if (diff < 300000) return '#faad14'; // Orange - Warning (< 5 min)
@@ -624,6 +634,16 @@ const RegistryInfo: React.FC = () => {
                         }}>
                             {text || 'N/A'}
                         </Text>
+                        {text && (
+                            <a
+                                href={`#/clients/${text}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ fontSize: '11px' }}
+                            >
+                                View
+                            </a>
+                        )}
                     </div>
                 ),
                 sorter: (a: any, b: any) => safeStringCompare(a?.client_id, b?.client_id),

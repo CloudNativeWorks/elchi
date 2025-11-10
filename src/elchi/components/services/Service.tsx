@@ -17,6 +17,7 @@ interface ServiceDetailsProps {
     onDeployClick: () => void;
     actionLoading: boolean;
     serviceActionsDisabled: boolean;
+    envoys?: any[];
 }
 
 export const ServiceDetails: React.FC<ServiceDetailsProps> = ({
@@ -28,7 +29,8 @@ export const ServiceDetails: React.FC<ServiceDetailsProps> = ({
     onRefreshStatus,
     onDeployClick,
     actionLoading,
-    serviceActionsDisabled
+    serviceActionsDisabled,
+    envoys
 }) => (
     <>
         <ServiceActions
@@ -47,12 +49,25 @@ export const ServiceDetails: React.FC<ServiceDetailsProps> = ({
             </Descriptions.Item>
             <Descriptions.Item label="Service Address(es)">
                 {Array.isArray(service?.clients) && service?.clients.length > 0 ? (
-                    <div style={{ display: 'flex', flexDirection: 'row', gap: 6 }}>
-                        {service?.clients.map((c: any, idx: number) => (
-                            <Tag className='auto-width-tag' key={c.client_id + idx} style={{ fontSize: 12 }}>
-                                <span style={{ fontWeight: 600 }}>{c.downstream_address}</span>
-                            </Tag>
-                        ))}
+                    <div style={{ display: 'flex', flexDirection: 'row', gap: 6, flexWrap: 'wrap' }}>
+                        {service?.clients.map((c: any, idx: number) => {
+                            // Find matching envoy by client_id
+                            const envoy = envoys?.find((e: any) => e.client_id === c.client_id);
+                            const isConnected = envoy?.connected ?? false;
+                            const clientName = envoy?.client_name || '';
+
+                            return (
+                                <Tag
+                                    className='auto-width-tag'
+                                    key={c.client_id + idx}
+                                    color={isConnected ? 'success' : 'error'}
+                                    style={{ fontSize: 12 }}
+                                >
+                                    <span style={{ fontWeight: 600 }}>{c.downstream_address}</span>
+                                    {clientName && <span style={{ fontWeight: 400, marginLeft: 4 }}>({clientName})</span>}
+                                </Tag>
+                            );
+                        })}
                     </div>
                 ) : (
                     <span style={{ color: '#bfbfbf' }}>Service not deployed</span>

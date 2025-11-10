@@ -162,20 +162,26 @@ const DirectiveSetCard: React.FC<DirectiveSetCardProps> = ({
             {/* Body */}
             <div style={{ padding: '16px 20px' }}>
                 {/* Custom Directive Input */}
-                <Space direction="vertical" style={{ width: '100%' }} size="small">
-                    <Text strong style={{ fontSize: 13 }}>Add Custom Directive</Text>
-                    <Space.Compact style={{ width: '100%', marginBottom: 8 }}>
+                <div style={{ marginBottom: 16 }}>
+                    <Text strong style={{ fontSize: 13, display: 'block', marginBottom: 8 }}>Add Custom Directive</Text>
+                    <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
                         <TextArea
                             placeholder="Add custom directive (e.g., SecRuleEngine On)"
                             value={newDirective}
                             onChange={(e) => onNewDirectiveChange(e.target.value)}
                             onPressEnter={(e) => {
-                                e.preventDefault();
-                                onAddDirective();
+                                // Only add on Ctrl+Enter or Cmd+Enter
+                                if (e.ctrlKey || e.metaKey) {
+                                    e.preventDefault();
+                                    onAddDirective();
+                                }
+                                // Otherwise allow normal Enter for new line
                             }}
-                            autoSize={{ minRows: 1, maxRows: 3 }}
+                            autoSize={{ minRows: 2, maxRows: 10 }}
+                            style={{ flex: 1 }}
                         />
                         <Button
+                            type="primary"
                             icon={<PlusOutlined />}
                             onClick={onAddDirective}
                             disabled={!newDirective?.trim()}
@@ -196,8 +202,8 @@ const DirectiveSetCard: React.FC<DirectiveSetCardProps> = ({
                         >
                             Quick Add
                         </Button>
-                    </Space.Compact>
-                </Space>
+                    </div>
+                </div>
 
                 {/* Directive List */}
                 <DirectiveList

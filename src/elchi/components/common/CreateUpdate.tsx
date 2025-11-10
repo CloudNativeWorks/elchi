@@ -1,5 +1,5 @@
-import { message, Divider, Col, Dropdown, Button, Space, Modal } from 'antd';
-import { useCustomMutation, useDeleteMutation } from "@/common/api";
+import { message, Divider, Col, Dropdown, Button, Space, Modal, Select, Spin } from 'antd';
+import { useCustomMutation, useDeleteMutation, api } from "@/common/api";
 import { CustomMutationOptions, ConfigDiscovery, OperationsType } from "@/common/types";
 import { useOperationsApiMutation } from "@/common/operations-api";
 import { Method } from "axios"
@@ -14,6 +14,7 @@ import { useProjectVariable } from '@/hooks/useProjectVariable';
 import useDeleteResource from './DeleteResource';
 import { GTypeFieldsBase } from '@/common/statics/gtypes';
 import DependenciesModal from './dependency';
+import { useServiceData } from '@/hooks/useServiceData';
 
 
 interface RenderFormItemProps {
@@ -58,6 +59,19 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
     });
     const deleteResource = useDeleteResource(deleteMutate);
 
+    // Downstream IP selection modal state
+    const [isIPModalVisible, setIsIPModalVisible] = useState(false);
+    const [selectedDownstreamIP, setSelectedDownstreamIP] = useState<string | undefined>(undefined);
+    const [hasIPsFetched, setHasIPsFetched] = useState(false);
+
+    // Fetch service data to get downstream IPs (only for bootstrap and when modal is open)
+    const { clientIPs, isLoading: isLoadingIPs } = useServiceData({
+        project,
+        version: options.envoyVersion,
+        serviceName: options.name,
+        enabled: options.GType.type === "bootstrap" && isIPModalVisible && !hasIPsFetched && !!options.name
+    });
+
     const goBack = () => {
         navigate(-1);
     };
@@ -97,7 +111,7 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
     };
 
 
-    const handleResource = async (method: Method, saveORpublish: string) => {
+    const handleResource = async (method: Method, saveORpublish: string, downstreamIP?: string) => {
         if (options.callBack) { options.callBack(); }
 
         let path: string;
@@ -105,9 +119,11 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
             path = `${options.GType.backendPath}?project=${project}&version=${options.envoyVersion}`
         } else {
             path = `${options.GType.backendPath}/${options.name}?save_or_publish=${saveORpublish}&project=${project}&resource_id=${options.queryResource?.id}&version=${options.envoyVersion}`
+            // Add downstream_ip query param if provided
+            if (downstreamIP) {
+                path += `&downstream_ip=${downstreamIP}`;
+            }
         }
-
-        console.log('CreateUpdate received options.waf:', options?.waf);
 
         const defaultMO: CustomMutationOptions = {
             path: path,
@@ -138,8 +154,6 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
                 `${options.GType.type} "${options.name}" created successfully!` :
                 `${options.GType.type} "${options.name}" updated successfully!`
         }
-
-        console.log('CreateUpdate defaultMO.waf:', defaultMO.waf);
 
         try {
             await mutate.mutateAsync(defaultMO, {
@@ -239,12 +253,58 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
         });
     };
 
+    const handleIPModalOk = async () => {
+        if (!selectedDownstreamIP) {
+            messageApi.warning('Please select a downstream IP address');
+            return;
+        }
+
+        setIsIPModalVisible(false);
+        setLoading(true);
+        setHasIPsFetched(true); // Mark as fetched to prevent refetching
+
+        try {
+            await handleResource("put", "download", selectedDownstreamIP);
+        } finally {
+            setLoading(false);
+            setSelectedDownstreamIP(undefined);
+        }
+    };
+
+    const handleIPModalCancel = () => {
+        setIsIPModalVisible(false);
+        setSelectedDownstreamIP(undefined);
+        setHasIPsFetched(true); // Mark as fetched to prevent refetching on next open
+    };
+
+    const handleBootstrapDownload = async () => {
+        setLoading(true);
+        try {
+            // Check if service has downstream IPs
+            const response = await api.get(`/api/op/services?project=${project}&page=1&limit=50&name=${options.name}`);
+            const service = response.data?.data?.data?.[0];
+            const downstreamIPs = service?.clients?.map((client: any) => client.downstream_address) || [];
+
+            if (downstreamIPs.length === 0) {
+                // No IPs found, download without query param
+                await handleResource("put", "download");
+            } else {
+                // IPs found, open modal for selection
+                setIsIPModalVisible(true);
+                setLoading(false);
+            }
+        } catch (error) {
+            // Service not found or error, download without query param
+            await handleResource("put", "download");
+        }
+    };
+
     const handleMenuClick: MenuProps['onClick'] = (e) => {
         setLoading(true);
 
         if (e.key === '1') {
             if (options.GType.type === "bootstrap") {
-                handleResource("put", "download");
+                handleBootstrapDownload();
             } else {
                 handleResource("put", "publish");
             }
@@ -258,7 +318,7 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
             showSaveAndSendConfirm();
         }
 
-        if (options.GType.type === "bootstrap") {
+        if (options.GType.type === "bootstrap" && e.key !== '1') {
             setLoading(false);
         }
     };
@@ -370,6 +430,42 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
                 gtype={isModalVisible.gtype}
                 version={isModalVisible.version}
             />
+
+            {/* Downstream IP Selection Modal for Bootstrap */}
+            <Modal
+                title="Select Downstream IP Address"
+                open={isIPModalVisible}
+                onOk={handleIPModalOk}
+                onCancel={handleIPModalCancel}
+                okText="Download"
+                cancelText="Cancel"
+                okButtonProps={{ disabled: !selectedDownstreamIP }}
+            >
+                <div style={{ marginBottom: 16 }}>
+                    <p>Please select a downstream IP address for the bootstrap configuration:</p>
+                </div>
+                <Spin spinning={isLoadingIPs}>
+                    <Select
+                        style={{ width: '100%' }}
+                        placeholder="Select downstream IP"
+                        value={selectedDownstreamIP}
+                        onChange={(value) => setSelectedDownstreamIP(value)}
+                        options={clientIPs.map((ip: string) => ({
+                            label: ip,
+                            value: ip,
+                        }))}
+                        showSearch
+                        filterOption={(input, option) =>
+                            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                        }
+                    />
+                </Spin>
+                {!isLoadingIPs && clientIPs.length === 0 && (
+                    <div style={{ marginTop: 16, color: '#ff4d4f' }}>
+                        No downstream IP addresses found for this service.
+                    </div>
+                )}
+            </Modal>
         </>
     )
 };

@@ -7,13 +7,17 @@ import React from 'react';
 
 export interface SyntaxToken {
     text: string;
-    type: 'keyword' | 'operator' | 'action' | 'string' | 'number' | 'variable' | 'default';
+    type: 'keyword' | 'operator' | 'action' | 'string' | 'number' | 'variable' | 'id' | 'default';
 }
 
 const KEYWORDS = ['SecRule', 'SecAction', 'Include', 'SecRuleEngine', 'SecAuditEngine', 'SecDebugLogLevel',
                    'SecRequestBodyAccess', 'SecResponseBodyAccess', 'SecAuditLog', 'SecAuditLogParts',
                    'SecAuditLogType', 'SecAuditLogFormat', 'SecDataDir', 'SecTmpDir', 'SecRequestBodyLimit',
-                   'SecResponseBodyLimit', 'SecRequestBodyLimitAction', 'SecResponseBodyLimitAction'];
+                   'SecResponseBodyLimit', 'SecRequestBodyLimitAction', 'SecResponseBodyLimitAction',
+                   'SecArgumentsLimit', 'SecAuditLogDir', 'SecAuditLogDirMode', 'SecAuditLogFileMode',
+                   'SecAuditLogRelevantStatus', 'SecComponentSignature', 'SecDebugLog', 'SecDefaultAction',
+                   'SecMarker', 'SecRequestBodyInMemoryLimit', 'SecRequestBodyNoFilesLimit',
+                   'SecResponseBodyLimitAction', 'SecResponseBodyMimeType', 'SecRuleRemoveByID', 'SecRuleRemoveByTag'];
 
 const OPERATORS = ['@rx', '@pm', '@contains', '@streq', '@eq', '@gt', '@lt', '@beginsWith', '@endsWith',
                    '@within', '@validateByteRange', '@validateUrlEncoding', '@pmFromFile'];
@@ -39,6 +43,7 @@ export const tokenizeDirective = (directive: string): SyntaxToken[] => {
         { regex: new RegExp(`\\b(${VARIABLES.join('|')})\\b`, 'g'), type: 'variable' as const },
         { regex: /"([^"]*)"/g, type: 'string' as const },
         { regex: /'([^']*)'/g, type: 'string' as const },
+        { regex: /\bid:['"]?(\d+)['"]?/gi, type: 'id' as const },  // Match id:123 or id:'123' or id:"123"
         { regex: /\b\d+\b/g, type: 'number' as const }
     ];
 
@@ -58,12 +63,36 @@ export const tokenizeDirective = (directive: string): SyntaxToken[] => {
         }
     });
 
-    // Sort by position
-    allMatches.sort((a, b) => a.index - b.index);
+    // Sort by position and remove overlapping matches (keep longer/more specific ones)
+    allMatches.sort((a, b) => {
+        if (a.index !== b.index) return a.index - b.index;
+        // If same position, prefer longer match
+        return b.length - a.length;
+    });
+
+    // Remove overlapping matches
+    const filteredMatches: typeof allMatches = [];
+    for (const match of allMatches) {
+        const hasOverlap = filteredMatches.some(existing => {
+            const existingEnd = existing.index + existing.length;
+            const matchEnd = match.index + match.length;
+
+            // Check if ranges overlap
+            return (
+                (match.index >= existing.index && match.index < existingEnd) ||
+                (matchEnd > existing.index && matchEnd <= existingEnd) ||
+                (match.index <= existing.index && matchEnd >= existingEnd)
+            );
+        });
+
+        if (!hasOverlap) {
+            filteredMatches.push(match);
+        }
+    }
 
     // Build tokens
     let lastIndex = 0;
-    allMatches.forEach(match => {
+    filteredMatches.forEach(match => {
         // Add text before match as default
         if (match.index > lastIndex) {
             tokens.push({
@@ -103,6 +132,7 @@ export const getTokenColor = (type: SyntaxToken['type']): string => {
         string: '#eb2f96',       // Pink
         number: '#722ed1',       // Purple
         variable: '#13c2c2',     // Cyan
+        id: '#1890ff',           // Blue (for IDs)
         default: '#000000'       // Black
     };
 

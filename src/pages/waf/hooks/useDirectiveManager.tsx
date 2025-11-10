@@ -4,10 +4,8 @@
  */
 
 import { useState } from 'react';
-import { Modal, App } from 'antd';
-import { CheckOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import { validateDirective } from '../utils/directiveValidation';
-import { autoFormatDirective, needsFormatting } from '../utils/directiveFormatter';
+import { App } from 'antd';
+import { CheckOutlined } from '@ant-design/icons';
 
 export interface UseDirectiveManagerProps {
     directiveSets: { [key: string]: string[] };
@@ -56,82 +54,9 @@ export const useDirectiveManager = ({ directiveSets, onDirectiveSetsChange }: Us
         let directive = newDirective[setName];
         if (!directive || !directive.trim()) return;
 
-        // Auto-format if needed and show preview
-        if (needsFormatting(directive)) {
-            const formatResult = autoFormatDirective(directive);
-            setFormattingPreview({
-                visible: true,
-                setName,
-                formatResult
-            });
-            return;
-        }
-
-        // Validate
-        const validation = validateDirective(directive);
-
-        if (!validation.valid) {
-            // Show error modal
-            Modal.error({
-                title: 'Invalid Directive',
-                icon: <ExclamationCircleOutlined />,
-                content: (
-                    <div>
-                        {validation.errors.map((err, i) => (
-                            <div key={i} style={{ marginBottom: 8, color: '#ff4d4f' }}>
-                                • {err}
-                            </div>
-                        ))}
-                        {validation.suggestion && (
-                            <div style={{ marginTop: 12, padding: 8, background: '#e6f7ff', borderRadius: 4 }}>
-                                💡 {validation.suggestion}
-                            </div>
-                        )}
-                    </div>
-                ),
-                width: 600
-            });
-            return;
-        }
-
-        if (validation.warnings.length > 0 || validation.suggestion) {
-            // Show warning modal with confirm
-            Modal.confirm({
-                title: 'Directive Warnings',
-                icon: <ExclamationCircleOutlined style={{ color: '#faad14' }} />,
-                content: (
-                    <div>
-                        {validation.warnings.map((warn, i) => (
-                            <div key={i} style={{ marginBottom: 8, color: '#faad14' }}>
-                                ⚠️ {warn}
-                            </div>
-                        ))}
-                        {validation.suggestion && (
-                            <div style={{ marginTop: 12, padding: 8, background: '#e6f7ff', borderRadius: 4 }}>
-                                💡 {validation.suggestion}
-                            </div>
-                        )}
-                        <div style={{ marginTop: 16 }}>
-                            <strong>Formatted directive:</strong>
-                            <pre style={{ background: '#f5f5f5', padding: 8, marginTop: 8, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
-                                {directive}
-                            </pre>
-                        </div>
-                    </div>
-                ),
-                width: 600,
-                okText: 'Add Anyway',
-                cancelText: 'Cancel',
-                onOk: () => {
-                    if (addDirectiveToSet(setName, directive, true)) {
-                        setNewDirective({ ...newDirective, [setName]: '' });
-                    }
-                }
-            });
-        } else {
-            if (addDirectiveToSet(setName, directive)) {
-                setNewDirective({ ...newDirective, [setName]: '' });
-            }
+        // Skip validation and formatting - add directive as-is
+        if (addDirectiveToSet(setName, directive.trim())) {
+            setNewDirective({ ...newDirective, [setName]: '' });
         }
     };
 
@@ -201,8 +126,21 @@ export const useDirectiveManager = ({ directiveSets, onDirectiveSetsChange }: Us
         if (!editingDirective) return;
 
         const { setName, index } = editingDirective;
+        const trimmedValue = editValue.trim();
+
+        // Check if the new value already exists in the set (excluding the current item being edited)
+        const existing = directiveSets[setName] || [];
+        const isDuplicate = existing.some((directive, idx) =>
+            idx !== index && directive.trim() === trimmedValue
+        );
+
+        if (isDuplicate) {
+            message.warning('This directive already exists in the set');
+            return;
+        }
+
         const newDirectives = [...directiveSets[setName]];
-        newDirectives[index] = editValue;
+        newDirectives[index] = trimmedValue;
 
         onDirectiveSetsChange({
             ...directiveSets,
@@ -249,45 +187,15 @@ export const useDirectiveManager = ({ directiveSets, onDirectiveSetsChange }: Us
     };
 
     /**
-     * Confirm formatting preview and add directive
+     * Confirm formatting preview and add directive (no-op - formatting disabled)
      */
     const handleConfirmFormatting = () => {
-        if (!formattingPreview) return;
-
-        const { setName, formatResult } = formattingPreview;
-        const directive = formatResult.formatted;
-
-        // Validate the formatted directive
-        const validation = validateDirective(directive);
-
-        if (!validation.valid) {
-            setFormattingPreview(null);
-            // Show error
-            Modal.error({
-                title: 'Invalid Directive',
-                icon: <ExclamationCircleOutlined />,
-                content: (
-                    <div>
-                        {validation.errors.map((err, i) => (
-                            <div key={i} style={{ marginBottom: 8, color: '#ff4d4f' }}>
-                                • {err}
-                            </div>
-                        ))}
-                    </div>
-                ),
-                width: 600
-            });
-            return;
-        }
-
-        if (addDirectiveToSet(setName, directive, true)) {
-            setNewDirective({ ...newDirective, [setName]: '' });
-        }
+        // Formatting is disabled, this should not be called
         setFormattingPreview(null);
     };
 
     /**
-     * Cancel formatting preview
+     * Cancel formatting preview (no-op - formatting disabled)
      */
     const handleCancelFormatting = () => {
         setFormattingPreview(null);

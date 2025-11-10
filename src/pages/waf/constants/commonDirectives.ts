@@ -20,7 +20,8 @@ export const COMMON_DIRECTIVES: CommonDirective[] = [
     {
         key: 'SecRuleEngine',
         label: 'SecRuleEngine',
-        description: 'WAF engine status',
+        description: 'WAF engine status (Fully supported)',
+        recommended: true,
         options: [
             { label: 'On', value: 'SecRuleEngine On' },
             { label: 'Off', value: 'SecRuleEngine Off' },
@@ -30,7 +31,7 @@ export const COMMON_DIRECTIVES: CommonDirective[] = [
     {
         key: 'Include',
         label: 'Include',
-        description: 'Include rule file (Recommended for CRS)',
+        description: 'Include CRS rule files (Embedded @crs-setup-conf and @owasp_crs supported)',
         recommended: true,
         options: [
             { label: 'CRS Setup Conf', value: 'Include @crs-setup-conf' },
@@ -38,20 +39,9 @@ export const COMMON_DIRECTIVES: CommonDirective[] = [
         ]
     },
     {
-        key: 'SecDebugLogLevel',
-        label: 'SecDebugLogLevel',
-        description: 'Debug log verbosity level',
-        options: [
-            { label: 'Level 0 - No logging', value: 'SecDebugLogLevel 0' },
-            { label: 'Level 3 - Info', value: 'SecDebugLogLevel 3' },
-            { label: 'Level 5 - Debug', value: 'SecDebugLogLevel 5' },
-            { label: 'Level 9 - Trace', value: 'SecDebugLogLevel 9' }
-        ]
-    },
-    {
         key: 'SecRequestBodyAccess',
         label: 'SecRequestBodyAccess',
-        description: 'Analyze request body',
+        description: 'Enable request body inspection (Fully supported)',
         options: [
             { label: 'On', value: 'SecRequestBodyAccess On' },
             { label: 'Off', value: 'SecRequestBodyAccess Off' }
@@ -84,7 +74,7 @@ export const COMMON_DIRECTIVES: CommonDirective[] = [
     {
         key: 'SecRequestBodyLimit',
         label: 'SecRequestBodyLimit',
-        description: 'Maximum request body size',
+        description: 'Maximum request body size (Fully supported, default: 13107200)',
         options: [
             { label: '128 KB (131072)', value: 'SecRequestBodyLimit 131072' },
             { label: '1 MB (1048576)', value: 'SecRequestBodyLimit 1048576' },
@@ -94,7 +84,7 @@ export const COMMON_DIRECTIVES: CommonDirective[] = [
     {
         key: 'SecRequestBodyInMemoryLimit',
         label: 'SecRequestBodyInMemoryLimit',
-        description: 'Max request body size stored in memory',
+        description: 'Max request body size in memory (Fully supported)',
         options: [
             { label: '128 KB (131072)', value: 'SecRequestBodyInMemoryLimit 131072' },
             { label: '256 KB (262144)', value: 'SecRequestBodyInMemoryLimit 262144' }
@@ -103,10 +93,20 @@ export const COMMON_DIRECTIVES: CommonDirective[] = [
     {
         key: 'SecRequestBodyLimitAction',
         label: 'SecRequestBodyLimitAction',
-        description: 'Action when request body exceeds limit',
+        description: 'Action when body exceeds limit (Fully supported)',
         options: [
             { label: 'Reject', value: 'SecRequestBodyLimitAction Reject' },
             { label: 'ProcessPartial', value: 'SecRequestBodyLimitAction ProcessPartial' }
+        ]
+    },
+    {
+        key: 'SecRequestBodyNoFilesLimit',
+        label: 'SecRequestBodyNoFilesLimit',
+        description: 'Max request body size without files (Fully supported)',
+        options: [
+            { label: '64 KB (65536)', value: 'SecRequestBodyNoFilesLimit 65536' },
+            { label: '128 KB (131072)', value: 'SecRequestBodyNoFilesLimit 131072' },
+            { label: '256 KB (262144)', value: 'SecRequestBodyNoFilesLimit 262144' }
         ]
     },
     {
@@ -128,7 +128,7 @@ export const COMMON_DIRECTIVES: CommonDirective[] = [
     {
         key: 'SecResponseBodyAccess',
         label: 'SecResponseBodyAccess',
-        description: 'Analyze response body',
+        description: 'Analyze response body (Partial: some CRS rules may not access response body in WASM)',
         options: [
             { label: 'On', value: 'SecResponseBodyAccess On' },
             { label: 'Off', value: 'SecResponseBodyAccess Off' }
@@ -153,18 +153,9 @@ export const COMMON_DIRECTIVES: CommonDirective[] = [
         ]
     },
     {
-        key: 'SecResponseBodyLimitAction',
-        label: 'SecResponseBodyLimitAction',
-        description: 'Action when response body exceeds limit',
-        options: [
-            { label: 'ProcessPartial', value: 'SecResponseBodyLimitAction ProcessPartial' },
-            { label: 'Reject', value: 'SecResponseBodyLimitAction Reject' }
-        ]
-    },
-    {
         key: 'SecDefaultAction',
         label: 'SecDefaultAction',
-        description: 'Default action',
+        description: 'Default action (Partial: only applies to same phase rules)',
         options: [
             { label: 'Phase 1 - Log & Deny', value: 'SecDefaultAction "phase:1,log,deny,status:403"' },
             { label: 'Phase 2 - Log & Deny', value: 'SecDefaultAction "phase:2,log,deny,status:403"' },
@@ -174,7 +165,7 @@ export const COMMON_DIRECTIVES: CommonDirective[] = [
     {
         key: 'SecAuditEngine',
         label: 'SecAuditEngine',
-        description: 'Audit log policy',
+        description: 'Audit log policy (Partial: parsed but logs sent to Envoy metrics/logs only, no file output)',
         options: [
             { label: 'On', value: 'SecAuditEngine On' },
             { label: 'Off', value: 'SecAuditEngine Off' },
@@ -184,7 +175,7 @@ export const COMMON_DIRECTIVES: CommonDirective[] = [
     {
         key: 'SecAuditLogRelevantStatus',
         label: 'SecAuditLogRelevantStatus',
-        description: 'Status codes to log in audit',
+        description: 'Status codes to log (Partial: parsed but does not affect logging behavior)',
         options: [
             { label: '4xx and 5xx (excluding 404)', value: 'SecAuditLogRelevantStatus "^(?:(5|4)(0|1)[0-9])$"' },
             { label: '5xx only', value: 'SecAuditLogRelevantStatus "^5[0-9]{2}$"' }
@@ -193,7 +184,7 @@ export const COMMON_DIRECTIVES: CommonDirective[] = [
     {
         key: 'SecAuditLogParts',
         label: 'SecAuditLogParts',
-        description: 'Parts of transaction to log',
+        description: 'Transaction log parts (Partial: parser recognizes but A-Z parts not generated)',
         options: [
             { label: 'ABCFHZ (Minimal - Headers only)', value: 'SecAuditLogParts ABCFHZ' },
             { label: 'ABCEFHKZ (Recommended - No request body)', value: 'SecAuditLogParts ABCEFHKZ' },
@@ -202,31 +193,61 @@ export const COMMON_DIRECTIVES: CommonDirective[] = [
         ]
     },
     {
-        key: 'SecAuditLogType',
-        label: 'SecAuditLogType',
-        description: 'Audit log type',
-        options: [
-            { label: 'Serial', value: 'SecAuditLogType Serial' },
-            { label: 'Concurrent', value: 'SecAuditLogType Concurrent' }
-        ]
-    },
-    {
-        key: 'SecAuditLogFormat',
-        label: 'SecAuditLogFormat',
-        description: 'Audit log format',
-        options: [
-            { label: 'JSON', value: 'SecAuditLogFormat JSON' },
-            { label: 'Native', value: 'SecAuditLogFormat Native' },
-            { label: 'JsonLegacy', value: 'SecAuditLogFormat JsonLegacy' },
-            { label: 'OCSF', value: 'SecAuditLogFormat OCSF' }
-        ]
-    },
-    {
         key: 'SecComponentSignature',
         label: 'SecComponentSignature',
         description: 'Log signature info',
         options: [
             { label: 'Elchi WAF', value: 'SecComponentSignature "Elchi WAF"' }
+        ]
+    },
+    {
+        key: 'SecAction',
+        label: 'SecAction',
+        description: 'Unconditional action (Partial: only TX collection supported, setvar:tx.* works)',
+        options: [
+            { label: 'Phase 1 - Initialize Variables', value: 'SecAction "id:900110,phase:1,nolog,pass,t:none,setvar:\'tx.inbound_anomaly_score_threshold=5\'"' },
+            { label: 'Phase 2 - Set Collection', value: 'SecAction "id:900120,phase:2,nolog,pass,t:none,setvar:\'tx.allowed_methods=GET HEAD POST OPTIONS\'"' }
+        ]
+    },
+    {
+        key: 'SecArgumentsLimit',
+        label: 'SecArgumentsLimit',
+        description: 'Max request arguments (Partial: value parsed but limit not enforced, Coraza issue #1752)',
+        options: [
+            { label: '255 arguments', value: 'SecArgumentsLimit 255' },
+            { label: '1000 arguments', value: 'SecArgumentsLimit 1000' },
+            { label: 'Unlimited', value: 'SecArgumentsLimit 0' }
+        ]
+    },
+    {
+        key: 'SecRule',
+        label: 'SecRule',
+        description: 'Custom security rule (Fully supported: REQUEST_*, RESPONSE_*, TX, ARGS collections work)',
+        recommended: true,
+        options: [
+            { label: 'Block SQL Injection', value: 'SecRule ARGS "@detectSQLi" "id:1001,phase:2,block,t:none,t:urlDecodeUni,msg:\'SQL Injection Attack Detected\',severity:\'CRITICAL\'"' },
+            { label: 'Block XSS', value: 'SecRule ARGS "@detectXSS" "id:1002,phase:2,block,t:none,t:urlDecodeUni,msg:\'XSS Attack Detected\',severity:\'CRITICAL\'"' },
+            { label: 'Rate Limit Example', value: 'SecRule IP:bf_counter "@gt 20" "id:1003,phase:1,block,msg:\'Brute Force Attack\'"' }
+        ]
+    },
+    {
+        key: 'SecRuleRemoveByID',
+        label: 'SecRuleRemoveByID',
+        description: 'Remove rules by ID (Fully supported: works after Include @owasp_crs)',
+        options: [
+            { label: 'Remove Single Rule', value: 'SecRuleRemoveByID 920100' },
+            { label: 'Remove Multiple Rules', value: 'SecRuleRemoveByID 920100 920120 920121' },
+            { label: 'Remove Range', value: 'SecRuleRemoveByID 920100-920199' }
+        ]
+    },
+    {
+        key: 'SecRuleRemoveByTag',
+        label: 'SecRuleRemoveByTag',
+        description: 'Remove rules by tag (Fully supported: works with CRS tags)',
+        options: [
+            { label: 'Remove by attack-sqli', value: 'SecRuleRemoveByTag "attack-sqli"' },
+            { label: 'Remove by attack-xss', value: 'SecRuleRemoveByTag "attack-xss"' },
+            { label: 'Remove by OWASP_CRS', value: 'SecRuleRemoveByTag "OWASP_CRS"' }
         ]
     }
 ];

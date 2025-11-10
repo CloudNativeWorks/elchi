@@ -334,6 +334,7 @@ const Service: React.FC = () => {
                                         onRefreshStatus={handleRefreshStatus}
                                         actionLoading={actionLoading}
                                         serviceActionsDisabled={serviceActionsDisabled}
+                                        envoys={serviceData?.envoys?.envoys}
                                     />
                                 </>
                             )

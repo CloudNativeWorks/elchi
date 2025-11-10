@@ -374,20 +374,19 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
         }
     }, [open, clients, fetchClientVersions, fetchOpenStackInterfaces]);
 
-    // Filter out offline clients when action switches to UNDEPLOY
+    // Handle selection when switching between DEPLOY and UNDEPLOY modes
     useEffect(() => {
-        if (action === OperationsType.UNDEPLOY && clients && selectedRowKeys.length > 0) {
-            const onlineSelectedKeys = selectedRowKeys.filter(clientId => {
-                const client = clients.find(c => c.client_id === clientId);
-                return client?.connected;
-            });
+        if (!clients) return;
 
-            // Only update if we're actually filtering something out
-            if (onlineSelectedKeys.length !== selectedRowKeys.length) {
-                setSelectedRowKeys(onlineSelectedKeys);
-            }
+        if (action === OperationsType.UNDEPLOY) {
+            // Clear all selections when switching to Remove mode
+            setSelectedRowKeys([]);
+        } else if (action === OperationsType.DEPLOY) {
+            // Auto-select existing clients when switching to Deploy mode
+            const existingClientIds = existingClients?.map(c => c.client_id) || [];
+            setSelectedRowKeys(existingClientIds);
         }
-    }, [action, clients]);
+    }, [action, clients, existingClients]);
 
     const handleSubmit = async () => {
         if (selectedRowKeys.length === 0) {
@@ -561,11 +560,11 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                             </button>
                             <button
                                 onClick={handleSubmit}
-                                disabled={selectedRowKeys.length === 0 || loading}
+                                disabled={selectedRowKeys.length === 0 || loading || (action === OperationsType.DEPLOY && selectedRowKeys.every(id => isExistingClient(id)))}
                                 style={{
                                     position: 'relative',
                                     border: 'none',
-                                    cursor: selectedRowKeys.length === 0 || loading ? 'not-allowed' : 'pointer',
+                                    cursor: selectedRowKeys.length === 0 || loading || (action === OperationsType.DEPLOY && selectedRowKeys.every(id => isExistingClient(id))) ? 'not-allowed' : 'pointer',
                                     borderRadius: 12,
                                     height: 40,
                                     minWidth: 140,
@@ -585,10 +584,10 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                                     color: '#ffffff',
                                     overflow: 'hidden',
                                     outline: 'none',
-                                    opacity: selectedRowKeys.length === 0 || loading ? 0.5 : 1
+                                    opacity: selectedRowKeys.length === 0 || loading || (action === OperationsType.DEPLOY && selectedRowKeys.every(id => isExistingClient(id))) ? 0.5 : 1
                                 }}
                                 onMouseEnter={e => {
-                                    if (selectedRowKeys.length === 0 || loading) return;
+                                    if (selectedRowKeys.length === 0 || loading || (action === OperationsType.DEPLOY && selectedRowKeys.every(id => isExistingClient(id)))) return;
                                     e.currentTarget.style.transform = 'translateY(-2px) scale(1.03)';
                                     e.currentTarget.style.boxShadow = action === OperationsType.UNDEPLOY ?
                                         '0 12px 30px rgba(220, 38, 38, 0.4), 0 6px 20px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.2)' :
@@ -598,7 +597,7 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                                         'linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #0891b2 100%)';
                                 }}
                                 onMouseLeave={e => {
-                                    if (selectedRowKeys.length === 0 || loading) return;
+                                    if (selectedRowKeys.length === 0 || loading || (action === OperationsType.DEPLOY && selectedRowKeys.every(id => isExistingClient(id)))) return;
                                     e.currentTarget.style.transform = 'translateY(0) scale(1)';
                                     e.currentTarget.style.boxShadow = action === OperationsType.UNDEPLOY ?
                                         '0 8px 20px rgba(220, 38, 38, 0.3), 0 3px 10px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.15)' :
@@ -608,11 +607,11 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                                         'linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #06b6d4 100%)';
                                 }}
                                 onMouseDown={e => {
-                                    if (selectedRowKeys.length === 0 || loading) return;
+                                    if (selectedRowKeys.length === 0 || loading || (action === OperationsType.DEPLOY && selectedRowKeys.every(id => isExistingClient(id)))) return;
                                     e.currentTarget.style.transform = 'translateY(0) scale(0.98)';
                                 }}
                                 onMouseUp={e => {
-                                    if (selectedRowKeys.length === 0 || loading) return;
+                                    if (selectedRowKeys.length === 0 || loading || (action === OperationsType.DEPLOY && selectedRowKeys.every(id => isExistingClient(id)))) return;
                                     e.currentTarget.style.transform = 'translateY(-2px) scale(1.03)';
                                 }}
                             >
@@ -753,6 +752,7 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
 
                                 return {
                                     disabled: (action === OperationsType.UNDEPLOY && !isExistingClient(record.client_id)) ||
+                                        (action === OperationsType.DEPLOY && isExistingClient(record.client_id)) ||
                                         !record.connected ||
                                         isVersionIncompatible ||
                                         (action === OperationsType.DEPLOY && (hasNoInterfaces || hasInterfaceError))
