@@ -43,7 +43,7 @@ dist-ssr
 .idea
 .curserrules
 .scannerwork
-sssonar-project.properties
+sonar-project.properties
 CLAUDE.md
 ELCHI_PROJECT_NOTES.md
 claude_notes/*
@@ -52,3 +52,5 @@ FRONTEND_NETWORK_INTEGRATION_GUIDE.md
 .claude
 claude_notes
 SNIPPET_SYSTEM_PLAN.md
+training_dataset
+ELCHI_CLAUDE_NOTES.md

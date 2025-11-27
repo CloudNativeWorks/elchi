@@ -919,7 +919,7 @@ const RegistryInfo: React.FC = () => {
                         />
                     )}
 
-                    {/* Control Planes */}
+                    {/* Control Planes & Controllers Tabs */}
                     <Card
                         style={{
                             background: '#fafafa',
@@ -931,168 +931,169 @@ const RegistryInfo: React.FC = () => {
                             body: { padding: '20px' }
                         }}
                     >
-                        {/* Control Planes Header */}
-                        <div style={{ marginBottom: 24 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                        <ClusterOutlined style={{ color: '#1890ff' }} />
-                                        <Text strong style={{ fontSize: 16 }}>Control Planes</Text>
-                                    </div>
-                                    <Badge
-                                        count={`${filteredControlPlanes.length}/${registryData?.data?.control_plane_data?.control_planes?.length || 0}`}
-                                        style={{
-                                            backgroundColor: filteredControlPlanes.length > 0 ? '#52c41a' : '#d9d9d9',
-                                            color: filteredControlPlanes.length > 0 ? '#fff' : '#666',
-                                            fontSize: '11px',
-                                            height: '20px',
-                                            minWidth: '20px',
-                                            lineHeight: '20px'
-                                        }}
-                                    />
-                                </div>
-                                <Input
-                                    placeholder="Search control planes and nodes..."
-                                    prefix={<SearchOutlined style={{ color: '#ccc' }} />}
-                                    value={controlPlaneSearchTerm}
-                                    onChange={(e) => setControlPlaneSearchTerm(e.target.value)}
-                                    style={{
-                                        width: 320,
-                                        borderRadius: '8px',
-                                        boxShadow: 'none',
-                                        border: '1px solid #e1e5e9'
-                                    }}
-                                    allowClear
-                                />
-                            </div>
+                        <Tabs
+                            defaultActiveKey="controlPlanes"
+                            items={[
+                                {
+                                    key: 'controlPlanes',
+                                    label: (
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                            <ClusterOutlined />
+                                            Control Planes
+                                            <Badge
+                                                count={`${filteredControlPlanes.length}/${registryData?.data?.control_plane_data?.control_planes?.length || 0}`}
+                                                style={{
+                                                    backgroundColor: filteredControlPlanes.length > 0 ? '#52c41a' : '#d9d9d9',
+                                                    color: filteredControlPlanes.length > 0 ? '#fff' : '#666',
+                                                    fontSize: '11px',
+                                                    height: '20px',
+                                                    minWidth: '20px',
+                                                    lineHeight: '20px'
+                                                }}
+                                            />
+                                        </span>
+                                    ),
+                                    children: (
+                                        <div>
+                                            <div>
+                                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                    <Text type="secondary" style={{ fontSize: 12 }}>
+                                                        Monitor control plane instances and their connected nodes and running snapshot. Status indicators show real-time health.
+                                                    </Text>
+                                                    <Input
+                                                        placeholder="Search control planes and nodes..."
+                                                        prefix={<SearchOutlined style={{ color: '#ccc' }} />}
+                                                        value={controlPlaneSearchTerm}
+                                                        onChange={(e) => setControlPlaneSearchTerm(e.target.value)}
+                                                        style={{
+                                                            width: 320,
+                                                            borderRadius: '8px',
+                                                            boxShadow: 'none',
+                                                            border: '1px solid #e1e5e9'
+                                                        }}
+                                                        allowClear
+                                                    />
+                                                </div>
+                                            </div>
 
-                            <Text type="secondary" style={{ fontSize: 12 }}>
-                                Monitor control plane instances and their connected nodes and running snapshot. Status indicators show real-time health.
-                            </Text>
-                        </div>
+                                            <Divider style={{ margin: '14px 0' }} />
+                                            {controlPlaneItems.length > 0 ? (
+                                                <>
+                                                    <Collapse
+                                                        items={controlPlaneItems}
+                                                        size="small"
+                                                        ghost
+                                                        style={{ background: 'transparent' }}
+                                                        activeKey={expandedControlPlanes}
+                                                        onChange={(keys) => setExpandedControlPlanes(keys as string[])}
+                                                    />
+                                                    {filteredControlPlanes.length > pageSize && (
+                                                        <div style={{ marginTop: 16, textAlign: 'center' }}>
+                                                            <Pagination
+                                                                current={controlPlanePage}
+                                                                total={filteredControlPlanes.length}
+                                                                pageSize={pageSize}
+                                                                onChange={setControlPlanePage}
+                                                                size="small"
+                                                                showSizeChanger={false}
+                                                                showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} control planes`}
+                                                            />
+                                                        </div>
+                                                    )}
+                                                </>
+                                            ) : (
+                                                <Empty
+                                                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                                    description={controlPlaneSearchTerm ?
+                                                        `No control planes found matching "${controlPlaneSearchTerm}"` :
+                                                        "No control planes available"
+                                                    }
+                                                />
+                                            )}
+                                        </div>
+                                    )
+                                },
+                                {
+                                    key: 'controllers',
+                                    label: (
+                                        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                            <ControlOutlined />
+                                            Controllers
+                                            <Badge
+                                                count={`${filteredControllers.length}/${registryData?.data?.controller_data?.controllers?.length || 0}`}
+                                                style={{
+                                                    backgroundColor: filteredControllers.length > 0 ? '#52c41a' : '#d9d9d9',
+                                                    color: filteredControllers.length > 0 ? '#fff' : '#666',
+                                                    fontSize: '11px',
+                                                    height: '20px',
+                                                    minWidth: '20px',
+                                                    lineHeight: '20px'
+                                                }}
+                                            />
+                                        </span>
+                                    ),
+                                    children: (
+                                        <div>
+                                            <div>
+                                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                                    <Text type="secondary" style={{ fontSize: 12 }}>
+                                                        Monitor controller instances and their client connections. Track HTTP addresses and connection status.
+                                                    </Text>
+                                                    <Input
+                                                        placeholder="Search controllers and clients..."
+                                                        prefix={<SearchOutlined style={{ color: '#ccc' }} />}
+                                                        value={controllerSearchTerm}
+                                                        onChange={(e) => setControllerSearchTerm(e.target.value)}
+                                                        style={{
+                                                            width: 320,
+                                                            borderRadius: '8px',
+                                                            boxShadow: 'none',
+                                                            border: '1px solid #e1e5e9'
+                                                        }}
+                                                        allowClear
+                                                    />
+                                                </div>
+                                            </div>
 
-                        <Divider style={{ margin: '20px 0' }} />
-                        {controlPlaneItems.length > 0 ? (
-                            <>
-                                <Collapse
-                                    items={controlPlaneItems}
-                                    size="small"
-                                    ghost
-                                    style={{ background: 'transparent' }}
-                                    activeKey={expandedControlPlanes}
-                                    onChange={(keys) => setExpandedControlPlanes(keys as string[])}
-                                />
-                                {filteredControlPlanes.length > pageSize && (
-                                    <div style={{ marginTop: 16, textAlign: 'center' }}>
-                                        <Pagination
-                                            current={controlPlanePage}
-                                            total={filteredControlPlanes.length}
-                                            pageSize={pageSize}
-                                            onChange={setControlPlanePage}
-                                            size="small"
-                                            showSizeChanger={false}
-                                            showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} control planes`}
-                                        />
-                                    </div>
-                                )}
-                            </>
-                        ) : (
-                            <Empty
-                                image={Empty.PRESENTED_IMAGE_SIMPLE}
-                                description={controlPlaneSearchTerm ?
-                                    `No control planes found matching "${controlPlaneSearchTerm}"` :
-                                    "No control planes available"
+                                            <Divider style={{ margin: '14px 0' }} />
+                                            {controllerItems.length > 0 ? (
+                                                <>
+                                                    <Collapse
+                                                        items={controllerItems}
+                                                        size="small"
+                                                        ghost
+                                                        style={{ background: 'transparent' }}
+                                                        activeKey={expandedControllers}
+                                                        onChange={(keys) => setExpandedControllers(keys as string[])}
+                                                    />
+                                                    {filteredControllers.length > pageSize && (
+                                                        <div style={{ marginTop: 16, textAlign: 'center' }}>
+                                                            <Pagination
+                                                                current={controllerPage}
+                                                                total={filteredControllers.length}
+                                                                pageSize={pageSize}
+                                                                onChange={setControllerPage}
+                                                                size="small"
+                                                                showSizeChanger={false}
+                                                                showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} controllers`}
+                                                            />
+                                                        </div>
+                                                    )}
+                                                </>
+                                            ) : (
+                                                <Empty
+                                                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                                    description={controllerSearchTerm ?
+                                                        `No controllers found matching "${controllerSearchTerm}"` :
+                                                        "No controllers available"
+                                                    }
+                                                />
+                                            )}
+                                        </div>
+                                    )
                                 }
-                            />
-                        )}
-                    </Card>
-
-                    {/* Controllers */}
-                    <Card
-                        style={{
-                            background: '#fafafa',
-                            border: '1px solid #e8f4ff',
-                            borderRadius: 8,
-                            margin: 0
-                        }}
-                        styles={{
-                            body: { padding: '20px' }
-                        }}
-                    >
-                        {/* Controllers Header */}
-                        <div style={{ marginBottom: 24 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                        <ControlOutlined style={{ color: '#1890ff' }} />
-                                        <Text strong style={{ fontSize: 16 }}>Controllers</Text>
-                                    </div>
-                                    <Badge
-                                        count={`${filteredControllers.length}/${registryData?.data?.controller_data?.controllers?.length || 0}`}
-                                        style={{
-                                            backgroundColor: filteredControllers.length > 0 ? '#52c41a' : '#d9d9d9',
-                                            color: filteredControllers.length > 0 ? '#fff' : '#666',
-                                            fontSize: '11px',
-                                            height: '20px',
-                                            minWidth: '20px',
-                                            lineHeight: '20px'
-                                        }}
-                                    />
-                                </div>
-                                <Input
-                                    placeholder="Search controllers and clients..."
-                                    prefix={<SearchOutlined style={{ color: '#ccc' }} />}
-                                    value={controllerSearchTerm}
-                                    onChange={(e) => setControllerSearchTerm(e.target.value)}
-                                    style={{
-                                        width: 320,
-                                        borderRadius: '8px',
-                                        boxShadow: 'none',
-                                        border: '1px solid #e1e5e9'
-                                    }}
-                                    allowClear
-                                />
-                            </div>
-
-                            <Text type="secondary" style={{ fontSize: 12 }}>
-                                Monitor controller instances and their client connections. Track HTTP addresses and connection status.
-                            </Text>
-                        </div>
-
-                        <Divider style={{ margin: '20px 0' }} />
-                        {controllerItems.length > 0 ? (
-                            <>
-                                <Collapse
-                                    items={controllerItems}
-                                    size="small"
-                                    ghost
-                                    style={{ background: 'transparent' }}
-                                    activeKey={expandedControllers}
-                                    onChange={(keys) => setExpandedControllers(keys as string[])}
-                                />
-                                {filteredControllers.length > pageSize && (
-                                    <div style={{ marginTop: 16, textAlign: 'center' }}>
-                                        <Pagination
-                                            current={controllerPage}
-                                            total={filteredControllers.length}
-                                            pageSize={pageSize}
-                                            onChange={setControllerPage}
-                                            size="small"
-                                            showSizeChanger={false}
-                                            showTotal={(total, range) => `${range[0]}-${range[1]} of ${total} controllers`}
-                                        />
-                                    </div>
-                                )}
-                            </>
-                        ) : (
-                            <Empty
-                                image={Empty.PRESENTED_IMAGE_SIMPLE}
-                                description={controllerSearchTerm ?
-                                    `No controllers found matching "${controllerSearchTerm}"` :
-                                    "No controllers available"
-                                }
-                            />
-                        )}
+                            ]}
+                        />
                     </Card>
                 </Space>
             </div>

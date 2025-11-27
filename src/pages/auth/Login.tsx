@@ -31,6 +31,10 @@ const Login = () => {
         navigate('/demo');
     };
 
+    const handleMetrics = () => {
+        window.location.href = '/grafana';
+    };
+
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         if (working) return;
@@ -76,12 +80,26 @@ const Login = () => {
                     <span className="state">{buttonState}</span>
                 </button>
             </form>
-            <footer>
-                {
-                    window.APP_CONFIG?.ENABLE_DEMO ?
-                        <a target="blank" style={{ cursor: 'pointer' }} onClick={handleDemo}>Create Demo Account</a>
-                        : <a target="_blank" href="#">Elchi</a>
-                }
+            <footer className="login-footer">
+                <div className="footer-links">
+                    {window.APP_CONFIG?.ENABLE_DEMO && (
+                        <a className="footer-link" onClick={handleDemo}>
+                            <span className="link-icon">👤</span>
+                            <span>Create Demo Account</span>
+                        </a>
+                    )}
+                    <a className="footer-link" onClick={handleMetrics}>
+                        <span className="link-icon">📊</span>
+                        <span>Metrics</span>
+                    </a>
+                    <a className="footer-link" href="https://www.elchi.io" target="_blank" rel="noopener noreferrer">
+                        <span className="link-icon">🌐</span>
+                        <span>elchi.io</span>
+                    </a>
+                </div>
+                <div className="footer-text">
+                    <span>Powered by Elchi</span>
+                </div>
             </footer>
         </div>
     );

@@ -3,9 +3,10 @@ import { getFieldsByKey } from '@/common/statics/gtypes';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import CustomDataTable from '@/elchi/components/common/dataTable';
 import ElchiButton from '@/elchi/components/common/ElchiButton';
-import { useState } from 'react';
+import ListenerUpgradeModal from '@/elchi/components/common/ListenerUpgradeModal';
+import { useState, useEffect } from 'react';
 import { Typography, Space, Card, Row, Col, Input, Button, Select } from 'antd';
-import { 
+import {
     SearchOutlined,
     GlobalOutlined,
     ShareAltOutlined,
@@ -17,7 +18,8 @@ import {
     FilterOutlined,
     AppstoreOutlined,
     CodeOutlined,
-    ClearOutlined
+    ClearOutlined,
+    ArrowUpOutlined
 } from '@ant-design/icons';
 
 
@@ -29,6 +31,9 @@ const Resources: React.FC = () => {
     const { project } = useProjectVariable();
     const [filters, setFilters] = useState<Record<string, any>>({});
     const [tempFilters, setTempFilters] = useState<Record<string, any>>({});
+    const [selectedListeners, setSelectedListeners] = useState<string[]>([]);
+    const [selectedVersion, setSelectedVersion] = useState<string>('');
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
     // Get the icon based on resource type - matching Sidenav icons
     const getResourceIcon = () => {
@@ -67,6 +72,14 @@ const Resources: React.FC = () => {
         return descriptions[resource] || `${resourceStatic?.prettyName || resource} configuration resources for your Proxy.`;
     };
 
+    // Reset all states when resource changes
+    useEffect(() => {
+        setFilters({});
+        setTempFilters({});
+        setSelectedListeners([]);
+        setSelectedVersion('');
+    }, [resource]);
+
     const applyFilters = () => {
         setFilters(tempFilters);
     };
@@ -88,6 +101,11 @@ const Resources: React.FC = () => {
                         </Title>
                     </Space>
                     <Space>
+                        {resource === 'listener' && selectedListeners.length > 0 && selectedVersion && (
+                            <ElchiButton icon={<ArrowUpOutlined />} onClick={() => setShowUpgradeModal(true)}>
+                                Upgrade ({selectedListeners.length}) from {selectedVersion}
+                            </ElchiButton>
+                        )}
                         {resource !== 'bootstrap' && (
                             <NavLink to={resourceStatic.createPath}>
                                 <ElchiButton>Add New</ElchiButton>
@@ -175,7 +193,7 @@ const Resources: React.FC = () => {
             </Card>
 
             {/* Data Table Card */}
-            <Card 
+            <Card
                 style={{
                     borderRadius: 12,
                     boxShadow: '0 2px 8px rgba(5,117,230,0.06)',
@@ -184,12 +202,39 @@ const Resources: React.FC = () => {
                     body: { padding: 12 }
                 }}
             >
-                <CustomDataTable 
-                    path={`${resourceStatic.backendPath}?project=${project}`} 
-                    filters={filters} 
-                    isListener={resource === 'listener'} 
+                <CustomDataTable
+                    key={resource}
+                    path={`${resourceStatic.backendPath}?project=${project}`}
+                    filters={filters}
+                    isListener={resource === 'listener'}
+                    consolidateVersions={resource !== 'listener'}
+                    selectedListeners={selectedListeners}
+                    onSelectionChange={(names, version) => {
+                        setSelectedListeners(names);
+                        setSelectedVersion(version || '');
+                    }}
                 />
             </Card>
+
+            {/* Listener Upgrade Modal */}
+            {resource === 'listener' && (
+                <ListenerUpgradeModal
+                    visible={showUpgradeModal}
+                    onClose={() => {
+                        setShowUpgradeModal(false);
+                        setSelectedListeners([]);
+                        setSelectedVersion('');
+                    }}
+                    selectedListeners={selectedListeners}
+                    project={project}
+                    currentVersion={selectedVersion || filters.version || window.APP_CONFIG?.AVAILABLE_VERSIONS?.[0] || '1.36.2'}
+                    onSuccess={() => {
+                        setSelectedListeners([]);
+                        // Trigger data refresh by changing filters
+                        setFilters({ ...filters });
+                    }}
+                />
+            )}
         </>
     );
 }

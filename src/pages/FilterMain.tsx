@@ -26,7 +26,7 @@ import {
 } from '@ant-design/icons';
 import { useCustomGetQuery } from "@/common/api";
 import { useProjectVariable } from "@/hooks/useProjectVariable";
-import { D_HTTP_ADAPTIVE_CONCURRENCY, D_HTTP_ADMISSION_CONTROL, D_HTTP_BANDWIDTH_LIMIT, D_HTTP_BASIC_AUTH, D_HTTP_BUFFER, D_HTTP_COMPRESSOR, D_HTTP_CORS, D_HTTP_CSRF_POLICY, D_HTTP_LOCAL_RATE_LIMIT, D_HTTP_LUA, D_HTTP_OAUTH2, D_HTTP_RBAC, D_HTTP_ROUTER, D_HTTP_STATEFUL_SESSION, D_HTTP_WASM, D_L_HTTP_INSPECTOR, D_L_LOCAL_RATE_LIMIT, D_L_ORIGINAL_DST, D_L_ORIGINAL_SRC, D_L_PROXY_PROTOCOL, D_L_TLS_INSPECTOR, D_N_CONNECTION_LIMIT, D_N_HTTP_CONNECTION_MANAGER, D_N_LOCAL_RATE_LIMIT, D_N_NETWORK_RBAC, D_N_TCP_PROXY, D_UDP_DNS_FILTER } from "@/common/statics/ResourceDescriptions";
+import { D_HTTP_ADAPTIVE_CONCURRENCY, D_HTTP_ADMISSION_CONTROL, D_HTTP_BANDWIDTH_LIMIT, D_HTTP_BASIC_AUTH, D_HTTP_BUFFER, D_HTTP_COMPRESSOR, D_HTTP_CORS, D_HTTP_CSRF_POLICY, D_HTTP_DYNAMIC_FORWARD_PROXY, D_HTTP_EXT_AUTHZ, D_HTTP_EXT_PROC, D_HTTP_JWT_AUTHN, D_HTTP_LOCAL_RATE_LIMIT, D_HTTP_LUA, D_HTTP_OAUTH2, D_HTTP_RBAC, D_HTTP_ROUTER, D_HTTP_STATEFUL_SESSION, D_HTTP_WASM, D_L_HTTP_INSPECTOR, D_L_LOCAL_RATE_LIMIT, D_L_ORIGINAL_DST, D_L_ORIGINAL_SRC, D_L_PROXY_PROTOCOL, D_L_TLS_INSPECTOR, D_N_CONNECTION_LIMIT, D_N_HTTP_CONNECTION_MANAGER, D_N_LOCAL_RATE_LIMIT, D_N_NETWORK_RBAC, D_N_TCP_PROXY, D_UDP_DNS_FILTER, D_UDP_PROXY } from "@/common/statics/ResourceDescriptions";
 
 const { Title, Text } = Typography;
 
@@ -50,6 +50,7 @@ const getFilterIcon = (filterName: string) => {
         'RBAC': <KeyOutlined />,
         'Tcp Proxy': <KeyOutlined />,
         'DNS Filter': <SendOutlined />,
+        'UDP Proxy': <ApiOutlined />,
         'Adaptive Concurrency': <MonitorOutlined />,
         'Admission Control': <ControlOutlined />,
         'Bandwidth Limit': <ThunderboltOutlined />,
@@ -61,7 +62,12 @@ const getFilterIcon = (filterName: string) => {
         'Lua': <CodeOutlined />,
         'OAuth2': <KeyOutlined />,
         'Router': <KeyOutlined />,
-        'Stateful Session': <ClusterOutlined />
+        'Stateful Session': <ClusterOutlined />,
+        'External Processor': <ApiOutlined />,
+        'External Authorization': <SecurityScanOutlined />,
+        'JWT Authentication': <SafetyOutlined />,
+        'Dynamic Forward Proxy': <GlobalOutlined />,
+        'Wasm': <CodeOutlined />
     };
     return iconMap[filterName] || <FilterOutlined />;
 };
@@ -173,6 +179,13 @@ const filters = [
                 data: D_UDP_DNS_FILTER,
                 canonical_name: "envoy.filters.udp.dns_filter"
             },
+            {
+                name: 'UDP Proxy',
+                path: '/filters/udp/l_udp_proxy',
+                value: 226,
+                data: D_UDP_PROXY,
+                canonical_name: "envoy.filters.udp.udp_proxy"
+            },
         ]
     },
     {
@@ -236,6 +249,34 @@ const filters = [
                 value: 50,
                 data: D_HTTP_CSRF_POLICY,
                 canonical_name: "envoy.filters.http.csrf"
+            },
+            {
+                name: 'Dynamic Forward Proxy',
+                path: '/filters/http/http_dynamic_forward_proxy',
+                value: 50,
+                data: D_HTTP_DYNAMIC_FORWARD_PROXY,
+                canonical_name: "envoy.filters.http.dynamic_forward_proxy"
+            },
+            {
+                name: 'External Authorization',
+                path: '/filters/http/http_ext_authz',
+                value: 50,
+                data: D_HTTP_EXT_AUTHZ,
+                canonical_name: "envoy.filters.http.ext_authz"
+            },
+            {
+                name: 'External Processor',
+                path: '/filters/http/http_ext_proc',
+                value: 50,
+                data: D_HTTP_EXT_PROC,
+                canonical_name: "envoy.filters.http.ext_proc"
+            },
+            {
+                name: 'JWT Authentication',
+                path: '/filters/http/http_jwt_authn',
+                value: 50,
+                data: D_HTTP_JWT_AUTHN,
+                canonical_name: "envoy.filters.http.jwt_authn"
             },
             {
                 name: 'Local Ratelimit',

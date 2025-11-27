@@ -163,7 +163,7 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
                     }
 
                     if (method === 'post') {
-                        navigate(`${options.GType.listPage}/${options.name}?resource_id=${data?.data?.data?.resource_id}`);
+                        navigate(`${options.GType.listPage}/${options.name}?resource_id=${data?.data?.data?.resource_id}&version=${options.envoyVersion}`);
                     }
 
                     if (options.queryResource?.resource?.version) {

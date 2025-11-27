@@ -311,6 +311,329 @@ const AuditDetail: React.FC = () => {
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                                 {(() => {
+                                    // Special handling for UPGRADE_RESOURCE action
+                                    if (auditLog.action === 'UPGRADE_RESOURCE' && auditLog.changes) {
+                                        const { from_version, to_version, listener_names, total_listeners, job_id, options } = auditLog.changes as any;
+
+                                        return (
+                                            <div>
+                                                <div style={{
+                                                    background: '#f9f0ff',
+                                                    padding: '8px 12px',
+                                                    borderRadius: '6px 6px 0 0',
+                                                    borderLeft: '3px solid #722ed1',
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center'
+                                                }}>
+                                                    <Text strong style={{ color: '#722ed1', fontSize: 13 }}>RESOURCE UPGRADE</Text>
+                                                    {job_id && (
+                                                        <Tag className='auto-width-tag' color="purple" style={{ margin: 0 }}>
+                                                            Job: {job_id}
+                                                        </Tag>
+                                                    )}
+                                                </div>
+                                                <div style={{ background: '#fafafa', padding: 16 }}>
+                                                    {/* Version Upgrade */}
+                                                    <Row gutter={16} style={{ marginBottom: 16 }}>
+                                                        <Col span={24}>
+                                                            <div style={{
+                                                                background: 'white',
+                                                                border: '1px solid #d3adf7',
+                                                                borderRadius: 8,
+                                                                padding: 12
+                                                            }}>
+                                                                <div style={{ marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                                    <Text strong>Version Upgrade:</Text>
+                                                                    <Tag className='auto-width-tag' color="blue" style={{ fontSize: 12 }}>
+                                                                        {from_version}
+                                                                    </Tag>
+                                                                    <span style={{ color: '#8c8c8c' }}>→</span>
+                                                                    <Tag className='auto-width-tag' color="green" style={{ fontSize: 12 }}>
+                                                                        {to_version}
+                                                                    </Tag>
+                                                                </div>
+                                                                <div>
+                                                                    <Text strong>Total Listeners:</Text> <Text code>{total_listeners || (listener_names?.length || 0)}</Text>
+                                                                </div>
+                                                            </div>
+                                                        </Col>
+                                                    </Row>
+
+                                                    {/* Listener Names */}
+                                                    {listener_names && listener_names.length > 0 && (
+                                                        <Row gutter={16} style={{ marginBottom: 16 }}>
+                                                            <Col span={24}>
+                                                                <div>
+                                                                    <Text type="secondary" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>
+                                                                        AFFECTED LISTENERS ({listener_names.length})
+                                                                    </Text>
+                                                                    <div style={{
+                                                                        background: 'white',
+                                                                        border: '1px solid #d3adf7',
+                                                                        borderRadius: 8,
+                                                                        padding: 12,
+                                                                        marginTop: 8,
+                                                                        maxHeight: 200,
+                                                                        overflowY: 'auto'
+                                                                    }}>
+                                                                        {listener_names.map((name: string, idx: number) => (
+                                                                            <div key={idx} style={{
+                                                                                padding: '4px 0',
+                                                                                borderBottom: idx < listener_names.length - 1 ? '1px solid #f0f0f0' : 'none'
+                                                                            }}>
+                                                                                <Text code style={{ fontSize: 12 }}>{name}</Text>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            </Col>
+                                                        </Row>
+                                                    )}
+
+                                                    {/* Upgrade Options */}
+                                                    {options && (
+                                                        <Row gutter={16}>
+                                                            <Col span={24}>
+                                                                <div>
+                                                                    <Text type="secondary" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>
+                                                                        UPGRADE OPTIONS
+                                                                    </Text>
+                                                                    <div style={{
+                                                                        background: 'white',
+                                                                        border: '1px solid #d3adf7',
+                                                                        borderRadius: 8,
+                                                                        padding: 12,
+                                                                        marginTop: 8
+                                                                    }}>
+                                                                        <Row gutter={[12, 12]}>
+                                                                            {options.autocreatemissing !== undefined && (
+                                                                                <Col span={12}>
+                                                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                                                        <Text type="secondary" style={{ fontSize: 11 }}>Auto Create Missing:</Text>
+                                                                                        <Tag className='auto-width-tag' color={options.autocreatemissing ? 'success' : 'default'} style={{ fontSize: 11, margin: 0 }}>
+                                                                                            {options.autocreatemissing ? 'Yes' : 'No'}
+                                                                                        </Tag>
+                                                                                    </div>
+                                                                                </Col>
+                                                                            )}
+                                                                            {options.dryrun !== undefined && (
+                                                                                <Col span={12}>
+                                                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                                                        <Text type="secondary" style={{ fontSize: 11 }}>Dry Run:</Text>
+                                                                                        <Tag className='auto-width-tag' color={options.dryrun ? 'warning' : 'processing'} style={{ fontSize: 11, margin: 0 }}>
+                                                                                            {options.dryrun ? 'Yes' : 'No'}
+                                                                                        </Tag>
+                                                                                    </div>
+                                                                                </Col>
+                                                                            )}
+                                                                            {options.validateclients !== undefined && (
+                                                                                <Col span={12}>
+                                                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                                                        <Text type="secondary" style={{ fontSize: 11 }}>Validate Clients:</Text>
+                                                                                        <Tag className='auto-width-tag' color={options.validateclients ? 'success' : 'default'} style={{ fontSize: 11, margin: 0 }}>
+                                                                                            {options.validateclients ? 'Yes' : 'No'}
+                                                                                        </Tag>
+                                                                                    </div>
+                                                                                </Col>
+                                                                            )}
+                                                                            {options.updatebootstrap !== undefined && (
+                                                                                <Col span={12}>
+                                                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                                                        <Text type="secondary" style={{ fontSize: 11 }}>Update Bootstrap:</Text>
+                                                                                        <Tag className='auto-width-tag' color={options.updatebootstrap ? 'success' : 'default'} style={{ fontSize: 11, margin: 0 }}>
+                                                                                            {options.updatebootstrap ? 'Yes' : 'No'}
+                                                                                        </Tag>
+                                                                                    </div>
+                                                                                </Col>
+                                                                            )}
+                                                                        </Row>
+                                                                    </div>
+                                                                </div>
+                                                            </Col>
+                                                        </Row>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        );
+                                    }
+
+                                    // Special handling for EXPORT_BACKUP action
+                                    if (auditLog.action === 'EXPORT_BACKUP' && auditLog.changes) {
+                                        const { backup_id, backup_type, project: projectId } = auditLog.changes as any;
+
+                                        return (
+                                            <div>
+                                                <div style={{
+                                                    background: '#e6f7ff',
+                                                    padding: '8px 12px',
+                                                    borderRadius: '6px 6px 0 0',
+                                                    borderLeft: '3px solid #1890ff',
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center'
+                                                }}>
+                                                    <Text strong style={{ color: '#1890ff', fontSize: 13 }}>BACKUP EXPORT</Text>
+                                                    {backup_id && (
+                                                        <Tag className='auto-width-tag' color="blue" style={{ margin: 0, fontFamily: 'monospace', fontSize: 11 }}>
+                                                            {backup_id}
+                                                        </Tag>
+                                                    )}
+                                                </div>
+                                                <div style={{ background: '#fafafa', padding: 16 }}>
+                                                    <Row gutter={16}>
+                                                        <Col span={12}>
+                                                            <div style={{
+                                                                background: 'white',
+                                                                border: '1px solid #91d5ff',
+                                                                borderRadius: 8,
+                                                                padding: 12
+                                                            }}>
+                                                                <div style={{ marginBottom: 8 }}>
+                                                                    <Text strong>Backup Type:</Text>{' '}
+                                                                    <Tag className='auto-width-tag' color={backup_type === 'global' ? 'purple' : 'blue'} style={{ fontSize: 12 }}>
+                                                                        {backup_type?.toUpperCase()}
+                                                                    </Tag>
+                                                                </div>
+                                                                {projectId && backup_type === 'project' && (
+                                                                    <div>
+                                                                        <Text strong>Project ID:</Text>{' '}
+                                                                        <Text code style={{ fontSize: 11 }}>{projectId}</Text>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </Col>
+                                                    </Row>
+                                                </div>
+                                            </div>
+                                        );
+                                    }
+
+                                    // Special handling for IMPORT_BACKUP action
+                                    if ((auditLog.action === 'IMPORT_BACKUP' || auditLog.action === 'IMPORT_BACKUP_DRY') && auditLog.changes) {
+                                        const { backup_id, permission_strategy, dry_run, total_created, total_updated, total_failed, success: importSuccess } = auditLog.changes as any;
+                                        const hasStats = total_created !== undefined || total_updated !== undefined || total_failed !== undefined;
+
+                                        return (
+                                            <div>
+                                                <div style={{
+                                                    background: '#f6ffed',
+                                                    padding: '8px 12px',
+                                                    borderRadius: '6px 6px 0 0',
+                                                    borderLeft: '3px solid #52c41a',
+                                                    display: 'flex',
+                                                    justifyContent: 'space-between',
+                                                    alignItems: 'center'
+                                                }}>
+                                                    <Text strong style={{ color: '#52c41a', fontSize: 13 }}>BACKUP IMPORT</Text>
+                                                    <div style={{ display: 'flex', gap: 8 }}>
+                                                        {dry_run && (
+                                                            <Tag className='auto-width-tag' color="warning" style={{ margin: 0 }}>
+                                                                DRY RUN
+                                                            </Tag>
+                                                        )}
+                                                        {importSuccess !== undefined && (
+                                                            <Tag className='auto-width-tag' color={importSuccess ? 'success' : 'error'} style={{ margin: 0 }}>
+                                                                {importSuccess ? 'SUCCESS' : 'FAILED'}
+                                                            </Tag>
+                                                        )}
+                                                        {backup_id && (
+                                                            <Tag className='auto-width-tag' color="green" style={{ margin: 0, fontFamily: 'monospace', fontSize: 11 }}>
+                                                                {backup_id}
+                                                            </Tag>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                                <div style={{ background: '#fafafa', padding: 16 }}>
+                                                    <Row gutter={16}>
+                                                        <Col span={hasStats ? 12 : 24}>
+                                                            <div style={{
+                                                                background: 'white',
+                                                                border: '1px solid #b7eb8f',
+                                                                borderRadius: 8,
+                                                                padding: 12
+                                                            }}>
+                                                                {permission_strategy && (
+                                                                    <div style={{ marginBottom: 8 }}>
+                                                                        <Text strong>Permission Strategy:</Text>{' '}
+                                                                        <Tag className='auto-width-tag' color="cyan" style={{ fontSize: 12 }}>
+                                                                            {permission_strategy?.toUpperCase()}
+                                                                        </Tag>
+                                                                    </div>
+                                                                )}
+                                                                <div>
+                                                                    <Text strong>Dry Run:</Text>{' '}
+                                                                    <Tag className='auto-width-tag' color={dry_run ? 'warning' : 'success'} style={{ fontSize: 12 }}>
+                                                                        {dry_run ? 'YES' : 'NO'}
+                                                                    </Tag>
+                                                                </div>
+                                                            </div>
+                                                        </Col>
+                                                        {hasStats && (
+                                                            <Col span={12}>
+                                                                <div>
+                                                                    <Text type="secondary" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>
+                                                                        IMPORT STATISTICS
+                                                                    </Text>
+                                                                    <div style={{
+                                                                        background: 'white',
+                                                                        border: '1px solid #b7eb8f',
+                                                                        borderRadius: 8,
+                                                                        padding: 12,
+                                                                        marginTop: 8,
+                                                                        display: 'flex',
+                                                                        flexDirection: 'column',
+                                                                        gap: 8
+                                                                    }}>
+                                                                        {total_created !== undefined && (
+                                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                                                <Text type="secondary" style={{ fontSize: 11 }}>Created:</Text>
+                                                                                <Tag className='auto-width-tag' color="success" style={{ fontSize: 11, margin: 0, minWidth: 40, textAlign: 'center' }}>
+                                                                                    {total_created}
+                                                                                </Tag>
+                                                                            </div>
+                                                                        )}
+                                                                        {total_updated !== undefined && (
+                                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                                                <Text type="secondary" style={{ fontSize: 11 }}>Updated:</Text>
+                                                                                <Tag className='auto-width-tag' color="processing" style={{ fontSize: 11, margin: 0, minWidth: 40, textAlign: 'center' }}>
+                                                                                    {total_updated}
+                                                                                </Tag>
+                                                                            </div>
+                                                                        )}
+                                                                        {total_failed !== undefined && (
+                                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                                                <Text type="secondary" style={{ fontSize: 11 }}>Failed:</Text>
+                                                                                <Tag className='auto-width-tag' color={total_failed > 0 ? 'error' : 'default'} style={{ fontSize: 11, margin: 0, minWidth: 40, textAlign: 'center' }}>
+                                                                                    {total_failed}
+                                                                                </Tag>
+                                                                            </div>
+                                                                        )}
+                                                                        {(total_created !== undefined || total_updated !== undefined) && (
+                                                                            <div style={{
+                                                                                borderTop: '1px solid #f0f0f0',
+                                                                                paddingTop: 8,
+                                                                                marginTop: 4,
+                                                                                display: 'flex',
+                                                                                justifyContent: 'space-between',
+                                                                                alignItems: 'center'
+                                                                            }}>
+                                                                                <Text strong style={{ fontSize: 11 }}>Total:</Text>
+                                                                                <Text strong style={{ fontSize: 12 }}>
+                                                                                    {(total_created || 0) + (total_updated || 0) + (total_failed || 0)}
+                                                                                </Text>
+                                                                            </div>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            </Col>
+                                                        )}
+                                                    </Row>
+                                                </div>
+                                            </div>
+                                        );
+                                    }
+
                                     // Special handling for DISCOVERY_UPDATE_ENDPOINT action
                                     if (auditLog.action === 'DISCOVERY_UPDATE_ENDPOINT' && auditLog.changes.before && auditLog.changes.after && auditLog.changes.diff) {
                                         const { before, after, diff } = auditLog.changes;

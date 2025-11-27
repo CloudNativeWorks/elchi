@@ -24,6 +24,7 @@ import ComponentListenerFilters from './ListenerFilters';
 import { ConditionalComponent } from '../../common/ConditionalComponent';
 import { ConfDiscovery } from '@/common/types';
 import { GTypeFieldsBase } from '@/common/statics/gtypes';
+import ComponentUdpListenerConfig from './UdpListenerConfig/UdpListenerConfig';
 
 
 type GeneralPropsChild = {
@@ -166,6 +167,18 @@ const ListenerComponentChild: React.FC<GeneralPropsChild> = ({ veri }) => {
                         reduxStore: veri.reduxStore?.access_log,
                         reduxAction: ResourceAction,
                         id: `access_log_${veri.keyPrefix}`
+                    }}
+                />
+                <ConditionalComponent
+                    shouldRender={startsWithAny('udp_listener_config', selectedTags)}
+                    Component={ComponentUdpListenerConfig}
+                    componentProps={{
+                        version: veri.version,
+                        reduxStore: veri.reduxStore?.udp_listener_config,
+                        keyPrefix: `${veri.keyPrefix}.udp_listener_config`,
+                        id: `udp_listener_config_${veri.keyPrefix}`,
+                        title: "UDP Listener Config",
+                        reduxAction: ResourceAction
                     }}
                 />
             </Col>

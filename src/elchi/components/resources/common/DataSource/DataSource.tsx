@@ -54,6 +54,7 @@ const CommonComponentDataSource: React.FC<GeneralProps> = ({ veri }) => {
     }, [veri.reduxStore, veri.fileName]);
 
     const handleChangeRedux = (keys: string, val: string | boolean | number) => {
+        console.log(keys, val)
         handleChangeResources({ version: veri.version, type: ActionType.Update, keys, val, resourceType: ResourceType.Resource }, dispatch, ResourceAction);
     };
 

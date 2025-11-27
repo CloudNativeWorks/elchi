@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Drawer, Button, Alert, Modal } from 'antd';
+import { Drawer, Button, Alert, Modal, Typography } from 'antd';
 import { ClientListTable } from './ClientListTable';
 import { useDeployUndeployService } from '@/hooks/useServiceActions';
 import { OperationsType } from '@/common/types';
@@ -8,6 +8,8 @@ import { DeployLineIcon } from '@/assets/svg/icons';
 import { CloudUploadOutlined, DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import { showWarningNotification } from '@/common/notificationHandler';
+
+const { Text } = Typography;
 
 
 interface DeployServiceDialogProps {
@@ -232,6 +234,66 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
         setSelectedIpModes(prev => ({ ...prev, [clientId]: ipMode }));
     }, []);
 
+    const handleRedeploy = useCallback(async (client: any) => {
+        // Validate downstream address
+        const address = downstreamAddresses[client.client_id];
+        if (!address) {
+            showWarningNotification('Please enter downstream address.');
+            return;
+        }
+
+        // Validate IP address
+        const isValidIP = (ip: string) => {
+            const ipRegex = /^((25[0-5]|(2[0-4]|1\d|[1-9]|)\d)\.?\b){4}$/;
+            return ipRegex.test(ip);
+        };
+
+        if (!isValidIP(address)) {
+            showWarningNotification('Please enter a valid IP address.');
+            return;
+        }
+
+        // Validate OpenStack interface if needed
+        const isOpenStack = client.provider === 'openstack' && client.metadata?.os_uuid && client.metadata?.os_project_id;
+        if (isOpenStack && !selectedInterfaces[client.client_id]) {
+            showWarningNotification('Please select an OpenStack interface.');
+            return;
+        }
+
+        // Show confirmation dialog
+        Modal.confirm({
+            title: 'Confirm Redeploy',
+            icon: <ExclamationCircleOutlined style={{ color: '#1890ff' }} />,
+            content: (
+                <div>
+                    <p>Are you sure you want to redeploy the service to <Text strong>{client.name}</Text>?</p>
+                    <ul style={{ paddingLeft: 20, marginTop: 8, marginBottom: 0 }}>
+                        <li>Downstream address: <Text code>{address}</Text></li>
+                        {isOpenStack && selectedInterfaces[client.client_id] && (
+                            <li>OpenStack interface: <Text code>{selectedInterfaces[client.client_id]}</Text></li>
+                        )}
+                        <li>This will restart the service on the client</li>
+                    </ul>
+                </div>
+            ),
+            okText: 'Yes, Redeploy',
+            cancelText: 'Cancel',
+            onOk: async () => {
+                // Execute redeploy (single client deploy)
+                const result = await executeAction(OperationsType.DEPLOY, [{
+                    client_id: client.client_id,
+                    downstream_address: address,
+                    interface_id: selectedInterfaces[client.client_id] || undefined,
+                    ip_mode: selectedIpModes[client.client_id] || 'fixed'
+                }]);
+
+                if (result.success) {
+                    onSuccess?.();
+                }
+            }
+        });
+    }, [downstreamAddresses, selectedInterfaces, selectedIpModes, executeAction, onSuccess]);
+
     const handleConfirmDelete = async () => {
         setDeleteConfirmVisible(false);
         await performAction();
@@ -339,7 +401,7 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
             setOpenStackErrorConfirmVisible(false);
         } else {
             setAction(OperationsType.DEPLOY);
-            if (existingClients.length > 0 && selectedRowKeys.length === 0) {
+            if (existingClients.length > 0) {
                 const clientIds = existingClients.map(c => c.client_id);
                 const addresses = Object.fromEntries(
                     existingClients.map(c => [c.client_id, c.downstream_address])
@@ -350,10 +412,15 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                 const ipModes = Object.fromEntries(
                     existingClients.map(c => [c.client_id, c.ip_mode || 'fixed'])
                 );
-                setSelectedRowKeys(clientIds);
-                setDownstreamAddresses(addresses);
-                setSelectedInterfaces(interfaces);
-                setSelectedIpModes(ipModes);
+
+                // Only set if not already set to avoid overriding user changes
+                if (selectedRowKeys.length === 0) {
+                    setSelectedRowKeys(clientIds);
+                }
+                // Always update addresses to ensure fresh data
+                setDownstreamAddresses(prev => ({ ...prev, ...addresses }));
+                setSelectedInterfaces(prev => ({ ...prev, ...interfaces }));
+                setSelectedIpModes(prev => ({ ...prev, ...ipModes }));
             }
         }
     }, [open, existingClients]);
@@ -436,7 +503,7 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                 open={open}
                 onClose={onClose}
                 placement="right"
-                width={1200}
+                width={1350}
                 title={
                     <div style={{
                         display: 'flex',
@@ -769,6 +836,8 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                         onIpModeSelect={handleIpModeSelect}
                         selectedIpModes={selectedIpModes}
                         interfaceErrors={interfaceErrors}
+                        onRedeploy={handleRedeploy}
+                        existingClients={existingClients}
                     />
                 </div>
             </Drawer>

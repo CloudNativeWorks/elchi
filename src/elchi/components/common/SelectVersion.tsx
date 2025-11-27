@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Typography, Select, Modal, Space } from 'antd';
 import { ClearResources } from "@/redux/reducers/slice";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { GTypeFieldsBase } from "@/common/statics/gtypes";
 import { multipleResource } from "@/common/statics/multiple-resources";
 import ElchiButton from "./ElchiButton";
@@ -19,7 +19,7 @@ interface RenderFormItemProps<T> {
 const SelectVersion = <T,>({ setState, currentState, GType }: RenderFormItemProps<T>): JSX.Element => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const [initValue, setInitValue] = useState(GType.initialValue);
+    const [searchParams] = useSearchParams();
     const [selectedVersion, setSelectedVersion] = useState<string>('');
     const [selectedGType, setSelectedGType] = useState<string>('');
 
@@ -28,27 +28,40 @@ const SelectVersion = <T,>({ setState, currentState, GType }: RenderFormItemProp
             const defaultGType = multipleResource[GType.module].defaultValue;
             setSelectedGType(defaultGType);
         }
-        
+
+        // Check if version is already provided in URL (from duplicate/upgrade)
+        const urlVersion = searchParams.get('version');
+        if (urlVersion && GType.availableVersions.includes(urlVersion)) {
+            setSelectedVersion(urlVersion);
+
+            // Auto-submit if no GType selection is needed
+            if (!GType.module || !multipleResource[GType.module]) {
+                if (GType.initialValue) {
+                    dispatch(ClearResources({ version: urlVersion, initialValue: GType.initialValue }));
+                }
+                setState({ ...currentState, version: urlVersion });
+            }
+            return;
+        }
+
         // Auto-select and auto-submit if only version needed and only one available
         if (GType.availableVersions && GType.availableVersions.length === 1) {
             const singleVersion = GType.availableVersions[0];
             setSelectedVersion(singleVersion);
-            
+
             // If no GType selection needed, auto-submit
             if (!GType.module || !multipleResource[GType.module]) {
-                if (initValue) {
-                    dispatch(ClearResources({ version: singleVersion, initialValue: initValue }));
+                if (GType.initialValue) {
+                    dispatch(ClearResources({ version: singleVersion, initialValue: GType.initialValue }));
                 }
                 setState({ ...currentState, version: singleVersion });
             }
         }
-    }, [GType, initValue, dispatch, currentState, setState]);
+    }, [GType, GType.initialValue, dispatch, currentState, setState, searchParams]);
 
     const handleChangeGtype = (gtype: string) => {
         setSelectedGType(gtype);
-        if (gtype === 'envoy.extensions.transport_sockets.tls.v3.TlsCertificate') {
-            setInitValue([]);
-        }
+        // initialValue will be determined in handleOk based on selectedGType
     };
 
     const handleVersionChange = (version: string) => {
@@ -56,16 +69,25 @@ const SelectVersion = <T,>({ setState, currentState, GType }: RenderFormItemProp
     };
 
     const handleOk = () => {
-        // Apply selected values to state
-        if (initValue) {
-            dispatch(ClearResources({ version: selectedVersion, initialValue: initValue }));
+        // Determine correct initialValue based on selectedGType
+        let correctInitialValue = GType.initialValue;
+        if (selectedGType === 'envoy.extensions.transport_sockets.tls.v3.TlsCertificate') {
+            correctInitialValue = [];
+        } else if (selectedGType && selectedGType.includes('envoy.extensions.transport_sockets.tls.v3')) {
+            // For other secret types (GenericSecret, CertificateValidationContext, TlsSessionTicketKeys)
+            correctInitialValue = {};
         }
-        
+
+        // Apply selected values to state
+        if (correctInitialValue !== undefined) {
+            dispatch(ClearResources({ version: selectedVersion, initialValue: correctInitialValue }));
+        }
+
         const updatedState: any = { ...currentState, version: selectedVersion };
         if (selectedGType) {
             updatedState.gtype = selectedGType;
         }
-        
+
         setState(updatedState);
     };
 

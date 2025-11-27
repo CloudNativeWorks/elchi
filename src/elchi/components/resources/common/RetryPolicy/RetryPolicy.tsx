@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Col, Row, Divider, Flex } from 'antd';
+import { Col, Row, Divider, Flex, Select } from 'antd';
 import { HorizonTags } from "@/elchi/components/common/HorizonTags";
 import { memorizeComponent, compareVeri } from "@/hooks/useMemoComponent";
 import { FieldComponent } from "@/elchi/components/common/FormItems";
@@ -50,10 +50,33 @@ const CommonComponentRetryPolicy: React.FC<GeneralProps> = ({ veri }) => {
         show_retriable_request_headers: false,
     });
 
+    const retryOnSuggestions = [
+        "5xx",
+        "gateway-error",
+        "connect-failure",
+        "refused-stream",
+        "retriable-4xx",
+        "retriable-status-codes",
+        "reset",
+        "retriable-headers",
+        "envoy-ratelimited",
+        "http3-post-connect-failure",
+    ];
+
+    // Convert string to array for Tags component
+    const retryOnValue = veri.reduxStore?.retry_on ? veri.reduxStore.retry_on.split(',').map((v: string) => v.trim()) : [];
+
+    // Custom handler to convert array back to comma-separated string
+    const handleRetryOnChange = (values: string[]) => {
+        const stringValue = values.join(',');
+        handleChangeRedux(`${veri.keyPrefix}.retry_on`, stringValue);
+    };
+
     const fieldConfigs_retryPolicy: FieldConfigType[] = [
         ...generateFields({
             f: vTags.rp?.RetryPolicy,
             sf: vTags.rp?.RetryPolicy_SingleFields,
+            e: ["retry_on"], // Exclude retry_on from auto-generation
         }),
         {
             tag: "retriable_headers", type: FieldTypes.ArrayIcon, fieldPath: 'retriable_headers', spanNum: 6, condition: true,
@@ -87,6 +110,22 @@ const CommonComponentRetryPolicy: React.FC<GeneralProps> = ({ veri }) => {
                 <Col md={24}>
                     <EForm>
                         <Flex wrap="wrap" gap="small">
+                            {selectedTags.includes("retry_on") && (
+                                <Col span={12} key="retry_on">
+                                    <label style={{ display: 'block', marginBottom: '4px', fontSize: '12px' }}>
+                                        Retry On
+                                    </label>
+                                    <Select
+                                        mode="tags"
+                                        style={{ width: '100%' }}
+                                        placeholder="Select or type retry conditions (e.g., 5xx, gateway-error)"
+                                        value={retryOnValue}
+                                        onChange={handleRetryOnChange}
+                                        options={retryOnSuggestions.map(v => ({ label: v, value: v }))}
+                                        tokenSeparators={[',']}
+                                    />
+                                </Col>
+                            )}
                             {fieldConfigs_retryPolicy.map((config) => (
                                 <FieldComponent key={config.tag}
                                     veri={{

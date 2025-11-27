@@ -15,6 +15,8 @@ import { ResourceAction } from "@/redux/reducers/slice";
 import { FieldTypes } from "@/common/statics/general";
 import CommonComponentCoreRetryPolicy from "@resources/common/CoreRetryPolicy/RetryPolicy";
 import CommonComponentHttpUri from "@resources/common/HttpUri/HttpUri";
+import ComponentOAuth2Credentials from "./Oauth2Credentials";
+import ComponentOAuth2CookieConfigs from "./Oauth2CookieConfigs";
 import { EForm } from "@/elchi/components/common/e-components/EForm";
 import { EFields } from "@/elchi/components/common/e-components/EFields";
 
@@ -77,6 +79,7 @@ const ComponentOAuth2Config: React.FC<GeneralProps> = ({ veri }) => {
                 unsupportedTags: [],
                 handleChangeTag: handleChangeTag,
                 keyPrefix: veri.keyPrefix,
+                required: ['token_endpoint', 'authorization_endpoint', 'credentials', 'redirect_uri', 'redirect_path_matcher', 'signout_path'],
             }} />
             <Divider style={{ marginTop: '8px', marginBottom: '8px' }} type="horizontal" />
             <Col md={24}>
@@ -90,6 +93,17 @@ const ComponentOAuth2Config: React.FC<GeneralProps> = ({ veri }) => {
                         version={veri.version}
                     />
                 </EForm>
+                <ConditionalComponent
+                    shouldRender={startsWithAny("credentials", selectedTags)}
+                    Component={ComponentOAuth2Credentials}
+                    componentProps={{
+                        version: veri.version,
+                        reduxStore: veri.reduxStore?.credentials,
+                        keyPrefix: `${veri.keyPrefix}.credentials`,
+                        title: "Credentials",
+                        id: `credentials_0`,
+                    }}
+                />
                 <ConditionalComponent
                     shouldRender={startsWithAny("token_endpoint", selectedTags)}
                     Component={CommonComponentHttpUri}
@@ -168,6 +182,17 @@ const ComponentOAuth2Config: React.FC<GeneralProps> = ({ veri }) => {
                         reduxStore: veri.reduxStore?.retry_policy,
                         keyPrefix: `${veri.keyPrefix}.retry_policy`,
                         id: `${veri.keyPrefix}_retry_policy`,
+                    }}
+                />
+                <ConditionalComponent
+                    shouldRender={startsWithAny("cookie_configs", selectedTags)}
+                    Component={ComponentOAuth2CookieConfigs}
+                    componentProps={{
+                        version: veri.version,
+                        reduxStore: veri.reduxStore?.cookie_configs,
+                        keyPrefix: `${veri.keyPrefix}.cookie_configs`,
+                        title: "Cookie Configurations",
+                        id: `cookie_configs_0`,
                     }}
                 />
             </Col>

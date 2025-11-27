@@ -226,7 +226,6 @@ const CommonComponentTypedPerFilter: React.FC<GeneralProps> = ({ veri }) => {
                 isTypedPerConfig={true}
                 httpFilterMain={httpFilterMainData}
             />
-
         </>
     )
 };

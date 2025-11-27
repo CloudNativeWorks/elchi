@@ -85,6 +85,38 @@ export const multipleResource: Record<string, { name: string, defaultValue: stri
             { value: "envoy.extensions.filters.http.stateful_session.v3.StatefulSessionPerRoute", label: "Stateful Session Per Route" },
         ]
     },
+    "filters/http/ext-proc/ExtProcs": {
+        name: "External Processor",
+        defaultValue: "envoy.extensions.filters.http.ext_proc.v3.ExternalProcessor",
+        options: [
+            { value: "envoy.extensions.filters.http.ext_proc.v3.ExternalProcessor", label: "External Processor" },
+            { value: "envoy.extensions.filters.http.ext_proc.v3.ExtProcPerRoute", label: "Ext Proc Per Route" },
+        ]
+    },
+    "filters/http/ext-authz/ExtAuthzs": {
+        name: "External Authorization",
+        defaultValue: "envoy.extensions.filters.http.ext_authz.v3.ExtAuthz",
+        options: [
+            { value: "envoy.extensions.filters.http.ext_authz.v3.ExtAuthz", label: "Ext Authz" },
+            { value: "envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute", label: "Ext Authz Per Route" },
+        ]
+    },
+    "filters/http/jwt-authn/JwtAuthns": {
+        name: "JWT Authentication",
+        defaultValue: "envoy.extensions.filters.http.jwt_authn.v3.JwtAuthentication",
+        options: [
+            { value: "envoy.extensions.filters.http.jwt_authn.v3.JwtAuthentication", label: "JWT Authentication" },
+            { value: "envoy.extensions.filters.http.jwt_authn.v3.PerRouteConfig", label: "JWT Authn Per Route" },
+        ]
+    },
+    "filters/http/dynamic-forward-proxy/DynamicForwardProxies": {
+        name: "Dynamic Forward Proxy",
+        defaultValue: "envoy.extensions.filters.http.dynamic_forward_proxy.v3.FilterConfig",
+        options: [
+            { value: "envoy.extensions.filters.http.dynamic_forward_proxy.v3.FilterConfig", label: "Dynamic Forward Proxy" },
+            { value: "envoy.extensions.filters.http.dynamic_forward_proxy.v3.PerRouteConfig", label: "Dynamic Forward Proxy Per Route" },
+        ]
+    },
     "extension/session-state/SessionState": {
         name: "Stateful Session State",
         defaultValue: "envoy.extensions.http.stateful_session.header.v3.HeaderBasedSessionState",
@@ -99,6 +131,7 @@ export const multipleResource: Record<string, { name: string, defaultValue: stri
         options: [
             { value: "envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext", label: "Downstream Tls Context" },
             { value: "envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext", label: "Upstream Tls Context" },
+            { value: "envoy.extensions.transport_sockets.quic.v3.QuicDownstreamTransport", label: "QUIC Downstream Transport" },
         ]
     },
 
