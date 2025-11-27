@@ -14,6 +14,29 @@ export const modtag_cluster = [
     }
 ];
 
+export const modtag_circuit_breakers = [
+    {
+        alias: 'cbs',
+        relativePath: 'envoy/config/cluster/v3/circuit_breaker',
+        names: ['CircuitBreakers']
+    },
+    {
+        alias: 'cb',
+        relativePath: 'envoy/config/cluster/v3/circuit_breaker',
+        names: ['CircuitBreakers_Thresholds', 'CircuitBreakers_Thresholds_SingleFields']
+    },
+    {
+        alias: 'cbr',
+        relativePath: 'envoy/config/cluster/v3/circuit_breaker',
+        names: ['CircuitBreakers_Thresholds_RetryBudget', 'CircuitBreakers_Thresholds_RetryBudget_SingleFields']
+    },
+    {
+        alias: 'p',
+        relativePath: 'envoy/type/v3/percent',
+        names: ['Percent']
+    }
+];
+
 export const modtag_outlier_detection = [
     {
         alias: 'o',
@@ -66,26 +89,15 @@ export const modtag_load_assignment = [
 export const modtag_us_cluster: TagsType = {
     "Cluster": [
         "transport_socket_matches",
-        "cluster_discovery_type.cluster_type",
-        "circuit_breakers",
         "typed_dns_resolver_config",
-        "dns_failure_refresh_rate",
-        "upstream_bind_config",
         "lb_subset_config",
-        "lb_config.ring_hash_lb_config",
-        "lb_config.maglev_lb_config",
-        "lb_config.original_dst_lb_config",
-        "lb_config.least_request_lb_config",
-        "lb_config.round_robin_lb_config",
-        "common_lb_config",
         "metadata",
-        "upstream_connection_options",
         "filters",
         "load_balancing_policy",
-        "lrs_server", //deprecated
         "upstream_config",
-        "track_cluster_stats",
-        "preconnect_policy",
+
+        "dns_failure_refresh_rate", //deprecated
+        "lrs_server", //deprecated
         "track_timeout_budgets", //deprecated
         "max_requests_per_connection", //deprecated
         "upstream_http_protocol_options", //deprecated
@@ -96,10 +108,9 @@ export const modtag_us_cluster: TagsType = {
         "use_tcp_for_dns_lookups", //deprecated
         "dns_resolution_config", //deprecated
         "protocol_selection", //deprecated
-
-        "dns_refresh_rate",
-        "dns_jitter",
-        "respect_dns_ttl"
+        "dns_refresh_rate", //deprecated
+        "dns_jitter", //deprecated
+        "respect_dns_ttl" //deprecated
     ],
     "HealthCheck": [
         "health_checker.custom_health_check",

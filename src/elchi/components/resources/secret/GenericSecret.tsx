@@ -15,6 +15,7 @@ import RenderLoading from "../../common/Loading";
 import { useLoading } from "@/hooks/loadingContext";
 import { useManagedLoading } from "@/hooks/useManageLoading";
 import { ConditionalComponent } from "../../common/ConditionalComponent";
+import ComponentGenericSecrets from "./GenericSecrets";
 
 
 type GeneralProps = {
@@ -76,11 +77,12 @@ const ComponentGenericSecret: React.FC<GeneralProps> = ({ veri }) => {
                             index={0}
                             handleChangeTag={handleChangeTag}
                             required={[]}
+                            onlyOneTag={[["secret", "secrets"]]}
                         />
                     </Col>
                     <Col md={20}>
                         <ConditionalComponent
-                            shouldRender={startsWithAny("secret", selectedTags)}
+                            shouldRender={startsWithAny("secret", selectedTags) && !startsWithAny("secrets", selectedTags)}
                             Component={CommonComponentDataSource}
                             componentProps={{
                                 version: veri.version,
@@ -90,6 +92,15 @@ const ComponentGenericSecret: React.FC<GeneralProps> = ({ veri }) => {
                                 tagPrefix: ``,
                                 fileName: 'Secret file',
                                 id: `secret_0`,
+                            }}
+                        />
+                        <ConditionalComponent
+                            shouldRender={startsWithAny("secrets", selectedTags)}
+                            Component={ComponentGenericSecrets}
+                            componentProps={{
+                                version: veri.version,
+                                reduxStore: reduxStore?.secrets,
+                                keyPrefix: `secrets`,
                             }}
                         />
                     </Col>

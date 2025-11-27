@@ -5,7 +5,7 @@ import CountUp from 'react-countup';
 import ReactMarkdown from 'react-markdown';
 import { useProjectVariable } from "@/hooks/useProjectVariable";
 import { useCustomGetQuery } from "@/common/api";
-import { 
+import {
     InfoCircleOutlined,
     FileTextOutlined,
     CompressOutlined,
@@ -15,9 +15,10 @@ import {
     DatabaseOutlined,
     BarChartOutlined,
     AppstoreOutlined,
-    RightOutlined
+    RightOutlined,
+    GlobalOutlined
 } from '@ant-design/icons';
-import { D_E_ACCESS_LOG, D_E_COMPRESSOR_LIBRARY, D_E_HEALTH_CHECK_EVENT_FILE_SINK, D_E_HTTP_PROTOCOL_OPTIONS, D_E_STAT_SINKS, D_E_STATEFUL_SESSION_STATE, D_E_URI_TEMPLATE_MATCH } from "@/common/statics/ResourceDescriptions";
+import { D_E_ACCESS_LOG, D_E_CLUSTER_DYNAMIC_FORWARD_PROXY, D_E_COMPRESSOR_LIBRARY, D_E_HEALTH_CHECK_EVENT_FILE_SINK, D_E_HTTP_PROTOCOL_OPTIONS, D_E_STAT_SINKS, D_E_STATEFUL_SESSION_STATE, D_E_URI_TEMPLATE_MATCH } from "@/common/statics/ResourceDescriptions";
 
 const { Title, Text } = Typography;
 
@@ -30,6 +31,7 @@ const formatter = (value: number | string) => {
 const getExtensionIcon = (extensionName: string) => {
     const iconMap: { [key: string]: JSX.Element } = {
         'Access Log': <FileTextOutlined />,
+        'Cluster Dynamic Forward Proxy': <GlobalOutlined />,
         'Compressor Library': <CompressOutlined />,
         'HealthCheck Event File Sink': <HeartOutlined />,
         'Http Protocol Options': <ApiOutlined />,
@@ -41,48 +43,54 @@ const getExtensionIcon = (extensionName: string) => {
 };
 
 const extensions = [
-    { 
-        name: 'Access Log', 
-        path: '/extensions/access_log', 
+    {
+        name: 'Access Log',
+        path: '/extensions/access_log',
         data: D_E_ACCESS_LOG,
-        canonical_name: "envoy.access_loggers" 
+        category: "envoy.access_loggers"
     },
-    { 
-        name: 'Compressor Library', 
-        path: '/extensions/compressor_library', 
+    {
+        name: 'Cluster Dynamic Forward Proxy',
+        path: '/extensions/cluster_dynamic_forward_proxy',
+        data: D_E_CLUSTER_DYNAMIC_FORWARD_PROXY,
+        category: "envoy.clusters"
+    },
+    {
+        name: 'Compressor Library',
+        path: '/extensions/compressor_library',
         data: D_E_COMPRESSOR_LIBRARY,
-        canonical_name: "envoy.compression.compressor" 
+        category: "envoy.compression.compressor"
     },
-    { 
-        name: 'HealthCheck Event File Sink', 
-        path: '/extensions/hcefs', 
+    {
+        name: 'HealthCheck Event File Sink',
+        path: '/extensions/hcefs',
         data: D_E_HEALTH_CHECK_EVENT_FILE_SINK,
-        canonical_name: "envoy.health_check.event_sinks" 
+        category: "envoy.health_check.event_sinks"
     },
-    { 
-        name: 'Http Protocol Options', 
-        path: '/extensions/http_protocol_options', 
+    {
+        name: 'Http Protocol Options',
+        path: '/extensions/http_protocol_options',
         data: D_E_HTTP_PROTOCOL_OPTIONS,
-        canonical_name: "envoy.upstreams.http.http_protocol_options" 
+        category: "envoy.upstreams.http.http_protocol_options"
     },
-    { 
-        name: 'Uri Template Match', 
-        path: '/extensions/utm', 
+    {
+        name: 'Uri Template Match',
+        path: '/extensions/utm',
         data: D_E_URI_TEMPLATE_MATCH,
-        canonical_name: "envoy.path.match.uri_template.uri_template_matcher" 
+        category: "envoy.path.match.uri_template.uri_template_matcher"
     },
-    { 
-        name: 'Stateful Session State', 
-        path: '/extensions/session_state', 
+    {
+        name: 'Stateful Session State',
+        path: '/extensions/session_state',
         data: D_E_STATEFUL_SESSION_STATE,
-        canonical_name: "envoy.http.stateful_session.header",
-        canonical_name_2: "envoy.http.stateful_session.cookie"
+        category: "envoy.http.stateful_session.header",
+        category_2: "envoy.http.stateful_session.cookie"
     },
-    { 
-        name: 'Stat Sinks', 
-        path: '/extensions/stat_sinks', 
+    {
+        name: 'Stat Sinks',
+        path: '/extensions/stat_sinks',
         data: D_E_STAT_SINKS,
-        canonical_name: "envoy.stats_sinks" 
+        category: "envoy.stats_sinks"
     },
 ];
 
@@ -109,7 +117,7 @@ const ExtensionsMain: React.FC = () => {
     });
 
     return (
-        <div style={{ 
+        <div style={{
             padding: '20px',
             background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
             minHeight: '100vh'
@@ -166,14 +174,14 @@ const ExtensionsMain: React.FC = () => {
                                     {getExtensionIcon(filter.name)}
                                 </div>
                                 <div>
-                                    <NavLink 
+                                    <NavLink
                                         to={filter.path}
                                         style={{ textDecoration: 'none' }}
                                     >
-                                        <Title 
-                                            level={5} 
-                                            style={{ 
-                                                color: '#2c3e50', 
+                                        <Title
+                                            level={5}
+                                            style={{
+                                                color: '#2c3e50',
                                                 margin: 0,
                                                 fontSize: 14,
                                                 fontWeight: 600,
@@ -185,12 +193,12 @@ const ExtensionsMain: React.FC = () => {
                                     </NavLink>
                                 </div>
                             </Space>
-                            
+
                             <Button
                                 type="text"
                                 icon={<InfoCircleOutlined />}
                                 size="small"
-                                style={{ 
+                                style={{
                                     color: '#8c8c8c',
                                     border: 'none',
                                     width: 28,
@@ -200,7 +208,7 @@ const ExtensionsMain: React.FC = () => {
                             />
                         </div>
 
-                        <NavLink 
+                        <NavLink
                             to={filter.path}
                             style={{ textDecoration: 'none', display: 'block' }}
                         >
@@ -215,20 +223,20 @@ const ExtensionsMain: React.FC = () => {
                                 cursor: 'pointer',
                                 transition: 'all 0.2s ease'
                             }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.background = '#056ccd08';
-                                e.currentTarget.style.borderColor = '#056ccd30';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.background = '#fafbfc';
-                                e.currentTarget.style.borderColor = '#f0f0f0';
-                            }}>
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.background = '#056ccd08';
+                                    e.currentTarget.style.borderColor = '#056ccd30';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.background = '#fafbfc';
+                                    e.currentTarget.style.borderColor = '#f0f0f0';
+                                }}>
                                 <div>
-                                    <Statistic 
+                                    <Statistic
                                         value={
-                                            (dataQuery?.[filter?.canonical_name] || 0) + 
-                                            (dataQuery?.[filter?.canonical_name_2] || 0)
-                                        } 
+                                            (dataQuery?.[filter?.category] || 0) +
+                                            (dataQuery?.[filter?.category_2] || 0)
+                                        }
                                         formatter={formatter}
                                         valueStyle={{
                                             fontSize: 20,
@@ -237,7 +245,7 @@ const ExtensionsMain: React.FC = () => {
                                             lineHeight: 1
                                         }}
                                     />
-                                    <Text style={{ 
+                                    <Text style={{
                                         color: '#8c8c8c',
                                         fontSize: 11,
                                         textTransform: 'uppercase',
@@ -247,9 +255,9 @@ const ExtensionsMain: React.FC = () => {
                                         Resources
                                     </Text>
                                 </div>
-                                <RightOutlined style={{ 
-                                    color: '#bfbfbf', 
-                                    fontSize: 12 
+                                <RightOutlined style={{
+                                    color: '#bfbfbf',
+                                    fontSize: 12
                                 }} />
                             </div>
                         </NavLink>
@@ -333,7 +341,7 @@ const ExtensionsMain: React.FC = () => {
                             border: '1px solid #e2e8f0',
                             boxShadow: '0 1px 3px rgba(0, 0, 0, 0.06)'
                         }}>
-                            <div style={{ 
+                            <div style={{
                                 margin: 0,
                                 lineHeight: 1.7,
                                 fontSize: 14,

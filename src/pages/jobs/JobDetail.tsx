@@ -186,6 +186,34 @@ const JobDetail: React.FC = () => {
     },
   ];
 
+  if (loading && !job) {
+    return (
+      <div style={{
+        padding: '24px',
+        textAlign: 'center',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        minHeight: '50vh'
+      }}>
+        <div>
+          <div style={{ marginBottom: 16 }}>
+            <div className="spinner" style={{
+              width: 40,
+              height: 40,
+              border: '4px solid #f0f0f0',
+              borderTop: '4px solid #1890ff',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+              margin: '0 auto'
+            }} />
+          </div>
+          <Text type="secondary">Loading job details...</Text>
+        </div>
+      </div>
+    );
+  }
+
   if (!job) {
     return (
       <div style={{ padding: '24px', textAlign: 'center' }}>
@@ -202,26 +230,26 @@ const JobDetail: React.FC = () => {
   return (
     <div style={{ padding: '0px', background: '#f5f7fa', minHeight: '100vh' }}>
       {/* Modern Header */}
-      <div style={{ 
-        background: 'white', 
-        borderRadius: 16, 
-        padding: '20px 24px', 
+      <div style={{
+        background: 'white',
+        borderRadius: 16,
+        padding: '20px 24px',
         marginBottom: 24,
         boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            <Button 
-              icon={<ArrowLeftOutlined />} 
+            <Button
+              icon={<ArrowLeftOutlined />}
               onClick={() => navigate('/jobs')}
               style={{ borderRadius: 8 }}
             >
               Back
             </Button>
-            <div style={{ 
-              width: 1, 
-              height: 24, 
-              background: '#e8e8e8' 
+            <div style={{
+              width: 1,
+              height: 24,
+              background: '#e8e8e8'
             }} />
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               {getStatusIcon(job.status)}
@@ -254,8 +282,8 @@ const JobDetail: React.FC = () => {
               Auto Refresh {autoRefresh && '•'}
             </Button>
             {canCancel && (
-              <Button 
-                danger 
+              <Button
+                danger
                 icon={<DeleteOutlined />}
                 onClick={() => handleAction('cancel')}
                 style={{ borderRadius: 8 }}
@@ -271,8 +299,8 @@ const JobDetail: React.FC = () => {
         <Col span={16}>
           {/* Job Status Overview Card */}
           <Card
-            style={{ 
-              borderRadius: 16, 
+            style={{
+              borderRadius: 16,
               marginBottom: 24,
               border: 'none',
               boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
@@ -284,8 +312,8 @@ const JobDetail: React.FC = () => {
               </Text>
             </div>
             {job.status === 'NO_WORK_NEEDED' ? (
-              <div style={{ 
-                textAlign: 'center', 
+              <div style={{
+                textAlign: 'center',
                 padding: '40px 0',
                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                 borderRadius: 12,
@@ -302,7 +330,7 @@ const JobDetail: React.FC = () => {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
                   <div>
                     <Text type="secondary" style={{ fontSize: 12, marginBottom: 4 }}>Current Status</Text>
-                    <Tag 
+                    <Tag
                       color={job.status === 'COMPLETED' ? 'success' : job.status === 'FAILED' ? 'error' : 'processing'}
                       style={{ borderRadius: 6, padding: '6px 16px', fontSize: 14 }}
                     >
@@ -330,9 +358,9 @@ const JobDetail: React.FC = () => {
                 {/* Timing Information */}
                 <Row gutter={16}>
                   <Col span={8}>
-                    <div style={{ 
+                    <div style={{
                       background: 'linear-gradient(135deg, #667eea15 0%, #764ba215 100%)',
-                      borderRadius: 12, 
+                      borderRadius: 12,
                       padding: 16,
                       textAlign: 'center',
                       border: '1px solid #f0f0f0'
@@ -345,9 +373,9 @@ const JobDetail: React.FC = () => {
                     </div>
                   </Col>
                   <Col span={8}>
-                    <div style={{ 
+                    <div style={{
                       background: 'linear-gradient(135deg, #108ee915 0%, #87d06815 100%)',
-                      borderRadius: 12, 
+                      borderRadius: 12,
                       padding: 16,
                       textAlign: 'center',
                       border: '1px solid #f0f0f0'
@@ -360,11 +388,11 @@ const JobDetail: React.FC = () => {
                     </div>
                   </Col>
                   <Col span={8}>
-                    <div style={{ 
-                      background: job.completed_at ? 
-                        'linear-gradient(135deg, #52c41a15 0%, #95de6415 100%)' : 
+                    <div style={{
+                      background: job.completed_at ?
+                        'linear-gradient(135deg, #52c41a15 0%, #95de6415 100%)' :
                         'linear-gradient(135deg, #ffa94015 0%, #ffec3d15 100%)',
-                      borderRadius: 12, 
+                      borderRadius: 12,
                       padding: 16,
                       textAlign: 'center',
                       border: '1px solid #f0f0f0'
@@ -404,8 +432,8 @@ const JobDetail: React.FC = () => {
 
           {/* Job Details Card */}
           <Card
-            style={{ 
-              borderRadius: 16, 
+            style={{
+              borderRadius: 16,
               marginBottom: 24,
               border: 'none',
               boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
@@ -494,13 +522,140 @@ const JobDetail: React.FC = () => {
                   </Col>
                 </>
               )}
+              {(job.type === 'RESOURCE_UPGRADE' || job.type === 'RESOURCE_UPGRADE(DRY)') && job.metadata.upgrade_config && (
+                <>
+                  <Col span={12}>
+                    <div style={{ marginBottom: 16 }}>
+                      <Text type="secondary" style={{ fontSize: 12 }}>Current Version / Target Version</Text>
+                      <div style={{ marginTop: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Tag className='auto-width-tag' color="blue" style={{ borderRadius: 6, fontSize: 13 }}>
+                          {job.version}
+                        </Tag>
+                        <span style={{ color: '#8c8c8c' }}>→</span>
+                        <Tag className='auto-width-tag' color="green" style={{ borderRadius: 6, fontSize: 13 }}>
+                          {job.metadata.upgrade_config.target_version}
+                        </Tag>
+                      </div>
+                    </div>
+                  </Col>
+                  <Col span={12}>
+                    <div style={{ marginBottom: 16 }}>
+                      <Text type="secondary" style={{ fontSize: 12 }}>Affected Listeners</Text>
+                      <div style={{ marginTop: 4 }}>
+                        <Text strong style={{ fontSize: 14 }}>{job.metadata.total_affected || job.metadata.affected_listeners?.length || 0}</Text>
+                      </div>
+                    </div>
+                  </Col>
+                  <Col span={12}>
+                    <div style={{ marginBottom: 16 }}>
+                      <Text type="secondary" style={{ fontSize: 12 }}>Auto Create Missing</Text>
+                      <div style={{ marginTop: 4 }}>
+                        <Tag className='auto-width-tag' color={job.metadata.upgrade_config.auto_create_missing ? 'success' : 'default'} style={{ borderRadius: 6 }}>
+                          {job.metadata.upgrade_config.auto_create_missing ? 'Yes' : 'No'}
+                        </Tag>
+                      </div>
+                    </div>
+                  </Col>
+                  <Col span={12}>
+                    <div style={{ marginBottom: 16 }}>
+                      <Text type="secondary" style={{ fontSize: 12 }}>Mode</Text>
+                      <div style={{ marginTop: 4 }}>
+                        <Tag className='auto-width-tag' color={job.metadata.upgrade_config.dry_run ? 'warning' : 'processing'} style={{ borderRadius: 6 }}>
+                          {job.metadata.upgrade_config.dry_run ? 'Dry Run' : 'Live Upgrade'}
+                        </Tag>
+                      </div>
+                    </div>
+                  </Col>
+                </>
+              )}
             </Row>
+          </Card>
+        </Col>
+
+        <Col span={8}>
+          {/* Quick Stats */}
+          <Card
+            style={{
+              borderRadius: 16,
+              marginBottom: 24,
+              border: 'none',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+            }}
+          >
+            <div style={{ marginBottom: 20 }}>
+              <Text type="secondary" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>
+                QUICK STATS
+              </Text>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '12px 16px',
+                background: '#fafafa',
+                borderRadius: 12
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <FileTextOutlined style={{ color: '#1890ff' }} />
+                  <Text style={{ fontSize: 13 }}>
+                    {job.type === 'WAF_PROPAGATION' ? 'Total Wasm Filters' :
+                      job.type === 'RESOURCE_UPGRADE' || job.type === 'RESOURCE_UPGRADE(DRY)' ? 'Total Listeners' :
+                        'Total Listeners'}
+                  </Text>
+                </div>
+                <Text strong style={{ fontSize: 16 }}>{job.progress.total}</Text>
+              </div>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '12px 16px',
+                background: '#f6ffed',
+                borderRadius: 12
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <CheckCircleOutlined style={{ color: '#52c41a' }} />
+                  <Text style={{ fontSize: 13 }}>Completed</Text>
+                </div>
+                <Text strong style={{ fontSize: 16, color: '#52c41a' }}>{job.progress.completed}</Text>
+              </div>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '12px 16px',
+                background: '#fff2e8',
+                borderRadius: 12
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <CloseCircleOutlined style={{ color: '#ff4d4f' }} />
+                  <Text style={{ fontSize: 13 }}>Failed</Text>
+                </div>
+                <Text strong style={{ fontSize: 16, color: '#ff4d4f' }}>{job.progress.failed}</Text>
+              </div>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '12px 16px',
+                background: '#e6f7ff',
+                borderRadius: 12
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <ClockCircleOutlined style={{ color: '#1890ff' }} />
+                  <Text style={{ fontSize: 13 }}>Analysis Time</Text>
+                </div>
+                <Text strong style={{ fontSize: 16 }}>{job.metadata.analysis_duration_ms} ms</Text>
+              </div>
+            </div>
           </Card>
 
           {/* Timeline */}
-          <Card 
-            style={{ 
+          <Card
+            style={{
               borderRadius: 16,
+              marginBottom: 24,
               border: 'none',
               boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
             }}
@@ -538,17 +693,17 @@ const JobDetail: React.FC = () => {
                 }] : []),
                 ...(job.completed_at ? [{
                   dot: job.status === 'COMPLETED' ? <CheckCircleOutlined /> :
-                       job.status === 'NO_WORK_NEEDED' ? <CheckCircleOutlined /> :
-                       <CloseCircleOutlined />,
+                    job.status === 'NO_WORK_NEEDED' ? <CheckCircleOutlined /> :
+                      <CloseCircleOutlined />,
                   color: job.status === 'COMPLETED' ? 'green' :
-                         job.status === 'NO_WORK_NEEDED' ? 'gray' :
-                         'red',
+                    job.status === 'NO_WORK_NEEDED' ? 'gray' :
+                      'red',
                   children: (
                     <div>
                       <Text strong>
                         {job.status === 'COMPLETED' ? 'Job Completed' :
-                         job.status === 'NO_WORK_NEEDED' ? 'Job Completed - No Work Needed' :
-                         'Job Failed'}
+                          job.status === 'NO_WORK_NEEDED' ? 'Job Completed - No Work Needed' :
+                            'Job Failed'}
                       </Text>
                       <br />
                       <Text type="secondary">{dayjs(job.completed_at).format('YYYY-MM-DD HH:mm:ss')}</Text>
@@ -559,89 +714,13 @@ const JobDetail: React.FC = () => {
               ]}
             />
           </Card>
-        </Col>
 
-        <Col span={8}>
-          {/* Quick Stats */}
-          <Card 
-            style={{ 
-              borderRadius: 16,
-              marginBottom: 24,
-              border: 'none',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
-            }}
-          >
-            <div style={{ marginBottom: 20 }}>
-              <Text type="secondary" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>
-                QUICK STATS
-              </Text>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '12px 16px',
-                background: '#fafafa',
-                borderRadius: 12
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <FileTextOutlined style={{ color: '#1890ff' }} />
-                  <Text style={{ fontSize: 13 }}>
-                    {job.type === 'WAF_PROPAGATION' ? 'Total Wasm Filters' : 'Total Listeners'}
-                  </Text>
-                </div>
-                <Text strong style={{ fontSize: 16 }}>{job.progress.total}</Text>
-              </div>
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center',
-                padding: '12px 16px',
-                background: '#f6ffed',
-                borderRadius: 12
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <CheckCircleOutlined style={{ color: '#52c41a' }} />
-                  <Text style={{ fontSize: 13 }}>Completed</Text>
-                </div>
-                <Text strong style={{ fontSize: 16, color: '#52c41a' }}>{job.progress.completed}</Text>
-              </div>
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center',
-                padding: '12px 16px',
-                background: '#fff2e8',
-                borderRadius: 12
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <CloseCircleOutlined style={{ color: '#ff4d4f' }} />
-                  <Text style={{ fontSize: 13 }}>Failed</Text>
-                </div>
-                <Text strong style={{ fontSize: 16, color: '#ff4d4f' }}>{job.progress.failed}</Text>
-              </div>
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center',
-                padding: '12px 16px',
-                background: '#e6f7ff',
-                borderRadius: 12
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <ClockCircleOutlined style={{ color: '#1890ff' }} />
-                  <Text style={{ fontSize: 13 }}>Analysis Time</Text>
-                </div>
-                <Text strong style={{ fontSize: 16 }}>{job.metadata.analysis_duration_ms} ms</Text>
-              </div>
-            </div>
-          </Card>
-
-          {/* Actions */}
-          {(canRetry || hasFailedSnapshots) && (
-            <Card 
-              style={{ 
+          {/* Actions - Hidden for RESOURCE_UPGRADE jobs */}
+          {(canRetry || hasFailedSnapshots) &&
+           job.type !== 'RESOURCE_UPGRADE' &&
+           job.type !== 'RESOURCE_UPGRADE(DRY)' && (
+            <Card
+              style={{
                 borderRadius: 16,
                 marginBottom: 24,
                 border: 'none',
@@ -660,7 +739,7 @@ const JobDetail: React.FC = () => {
                     size="large"
                     icon={<RedoOutlined />}
                     onClick={() => handleAction('retry')}
-                    style={{ 
+                    style={{
                       borderRadius: 8,
                       height: 44,
                       fontWeight: 500
@@ -677,7 +756,7 @@ const JobDetail: React.FC = () => {
                     ghost
                     icon={<RedoOutlined />}
                     onClick={() => handleAction('retry-failed')}
-                    style={{ 
+                    style={{
                       borderRadius: 8,
                       height: 44,
                       fontWeight: 500
@@ -692,7 +771,7 @@ const JobDetail: React.FC = () => {
                   danger
                   icon={<ExclamationCircleOutlined />}
                   onClick={() => handleAction('force-restart')}
-                  style={{ 
+                  style={{
                     borderRadius: 8,
                     height: 44,
                     fontWeight: 500
@@ -706,8 +785,9 @@ const JobDetail: React.FC = () => {
 
           {/* Worker Info */}
           {job.worker_info && (
-            <Card 
-              style={{ 
+            <Card
+              style={{
+                marginBottom: 24,
                 borderRadius: 16,
                 border: 'none',
                 boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
@@ -743,10 +823,484 @@ const JobDetail: React.FC = () => {
         </Col>
       </Row>
 
+      {/* Upgrade Analysis Summary */}
+      {(job.type === 'RESOURCE_UPGRADE' || job.type === 'RESOURCE_UPGRADE(DRY)') &&
+        job.metadata.upgrade_config?.analysis && (
+          <div
+            style={{
+              marginTop: 0,
+              borderRadius: 16,
+              border: 'none',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+              background: 'white',
+              padding: 24
+            }}
+          >
+            <div style={{ marginBottom: 20 }}>
+              <Text type="secondary" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>
+                UPGRADE ANALYSIS SUMMARY
+              </Text>
+            </div>
+
+            {/* Summary Alert */}
+            {job.metadata.upgrade_config.analysis.summary && (
+              <Alert
+                message="Analysis Summary"
+                description={job.metadata.upgrade_config.analysis.summary}
+                type="info"
+                showIcon
+                style={{ marginBottom: 24, borderRadius: 8 }}
+              />
+            )}
+
+            {/* Overall Stats */}
+            <Row gutter={16}>
+              <Col span={8}>
+                <div style={{
+                  background: 'linear-gradient(135deg, #1890ff15 0%, #096dd915 100%)',
+                  borderRadius: 12,
+                  padding: 16,
+                  textAlign: 'center',
+                  border: '1px solid #f0f0f0'
+                }}>
+                  <div style={{ fontSize: 24, fontWeight: 600, color: '#1890ff', marginBottom: 4 }}>
+                    {job.metadata.upgrade_config.analysis.upstream_dependencies}
+                  </div>
+                  <Text type="secondary" style={{ fontSize: 11 }}>Total Dependencies</Text>
+                </div>
+              </Col>
+              <Col span={8}>
+                <div style={{
+                  background: 'linear-gradient(135deg, #52c41a15 0%, #95de6415 100%)',
+                  borderRadius: 12,
+                  padding: 16,
+                  textAlign: 'center',
+                  border: '1px solid #f0f0f0'
+                }}>
+                  <div style={{ fontSize: 24, fontWeight: 600, color: '#52c41a', marginBottom: 4 }}>
+                    {job.metadata.upgrade_config.analysis.existing_in_target}
+                  </div>
+                  <Text type="secondary" style={{ fontSize: 11 }}>Already Exist</Text>
+                </div>
+              </Col>
+              <Col span={8}>
+                <div style={{
+                  background: 'linear-gradient(135deg, #fa8c1615 0%, #ffa94015 100%)',
+                  borderRadius: 12,
+                  padding: 16,
+                  textAlign: 'center',
+                  border: '1px solid #f0f0f0'
+                }}>
+                  <div style={{ fontSize: 24, fontWeight: 600, color: '#fa8c16', marginBottom: 4 }}>
+                    {job.metadata.upgrade_config.analysis.missing_in_target}
+                  </div>
+                  <Text type="secondary" style={{ fontSize: 11 }}>Need to Create</Text>
+                </div>
+              </Col>
+            </Row>
+          </div>
+        )}
+
+      {/* Listener Details */}
+      {(job.type === 'RESOURCE_UPGRADE' || job.type === 'RESOURCE_UPGRADE(DRY)') &&
+        job.metadata.upgrade_config?.analysis?.listener_details &&
+        job.metadata.upgrade_config.analysis.listener_details.length > 0 && (
+          <div
+            style={{
+              marginTop: 24,
+              borderRadius: 16,
+              border: 'none',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+              background: 'white',
+              padding: 24
+            }}
+          >
+            <div style={{ marginBottom: 20 }}>
+              <Text type="secondary" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>
+                LISTENER DETAILS ({job.metadata.upgrade_config.analysis.listener_details.length})
+              </Text>
+            </div>
+
+            {job.metadata.upgrade_config.analysis.listener_details.map((listener, idx: number) => (
+              <div
+                key={idx}
+                style={{
+                  marginBottom: idx < job.metadata.upgrade_config.analysis.listener_details.length - 1 ? 16 : 0,
+                  borderRadius: 8,
+                  border: '1px solid #f0f0f0',
+                  background: '#fafafa',
+                  overflow: 'hidden'
+                }}
+              >
+                {/* Title Section */}
+                <div style={{
+                  padding: '12px 16px',
+                  borderBottom: '1px solid #f0f0f0',
+                  background: 'white',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  flexWrap: 'wrap'
+                }}>
+                  <Text strong style={{ fontSize: 14 }}>{listener.listener_name}</Text>
+                  <Tag className='auto-width-tag' color="blue" style={{ fontSize: 11 }}>
+                    {listener.upstream_dependencies} dependencies
+                  </Tag>
+                  {listener.bootstrap_required && (
+                    <Tag className='auto-width-tag' color="purple" style={{ fontSize: 11 }}>
+                      Bootstrap Required
+                    </Tag>
+                  )}
+                  {listener.requires_client_upgrade && (
+                    <Tag className='auto-width-tag' color="orange" style={{ fontSize: 11 }}>
+                      Client Upgrade Required
+                    </Tag>
+                  )}
+                  {listener.connected_clients !== undefined && listener.total_clients !== undefined && (
+                    <Tag
+                      className='auto-width-tag'
+                      color={listener.connected_clients === 0 && listener.total_clients > 0 ? 'error' : 'success'}
+                      style={{ fontSize: 11 }}
+                    >
+                      {listener.connected_clients}/{listener.total_clients} clients connected
+                    </Tag>
+                  )}
+                </div>
+                {/* Content Section */}
+                <div style={{ padding: 16, background: 'white' }}>
+                  <Row gutter={16}>
+                    {/* Missing Resources */}
+                    {listener.missing_resources && listener.missing_resources.length > 0 && (
+                      <Col span={12}>
+                        <div style={{ marginBottom: 12 }}>
+                          <Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 8 }}>
+                            Missing Resources ({listener.missing_resources.length})
+                          </Text>
+                          <div style={{ maxHeight: 200, overflow: 'auto' }}>
+                            {listener.missing_resources.map((res, resIdx: number) => (
+                              <div
+                                key={resIdx}
+                                style={{
+                                  background: '#fff7e6',
+                                  border: '1px solid #ffd591',
+                                  borderRadius: 6,
+                                  padding: 8,
+                                  marginBottom: 6
+                                }}
+                              >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 0 }}>
+                                  <Tag className='auto-width-tag' color="orange" style={{ fontSize: 10, margin: 0 }}>
+                                    {res.gtype.split('.').pop()}
+                                  </Tag>
+                                  <Text strong style={{ fontSize: 12 }}>{res.name}</Text>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </Col>
+                    )}
+
+                    {/* Existing Resources */}
+                    {listener.existing_resources && listener.existing_resources.length > 0 && (
+                      <Col span={12}>
+                        <div style={{ marginBottom: 12 }}>
+                          <Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 8 }}>
+                            Existing Resources ({listener.existing_resources.length})
+                          </Text>
+                          <div style={{ maxHeight: 200, overflow: 'auto' }}>
+                            {listener.existing_resources.map((res, resIdx: number) => (
+                              <div
+                                key={resIdx}
+                                style={{
+                                  background: '#f6ffed',
+                                  border: '1px solid #b7eb8f',
+                                  borderRadius: 6,
+                                  padding: 8,
+                                  marginBottom: 6
+                                }}
+                              >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 0 }}>
+                                  <Tag className='auto-width-tag' color="green" style={{ fontSize: 10, margin: 0 }}>
+                                    {res.gtype.split('.').pop()}
+                                  </Tag>
+                                  <Text strong style={{ fontSize: 12 }}>{res.name}</Text>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </Col>
+                    )}
+                  </Row>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+      {/* Skipped Resources */}
+      {(job.type === 'RESOURCE_UPGRADE' || job.type === 'RESOURCE_UPGRADE(DRY)') &&
+        job.metadata.upgrade_config?.analysis?.skipped_resources &&
+        job.metadata.upgrade_config.analysis.skipped_resources.length > 0 && (
+          <div
+            style={{
+              marginTop: 24,
+              borderRadius: 16,
+              border: 'none',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+              background: 'white',
+              padding: 24
+            }}
+          >
+            <div style={{ marginBottom: 20 }}>
+              <Text type="secondary" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>
+                SKIPPED RESOURCES ({job.metadata.upgrade_config.analysis.skipped_resources.length})
+              </Text>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {job.metadata.upgrade_config.analysis.skipped_resources.map((res, idx: number) => (
+                <Tag className='auto-width-tag' key={idx} style={{ fontSize: 11, margin: 0 }} color="default">
+                  {res.name} ({res.collection})
+                </Tag>
+              ))}
+            </div>
+          </div>
+        )}
+
+      {/* Bootstrap Requirements */}
+      {(job.type === 'RESOURCE_UPGRADE' || job.type === 'RESOURCE_UPGRADE(DRY)') &&
+        job.metadata.upgrade_config?.analysis?.bootstrap_names &&
+        job.metadata.upgrade_config.analysis.bootstrap_names.length > 0 && (
+          <div
+            style={{
+              marginTop: 24,
+              borderRadius: 16,
+              border: 'none',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+              background: 'white',
+              padding: 24
+            }}
+          >
+            <div style={{ marginBottom: 20 }}>
+              <Text type="secondary" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>
+                BOOTSTRAP UPDATE REQUIRED ({job.metadata.upgrade_config.analysis.bootstrap_names.length})
+              </Text>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {job.metadata.upgrade_config.analysis.bootstrap_names.map((name: string, idx: number) => (
+                <Tag className='auto-width-tag' key={idx} style={{ fontSize: 11, margin: 0 }} color="purple">
+                  {name}
+                </Tag>
+              ))}
+            </div>
+          </div>
+        )}
+
+      {/* Client Compatibility Issues */}
+      {(job.type === 'RESOURCE_UPGRADE' || job.type === 'RESOURCE_UPGRADE(DRY)') &&
+        job.metadata.upgrade_config?.analysis?.incompatible_clients &&
+        job.metadata.upgrade_config.analysis.incompatible_clients.length > 0 && (
+          <div
+            style={{
+              marginTop: 24,
+              borderRadius: 16,
+              border: 'none',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+              background: 'white',
+              padding: 24
+            }}
+          >
+            <div style={{ marginBottom: 20 }}>
+              <Text type="secondary" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>
+                CLIENT COMPATIBILITY ISSUES ({job.metadata.upgrade_config.analysis.incompatible_clients.length})
+              </Text>
+            </div>
+            <Alert
+              type="error"
+              showIcon
+              message="Incompatible Clients Detected"
+              description={
+                <div style={{ marginTop: 8 }}>
+                  {job.metadata.upgrade_config.analysis.incompatible_clients.map((warning: string, idx: number) => (
+                    <div
+                      key={idx}
+                      style={{
+                        padding: '6px 8px',
+                        background: '#fff2f0',
+                        border: '1px solid #ffccc7',
+                        borderRadius: 4,
+                        marginBottom: idx < job.metadata.upgrade_config.analysis.incompatible_clients.length - 1 ? 6 : 0,
+                        fontSize: 12,
+                        fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace'
+                      }}
+                    >
+                      {warning}
+                    </div>
+                  ))}
+                </div>
+              }
+              style={{ borderRadius: 8 }}
+            />
+          </div>
+        )}
+
+      {/* Client Upgrade Results */}
+      {(job.type === 'RESOURCE_UPGRADE' || job.type === 'RESOURCE_UPGRADE(DRY)') &&
+        job.metadata.upgrade_config?.client_responses &&
+        job.metadata.upgrade_config.client_responses.length > 0 && (
+          <div
+            style={{
+              marginTop: 24,
+              borderRadius: 16,
+              border: 'none',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+              background: 'white',
+              padding: 24
+            }}
+          >
+            <div style={{ marginBottom: 20 }}>
+              <Text type="secondary" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>
+                CLIENT UPGRADE RESULTS ({job.metadata.upgrade_config.client_responses.flat().length})
+              </Text>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {job.metadata.upgrade_config.client_responses.flat().map((response: any, idx: number) => (
+                <div
+                  key={idx}
+                  style={{
+                    background: response.success ? '#f6ffed' : '#fff2f0',
+                    border: response.success ? '1px solid #b7eb8f' : '1px solid #ffccc7',
+                    borderRadius: 8,
+                    padding: 12
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                    <Tag
+                      className='auto-width-tag'
+                      color={response.success ? 'success' : 'error'}
+                      style={{ fontSize: 11, margin: 0 }}
+                    >
+                      {response.success ? 'Success' : 'Failed'}
+                    </Tag>
+                    <Text strong style={{ fontSize: 13 }}>
+                      {response.identity.clientname}
+                    </Text>
+                    <Text type="secondary" style={{ fontSize: 11 }}>
+                      ({response.identity.clientid.substring(0, 8)}...)
+                    </Text>
+                  </div>
+
+                  {response.result?.upgradelistener && (
+                    <div style={{
+                      background: 'white',
+                      borderRadius: 6,
+                      padding: 10,
+                      fontSize: 12,
+                      fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace'
+                    }}>
+                      <div style={{ marginBottom: 4 }}>
+                        <Text strong>Listener:</Text> {response.result.upgradelistener.name}
+                      </div>
+                      <div style={{ marginBottom: 4 }}>
+                        <Text strong>Port:</Text> {response.result.upgradelistener.port}
+                      </div>
+                      <div style={{ marginBottom: 4 }}>
+                        <Text strong>Version:</Text> {response.result.upgradelistener.fromversion} → {response.result.upgradelistener.toversion}
+                      </div>
+                      <div style={{ marginBottom: 4 }}>
+                        <Text strong>Restart:</Text> {response.result.upgradelistener.graceful ? 'Graceful' : 'Hard'} - {response.result.upgradelistener.envoyrestarted}
+                      </div>
+                    </div>
+                  )}
+
+                  {response.error && (
+                    <Alert
+                      type="error"
+                      message="Error"
+                      description={response.error}
+                      showIcon
+                      style={{ marginTop: 8, fontSize: 11 }}
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+      {/* Created Resources */}
+      {(job.type === 'RESOURCE_UPGRADE' || job.type === 'RESOURCE_UPGRADE(DRY)') &&
+        job.metadata.upgrade_config?.created_resources &&
+        job.metadata.upgrade_config.created_resources.length > 0 &&
+        job.status === 'COMPLETED' && (
+          <div
+            style={{
+              marginTop: 24,
+              borderRadius: 16,
+              border: 'none',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+              background: 'white',
+              padding: 24
+            }}
+          >
+            <div style={{ marginBottom: 20 }}>
+              <Text type="secondary" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>
+                CREATED RESOURCES ({job.metadata.upgrade_config.created_resources.length})
+              </Text>
+            </div>
+            <Alert
+              message={`Successfully created ${job.metadata.upgrade_config.created_resources.filter((r: any) => !r.skipped).length} resources`}
+              type="success"
+              showIcon
+              style={{ marginBottom: 16, borderRadius: 8 }}
+            />
+            <div style={{
+              maxHeight: 400,
+              overflow: 'auto',
+              border: '1px solid #f0f0f0',
+              borderRadius: 8,
+              background: 'white'
+            }}>
+              <Row gutter={8} style={{ padding: 12 }}>
+                {job.metadata.upgrade_config.created_resources.map((resource: any, idx: number) => (
+                  <Col span={12} key={idx} style={{ marginBottom: 8 }}>
+                    <div style={{
+                      background: resource.skipped ? '#f5f5f5' : '#f6ffed',
+                      border: resource.skipped ? '1px solid #d9d9d9' : '1px solid #b7eb8f',
+                      borderRadius: 6,
+                      padding: 10
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                        <Tag
+                          className='auto-width-tag'
+                          color={resource.skipped ? 'default' : 'green'}
+                          style={{ fontSize: 10, margin: 0 }}
+                        >
+                          {resource.gtype.split('.').pop()}
+                        </Tag>
+                        <Text strong style={{ fontSize: 12, flex: 1 }}>{resource.name}</Text>
+                        {resource.skipped && (
+                          <Tag className='auto-width-tag' color="warning" style={{ fontSize: 10, margin: 0 }}>
+                            Skipped
+                          </Tag>
+                        )}
+                      </div>
+                      <Text type="secondary" style={{ fontSize: 11 }}>
+                        {resource.collection}
+                      </Text>
+                    </div>
+                  </Col>
+                ))}
+              </Row>
+            </div>
+          </div>
+        )}
+
       {/* Snapshot Details */}
       {job.execution_details?.processed_snapshots?.length > 0 && (
         <Card
-          style={{ 
+          style={{
             marginTop: 24,
             borderRadius: 16,
             border: 'none',

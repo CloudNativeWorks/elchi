@@ -15,12 +15,13 @@ type GeneralProps = {
         alwaysShow: boolean;
         tag: string
         selectedTags?: string[];
+        id?: string;
     }
 };
 
 const CommonComponentClusterCard: React.FC<GeneralProps> = ({ veri }) => {
     return (
-        <ECard title="Cluster">
+        <ECard title="Cluster" id={veri.id}>
             <Row>
                 <Col md={24}>
                     <EForm>

@@ -1,11 +1,12 @@
-import { Card, Typography, Row, Col } from 'antd';
+import { Card, Typography, Row, Col, Button } from 'antd';
 import {
     DashboardOutlined,
     ExclamationCircleOutlined,
     CheckCircleOutlined,
     ArrowRightOutlined,
     FilterOutlined,
-    ClusterOutlined
+    ClusterOutlined,
+    BarChartOutlined
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -100,11 +101,30 @@ export const EmptyStateCard: React.FC<EmptyStateCardProps> = ({
                     fontSize: '16px',
                     display: 'block',
                     maxWidth: '600px',
-                    margin: '0 auto',
+                    margin: '0 auto 20px',
                     lineHeight: '1.6'
                 }}>
                     Get started by selecting a metric group and choosing a service to monitor
                 </Text>
+
+                <Button
+                    type="primary"
+                    size="large"
+                    icon={<BarChartOutlined />}
+                    onClick={() => window.location.href = '/grafana'}
+                    style={{
+                        background: 'linear-gradient(135deg, #722ed1 0%, #1890ff 100%)',
+                        border: 'none',
+                        height: '48px',
+                        padding: '0 32px',
+                        fontSize: '16px',
+                        fontWeight: 500,
+                        boxShadow: '0 4px 16px rgba(114, 46, 209, 0.3)',
+                        borderRadius: '8px'
+                    }}
+                >
+                    Advanced Metrics
+                </Button>
             </div>
 
             {/* Step Indicator */}

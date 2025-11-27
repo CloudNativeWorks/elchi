@@ -24,7 +24,6 @@ export const modtag_us_listener: TagsType = {
         'default_filter_chain',
         'metadata',
         'socket_options',
-        'udp_listener_config',
         'api_listener',
         'connection_balance_config',
         'internal_listener',

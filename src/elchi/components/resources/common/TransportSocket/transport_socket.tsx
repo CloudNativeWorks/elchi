@@ -31,12 +31,20 @@ const CommonComponentTransportSocket: React.FC<GeneralProps> = ({ veri }) => {
     
     const [searchQuery, setSearchQuery] = useState<string>('');
     const debouncedSearch = useCallback(debounce((value: string) => setSearchQuery(value), 300), []);
-    
-    const { data: queryData } = useCustomGetQuery({
+
+    const { data: tlsData } = useCustomGetQuery({
         queryKey: `custom_tls_${searchQuery}`,
         enabled: true,
         path: `custom/resource_list_search?collection=tls&gtype=${veri.gtype}&version=${veri.version}&project=${project}&search=${searchQuery}`
     });
+
+    const { data: quicData } = useCustomGetQuery({
+        queryKey: `custom_quic_${searchQuery}`,
+        enabled: true,
+        path: `custom/resource_list_search?collection=tls&gtype=envoy.extensions.transport_sockets.quic.v3.QuicDownstreamTransport&version=${veri.version}&project=${project}&search=${searchQuery}`
+    });
+
+    const queryData = [...(tlsData || []), ...(quicData || [])];
 
     useEffect(() => {
         setState(ByteToObj(veri.reduxStore))

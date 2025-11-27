@@ -10,6 +10,9 @@ import useResourceForm from "@/hooks/useResourceForm";
 import ECard from "@/elchi/components/common/ECard";
 import { EForm } from "@/elchi/components/common/e-components/EForm";
 import { EFields } from "@/elchi/components/common/e-components/EFields";
+import CommonComponentCluster from "@resources/common/Clusters/Cluster/Cluster";
+import { ResourceAction } from "@/redux/reducers/slice";
+import { navigateCases } from "@/elchi/helpers/navigate-cases";
 
 type GeneralProps = {
     veri: {
@@ -31,6 +34,7 @@ const CommonHttpUri: React.FC<GeneralProps> = ({ veri }) => {
         ...generateFields({
             f: vTags.huri?.HttpUri,
             sf: vTags.huri?.HttpUri_SingleFields,
+            e: ["http_upstream_type.cluster"],
             r: ["uri", "timeout"]
         }),
     ];
@@ -56,6 +60,17 @@ const CommonHttpUri: React.FC<GeneralProps> = ({ veri }) => {
                     keyPrefix={veri.keyPrefix}
                     version={veri.version}
                 />
+                <CommonComponentCluster veri={{
+                    version: veri.version,
+                    reduxStore: navigateCases(veri.reduxStore, 'http_upstream_type.cluster'),
+                    keyPrefix: veri.keyPrefix,
+                    reduxAction: ResourceAction,
+                    tag: 'cluster',
+                    size: 12,
+                    selectedTags: selectedTags,
+                    alwaysShow: false,
+                    tagPrefix: 'http_upstream_type',
+                }} />
             </EForm>
         </ECard>
     )

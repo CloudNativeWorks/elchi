@@ -8,7 +8,7 @@ export type JobStatus =
   | 'FAILED' 
   | 'NO_WORK_NEEDED';
 
-export type JobType = 'SNAPSHOT_UPDATE' | 'DISCOVERY_UPDATE' | 'WAF_PROPAGATION';
+export type JobType = 'SNAPSHOT_UPDATE' | 'DISCOVERY_UPDATE' | 'WAF_PROPAGATION' | 'RESOURCE_UPGRADE' | 'RESOURCE_UPGRADE(DRY)';
 
 export type PokeStatus = 'PENDING' | 'SUCCESS' | 'FAILED';
 
@@ -39,6 +39,105 @@ export interface SourceResource {
   version?: string;
 }
 
+export interface UpgradeOptions {
+  auto_create_missing: boolean;
+  validate_clients: boolean;
+  update_bootstrap: boolean;
+  dry_run: boolean;
+}
+
+export interface MissingResource {
+  gtype: string;
+  name: string;
+  collection: string;
+  depends_on: string[];
+}
+
+export interface ExistingResource {
+  gtype: string;
+  name: string;
+  collection: string;
+}
+
+export interface ListenerDetail {
+  listener_name: string;
+  exists_in_target: boolean;
+  upstream_dependencies: number;
+  missing_resources: MissingResource[];
+  existing_resources: ExistingResource[];
+  bootstrap_required: boolean;
+  bootstrap_names?: string[];
+  requires_client_upgrade?: boolean;
+  connected_clients?: number;
+  total_clients?: number;
+}
+
+export interface SkippedResource {
+  gtype: string;
+  name: string;
+  collection: string;
+}
+
+export interface CreatedResource {
+  gtype: string;
+  name: string;
+  collection: string;
+  id: string;
+  skipped: boolean;
+}
+
+export interface UpgradeAnalysis {
+  listeners_to_upgrade: string[];
+  listener_details: ListenerDetail[];
+  upstream_dependencies: number;
+  missing_in_target: number;
+  existing_in_target: number;
+  missing_resources: MissingResource[];
+  skipped_resources: SkippedResource[];
+  bootstrap_required: boolean;
+  bootstrap_names?: string[];
+  clients_validated: number;
+  incompatible_clients?: string[];
+  summary: string;
+}
+
+export interface ClientIdentity {
+  clientid: string;
+  clientname: string;
+  sessiontoken: string;
+}
+
+export interface UpgradeListenerResult {
+  name: string;
+  port: number;
+  fromversion: string;
+  toversion: string;
+  graceful: boolean;
+  envoyrestarted: string;
+  systemdserviceupdated?: string;
+}
+
+export interface ClientResponse {
+  commandid: string;
+  success: boolean;
+  error: string;
+  identity: ClientIdentity;
+  result?: {
+    upgradelistener?: UpgradeListenerResult;
+  };
+}
+
+export interface UpgradeConfig {
+  target_version: string;
+  auto_create_missing: boolean;
+  validate_clients: boolean;
+  update_bootstrap: boolean;
+  dry_run: boolean;
+  analysis: UpgradeAnalysis;
+  created_resources?: CreatedResource[];
+  client_responses?: ClientResponse[][];
+}
+
 export interface JobMetadata {
   source_resource: SourceResource;
   trigger_user: TriggerUser;
@@ -51,6 +150,8 @@ export interface JobMetadata {
     project: string;
   };
   affected_wasm?: string[];
+  // RESOURCE_UPGRADE specific fields
+  upgrade_config?: UpgradeConfig;
 }
 
 export interface SnapshotExecution {

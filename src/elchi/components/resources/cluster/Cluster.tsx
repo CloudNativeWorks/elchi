@@ -23,6 +23,18 @@ import { generateFields } from "@/common/generate-fields";
 import { useManagedLoading } from "@/hooks/useManageLoading";
 import { useLoading } from "@/hooks/loadingContext";
 import ComponentTypedExtensionProtocolOptions from './TypedExtensionProtocolOptions';
+import ClusterDiscoveryType from './ClusterDiscoveryType';
+import CircuitBreakers from './CircuitBreakers';
+import ComponentUpstreamBindConfig from './UpstreamBindConfig/UpstreamBindConfig';
+import ComponentCommonLbConfig from './CommonLbConfig/CommonLbConfig';
+import ComponentUpstreamConnectionOptions from './UpstreamConnectionOptions/UpstreamConnectionOptions';
+import ComponentTrackClusterStats from './TrackClusterStats/TrackClusterStats';
+import ComponentPreconnectPolicy from './PreconnectPolicy/PreconnectPolicy';
+import ComponentRingHashLbConfig from './LbConfig/RingHashLbConfig/RingHashLbConfig';
+import ComponentMaglevLbConfig from './LbConfig/MaglevLbConfig/MaglevLbConfig';
+import ComponentOriginalDstLbConfig from './LbConfig/OriginalDstLbConfig/OriginalDstLbConfig';
+import ComponentLeastRequestLbConfig from './LbConfig/LeastRequestLbConfig/LeastRequestLbConfig';
+import ComponentRoundRobinLbConfig from './LbConfig/RoundRobinLbConfig/RoundRobinLbConfig';
 import { ConditionalComponent } from "../../common/ConditionalComponent";
 
 
@@ -91,8 +103,20 @@ const ClusterComponent: React.FC<GeneralProps> = ({ veri }) => {
                             selectedTags={selectedTags}
                             index={0}
                             handleChangeTag={handleChangeTag}
-                            specificTagPrefix={{ "type": "cluster_discovery_type" }}
+                            specificTagPrefix={{
+                                "type": "cluster_discovery_type",
+                                "cluster_type": "cluster_discovery_type",
+                                "ring_hash_lb_config": "lb_config",
+                                "maglev_lb_config": "lb_config",
+                                "original_dst_lb_config": "lb_config",
+                                "least_request_lb_config": "lb_config",
+                                "round_robin_lb_config": "lb_config"
+                            }}
                             required={modtag_r_cluster['Cluster']}
+                            onlyOneTag={[
+                                ["cluster_discovery_type.type", "cluster_discovery_type.cluster_type"],
+                                ["lb_config.ring_hash_lb_config", "lb_config.maglev_lb_config", "lb_config.original_dst_lb_config", "lb_config.least_request_lb_config", "lb_config.round_robin_lb_config"]
+                            ]}
                             unchangeableTags={["name"]}
                         />
                     </Col>
@@ -118,6 +142,127 @@ const ClusterComponent: React.FC<GeneralProps> = ({ veri }) => {
                                 fieldConfigs: fieldConfigs,
                                 reduxStore: reduxStore,
                                 id: "single_options_0"
+                            }}
+                        />
+                        <ConditionalComponent
+                            shouldRender={matchesEndOrStartOf("cluster_discovery_type.cluster_type", selectedTags)}
+                            Component={ClusterDiscoveryType}
+                            componentProps={{
+                                version: veri.version,
+                                reduxStore: reduxStore?.cluster_discovery_type?.cluster_type,
+                                id: "cluster_discovery_type_0"
+                            }}
+                        />
+                        <ConditionalComponent
+                            shouldRender={matchesEndOrStartOf("circuit_breakers", selectedTags)}
+                            Component={CircuitBreakers}
+                            componentProps={{
+                                version: veri.version,
+                                keyPrefix: `circuit_breakers`,
+                                reduxStore: reduxStore?.circuit_breakers,
+                                reduxAction: ResourceAction,
+                                tagMatchPrefix: `Cluster.circuit_breakers`,
+                                id: "circuit_breakers_0"
+                            }}
+                        />
+                        <ConditionalComponent
+                            shouldRender={matchesEndOrStartOf("upstream_bind_config", selectedTags)}
+                            Component={ComponentUpstreamBindConfig}
+                            componentProps={{
+                                version: veri.version,
+                                keyPrefix: `upstream_bind_config`,
+                                reduxStore: reduxStore?.upstream_bind_config,
+                                id: "upstream_bind_config_0"
+                            }}
+                        />
+                        <ConditionalComponent
+                            shouldRender={matchesEndOrStartOf("common_lb_config", selectedTags)}
+                            Component={ComponentCommonLbConfig}
+                            componentProps={{
+                                version: veri.version,
+                                keyPrefix: `common_lb_config`,
+                                reduxStore: reduxStore?.common_lb_config,
+                                id: "common_lb_config_0"
+                            }}
+                        />
+                        <ConditionalComponent
+                            shouldRender={matchesEndOrStartOf("upstream_connection_options", selectedTags)}
+                            Component={ComponentUpstreamConnectionOptions}
+                            componentProps={{
+                                version: veri.version,
+                                keyPrefix: `upstream_connection_options`,
+                                reduxStore: reduxStore?.upstream_connection_options,
+                                id: "upstream_connection_options_0"
+                            }}
+                        />
+                        <ConditionalComponent
+                            shouldRender={matchesEndOrStartOf("track_cluster_stats", selectedTags)}
+                            Component={ComponentTrackClusterStats}
+                            componentProps={{
+                                version: veri.version,
+                                keyPrefix: `track_cluster_stats`,
+                                reduxStore: reduxStore?.track_cluster_stats,
+                                id: "track_cluster_stats_0"
+                            }}
+                        />
+                        <ConditionalComponent
+                            shouldRender={matchesEndOrStartOf("preconnect_policy", selectedTags)}
+                            Component={ComponentPreconnectPolicy}
+                            componentProps={{
+                                version: veri.version,
+                                keyPrefix: `preconnect_policy`,
+                                reduxStore: reduxStore?.preconnect_policy,
+                                id: "preconnect_policy_0"
+                            }}
+                        />
+                        <ConditionalComponent
+                            shouldRender={matchesEndOrStartOf("lb_config.ring_hash_lb_config", selectedTags)}
+                            Component={ComponentRingHashLbConfig}
+                            componentProps={{
+                                version: veri.version,
+                                keyPrefix: `ring_hash_lb_config`,
+                                reduxStore: reduxStore?.lb_config?.ring_hash_lb_config,
+                                id: "ring_hash_lb_config_0"
+                            }}
+                        />
+                        <ConditionalComponent
+                            shouldRender={matchesEndOrStartOf("lb_config.maglev_lb_config", selectedTags)}
+                            Component={ComponentMaglevLbConfig}
+                            componentProps={{
+                                version: veri.version,
+                                keyPrefix: `maglev_lb_config`,
+                                reduxStore: reduxStore?.lb_config?.maglev_lb_config,
+                                id: "maglev_lb_config_0"
+                            }}
+                        />
+                        <ConditionalComponent
+                            shouldRender={matchesEndOrStartOf("lb_config.original_dst_lb_config", selectedTags)}
+                            Component={ComponentOriginalDstLbConfig}
+                            componentProps={{
+                                version: veri.version,
+                                keyPrefix: `original_dst_lb_config`,
+                                reduxStore: reduxStore?.lb_config?.original_dst_lb_config,
+                                id: "original_dst_lb_config_0"
+                            }}
+                        />
+                        <ConditionalComponent
+                            shouldRender={matchesEndOrStartOf("lb_config.least_request_lb_config", selectedTags)}
+                            Component={ComponentLeastRequestLbConfig}
+                            componentProps={{
+                                version: veri.version,
+                                keyPrefix: `least_request_lb_config`,
+                                reduxStore: reduxStore?.lb_config?.least_request_lb_config,
+                                id: "least_request_lb_config_0"
+                            }}
+                        />
+                        <ConditionalComponent
+                            shouldRender={matchesEndOrStartOf("lb_config.round_robin_lb_config", selectedTags)}
+                            Component={ComponentRoundRobinLbConfig}
+                            componentProps={{
+                                version: veri.version,
+                                keyPrefix: `round_robin_lb_config`,
+                                reduxStore: reduxStore?.lb_config?.round_robin_lb_config,
+                                id: "round_robin_lb_config_0"
                             }}
                         />
                         <ConditionalComponent

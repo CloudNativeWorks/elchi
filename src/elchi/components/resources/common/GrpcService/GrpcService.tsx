@@ -14,6 +14,7 @@ import { ConditionalComponent } from "@/elchi/components/common/ConditionalCompo
 import { ResourceAction } from "@/redux/reducers/slice";
 import CommonComponentRetryPolicy from "@/elchi/components/resources/common/RetryPolicy/RetryPolicy";
 import CommonComponentEnvoyGrpc from "@/elchi/components/resources/common/GrpcService/EnvoyGrpc";
+import CommonComponentHeaderValues from "@/elchi/components/resources/common/HeaderValue/HeaderValues";
 import { navigateCases } from "@/elchi/helpers/navigate-cases";
 
 
@@ -24,6 +25,7 @@ type GeneralProps = {
         reduxStore: any;
         keyPrefix: string;
         tagMatchPrefix: string;
+        reduxAction?: any;
     }
 };
 
@@ -46,7 +48,7 @@ const CommonComponentGrpcService: React.FC<GeneralProps> = ({ veri }) => {
             <HorizonTags veri={{
                 tags: vTags.gs?.GrpcService,
                 selectedTags: selectedTags,
-                unsupportedTags: ["target_specifier.google_grpc", "initial_metadata"],
+                unsupportedTags: ["target_specifier.google_grpc"],
                 handleChangeTag: handleChangeTag,
                 specificTagPrefix: { "envoy_grpc": `target_specifier` },
                 required: ["envoy_grpc"],
@@ -86,6 +88,21 @@ const CommonComponentGrpcService: React.FC<GeneralProps> = ({ veri }) => {
                     keyPrefix: `${veri.keyPrefix}.retry_policy`,
                     tagMatchPrefix: `${veri.tagMatchPrefix}`,
                     id: `retry_policy_${veri.keyPrefix}`,
+                }}
+            />
+
+            <ConditionalComponent
+                shouldRender={matchesEndOrStartOf("initial_metadata", selectedTags)}
+                Component={CommonComponentHeaderValues}
+                componentProps={{
+                    version: veri.version,
+                    reduxStore: veri.reduxStore?.initial_metadata,
+                    reduxAction: ResourceAction,
+                    selectedTags: selectedTags,
+                    tag: "initial_metadata",
+                    keyPrefix: `${veri.keyPrefix}.initial_metadata`,
+                    tagMatchPrefix: `${veri.tagMatchPrefix}`,
+                    title: "Initial Metadata",
                 }}
             />
 

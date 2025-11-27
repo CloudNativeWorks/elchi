@@ -307,6 +307,8 @@ export interface Operations {
 export interface OperationsClient {
     client_id?: string,
     downstream_address?: string,
+    interface_id?: string,
+    ip_mode?: string,
 }
 
 export interface OperationsCommand {

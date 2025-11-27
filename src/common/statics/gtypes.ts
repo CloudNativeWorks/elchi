@@ -16,6 +16,7 @@ export enum GTypes {
     StdErrAccessLog = "envoy.extensions.access_loggers.stream.v3.StderrAccessLog",
     DownstreamTlsContext = "envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext",
     UpstreamTlsContext = "envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext",
+    QuicDownstreamTransport = "envoy.extensions.transport_sockets.quic.v3.QuicDownstreamTransport",
     TlsCertificate = "envoy.extensions.transport_sockets.tls.v3.TlsCertificate",
     CertificateValidationContext = "envoy.extensions.transport_sockets.tls.v3.CertificateValidationContext",
     GenericSecret = "envoy.extensions.transport_sockets.tls.v3.GenericSecret",
@@ -52,6 +53,7 @@ export enum GTypes {
     ListenerOriginalSrc = "envoy.extensions.filters.listener.original_dst.v3.OriginalSrc",
     ListenerTlsInspector = "envoy.extensions.filters.listener.tls_inspector.v3.TlsInspector",
     ListenerDnsFilter = "envoy.extensions.filters.udp.dns_filter.v3.DnsFilterConfig",
+    ListenerUdpProxy = "envoy.extensions.filters.udp.udp_proxy.v3.UdpProxyConfig",
     ListenerProxyProtocol = "envoy.extensions.filters.listener.proxy_protocol.v3.ProxyProtocol",
     ConnectionLimit = "envoy.extensions.filters.network.connection_limit.v3.ConnectionLimit",
     NetworkLocalRatelimit = "envoy.extensions.filters.network.local_ratelimit.v3.LocalRateLimit",
@@ -60,6 +62,15 @@ export enum GTypes {
     OAuth2 = "envoy.extensions.filters.http.oauth2.v3.OAuth2",
     OpenTelemetry = "envoy.extensions.stat_sinks.open_telemetry.v3.SinkConfig",
     HttpWasm = "envoy.extensions.filters.http.wasm.v3.Wasm",
+    HttpExternalProcessor = "envoy.extensions.filters.http.ext_proc.v3.ExternalProcessor",
+    HttpExtProcPerRoute = "envoy.extensions.filters.http.ext_proc.v3.ExtProcPerRoute",
+    HttpExtAuthz = "envoy.extensions.filters.http.ext_authz.v3.ExtAuthz",
+    HttpExtAuthzPerRoute = "envoy.extensions.filters.http.ext_authz.v3.ExtAuthzPerRoute",
+    HttpJwtAuthn = "envoy.extensions.filters.http.jwt_authn.v3.JwtAuthentication",
+    HttpJwtAuthnPerRoute = "envoy.extensions.filters.http.jwt_authn.v3.PerRouteConfig",
+    HttpDynamicForwardProxy = "envoy.extensions.filters.http.dynamic_forward_proxy.v3.FilterConfig",
+    HttpDynamicForwardProxyPerRoute = "envoy.extensions.filters.http.dynamic_forward_proxy.v3.PerRouteConfig",
+    ClusterDynamicForwardProxy = "envoy.extensions.clusters.dynamic_forward_proxy.v3.ClusterConfig",
 }
 
 export const resourceMapping: Record<string, GTypes> = {
@@ -103,6 +114,7 @@ export const resourceMapping: Record<string, GTypes> = {
     l_original_src: GTypes.ListenerOriginalSrc,
     l_tls_inspector: GTypes.ListenerTlsInspector,
     l_dns_filter: GTypes.ListenerDnsFilter,
+    l_udp_proxy: GTypes.ListenerUdpProxy,
     l_proxy_protocol: GTypes.ListenerProxyProtocol,
     connection_limit: GTypes.ConnectionLimit,
     n_local_ratelimit: GTypes.NetworkLocalRatelimit,
@@ -110,6 +122,15 @@ export const resourceMapping: Record<string, GTypes> = {
     oauth2: GTypes.OAuth2,
     open_telemetry: GTypes.OpenTelemetry,
     http_wasm: GTypes.HttpWasm,
+    http_ext_proc: GTypes.HttpExternalProcessor,
+    http_ext_proc_per_route: GTypes.HttpExtProcPerRoute,
+    http_ext_authz: GTypes.HttpExtAuthz,
+    http_ext_authz_per_route: GTypes.HttpExtAuthzPerRoute,
+    http_jwt_authn: GTypes.HttpJwtAuthn,
+    http_jwt_authn_per_route: GTypes.HttpJwtAuthnPerRoute,
+    http_dynamic_forward_proxy: GTypes.HttpDynamicForwardProxy,
+    http_dynamic_forward_proxy_per_route: GTypes.HttpDynamicForwardProxyPerRoute,
+    cluster_dynamic_forward_proxy: GTypes.ClusterDynamicForwardProxy,
 };
 
 type EnvoyVersion = string;
@@ -336,11 +357,25 @@ const gtypeFieldMap: Record<GTypes, GTypeFieldsBase> = {
         prettyName: 'Upstream TLS',
         listPage: '/resource/tls',
         collection: "tls",
-        type: "secret",
+        type: "tls",
         canonicalName: "envoy.transport_sockets.upstream",
         module: 'tls/TLS',
         initialValue: {},
         category: "envoy.transport_sockets.tls",
+        availableVersions: AVAILABLE_VERSIONS,
+        metadata: METADATA_DEFAULT
+    },
+    [GTypes.QuicDownstreamTransport]: {
+        backendPath: `${XDS_PATH}/tls`,
+        createPath: '/create/tls',
+        prettyName: 'QUIC Downstream Transport',
+        listPage: '/resource/tls',
+        collection: "tls",
+        type: "tls",
+        canonicalName: "envoy.transport_sockets.quic.downstream",
+        module: 'tls/TLS',
+        initialValue: {},
+        category: "envoy.transport_sockets.quic",
         availableVersions: AVAILABLE_VERSIONS,
         metadata: METADATA_DEFAULT
     },
@@ -862,6 +897,20 @@ const gtypeFieldMap: Record<GTypes, GTypeFieldsBase> = {
         availableVersions: AVAILABLE_VERSIONS,
         metadata: METADATA_DEFAULT
     },
+    [GTypes.ListenerUdpProxy]: {
+        backendPath: `${EXTENSIONS_PATH}/envoy.filters.udp_listener.udp_proxy`,
+        createPath: '/create/l_udp_proxy',
+        prettyName: 'UDP Proxy',
+        listPage: '/filters/udp/l_udp_proxy',
+        collection: "filters",
+        type: "udp_filter",
+        canonicalName: "envoy.filters.udp_listener.udp_proxy",
+        module: 'filters/udp/udp-proxy/UdpProxy',
+        initialValue: {},
+        category: "envoy.filters.udp_listener",
+        availableVersions: AVAILABLE_VERSIONS,
+        metadata: METADATA_DEFAULT
+    },
     [GTypes.ListenerProxyProtocol]: {
         backendPath: `${EXTENSIONS_PATH}/envoy.filters.listener.proxy_protocol`,
         createPath: '/create/l_proxy_protocol',
@@ -922,7 +971,7 @@ const gtypeFieldMap: Record<GTypes, GTypeFieldsBase> = {
         backendPath: `${EXTENSIONS_PATH}/envoy.filters.http.oauth2`,
         createPath: '/create/oauth2',
         prettyName: 'OAuth2',
-        listPage: '/filters/http/admission_control',
+        listPage: '/filters/http/oauth2',
         collection: "filters",
         type: "http_filter",
         canonicalName: "envoy.filters.http.oauth2",
@@ -961,6 +1010,140 @@ const gtypeFieldMap: Record<GTypes, GTypeFieldsBase> = {
         category: "envoy.filters.http",
         availableVersions: AVAILABLE_VERSIONS,
         metadata: { http_filter: 'main' }
+    },
+
+    [GTypes.HttpExternalProcessor]: {
+        backendPath: `${EXTENSIONS_PATH}/envoy.filters.http.ext_proc`,
+        createPath: '/create/http_ext_proc',
+        prettyName: 'Http External Processor',
+        listPage: '/filters/http/http_ext_proc',
+        collection: "filters",
+        type: "http_filter",
+        canonicalName: "envoy.filters.http.ext_proc",
+        module: 'filters/http/ext-proc/ExtProcs',
+        initialValue: {},
+        category: "envoy.filters.http",
+        availableVersions: AVAILABLE_VERSIONS,
+        metadata: { http_filter: 'main' }
+    },
+
+    [GTypes.HttpExtProcPerRoute]: {
+        backendPath: `${EXTENSIONS_PATH}/envoy.filters.http.ext_proc`,
+        createPath: '/create/http_ext_proc',
+        prettyName: 'Http Ext Proc Per Route',
+        listPage: '/filters/http/http_ext_proc',
+        collection: "filters",
+        type: "http_filter",
+        canonicalName: "envoy.filters.http.ext_proc",
+        module: 'filters/http/ext-proc/ExtProcs',
+        initialValue: {},
+        category: "envoy.filters.http",
+        availableVersions: AVAILABLE_VERSIONS,
+        metadata: { http_filter: 'per-route' }
+    },
+
+    [GTypes.HttpExtAuthz]: {
+        backendPath: `${EXTENSIONS_PATH}/envoy.filters.http.ext_authz`,
+        createPath: '/create/http_ext_authz',
+        prettyName: 'Http External Authorization',
+        listPage: '/filters/http/http_ext_authz',
+        collection: "filters",
+        type: "http_filter",
+        canonicalName: "envoy.filters.http.ext_authz",
+        module: 'filters/http/ext-authz/ExtAuthzs',
+        initialValue: {},
+        category: "envoy.filters.http",
+        availableVersions: AVAILABLE_VERSIONS,
+        metadata: { http_filter: 'main' }
+    },
+
+    [GTypes.HttpExtAuthzPerRoute]: {
+        backendPath: `${EXTENSIONS_PATH}/envoy.filters.http.ext_authz`,
+        createPath: '/create/http_ext_authz',
+        prettyName: 'Http Ext Authz Per Route',
+        listPage: '/filters/http/http_ext_authz',
+        collection: "filters",
+        type: "http_filter",
+        canonicalName: "envoy.filters.http.ext_authz",
+        module: 'filters/http/ext-authz/ExtAuthzs',
+        initialValue: {},
+        category: "envoy.filters.http",
+        availableVersions: AVAILABLE_VERSIONS,
+        metadata: { http_filter: 'per-route' }
+    },
+
+    [GTypes.HttpJwtAuthn]: {
+        backendPath: `${EXTENSIONS_PATH}/envoy.filters.http.jwt_authn`,
+        createPath: '/create/http_jwt_authn',
+        prettyName: 'Http JWT Authentication',
+        listPage: '/filters/http/http_jwt_authn',
+        collection: "filters",
+        type: "http_filter",
+        canonicalName: "envoy.filters.http.jwt_authn",
+        module: 'filters/http/jwt-authn/JwtAuthns',
+        initialValue: {},
+        category: "envoy.filters.http",
+        availableVersions: AVAILABLE_VERSIONS,
+        metadata: { http_filter: 'main' }
+    },
+
+    [GTypes.HttpJwtAuthnPerRoute]: {
+        backendPath: `${EXTENSIONS_PATH}/envoy.filters.http.jwt_authn`,
+        createPath: '/create/http_jwt_authn',
+        prettyName: 'Http JWT Authn Per Route',
+        listPage: '/filters/http/http_jwt_authn',
+        collection: "filters",
+        type: "http_filter",
+        canonicalName: "envoy.filters.http.jwt_authn",
+        module: 'filters/http/jwt-authn/JwtAuthns',
+        initialValue: {},
+        category: "envoy.filters.http",
+        availableVersions: AVAILABLE_VERSIONS,
+        metadata: { http_filter: 'per-route' }
+    },
+
+    [GTypes.HttpDynamicForwardProxy]: {
+        backendPath: `${EXTENSIONS_PATH}/envoy.filters.http.dynamic_forward_proxy`,
+        createPath: '/create/http_dynamic_forward_proxy',
+        prettyName: 'Http Dynamic Forward Proxy',
+        listPage: '/filters/http/http_dynamic_forward_proxy',
+        collection: "filters",
+        type: "http_filter",
+        canonicalName: "envoy.filters.http.dynamic_forward_proxy",
+        module: 'filters/http/dynamic-forward-proxy/DynamicForwardProxies',
+        initialValue: {},
+        category: "envoy.filters.http",
+        availableVersions: AVAILABLE_VERSIONS,
+        metadata: { http_filter: 'main' }
+    },
+
+    [GTypes.HttpDynamicForwardProxyPerRoute]: {
+        backendPath: `${EXTENSIONS_PATH}/envoy.filters.http.dynamic_forward_proxy`,
+        createPath: '/create/http_dynamic_forward_proxy',
+        prettyName: 'Http Dynamic Forward Proxy Per Route',
+        listPage: '/filters/http/http_dynamic_forward_proxy',
+        collection: "filters",
+        type: "http_filter",
+        canonicalName: "envoy.filters.http.dynamic_forward_proxy",
+        module: 'filters/http/dynamic-forward-proxy/DynamicForwardProxies',
+        initialValue: {},
+        category: "envoy.filters.http",
+        availableVersions: AVAILABLE_VERSIONS,
+        metadata: { http_filter: 'per-route' }
+    },
+    [GTypes.ClusterDynamicForwardProxy]: {
+        backendPath: 'eo/extensions/extensions/cluster_dynamic_forward_proxy',
+        createPath: '/create/cluster_dynamic_forward_proxy',
+        prettyName: 'Cluster Dynamic Forward Proxy',
+        listPage: '/extensions/cluster_dynamic_forward_proxy',
+        collection: "extensions",
+        type: "cluster_dynamic_forward_proxy",
+        canonicalName: "envoy.clusters.dynamic_forward_proxy",
+        module: 'extension/cluster-dynamic-forward-proxy/ClusterDynamicForwardProxy',
+        initialValue: {},
+        category: "envoy.clusters",
+        availableVersions: AVAILABLE_VERSIONS,
+        metadata: METADATA_DEFAULT
     },
 };
 

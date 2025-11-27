@@ -484,6 +484,37 @@ This filter allows embedding DNS resolution capabilities directly into the proxy
 - Responses can be **synthesized** from static config or forwarded based on resolver rules.
 - Commonly used in **sidecar** or **embedded DNS** setups where DNS control is required.`
 
+export const D_UDP_PROXY = `
+**UDP Proxy** is a UDP listener filter that enables the proxy to forward UDP datagrams to upstream clusters. It acts as a **UDP load balancer and proxy**, routing UDP traffic based on hash policies, session tracking, and cluster selection.
+
+This filter allows proxying stateless or session-based UDP protocols such as DNS, QUIC, game protocols, VoIP, or streaming media. It supports advanced features like session affinity, idle timeouts, and access logging.
+
+### 🔍 Key Responsibilities
+- Receive incoming **UDP datagrams** on configured listener addresses.
+- Forward datagrams to upstream **cluster endpoints** using load balancing policies.
+- Track **UDP sessions** using configurable hash policies (source IP, source port, key).
+- Maintain session state with **idle timeouts** to release resources for inactive flows.
+- Log UDP traffic with **access logs** and **proxy access logs** for observability.
+
+### 🧩 Common Use Cases
+- Load balancing **UDP-based protocols** like DNS, QUIC, or game server traffic.
+- Proxying **VoIP** or **streaming media** (RTP, WebRTC) with session affinity.
+- Forwarding **IoT telemetry** or time-series data over UDP.
+- Routing **gaming traffic** with consistent hashing to maintain player sessions.
+- Proxying **TFTP**, **syslog**, or other stateless UDP protocols.
+
+### 🧠 Good to Know
+- Configuration includes:
+  - **stat_prefix** for metrics identification.
+  - **cluster** for upstream endpoint selection.
+  - **hash_policies** for consistent session routing (source IP/port-based hashing).
+  - **idle_timeout** to expire inactive sessions and free resources.
+  - **use_original_src_ip** to preserve client source IP when forwarding.
+  - **access_log** and **proxy_access_log** for detailed traffic logging.
+- Supports **per-packet load balancing** mode for stateless protocols.
+- Session tracking is based on 5-tuple (source IP, source port, destination IP, destination port, protocol).
+- Commonly used in **L4 load balancing** scenarios where UDP protocol awareness is needed.`
+
 export const D_HTTP_ADAPTIVE_CONCURRENCY = `
 **Adaptive Concurrency** is an HTTP filter that dynamically adjusts the concurrency limit for upstream requests based on observed latency. Its goal is to **prevent overload** by reducing the number of in-flight requests when upstream latency increases, and increasing concurrency when conditions improve.
 
@@ -965,7 +996,7 @@ Both providers plug into the \`stateful_session\` filter and share the same cont
 - Using stateful sessions reduces load-balancer randomness; ensure individual hosts can tolerate uneven traffic or combine with **adaptive concurrency** and **local rate limit** for protection.`
 
 export const D_E_STAT_SINKS = `
-Stat Sinks define the **output plugins** that export proxy's runtime statistics—counters, gauges, histograms, and text readouts—to external monitoring systems.  
+Stat Sinks define the **output plugins** that export proxy's runtime statistics—counters, gauges, histograms, and text readouts—to external monitoring systems.
 While proxy maintains all stats in shared memory, a stats-sink streams selected metrics to destinations such as Prometheus, gRPC collectors, DogStatsD, or custom endpoints, enabling real-time dashboards, alerting, and long-term retention.
 
 ### Key Responsibilities
@@ -985,8 +1016,38 @@ While proxy maintains all stats in shared memory, a stats-sink streams selected 
 - Flush interval defaults to **5 s**, but overly aggressive intervals can increase CPU and network usage.
 - For pull-based sinks (Prometheus), remember to expose the admin interface securely—stats may reveal internal service names and paths.`
 
+export const D_E_CLUSTER_DYNAMIC_FORWARD_PROXY = `
+**Cluster Dynamic Forward Proxy** is an Envoy cluster extension that enables **on-demand DNS resolution** and **dynamic host discovery** for forward/explicit proxy deployments.
+Instead of pre-configuring upstream endpoints, this extension resolves the target hostname from the request (\`Host\` header or SNI) at connection time, making it ideal for proxying arbitrary internet destinations or multi-tenant egress gateways.
+
+### 🔍 Key Responsibilities
+- Perform **just-in-time DNS lookups** for each unique hostname encountered in proxied requests.
+- Maintain a **shared DNS cache** (via \`DnsCacheConfig\`) to avoid redundant queries and improve performance.
+- Support **sub-clustering** (\`SubClustersConfig\`) to partition traffic by hostname for per-host metrics, circuit breaking, and rate limiting.
+- Integrate seamlessly with the **HTTP Dynamic Forward Proxy filter** to resolve and route requests to dynamically discovered endpoints.
+
+### 🧩 Common Use Cases
+- **Forward/explicit proxy** deployments where clients connect through Envoy to reach arbitrary external hosts.
+- **Egress gateways** in service mesh architectures that dynamically resolve and route traffic to external APIs or third-party services.
+- **Multi-tenant environments** where each tenant accesses different backend services, and pre-configuration is impractical.
+- **Failover and DNS-based load balancing** where DNS responses change dynamically, and Envoy must adapt without redeployment.
+
+### 📋 Configuration Options
+- **\`dns_cache_config\`**: Shared DNS cache configuration (TTL, refresh intervals, circuit breakers, preresolve hostnames).
+- **\`sub_clusters_config\`**: Enable per-hostname sub-clustering for granular observability and traffic management.
+- **\`allow_insecure_cluster_options\`**: Permit unencrypted upstream connections (use with caution).
+- **\`allow_coalesced_connections\`**: Allow connection reuse across multiple hostnames (HTTP/2, HTTP/3).
+
+### ⚠️ Good to Know
+- DNS cache misses can add latency to the first request; use \`preresolve_hostnames\` to warm the cache.
+- Circuit breakers in \`dns_cache_circuit_breaker\` prevent DNS query storms during failures.
+- When paired with the **HTTP Dynamic Forward Proxy filter**, the filter extracts the target host from the request and passes it to this cluster.
+- Sub-clustering creates separate load balancing pools and metrics per hostname, which can increase memory usage in high-cardinality scenarios.
+
+Used properly, Cluster Dynamic Forward Proxy unlocks flexible, scalable forward proxy capabilities without hardcoding upstream endpoints—ideal for egress control, SaaS integrations, and dynamic multi-tenant routing.`
+
 export const D_HTTP_WASM = `
-**WASM HTTP Filter** is a powerful and extensible Envoy filter that enables execution of **WebAssembly (WASM)** modules within the HTTP request/response lifecycle.  
+**WASM HTTP Filter** is a powerful and extensible Envoy filter that enables execution of **WebAssembly (WASM)** modules within the HTTP request/response lifecycle.
 It allows developers to run custom logic—such as authentication, rate limiting, logging, or request transformation—directly inside Envoy without needing to recompile the Envoy binary.
 
 ### 🔍 Key Responsibilities
@@ -1009,3 +1070,112 @@ It allows developers to run custom logic—such as authentication, rate limiting
 - Configuration can be passed via **protobuf Any types**, such as \`google.protobuf.StringValue\` or \`Struct\`, and is deserialized before reaching the plugin.
 - You can set filter behavior **per route**, **per listener**, or **globally**, and hot-reload new logic without restarting Envoy.
 - Recommended for **edge-service customization** or **fine-grained traffic control** where native filters fall short.`;
+
+export const D_HTTP_EXT_PROC = `
+**External Processing (ext_proc) HTTP Filter** is an advanced Envoy filter that enables delegating request and response processing to an **external gRPC or HTTP service**.
+It allows you to offload custom business logic—such as authentication, transformation, enrichment, or policy enforcement—to a separate microservice that Envoy calls in real-time during the request lifecycle.
+
+### 🔍 Key Responsibilities
+- Send **headers, body, and trailers** from HTTP requests/responses to an external processing server via **gRPC streaming** or **HTTP POST**.
+- Receive **mutations** (header modifications, body transformations, immediate responses) from the external service and apply them to the request/response.
+- Support **bidirectional streaming** for incremental body processing without buffering entire payloads.
+- Enable **fine-grained control** over which parts of the request/response (headers, body, trailers) are sent to the external processor.
+- Allow external services to **reject requests**, **modify responses**, or **inject custom headers** dynamically.
+
+### 🧩 Common Use Cases
+- **Dynamic request/response transformation** (e.g., adding user context from external systems, enriching headers with metadata).
+- **External authorization and authentication** beyond basic auth or OAuth2 (e.g., calling identity providers, policy engines).
+- **Content inspection and modification** (e.g., PII redaction, payload encryption/decryption, request sanitization).
+- **Traffic shaping and routing decisions** based on external business rules or real-time data.
+- **Integration with legacy systems** that need to process or validate requests before they reach upstream services.
+
+### 🧠 Good to Know
+- The external processor communicates via **gRPC bidirectional streaming** (\`envoy.service.ext_proc.v3.ExternalProcessor\`) or **HTTP POST** with JSON payloads.
+- Processing can be configured **per-route** using \`ExtProcPerRoute\` to override global settings or disable the filter selectively.
+- Supports **failure modes**: \`FAIL_OPEN\` (continue on error) or \`FAIL_CLOSE\` (block on error), configurable via \`failure_mode_allow\`.
+- You can control **timeouts** (\`message_timeout\`, \`max_message_timeout\`) and **observability mode** (headers-only or full processing).
+- **Metadata forwarding** allows passing dynamic metadata (typed/untyped) between Envoy and the external service.
+- The filter supports **deferred response handling** and can disable immediate responses if needed (\`disable_immediate_response\`).
+- Recommended for **centralized policy enforcement**, **API gateway customization**, or **hybrid architectures** where external logic must influence traffic flow.`;
+
+export const D_HTTP_JWT_AUTHN = `
+**JWT Authentication (jwt_authn) HTTP Filter** is a specialized Envoy filter that validates **JSON Web Tokens (JWTs)** in HTTP requests.
+It verifies JWT signatures, validates claims (issuer, audience, expiration), and extracts JWT claims into headers or metadata for downstream use.
+
+### 🔍 Key Responsibilities
+- **Verify JWT signatures** using public keys from remote JWKS endpoints or local inline keys.
+- **Validate JWT claims** including issuer (\`iss\`), audience (\`aud\`), expiration (\`exp\`), and not-before (\`nbf\`).
+- Support **multiple JWT providers** with different issuers, audiences, and key sources.
+- Extract **JWT claims to headers** or **dynamic metadata** for use by downstream filters or services.
+- Enable **per-route JWT requirements** via \`PerRouteConfig\` to selectively apply or disable JWT verification.
+
+### 🧩 Common Use Cases
+- **API Gateway authentication** with JWT tokens issued by identity providers (e.g., Auth0, Okta, Keycloak).
+- **Microservices authentication** where services accept JWTs from upstream gateways or clients.
+- **Multi-tenant applications** with different JWT providers per tenant or route.
+- **OAuth2/OIDC integration** where access tokens are JWTs that need verification.
+- **Claim-based routing or authorization** by extracting claims into headers for RBAC filters.
+
+### 🧠 Good to Know
+- Supports both **remote JWKS** (fetched from \`https://\` endpoints) and **local JWKS** (inline keys).
+- Can **cache JWKS** for performance, with configurable TTL and async fetch options.
+- Supports **multiple signature algorithms** (RS256, RS384, RS512, ES256, ES384, ES512, HS256, etc.).
+- **CORS preflight requests** can bypass JWT verification via \`bypass_cors_preflight\`.
+- Compatible with **requirement maps** for complex authorization logic (e.g., requires_any, requires_all).
+- JWT verification failures return **401 Unauthorized** with optional WWW-Authenticate header.
+`;
+
+export const D_HTTP_EXT_AUTHZ = `
+**External Authorization (ext_authz) HTTP Filter** is a powerful Envoy filter that delegates **authorization decisions** to an **external authorization service** via **gRPC** or **HTTP**.
+It enables centralized access control by allowing an external service to approve or deny requests based on custom business logic, policies, or identity verification.
+
+### 🔍 Key Responsibilities
+- Send **request attributes** (headers, method, path, client certificate, metadata) to an external authorization service.
+- Receive **authorization decisions** (allow/deny) along with optional **header modifications** or **dynamic metadata**.
+- Support both **gRPC** (CheckRequest/CheckResponse) and **HTTP** (POST with JSON) protocols for authorization checks.
+- Allow **fine-grained per-route configuration** via \`ExtAuthzPerRoute\` to override or disable authorization selectively.
+- Enable **request body buffering** to include payload data in authorization checks (configurable via \`with_request_body\`).
+
+### 🧩 Common Use Cases
+- **External authentication and authorization** (e.g., OAuth2 token validation, JWT verification, RBAC policy enforcement).
+- **Integration with identity providers** (e.g., Auth0, Okta, Keycloak) or custom authorization servers.
+- **Policy-based access control** (e.g., attribute-based access control - ABAC, time-based restrictions, geo-fencing).
+- **API gateway security** with centralized authorization logic across multiple services.
+- **Dynamic header injection** from authorization service (e.g., adding user context, tenant IDs, or custom metadata).
+
+### 🧠 Good to Know
+- The external authorization service implements \`envoy.service.auth.v3.Authorization\` (gRPC) or accepts HTTP POST requests with JSON.
+- Supports **failure modes**: \`failure_mode_allow\` (allow on error) or deny on error (default), critical for reliability.
+- Can **buffer request body** and send it to the authorization service for content-based decisions (e.g., validating JSON payloads).
+- Allows **header mutations** from the authorization service to modify requests/responses dynamically (controlled via \`allowed_headers\`).
+- **TLS client certificates** can be forwarded to the authorization service for mTLS-based authorization decisions.
+- Per-route configuration via \`ExtAuthzPerRoute\` enables **selective authorization** (e.g., public endpoints bypass auth, private endpoints enforce it).
+- Recommended for **zero-trust architectures**, **microservices security**, and **API gateway authorization** where centralized policy enforcement is critical.`;
+
+export const D_HTTP_DYNAMIC_FORWARD_PROXY = `
+The **HTTP Dynamic Forward Proxy** filter enables proxy to forward requests to dynamically resolved upstream hosts without requiring pre-configured clusters. This filter performs DNS resolution on-demand based on the HTTP \`Host\` header, making it ideal for **forward proxy** and **egress gateway** scenarios where destination hosts are not known ahead of time.
+
+Unlike traditional routing where clusters are pre-defined, the Dynamic Forward Proxy maintains a **DNS cache** that resolves hostnames dynamically as requests arrive. It can be paired with a Dynamic Forward Proxy cluster to enable full forward proxy capabilities.
+
+### 🔍 Key Responsibilities
+- Perform **on-demand DNS resolution** of the \`Host\` header for each request.
+- Maintain a **shared DNS cache** to avoid redundant lookups and improve performance.
+- Support **sub-cluster mode** where each hostname gets its own dedicated cluster with full load balancing and health checking.
+- Enable **host header rewriting** via per-route configuration for routing flexibility.
+- Provide **DNS cache circuit breakers** to prevent resolver overload.
+
+### 🧩 Common Use Cases
+- **Forward/explicit proxy** deployments where clients connect to arbitrary external hosts.
+- **Egress gateways** in service mesh architectures for controlling outbound traffic to external services.
+- **Dynamic routing** to external APIs, third-party services, or multi-tenant backends where destinations vary per request.
+- **DNS-based failover** leveraging DNS TTL and health checking for upstream resilience.
+
+### 🧠 Good to Know
+- Works in two modes: **DNS cache mode** (simple DNS resolution) and **sub-cluster mode** (creates full-featured clusters per hostname with STRICT_DNS).
+- The DNS cache is **shared** across all filter instances with the same cache name, enabling efficient DNS resolution.
+- Can **save upstream address** to filter state for observability and debugging.
+- Per-route config allows **host rewriting** with \`host_rewrite_literal\` or \`host_rewrite_header\` for flexible routing patterns.
+- Must be paired with a **Dynamic Forward Proxy cluster** (configured with matching DNS cache) for actual request forwarding.
+- Supports **async DNS resolution** with configurable timeouts and retry policies.
+- **Circuit breakers** protect DNS resolvers from being overwhelmed during traffic spikes.
+- Ideal for **multi-tenant SaaS** architectures where backend hosts are determined per-tenant or per-request.`;

@@ -33,8 +33,10 @@ const Resource: React.FC = () => {
 
     // Check for duplicate parameters
     const isDuplicate = searchParams.get('duplicate') === 'true';
+    const isUpgrade = searchParams.get('upgrade') === 'true';
     const duplicateResourceId = searchParams.get('resource_id');
     const urlVersion = searchParams.get('version');
+    const sourceVersion = searchParams.get('source_version'); // For upgrade: source version to fetch data
 
     const [state, setState] = useState<state>({
         version: urlVersion as Version || null,
@@ -70,10 +72,12 @@ const Resource: React.FC = () => {
 
     // Fetch original resource data for duplication
     const duplicateResourceName = searchParams.get('resource_name');
+    // For upgrade: use source_version to fetch the resource, otherwise use urlVersion
+    const fetchVersion = isUpgrade && sourceVersion ? sourceVersion : (urlVersion || state.version);
     const { data: duplicateResourceData, isFetching: fetchingDuplicate } = useCustomGetQuery({
-        queryKey: `duplicate_${duplicateResourceId}_${project}`,
+        queryKey: `duplicate_${duplicateResourceId}_${project}_${fetchVersion}`,
         enabled: isDuplicate && !!duplicateResourceId && !!duplicateResourceName && location.pathname === GType.createPath,
-        path: `${GType.backendPath}/${duplicateResourceName}?resource_id=${duplicateResourceId}&project=${project}&version=${urlVersion || state.version}`,
+        path: `${GType.backendPath}/${duplicateResourceName}?resource_id=${duplicateResourceId}&project=${project}&version=${fetchVersion}`,
     });
 
     // Load component when version changes
@@ -165,10 +169,11 @@ const Resource: React.FC = () => {
                 duplicatedResource = { ...resourceData };
             }
 
-            // Update state with duplicate data but clear the name
-            setState(prevState => ({ 
-                ...prevState, 
-                generalName: '', // Clear name for duplicate
+            // Update state with duplicate data
+            // For upgrade: keep the name, for duplicate: clear the name
+            setState(prevState => ({
+                ...prevState,
+                generalName: isUpgrade ? duplicateResourceData.general?.name || '' : '', // Keep name for upgrade, clear for duplicate
                 managed: duplicateResourceData.general?.managed || false,
                 gtype: duplicateResourceData.general?.gtype || ''
             }));

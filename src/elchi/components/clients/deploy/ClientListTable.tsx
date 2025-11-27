@@ -2,7 +2,6 @@ import { Table, Input, Select, Spin, Tag, Button, Drawer, Descriptions, Space } 
 import { useMemo, useCallback, useState } from 'react';
 import { OperationsType } from '@/common/types';
 import { InfoCircleOutlined } from '@ant-design/icons';
-import { useProjectVariable } from '@/hooks/useProjectVariable';
 import OpenStackNetworkDetails from './OpenStackNetworkDetails';
 
 interface ClientVersionInfo {
@@ -94,6 +93,8 @@ interface ClientListTableProps {
     onIpModeSelect?: (clientId: string, ipMode: string) => void;//eslint-disable-line
     selectedIpModes?: Record<string, string>;
     interfaceErrors?: Record<string, string>;
+    onRedeploy?: (client: any) => void;//eslint-disable-line
+    existingClients?: Array<{ client_id: string; downstream_address: string; interface_id?: string; ip_mode?: string }>;
 }
 
 // IP validation function outside component
@@ -121,7 +122,9 @@ export function ClientListTable({
     selectedInterfaces = {},
     onIpModeSelect,
     selectedIpModes = {},
-    interfaceErrors = {}
+    interfaceErrors = {},
+    onRedeploy,
+    existingClients = []
 }: ClientListTableProps) {
     const [interfaceDetailModal, setInterfaceDetailModal] = useState<{
         visible: boolean;
@@ -146,7 +149,6 @@ export function ClientListTable({
             title: 'Name',
             dataIndex: 'name',
             key: 'name',
-            sorter: (a: any, b: any) => a.name.localeCompare(b.name),
             render: (text: string, record: any) => (
                 <div>
                     <div style={{
@@ -496,7 +498,91 @@ export function ClientListTable({
                 );
             },
         },
-    ], [downstreamAddresses, onAddressChange, disabledAddressEdit, clientVersions, serviceVersion, actionType, isOpenStackProvider, interfaceData, interfaceLoading, selectedInterfaces, handleInterfaceChange, selectedIpModes, handleIpModeChange, interfaceErrors]);
+        // Actions column - only show if onRedeploy is provided and action type is DEPLOY
+        ...(onRedeploy && actionType === OperationsType.DEPLOY ? [{
+            title: 'ReDeploy',
+            key: 'actions',
+            width: 65,
+            fixed: 'right' as const,
+            render: (_: any, record: any) => {
+                // Check if this client is already deployed (exists in existingClients)
+                const isDeployed = existingClients.some(ec => ec.client_id === record.client_id);
+
+                if (!isDeployed) {
+                    return null; // Don't show button for non-deployed clients
+                }
+
+                const isValid = isValidIP(downstreamAddresses[record.client_id] || '');
+                const hasDownstreamAddress = !!downstreamAddresses[record.client_id];
+                const isOpenStack = record.provider === 'openstack' && record.metadata?.os_uuid && record.metadata?.os_project_id;
+                const hasSelectedInterface = isOpenStack ? !!selectedInterfaces[record.client_id] : true;
+
+                const canRedeploy = record.connected && isValid && hasDownstreamAddress && hasSelectedInterface;
+
+                return (
+                    <button
+                        onClick={() => canRedeploy && onRedeploy(record)}
+                        disabled={!canRedeploy}
+                        title="Redeploy"
+                        style={{
+                            position: 'relative',
+                            border: 'none',
+                            cursor: canRedeploy ? 'pointer' : 'not-allowed',
+                            borderRadius: 8,
+                            height: 32,
+                            width: 32,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: 12,
+                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                            background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #06b6d4 100%)',
+                            boxShadow: '0 8px 20px rgba(59, 130, 246, 0.3), 0 3px 10px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.15)',
+                            color: '#ffffff',
+                            overflow: 'hidden',
+                            outline: 'none',
+                            opacity: canRedeploy ? 1 : 0.5,
+                            padding: 0
+                        }}
+                        onMouseEnter={e => {
+                            if (!canRedeploy) return;
+                            e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
+                            e.currentTarget.style.boxShadow = '0 12px 30px rgba(59, 130, 246, 0.4), 0 6px 20px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.2)';
+                            e.currentTarget.style.background = 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #0891b2 100%)';
+                        }}
+                        onMouseLeave={e => {
+                            if (!canRedeploy) return;
+                            e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                            e.currentTarget.style.boxShadow = '0 8px 20px rgba(59, 130, 246, 0.3), 0 3px 10px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.15)';
+                            e.currentTarget.style.background = 'linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #06b6d4 100%)';
+                        }}
+                        onMouseDown={e => {
+                            if (!canRedeploy) return;
+                            e.currentTarget.style.transform = 'translateY(0) scale(0.95)';
+                        }}
+                        onMouseUp={e => {
+                            if (!canRedeploy) return;
+                            e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
+                        }}
+                    >
+                        <div style={{
+                            position: 'absolute',
+                            top: '1px',
+                            left: 0,
+                            right: 0,
+                            height: '40%',
+                            background: 'linear-gradient(180deg, rgba(255,255,255,0.2) 0%, transparent 100%)',
+                            borderRadius: '8px 8px 0 0',
+                            zIndex: 1
+                        }} />
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style={{ zIndex: 2, position: 'relative' }}>
+                            <path d="M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22A10,10 0 0,1 2,12A10,10 0 0,1 12,2M12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4M12,6A6,6 0 0,1 18,12C18,13.5 17.5,14.9 16.6,16L14.8,14.2C15.5,13.5 16,12.3 16,12A4,4 0 0,0 12,8V11L8,7L12,3V6Z"/>
+                        </svg>
+                    </button>
+                );
+            }
+        }] : [])
+    ], [downstreamAddresses, onAddressChange, disabledAddressEdit, clientVersions, serviceVersion, actionType, isOpenStackProvider, interfaceData, interfaceLoading, selectedInterfaces, handleInterfaceChange, selectedIpModes, handleIpModeChange, interfaceErrors, onRedeploy, existingClients, selectedIpModes]);
 
     const sortedData = useMemo(() => {
         if (!clients) return [];
@@ -545,6 +631,32 @@ export function ClientListTable({
                         columnWidth: 48,
                         columnTitle: ' '
                     }}
+                    onRow={(record) => ({
+                        onClick: (e) => {
+                            // Don't trigger selection if clicking on an input, select, or button
+                            const target = e.target as HTMLElement;
+                            if (
+                                target.tagName === 'INPUT' ||
+                                target.tagName === 'SELECT' ||
+                                target.tagName === 'BUTTON' ||
+                                target.closest('.ant-select') ||
+                                target.closest('.ant-input') ||
+                                target.closest('.ant-btn')
+                            ) {
+                                return;
+                            }
+
+                            const isDisabled = rowSelection?.getCheckboxProps?.(record)?.disabled;
+                            if (isDisabled) return;
+
+                            const key = record.key;
+                            const newSelectedKeys = selectedRowKeys.includes(key)
+                                ? selectedRowKeys.filter(k => k !== key)
+                                : [...selectedRowKeys, key];
+                            onSelectChange(newSelectedKeys);
+                        },
+                        style: { cursor: 'pointer' }
+                    })}
                     loading={loading}
                     size="small"
                     pagination={false}

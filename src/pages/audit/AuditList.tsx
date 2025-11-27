@@ -545,6 +545,10 @@ const AuditList: React.FC = () => {
                                 { value: "SNIPPET_UPDATE", label: "SNIPPET UPDATE" },
                                 { value: "SNIPPET_DELETE", label: "SNIPPET DELETE" },
                                 { value: "DISCOVERY_UPDATE_ENDPOINT", label: "DISCOVERY UPDATE" },
+                                { value: "UPGRADE_RESOURCE", label: "UPGRADE_RESOURCE" },
+                                { value: "EXPORT_BACKUP", label: "EXPORT_BACKUP" },
+                                { value: "IMPORT_BACKUP", label: "IMPORT_BACKUP" },
+                                { value: "IMPORT_BACKUP_DRY", label: "IMPORT_BACKUP_DRY" },
                             ]}
                         />
                     </Col>
@@ -578,6 +582,7 @@ const AuditList: React.FC = () => {
                                 { value: "ldap", label: "LDAP" },
                                 { value: "resource_templates", label: "Resource Template" },
                                 { value: "snippets", label: "Snippet" },
+                                { value: "backup", label: "Backup" },
                             ]}
                         />
                     </Col>

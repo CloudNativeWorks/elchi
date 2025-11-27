@@ -63,7 +63,7 @@ export const FilterDrawer = ({ setOpen, open, dataQuery, extensions, addFilter, 
                 onClose={() => setOpen(false)}
                 open={open}
                 size='large'
-                zIndex={950}
+                zIndex={1950}
             >
                 <Input
                     placeholder="Search"
@@ -120,8 +120,7 @@ export const FilterDrawer = ({ setOpen, open, dataQuery, extensions, addFilter, 
                 open={modalVisible}
                 onOk={handleOk}
                 onCancel={() => setModalVisible(false)}
-                style={{ zIndex: 9999 }}
-                styles={{ mask: { backdropFilter: 'blur(10px)' } }}
+                styles={{ mask: { backdropFilter: 'blur(10px)' }, wrapper: { zIndex: 1961 } }}
             >
                 <Select
                     style={{ width: '100%' }}
@@ -129,6 +128,8 @@ export const FilterDrawer = ({ setOpen, open, dataQuery, extensions, addFilter, 
                     placeholder="Choose a filter"
                     optionLabelProp="label"
                     value={selectedFilter}
+                    getPopupContainer={(trigger) => trigger.parentElement || document.body}
+                    styles={{ popup: { root: { zIndex: 1971 } } }}
                 >
                     {httpFilterMain?.filter((item: Extensions) => item?.canonical_name === selectedItem?.canonical_name).map((filter: any) => (
                         <Select.Option key={filter.name} value={filter.name} label={filter.name}>

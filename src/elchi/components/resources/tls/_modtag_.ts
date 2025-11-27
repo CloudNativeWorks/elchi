@@ -29,3 +29,11 @@ export const modtag_tls_params = [
         names: ['TlsParameters', 'TlsParameters_SingleFields'],
     },
 ];
+
+export const modtag_quic_downstream_transport = [
+    {
+        alias: 'qdt',
+        relativePath: 'envoy/extensions/transport_sockets/quic/v3/quic_transport',
+        names: ['QuicDownstreamTransport', 'QuicDownstreamTransport_SingleFields'],
+    },
+];

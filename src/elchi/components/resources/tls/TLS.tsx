@@ -1,6 +1,7 @@
 import React from "react";
 import UpstreamTLSContextComponent from './UpstreamTlsContext';
 import DownstreamTLSContextComponent from './DownstreamTlsContext';
+import QuicDownstreamTransportComponent from './QuicDownstreamTransport';
 
 
 type GeneralProps = {
@@ -17,6 +18,7 @@ const SecretComponent: React.FC<GeneralProps> = ({ veri }) => {
     const componentMap = {
         'envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext': DownstreamTLSContextComponent,
         'envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext': UpstreamTLSContextComponent,
+        'envoy.extensions.transport_sockets.quic.v3.QuicDownstreamTransport': QuicDownstreamTransportComponent,
     };
 
     const SelectedComponent = componentMap[veri.gtype];
