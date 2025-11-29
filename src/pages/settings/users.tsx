@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Dropdown, Table, Typography, Modal, message, Tag, Pagination, Input } from 'antd';
+import { Dropdown, Table, Typography, Modal, message, Tag, Pagination, Input, Card, Space, Divider, Switch, Alert, Spin } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { Link, NavLink } from 'react-router-dom';
 import { ActionsSVG } from '@/assets/svg/icons';
 import { DateTimeTool } from '@/utils/date-time-tool';
 import { useCustomGetQuery, useDeleteMutation } from '@/common/api';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
-import { DeleteOutlined, ExclamationCircleFilled, InboxOutlined } from '@ant-design/icons';
+import { DeleteOutlined, ExclamationCircleFilled, InboxOutlined, SafetyOutlined, LockOutlined } from '@ant-design/icons';
 import { AxiosError } from 'axios';
 import ElchiButton from '@/elchi/components/common/ElchiButton';
+import { useOTPConfig, useOTPAdmin } from '@/hooks/useOTPAdmin';
+import useAuth from '@/hooks/useUserDetails';
 
 const { Text } = Typography;
 interface DataType {
@@ -35,6 +37,29 @@ const Users: React.FC = () => {
     const [searchText, setSearchText] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 50;
+
+    // OTP Configuration
+    const userDetail = useAuth();
+    const isAdminOrOwner = ['owner', 'admin'].includes(userDetail?.role?.toLowerCase() || '');
+    const { config: otpConfig, isLoading: otpConfigLoading, refetch: refetchOTPConfig } = useOTPConfig(project || '', isAdminOrOwner);
+    const { updateOTPConfig, isLoading: otpUpdateLoading } = useOTPAdmin(project || '');
+    const [otpEnforced, setOtpEnforced] = useState(false);
+
+    React.useEffect(() => {
+        if (otpConfig) {
+            setOtpEnforced(otpConfig.otp_enforced);
+        }
+    }, [otpConfig]);
+
+    const handleOTPEnforcementChange = async (checked: boolean) => {
+        try {
+            await updateOTPConfig(checked);
+            setOtpEnforced(checked);
+            refetchOTPConfig();
+        } catch (error) {
+            console.error('Failed to update OTP enforcement:', error);
+        }
+    };
 
     const hideDeleteModal = () => {
         setDeleteModal({ visible: false, record: null });
@@ -211,6 +236,109 @@ const Users: React.FC = () => {
     return (
         <>
             {contextHolder}
+
+            {/* OTP/2FA Security Configuration Card - Admin/Owner Only */}
+            {isAdminOrOwner && (
+                <Card
+                    style={{
+                        borderRadius: '12px',
+                        border: '1px solid #e1e5e9',
+                        marginBottom: 16,
+                        margin: '4px 0 16px 0'
+                    }}
+                    styles={{ body: { padding: '20px' } }}
+                >
+                    <Spin spinning={otpConfigLoading}>
+                        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                            <Space>
+                                <div style={{
+                                    width: '36px',
+                                    height: '36px',
+                                    borderRadius: '8px',
+                                    background: 'linear-gradient(135deg, #722ed1 0%, #1890ff 100%)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}>
+                                    <SafetyOutlined style={{ color: 'white', fontSize: '18px' }} />
+                                </div>
+                                <div>
+                                    <Text style={{ fontSize: '15px', fontWeight: 'bold', color: '#1f2937' }}>
+                                        Two-Factor Authentication (2FA)
+                                    </Text>
+                                    <br />
+                                    <Text type="secondary" style={{ fontSize: '13px' }}>
+                                        Project-wide security configuration
+                                    </Text>
+                                </div>
+                            </Space>
+
+                            <Divider style={{ margin: '8px 0' }} />
+
+                            <div style={{
+                                display: 'flex',
+                                justifyContent: 'space-between',
+                                alignItems: 'center',
+                                padding: '10px 14px',
+                                background: otpEnforced ? '#f6ffed' : '#fafafa',
+                                borderRadius: '8px',
+                                border: `1px solid ${otpEnforced ? '#b7eb8f' : '#d9d9d9'}`
+                            }}>
+                                <Space direction="vertical" size={2}>
+                                    <Space size={6}>
+                                        <LockOutlined style={{ color: otpEnforced ? '#52c41a' : '#8c8c8c', fontSize: 14 }} />
+                                        <Text strong style={{ fontSize: '13px' }}>
+                                            Enforce 2FA for all users
+                                        </Text>
+                                    </Space>
+                                    <Text type="secondary" style={{ fontSize: '12px', marginLeft: 20 }}>
+                                        {otpEnforced
+                                            ? 'All users must setup 2FA before login'
+                                            : '2FA is optional for users'}
+                                    </Text>
+                                </Space>
+                                <Switch
+                                    checked={otpEnforced}
+                                    onChange={handleOTPEnforcementChange}
+                                    loading={otpUpdateLoading}
+                                    checkedChildren="Enforced"
+                                    unCheckedChildren="Optional"
+                                />
+                            </div>
+
+                            {otpEnforced && (
+                                <Alert
+                                    message="2FA Enforcement Active"
+                                    description={
+                                        <div style={{ fontSize: '12px' }}>
+                                            <ul style={{ margin: '6px 0', paddingLeft: '18px' }}>
+                                                <li>All users will be required to setup 2FA before they can login</li>
+                                                <li>Users without 2FA will be prompted to configure it on their next login</li>
+                                                <li>Both local and LDAP users can use 2FA for enhanced security</li>
+                                                <li>Admins can reset a user's 2FA from user details if needed</li>
+                                            </ul>
+                                        </div>
+                                    }
+                                    type="info"
+                                    showIcon
+                                    style={{ marginTop: 2 }}
+                                />
+                            )}
+
+                            {!otpEnforced && (
+                                <Alert
+                                    message="2FA is Optional"
+                                    description="Users can choose to enable 2FA for their accounts from their profile page. Consider enforcing 2FA for enhanced security."
+                                    type="warning"
+                                    showIcon
+                                    style={{ marginTop: 2, fontSize: '12px' }}
+                                />
+                            )}
+                        </Space>
+                    </Spin>
+                </Card>
+            )}
+
             <div style={{
                 background: '#fff',
                 padding: '12px 12px 24px 12px',

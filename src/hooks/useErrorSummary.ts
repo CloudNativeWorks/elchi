@@ -12,6 +12,7 @@ interface UseErrorSummaryProps {
 interface ErrorSummaryData {
     total_error: number;
     errors: any[];
+    services: any[];
     last_updated: string;
 }
 

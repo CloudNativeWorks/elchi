@@ -38,7 +38,8 @@ export const DecodeToken = (token: string | undefined) => {
             base_project: decodedToken.BaseProject,
             base_group: decodedToken.BaseGroup,
             exp: decodedToken.exp,
-            role: decodedToken.Role
+            role: decodedToken.Role,
+            auth_type: decodedToken.AuthType
         }
         return userdetail
     } catch (error) {
@@ -52,7 +53,8 @@ export const DecodeToken = (token: string | undefined) => {
             base_project: "",
             base_group: "",
             exp: 0,
-            role: ""
+            role: "",
+            auth_type: undefined
         }
     }
 };

@@ -24,7 +24,6 @@ import SnapshotDump from '@/pages/SnapshotDump';
 import ScenarioDashboard from '@/elchi/components/scenarios/ScenarioDashboard';
 import DynamicScenarioWizard from '@/elchi/components/scenarios/DynamicScenarioWizard';
 import DynamicScenarioExecutionRedux from '@/elchi/components/scenarios/DynamicScenarioExecutionRedux';
-import Demo from '@/pages/auth/Demo';
 import Clients from './pages/operations/clients';
 import Services from './pages/operations/services';
 import Client from './pages/operations/client';
@@ -40,18 +39,19 @@ import AuditDetail from './pages/audit/AuditDetail';
 import Search from './pages/Search';
 import WafList from './pages/waf/WafList';
 import WafDetail from './pages/waf/WafDetail';
+import Profile from './pages/profile/Profile';
 
 
 const AppRoutes: React.FC = () => (
     <Routes>
         {/* Public Route */}
         <Route path="/login" element={<Login />} />
-        {window.APP_CONFIG?.ENABLE_DEMO && <Route path="/demo" element={<Demo />} />}
 
         {/* Protected Routes */}
         <Route element={<ProtectedRoute />}>
             <Route path="/" element={<Main />}>
                 <Route index element={<Dashboard />} />
+                <Route path="/profile" element={<Profile />} />
                 <Route path="/quick_start" element={<QuickStart />} />
                 {/* Scenarios */}
                 <Route path="/scenarios" element={<ScenarioDashboard />} />
@@ -86,11 +86,11 @@ const AppRoutes: React.FC = () => (
 
                 {/* Settings Routes */}
                 <Route path="/settings" element={<Settings />} />
-                <Route path="/settings/create/user" element={<User />} />
+                {!window.APP_CONFIG?.ENABLE_DEMO && <Route path="/settings/create/user" element={<User />} />}
                 <Route path="/settings/create/group" element={<Group />} />
                 <Route path="/settings/create/project" element={<Project />} />
-                <Route path="/settings/users" element={<Users />} />
-                <Route path="/settings/users/:username" element={<User />} />
+                {!window.APP_CONFIG?.ENABLE_DEMO && <Route path="/settings/users" element={<Users />} />}
+                {!window.APP_CONFIG?.ENABLE_DEMO && <Route path="/settings/users/:username" element={<User />} />}
                 <Route path="/settings/groups" element={<Groups />} />
                 <Route path="/settings/groups/:groupname" element={<Group />} />
                 <Route path="/settings/projects" element={<Projects />} />

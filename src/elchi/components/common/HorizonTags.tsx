@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Alert, Badge, Button, Card, List, Popover, Tag } from 'antd';
+import { Alert, Badge, Button, List, Popover, Tag } from 'antd';
 import { matchesEndOrStartOf, prettyTag, removePrefix, getMatchingPrefix } from "@/utils/tools";
 import { compareVeri, memorizeComponent } from "@/hooks/useMemoComponent";
 import { InType } from "../../tags/tagsType";
@@ -111,13 +111,8 @@ const MemorizedHorizonTags = ({ veri }: FormItemProps) => {
             component = (
                 <CheckableTag
                     style={{
-                        background: isChecked ? 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)' : undefined,
-                        color: isChecked ? '#fff' : undefined,
-                        border: "0.5px solid rgb(214, 214, 214)",
-                        fontWeight: isChecked ? 550 : 500,
-                        transition: 'all 0.10s',
-                        marginBottom: 3,
-                        cursor: veri.doNotChange?.includes(originTag) ? 'not-allowed' : 'pointer'
+                        cursor: veri.doNotChange?.includes(originTag) ? 'not-allowed' : 'pointer',
+                        opacity: veri.doNotChange?.includes(originTag) ? 0.6 : 1
                     }}
                     key={tag + veri.index?.toString()}
                     checked={isChecked}
@@ -155,16 +150,14 @@ const MemorizedHorizonTags = ({ veri }: FormItemProps) => {
                 <div className="ag-courses_item">
                     <div className="ag-courses-item_link">
                         <div className="ag-courses-item_bg"></div>
-                        <Card size="small" styles={{ body: { padding: 1, width: '100%' } }} style={{ zIndex: 4, width: '100%', alignItems: 'center', borderLeft: 'none', borderRight: 'none' }}>
-                            <div className="grid-container">
-                                <div className="tags-container">
-                                    {[...supportedTags, ...unsupportedTags]}
-                                </div>
-                                <div className="info-button">
-                                    <Button icon={<InfoCircleOutlined />} type="text" onClick={() => setIsModalOpen(true)} />
-                                </div>
+                        <div className="grid-container">
+                            <div className="tags-container">
+                                {[...supportedTags, ...unsupportedTags]}
                             </div>
-                        </Card>
+                            <div className="info-button">
+                                <Button icon={<InfoCircleOutlined />} type="text" onClick={() => setIsModalOpen(true)} />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

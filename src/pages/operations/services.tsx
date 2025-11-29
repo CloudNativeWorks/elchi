@@ -169,7 +169,7 @@ const Services: React.FC = () => {
                         </Tag>
                     );
                 }
-                let color = '#52c41a', bg = '#f6ffed', text = 'Live';
+                let color = '#bfbfbf', bg = '#bfbfbf22', text = 'Not Deployed';
                 if (status === 'Live') {
                     color = '#52c41a'; bg = '#f6ffed'; text = 'Live';
                 } else if (status === 'Partial') {

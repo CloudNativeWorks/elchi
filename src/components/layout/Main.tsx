@@ -32,7 +32,7 @@ function Main() {
 			notification.warning({
 				key: 'demo-warning', // Unique key to prevent duplicates
 				message: 'Demo Environment Warning',
-				description: 'Please do not use your sensitive valuable resources (Certificate, Keys, etc.). All resources will be deleted along with your user after 24 hours.',
+				description: 'Please do not use your sensitive valuable resources (Certificate, Keys, etc.).',
 				placement: 'bottomRight',
 				duration: 0, // Don't auto-close
 				onClose: () => {
