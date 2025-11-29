@@ -118,6 +118,8 @@ export interface Extensions {
 export interface AuthMutationOptions {
     username: string;
     password: string;
+    otp_code?: string;
+    backup_code?: string;
 }
 
 export interface ScenarioMutationOptions {
@@ -136,6 +138,7 @@ export interface CustomApiMutationOptions {
     path: string;
     method: Method;
     data: any;
+    directApi?: boolean; // If true, use path directly without Config.baseApi prefix
     showAutoSuccess?: boolean; // Default: true - Otomatik success notification gösterilsin mi
     suppressSuccess?: boolean; // Success notification'ı tamamen bastır (showAutoSuccess: false ile aynı)
     customSuccessMessage?: string; // Özel success mesajı
@@ -373,6 +376,7 @@ export interface UserDetail {
     base_group: any;
     exp: any;
     role: any;
+    auth_type?: string;
 }
 
 /* eslint-disable no-unused-vars */

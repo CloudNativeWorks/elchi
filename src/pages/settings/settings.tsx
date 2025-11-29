@@ -42,7 +42,7 @@ const Settings: React.FC = () => {
             ),
             children: <General />
         },
-        {
+        ...(!window.APP_CONFIG?.ENABLE_DEMO ? [{
             key: 'users',
             label: (
                 <span className="tabLabel">
@@ -51,7 +51,7 @@ const Settings: React.FC = () => {
                 </span>
             ),
             children: <Users />
-        },
+        }] : []),
         {
             key: 'groups',
             label: (

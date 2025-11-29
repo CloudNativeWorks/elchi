@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Select, Switch, Card, Typography, Space, Row, Col, Tag, Table, Alert } from 'antd';
-import { UserOutlined, MailOutlined, KeyOutlined, TeamOutlined, ProjectOutlined, SettingOutlined, ArrowLeftOutlined, CloseOutlined, SaveOutlined, PlusOutlined, SafetyOutlined } from '@ant-design/icons';
+import { Form, Input, Select, Switch, Card, Typography, Space, Row, Col, Tag, Table, Alert, Modal, message } from 'antd';
+import { UserOutlined, MailOutlined, KeyOutlined, TeamOutlined, ProjectOutlined, SettingOutlined, ArrowLeftOutlined, CloseOutlined, SaveOutlined, PlusOutlined, SafetyOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { useCustomGetQuery } from '@/common/api';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useCustomApiMutation } from '@/common/custom-api';
@@ -8,6 +8,7 @@ import Permissions from './permissions';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import useAuth from '@/hooks/useUserDetails';
 import ElchiButton from '@/elchi/components/common/ElchiButton';
+import { useOTPAdmin } from '@/hooks/useOTPAdmin';
 
 const { Title, Text } = Typography;
 
@@ -38,8 +39,48 @@ const User: React.FC = () => {
     const { project } = useProjectVariable();
     const userDetail = useAuth();
 
+    // OTP Admin functionality
+    const { resetUserOTP, isLoading: otpResetLoading } = useOTPAdmin(project || '');
+    const isOwner = userDetail?.role === 'owner';
+
     const handlePermissionsChange = (newPermissions: any) => {
         setPermissions(newPermissions);
+    };
+
+    const handleResetOTP = () => {
+        Modal.confirm({
+            title: 'Reset User 2FA?',
+            icon: <ExclamationCircleOutlined style={{ color: '#ff4d4f' }} />,
+            content: (
+                <div>
+                    <p>This will reset the 2FA configuration for user <strong>{dataUser?.username}</strong>.</p>
+                    <p><strong>Consequences:</strong></p>
+                    <ul style={{ marginLeft: 20, marginTop: 8 }}>
+                        <li>User's authenticator app will stop working</li>
+                        <li>All backup codes will be invalidated</li>
+                        <li>User must set up 2FA again on next login (if enforced)</li>
+                    </ul>
+                    <p style={{ marginTop: 12, color: '#8c8c8c' }}>
+                        Use this only in emergency situations (e.g., user lost access to authenticator).
+                    </p>
+                </div>
+            ),
+            okText: 'Reset 2FA',
+            okType: 'danger',
+            cancelText: 'Cancel',
+            centered: true,
+            async onOk() {
+                try {
+                    await resetUserOTP(user_id!);
+                    message.success('User 2FA has been reset successfully');
+                    // Refetch user data to update UI
+                    window.location.reload();
+                } catch (error: any) {
+                    const errorMessage = error.response?.data?.message || error.response?.data?.error || 'Failed to reset 2FA';
+                    message.error(errorMessage);
+                }
+            }
+        });
     };
 
     const isCreatePage = location.pathname === `/settings/create/user`;
@@ -415,6 +456,54 @@ const User: React.FC = () => {
                                 </Form.Item>
                             </Col>
                         </Row>
+
+                        {/* OTP Reset Section - Only for Owner role and when user has OTP enabled */}
+                        {!isCreatePage && isOwner && dataUser?.otp_enabled && (
+                            <div style={{
+                                marginTop: 24,
+                                padding: 16,
+                                background: '#fff7e6',
+                                border: '1px solid #ffd591',
+                                borderRadius: 8
+                            }}>
+                                <Space direction="vertical" size={8} style={{ width: '100%' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                        <SafetyOutlined style={{ color: '#fa8c16', fontSize: 16 }} />
+                                        <Text strong style={{ fontSize: 14 }}>Two-Factor Authentication Status</Text>
+                                    </div>
+                                    <div style={{ marginLeft: 24 }}>
+                                        <Space direction="vertical" size={4}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                <span style={{ color: '#52c41a', fontSize: 16 }}>●</span>
+                                                <Text style={{ fontSize: 13 }}>2FA is enabled for this user</Text>
+                                            </div>
+                                            {dataUser?.otp_verified && (
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                                    <span style={{ color: '#52c41a', fontSize: 16 }}>●</span>
+                                                    <Text style={{ fontSize: 13 }}>Authenticator verified</Text>
+                                                </div>
+                                            )}
+                                        </Space>
+                                    </div>
+                                    <div style={{ marginTop: 8, marginLeft: 24 }}>
+                                        <ElchiButton
+                                            type="default"
+                                            danger
+                                            icon={<ExclamationCircleOutlined />}
+                                            onClick={handleResetOTP}
+                                            loading={otpResetLoading}
+                                            size="middle"
+                                            onlyText
+                                        >
+                                            Reset 2FA (Emergency)
+                                        </ElchiButton>
+                                        <Text type="secondary" style={{ fontSize: 12, marginLeft: 12 }}>
+                                            Use only when user has lost access to authenticator
+                                        </Text>
+                                    </div>
+                                </Space>
+                            </div>
+                        )}
                     </div>
                     {/* Role & Permissions Section */}
                     <div style={{ marginBottom: 32 }}>

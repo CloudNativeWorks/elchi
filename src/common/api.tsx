@@ -91,17 +91,25 @@ api.interceptors.response.use(
         }
 
         // Handle auth errors based on status code and error type
-        if (error.response?.status === 401 || error.response?.status === 403) {
+        // Don't redirect for profile/OTP/login endpoints - let components handle these errors
+        const url = error.config?.url || '';
+        const isProfileEndpoint = url.includes('/profile') || url.includes('/otp');
+        const isLoginEndpoint = url.includes('/auth/login');
+        const isSpecialEndpoint = isProfileEndpoint || isLoginEndpoint;
+
+        if ((error.response?.status === 401 || error.response?.status === 403) && !isSpecialEndpoint) {
             // 401 without TOKEN_EXPIRED or 403 = redirect to login
             window.location.hash = '#/403';
-        } else if (error.response?.status === 422 && error.response?.data?.error_type?.startsWith('TOKEN_')) {
+        } else if (error.response?.status === 422 && error.response?.data?.error_type?.startsWith('TOKEN_') && !isSpecialEndpoint) {
             // 422 TOKEN_INVALID or TOKEN_ERROR = redirect to login (don't refresh)
             window.location.hash = '#/403';
-        } else if (!isAuthError(error)) {
-            // Check if this is a template check request - don't show error notifications for these
+        } else if (!isAuthError(error) || isProfileEndpoint) {
+            // Show error notifications for:
+            // 1. Non-auth errors (all endpoints)
+            // 2. Auth errors for profile/OTP endpoints (so users see "wrong password" etc.)
+            // 3. BUT NOT for login endpoint (login page handles OTP logic itself)
             const isTemplateCheck = error.config?.url?.includes('/templates/check/');
-            if (!isTemplateCheck) {
-                // Show error notification for all non-auth errors except template checks
+            if (!isTemplateCheck && !isLoginEndpoint) {
                 showErrorNotification(error);
                 
                 // Trigger error summary refresh on API errors (but not too frequently)
@@ -232,11 +240,16 @@ export const useDeleteMutation = () => {
 
 export const useAuthMutation = (path: string) => {
     const mutationFn = async (options: AuthMutationOptions) => {
-        const { username, password } = options;
-        const data = {
+        const { username, password, otp_code, backup_code } = options;
+        const data: any = {
             username,
             password
         };
+
+        // Add OTP fields if provided
+        if (otp_code) data.otp_code = otp_code;
+        if (backup_code) data.backup_code = backup_code;
+
         const response = await api.post(path, data);
         return response;
     }

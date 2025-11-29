@@ -27,6 +27,14 @@ function Header({ userDetail }: Readonly<HeaderProps>) {
 
 	const userMenuItems = [
 		{
+			key: 'profile',
+			label: 'My Profile',
+			onClick: () => navigate('/profile'),
+		},
+		{
+			type: 'divider' as const,
+		},
+		{
 			key: 'logout',
 			label: 'Log out',
 			onClick: logout,

@@ -382,7 +382,6 @@
 .ag-courses_box {
     display: flex;
     align-items: flex-start;
-    flex-wrap: wrap;
     width: 100%;
     margin: 4px 0;
 }
@@ -390,34 +389,30 @@
 .ag-courses_item {
     width: 100%;
     position: relative;
-    border-radius: 12px;
-    background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
-    box-shadow: 
-        0 1px 4px rgba(0, 0, 0, 0.04),
-        0 1px 2px rgba(0, 0, 0, 0.02);
+    border-radius: 10px;
+    background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.04),
+        0 1px 3px rgba(0, 0, 0, 0.02);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow: hidden;
-    border-top: 1px solid rgba(226, 232, 240, 0.6);
-    border-bottom: 1px solid rgba(226, 232, 240, 0.6);
-    border-left: none;
-    border-right: none;
+    overflow: visible;
+    border: 1px solid #e8edf2;
 }
 
 .ag-courses_item:hover {
-    transform: translateY(-1px);
-    box-shadow: 
-        0 4px 12px rgba(0, 0, 0, 0.06),
+    box-shadow:
+        0 4px 16px rgba(5, 108, 205, 0.12),
         0 2px 6px rgba(0, 0, 0, 0.04);
     border-color: rgba(5, 108, 205, 0.2);
 }
 
 .ag-courses-item_link {
     display: block;
-    padding: 4px;
+    padding: 0;
     background: transparent;
     position: relative;
-    border-radius: 28px;
-    overflow: hidden;
+    border-radius: 10px;
+    overflow: visible;
 }
 
 .ag-courses-item_link:hover {
@@ -425,41 +420,37 @@
 }
 
 .ag-courses-item_link:hover .ag-courses-item_bg {
-    opacity: 0.6;
-    transform: scale(1.2) rotate(3deg);
+    opacity: 0.3;
+    transform: scale(1.1);
 }
 
 .ag-courses-item_bg {
     position: absolute;
-    top: -30%;
-    right: -30%;
-    width: 160%;
-    height: 160%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background: linear-gradient(
-        135deg, 
-        rgba(5, 108, 205, 0.05) 0%, 
-        rgba(0, 198, 251, 0.08) 50%, 
-        rgba(99, 102, 241, 0.05) 100%
+        135deg,
+        rgba(5, 108, 205, 0.03) 0%,
+        rgba(0, 198, 251, 0.03) 100%
     );
-    border-radius: 50%;
+    border-radius: 10px;
     opacity: 0;
-    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 0;
+    pointer-events: none;
 }
 
 .grid-container {
     display: grid;
     grid-template-columns: 1fr auto;
     align-items: center;
-    gap: 1px;
-    padding: 1px 1px;
+    gap: 8px;
+    padding: 8px 10px;
     position: relative;
     z-index: 2;
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 12px;
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    margin: 2px;
+    background: transparent;
 }
 
 .tags-container {
@@ -467,40 +458,43 @@
     flex-wrap: wrap;
     gap: 4px;
     align-items: center;
-    padding: 1px 0;
-    min-height: 36px;
+    min-height: 28px;
 }
 
 .info-button {
-    padding: 6px;
-    border-radius: 10px;
-    transition: all 0.2s ease;
-    background: rgba(248, 250, 252, 0.8);
-    border: 1px solid rgba(226, 232, 240, 0.5);
-}
-
-.info-button:hover {
-    background: rgba(5, 108, 205, 0.08);
-    border-color: rgba(5, 108, 205, 0.2);
-    transform: scale(1.05);
-}
-
-.info-button .ant-btn {
+    padding: 0;
+    border-radius: 8px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    background: transparent;
     border: none;
-    box-shadow: none;
-    color: #64748b;
-    transition: all 0.2s ease;
-    width: 18px;
-    height: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
+.info-button:hover {
+    background: rgba(5, 108, 205, 0.1);
+    transform: scale(1.1);
+}
+
+.info-button .ant-btn {
+    border: none;
+    box-shadow: none;
+    color: #94a3b8;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    background: transparent;
+}
+
 .info-button .ant-btn:hover {
     color: #056ccd;
-    background: transparent;
-    transform: rotate(12deg);
+    background: rgba(5, 108, 205, 0.08);
+    transform: rotate(15deg);
 }
 
 .ant-anchor-link {
@@ -509,25 +503,55 @@
 
 .tags-container .ant-tag,
 .tags-container .ant-badge-status {
-    height: 26px !important;
-    line-height: 26px !important;
+    height: 30px !important;
+    line-height: 30px !important;
     display: flex;
     align-items: center;
+}
+
+.tags-container .ant-tag-checkable {
+    border-radius: 6px !important;
+    padding: 3px 10px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    border: 1.5px solid #e2e8f0 !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    background: #ffffff !important;
+    color: #475569 !important;
+}
+
+.tags-container .ant-tag-checkable:hover {
+    border-color: #056ccd !important;
+    color: #056ccd !important;
+    background: rgba(5, 108, 205, 0.06) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 2px 8px rgba(5, 108, 205, 0.12) !important;
+}
+
+.tags-container .ant-tag-checkable-checked {
+    background: linear-gradient(135deg, #0a7fda 0%, #1fb5e8 50%, #0a7fda 100%) !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+    font-weight: 600 !important;
+    box-shadow: 0 2px 12px rgba(5, 108, 205, 0.25) !important;
+}
+
+.tags-container .ant-tag-checkable-checked:hover {
+    background: linear-gradient(135deg, #0869b8 0%, #1a9dd1 50%, #0869b8 100%) !important;
+    color: #ffffff !important;
+    transform: translateY(-1px) scale(1.02) !important;
+    box-shadow: 0 4px 16px rgba(5, 108, 205, 0.35) !important;
 }
 
 .ant-tag {
-    font-family: system-ui;
-    min-height: 26px !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+    min-height: 30px !important;
     display: flex;
     align-items: center;
-    margin-bottom: 2px !important;
+    margin-bottom: 0 !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
-    transition: all 0.2s;
-}
-
-.ant-tag:hover {
-    color: linear-gradient(90deg, #056ccd 0%, #00c6fb 100%) !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
