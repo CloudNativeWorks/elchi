@@ -430,11 +430,9 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(
-        135deg,
-        rgba(5, 108, 205, 0.03) 0%,
-        rgba(0, 198, 251, 0.03) 100%
-    );
+    background: linear-gradient(135deg,
+            rgba(5, 108, 205, 0.03) 0%,
+            rgba(0, 198, 251, 0.03) 100%);
     border-radius: 10px;
     opacity: 0;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -555,3 +553,94 @@
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+// CustomAnchor - Modern Vertical Tag Styles (based on HorizonTags)
+.ant-anchor::before,
+.ant-anchor .ant-anchor-ink {
+    left: 0 !important;
+}
+
+.ant-anchor .ant-anchor-link {
+    padding: 2px 0 !important;
+    padding-left: 5px !important;
+}
+
+.ant-anchor .ant-tag-checkable {
+    border-radius: 6px !important;
+    padding: 3px 10px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    border: 1.5px solid #e2e8f0 !important;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    background: #ffffff !important;
+    color: #475569 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    max-width: 100%;
+    margin: 2px 0 !important;
+}
+
+.ant-anchor .ant-tag-checkable:hover {
+    border-color: #056ccd !important;
+    color: #056ccd !important;
+    background: rgba(5, 108, 205, 0.06) !important;
+    box-shadow: 0 2px 8px rgba(5, 108, 205, 0.12) !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    max-width: none !important;
+    z-index: 5 !important;
+    position: relative !important;
+    margin: 2px 0 !important;
+}
+
+.ant-anchor .elipsis-tag-badge {
+    width: 100% !important;
+    display: block !important;
+}
+
+.ant-anchor .ant-badge {
+    position: relative !important;
+    z-index: 20 !important;
+    display: block !important;
+    width: 100% !important;
+}
+
+.ant-anchor .ant-badge>.ant-tag-checkable {
+    width: 100% !important;
+}
+
+.ant-anchor .ant-badge-status-dot,
+.ant-anchor .ant-badge sup {
+    z-index: 25 !important;
+    position: absolute !important;
+}
+
+.ant-anchor .ant-tag-checkable-checked {
+    background: linear-gradient(135deg, #0a7fda 0%, #1fb5e8 50%, #0a7fda 100%) !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+    font-weight: 600 !important;
+    box-shadow: 0 2px 12px rgba(5, 108, 205, 0.25) !important;
+}
+
+.ant-anchor .ant-tag-checkable-checked:hover {
+    background: linear-gradient(135deg, #0869b8 0%, #1a9dd1 50%, #0869b8 100%) !important;
+    color: #ffffff !important;
+    transform: translateY(-1px) scale(1.02) !important;
+    box-shadow: 0 4px 16px rgba(5, 108, 205, 0.35) !important;
+}
+
+.ant-anchor .unchangeable-tag {
+    cursor: not-allowed !important;
+    background-color: #4a4a4a !important;
+    color: #ffffff !important;
+}
+
+.ant-anchor .unchangeable-tag:hover {
+    cursor: not-allowed !important;
+    background-color: #4a4a4a !important;
+    color: #ffffff !important;
+    border-color: #4a4a4a !important;
+    transform: none !important;
+}

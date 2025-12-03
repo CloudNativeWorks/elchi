@@ -36,8 +36,6 @@ export const modtag_us_tcpproxy: TagsType = {
     'TcpProxy': [
         'on_demand',
         'metadata_match',
-        'access_log_flush_interval',
-        'backoff_options',
         'proxy_protocol_tlvs',
         'downstream_idle_timeout', // deprecated
         'upstream_idle_timeout', // deprecated

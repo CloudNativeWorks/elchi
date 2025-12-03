@@ -67,7 +67,55 @@ const Resources: React.FC = () => {
             'extensions': 'Proxy extensions including access loggers, tracing, and custom processors.',
             'secret': 'TLS certificates, private keys, and other sensitive configuration data.',
             'tls': 'TLS context configurations for secure connections and certificate management.',
-            'bootstrap': 'Core Proxy bootstrap configurations including admin interface and basic settings.'
+            'bootstrap': 'Core Proxy bootstrap configurations including admin interface and basic settings.',
+            'access_log': 'Access logging configurations for tracking request/response patterns and debugging.',
+            'stat_sinks': 'Statistics sinks for exporting metrics to external monitoring systems.',
+            'hcefs': 'Health check event file sink for logging health check status changes.',
+            'cors': 'Cross-Origin Resource Sharing (CORS) policies for web browser security.',
+            'grpc_web': 'gRPC-Web filter enabling gRPC services to be called from web browsers.',
+            'grpc_http1_bridge': 'gRPC HTTP/1.1 bridge for gRPC compatibility with HTTP/1.1 clients.',
+            'header_mutation': 'HTTP header manipulation for request and response header modifications.',
+            'header_mutation_per_route': 'Per-route header mutation overrides for specific routing rules.',
+            'bandwidth_limit': 'Bandwidth limiting filter for controlling data transfer rates.',
+            'compressor': 'Response compression filter supporting gzip, brotli, and other algorithms.',
+            'compressor_library': 'Compression library configurations for response compression algorithms.',
+            'original_ip_detection': 'Original client IP detection from X-Forwarded-For or custom headers.',
+            'http_protocol_options': 'HTTP protocol options for upstream connections and behaviors.',
+            'lua': 'Lua scripting filter for custom request/response processing logic.',
+            'lua_per_route': 'Per-route Lua script overrides for specific routing rules.',
+            'buffer': 'Request buffering filter for buffering request bodies before processing.',
+            'buffer_per_route': 'Per-route buffer configuration overrides for specific routing rules.',
+            'original_src': 'Original source address preservation for maintaining client IP addresses.',
+            'adaptive_concurrency': 'Adaptive concurrency control for automatic load management.',
+            'utm': 'URI template matching for advanced path matching patterns.',
+            'admission_control': 'Admission control filter for request throttling and rate limiting.',
+            'stateful_session': 'Stateful session management for maintaining user session state.',
+            'stateful_session_per_route': 'Per-route stateful session overrides for specific routing rules.',
+            'session_state': 'Session state storage configurations for cookie or header-based sessions.',
+            'csrf_policy': 'Cross-Site Request Forgery (CSRF) protection policies.',
+            'l_local_ratelimit': 'Listener-level local rate limiting for connection throttling.',
+            'l_http_inspector': 'HTTP inspector listener filter for protocol detection.',
+            'l_original_dst': 'Original destination listener filter for transparent proxying.',
+            'l_original_src': 'Original source listener filter for preserving client addresses.',
+            'l_tls_inspector': 'TLS inspector listener filter for SNI and ALPN detection.',
+            'l_dns_filter': 'DNS filter for DNS request/response processing at listener level.',
+            'l_udp_proxy': 'UDP proxy listener filter for UDP traffic handling.',
+            'l_proxy_protocol': 'Proxy Protocol listener filter for HAProxy compatibility.',
+            'connection_limit': 'Connection limiting filter for controlling concurrent connections.',
+            'n_local_ratelimit': 'Network-level local rate limiting for TCP connection throttling.',
+            'h_local_ratelimit': 'HTTP-level local rate limiting for request throttling.',
+            'oauth2': 'OAuth 2.0 authentication filter for token-based authentication.',
+            'open_telemetry': 'OpenTelemetry integration for distributed tracing and observability.',
+            'http_wasm': 'WebAssembly (WASM) filter for custom HTTP processing with WASM modules.',
+            'http_ext_proc': 'External processing filter for delegating request processing to external services.',
+            'http_ext_proc_per_route': 'Per-route external processing overrides for specific routing rules.',
+            'http_ext_authz': 'External authorization filter for delegating auth decisions to external services.',
+            'http_ext_authz_per_route': 'Per-route external authorization overrides for specific routing rules.',
+            'http_jwt_authn': 'JWT authentication filter for validating JSON Web Tokens.',
+            'http_jwt_authn_per_route': 'Per-route JWT authentication overrides for specific routing rules.',
+            'http_dynamic_forward_proxy': 'Dynamic forward proxy for on-demand DNS resolution and connection pooling.',
+            'http_dynamic_forward_proxy_per_route': 'Per-route dynamic forward proxy overrides for specific routing rules.',
+            'cluster_dynamic_forward_proxy': 'Cluster dynamic forward proxy for dynamic upstream resolution.'
         };
         return descriptions[resource] || `${resourceStatic?.prettyName || resource} configuration resources for your Proxy.`;
     };
@@ -97,7 +145,7 @@ const Resources: React.FC = () => {
                     <Space>
                         {getResourceIcon()}
                         <Title level={4} style={{ margin: 0 }}>
-                            {resourceStatic?.prettyName || resource?.charAt(0).toUpperCase() + resource?.slice(1)}
+                            {resourceStatic?.groupPrettyName}
                         </Title>
                     </Space>
                     <Space>
@@ -113,16 +161,16 @@ const Resources: React.FC = () => {
                         )}
                     </Space>
                 </div>
-                
+
                 <Text type="secondary">
                     {getResourceDescription()}
                 </Text>
             </div>
 
             {/* Filter Bar */}
-            <Card 
-                size="small" 
-                style={{ 
+            <Card
+                size="small"
+                style={{
                     marginBottom: 16,
                     borderRadius: 12,
                     boxShadow: '0 2px 8px rgba(5,117,230,0.06)'
@@ -155,10 +203,10 @@ const Resources: React.FC = () => {
                     <Col span={10}>
                         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                             <Space>
-                                <Button 
+                                <Button
                                     icon={<SearchOutlined />}
                                     onClick={applyFilters}
-                                    style={{ 
+                                    style={{
                                         borderRadius: 6,
                                         background: 'white',
                                         border: '1px solid #d9d9d9',
@@ -178,7 +226,7 @@ const Resources: React.FC = () => {
                                     Search
                                 </Button>
                                 {(Object.keys(tempFilters).length > 0 || Object.keys(filters).length > 0) && (
-                                    <Button 
+                                    <Button
                                         icon={<ClearOutlined />}
                                         onClick={clearFilters}
                                         style={{ borderRadius: 6 }}

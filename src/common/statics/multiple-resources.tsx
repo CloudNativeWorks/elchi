@@ -117,6 +117,14 @@ export const multipleResource: Record<string, { name: string, defaultValue: stri
             { value: "envoy.extensions.filters.http.dynamic_forward_proxy.v3.PerRouteConfig", label: "Dynamic Forward Proxy Per Route" },
         ]
     },
+    "filters/http/header-mutation/HeaderMutations": {
+        name: "Header Mutation",
+        defaultValue: "envoy.extensions.filters.http.header_mutation.v3.HeaderMutation",
+        options: [
+            { value: "envoy.extensions.filters.http.header_mutation.v3.HeaderMutation", label: "Header Mutation" },
+            { value: "envoy.extensions.filters.http.header_mutation.v3.HeaderMutationPerRoute", label: "Header Mutation Per Route" },
+        ]
+    },
     "extension/session-state/SessionState": {
         name: "Stateful Session State",
         defaultValue: "envoy.extensions.http.stateful_session.header.v3.HeaderBasedSessionState",
@@ -140,6 +148,40 @@ export const multipleResource: Record<string, { name: string, defaultValue: stri
         defaultValue: "envoy.extensions.stat_sinks.open_telemetry.v3.SinkConfig",
         options: [
             { value: "envoy.extensions.stat_sinks.open_telemetry.v3.SinkConfig", label: "Open Telemetry" },
+        ]
+    },
+    "extension/original-ip-detection/OriginalIPDetection": {
+        name: "Original IP Detection",
+        defaultValue: "envoy.extensions.http.original_ip_detection.custom_header.v3.CustomHeaderConfig",
+        options: [
+            { value: "envoy.extensions.http.original_ip_detection.custom_header.v3.CustomHeaderConfig", label: "Custom Header" },
+            { value: "envoy.extensions.http.original_ip_detection.xff.v3.XffConfig", label: "XFF" },
+        ]
+    },
+    "extension/internal-redirect-predicates/InternalRedirectPredicates": {
+        name: "Internal Redirect Predicates",
+        defaultValue: "envoy.extensions.internal_redirect.allow_listed_routes.v3.AllowListedRoutesConfig",
+        options: [
+            { value: "envoy.extensions.internal_redirect.allow_listed_routes.v3.AllowListedRoutesConfig", label: "Allow Listed Routes" },
+            { value: "envoy.extensions.internal_redirect.previous_routes.v3.PreviousRoutesConfig", label: "Previous Routes" },
+            { value: "envoy.extensions.internal_redirect.safe_cross_scheme.v3.SafeCrossSchemeConfig", label: "Safe Cross Scheme" },
+        ]
+    },
+    "extension/resource-monitor/ResourceMonitor": {
+        name: "Resource Monitor",
+        defaultValue: "envoy.extensions.resource_monitors.fixed_heap.v3.FixedHeapConfig",
+        options: [
+            { value: "envoy.extensions.resource_monitors.fixed_heap.v3.FixedHeapConfig", label: "Fixed Heap" },
+            { value: "envoy.extensions.resource_monitors.cgroup_memory.v3.CgroupMemoryConfig", label: "Cgroup Memory" },
+            { value: "envoy.extensions.resource_monitors.cpu_utilization.v3.CpuUtilizationConfig", label: "CPU Utilization" },
+            { value: "envoy.extensions.resource_monitors.downstream_connections.v3.DownstreamConnectionsConfig", label: "Downstream Connections" },
+        ]
+    },
+    "extension/path-rewrite/PathRewritePolicy": {
+        name: "Path Rewrite Policy",
+        defaultValue: "envoy.extensions.path.rewrite.uri_template.v3.UriTemplateRewriteConfig",
+        options: [
+            { value: "envoy.extensions.path.rewrite.uri_template.v3.UriTemplateRewriteConfig", label: "URI Template Rewriter" },
         ]
     },
 };

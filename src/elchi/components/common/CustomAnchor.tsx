@@ -143,11 +143,11 @@ const CustomAnchor = ({
                         });
 
                         let cardElement = targetElement.closest('.ant-card') as HTMLElement;
-                        
+
                         if (!cardElement) {
                             cardElement = targetElement.querySelector('.ant-card') as HTMLElement;
                         }
-                        
+
                         if (!cardElement) {
                             let parent = targetElement.parentElement;
                             while (parent && !parent.classList.contains('ant-card')) {
@@ -155,13 +155,13 @@ const CustomAnchor = ({
                             }
                             cardElement = parent as HTMLElement;
                         }
-                        
+
                         if (cardElement) {
                             cardElement.style.transition = 'all 0.2s ease';
                             cardElement.style.boxShadow = '0 8px 24px rgba(24, 144, 255, 0.3)';
                             cardElement.style.transform = 'scale(1.02)';
                             cardElement.style.zIndex = '999';
-                            
+
                             setTimeout(() => {
                                 cardElement.style.boxShadow = '';
                                 cardElement.style.transform = '';
@@ -172,7 +172,7 @@ const CustomAnchor = ({
                             targetElement.style.boxShadow = '0 8px 24px rgba(24, 144, 255, 0.3)';
                             targetElement.style.transform = 'scale(1.02)';
                             targetElement.style.zIndex = '999';
-                            
+
                             setTimeout(() => {
                                 targetElement.style.boxShadow = '';
                                 targetElement.style.transform = '';
@@ -187,13 +187,13 @@ const CustomAnchor = ({
                                 behavior: 'smooth',
                                 block: 'center'
                             });
-                            
+
                             let cardElement = firstElement.closest('.ant-card') as HTMLElement;
-                            
+
                             if (!cardElement) {
                                 cardElement = firstElement.querySelector('.ant-card') as HTMLElement;
                             }
-                            
+
                             if (!cardElement) {
                                 let parent = firstElement.parentElement;
                                 while (parent && !parent.classList.contains('ant-card')) {
@@ -201,13 +201,13 @@ const CustomAnchor = ({
                                 }
                                 cardElement = parent as HTMLElement;
                             }
-                            
+
                             if (cardElement) {
                                 cardElement.style.transition = 'all 0.2s ease';
                                 cardElement.style.boxShadow = '0 8px 24px rgba(24, 144, 255, 0.3)';
                                 cardElement.style.transform = 'scale(1.02)';
                                 cardElement.style.zIndex = '999';
-                                
+
                                 setTimeout(() => {
                                     cardElement.style.boxShadow = '';
                                     cardElement.style.transform = '';
@@ -218,7 +218,7 @@ const CustomAnchor = ({
                                 firstElement.style.boxShadow = '0 8px 24px rgba(24, 144, 255, 0.3)';
                                 firstElement.style.transform = 'scale(1.02)';
                                 firstElement.style.zIndex = '999';
-                                
+
                                 setTimeout(() => {
                                     firstElement.style.boxShadow = '';
                                     firstElement.style.transform = '';
@@ -288,7 +288,7 @@ const CustomAnchor = ({
                                 color="linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)"
                                 dot
                                 className='elipsis-tag-badge'
-                                offset={[-6, 3]}
+                                offset={[-3, 4]}
                                 key={tag + index?.toString()}
                             >
                                 <TagComponent
