@@ -1,0 +1,92 @@
+/**
+ * Quick Metrics Widget Styles
+ */
+
+@import '../../styles/variables.scss';
+
+.quickMetrics {
+  width: 100%;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $space-md;
+
+  @include respond-to('lg') {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include respond-to('sm') {
+    grid-template-columns: 1fr;
+  }
+}
+
+.metricCard {
+  background: $bg-surface;
+  border-radius: $radius-lg;
+  padding: $space-md;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-top: 3px solid $color-primary;
+  transition: all 300ms ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  margin-bottom: $space-sm;
+}
+
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: $radius-md;
+  font-size: 16px;
+}
+
+.title {
+  font-size: $font-size-caption;
+  font-weight: $font-weight-medium;
+  color: $text-secondary;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.value {
+  font-size: 28px;
+  font-weight: $font-weight-bold;
+  color: $text-primary;
+  line-height: 1.2;
+  margin-bottom: $space-xs;
+}
+
+.sparkline {
+  width: 100%;
+  height: 40px;
+  margin-top: $space-sm;
+}
+
+.skeleton {
+  background: $bg-surface;
+  border-radius: $radius-lg;
+  height: 120px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}

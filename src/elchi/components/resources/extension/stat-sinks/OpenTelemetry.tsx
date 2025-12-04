@@ -10,7 +10,7 @@ import useResourceMain from "@/hooks/useResourceMain";
 import CustomAnchor from "@/elchi/components/common/CustomAnchor";
 import { useModels } from "@/hooks/useModels";
 import { useTags } from "@/hooks/useTags";
-import { modtag_opentelemetry } from "./_modtag_";
+import { modtag_opentelemetry, modtag_us_stats_sink } from "./_modtag_";
 import RenderLoading from "@/elchi/components/common/Loading";
 import { useLoading } from "@/hooks/loadingContext";
 import { useManagedLoading } from "@/hooks/useManageLoading";
@@ -80,6 +80,7 @@ const OpenTelemetryComponent: React.FC<GeneralProps> = ({ veri }) => {
                 <Col md={4} style={{ display: "block", maxHeight: "auto", overflowY: "auto" }}>
                     <CustomAnchor
                         resourceConfKeys={vTags.otel?.SinkConfig}
+                        hiddenTags={modtag_us_stats_sink["open_telemetry"]}
                         selectedTags={selectedTags}
                         index={0}
                         handleChangeTag={handleChangeTag}
