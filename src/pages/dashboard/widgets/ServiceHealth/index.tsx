@@ -45,24 +45,27 @@ export const ServiceHealth: React.FC<ServiceHealthProps> = ({ loading: externalL
       size="medium"
       loading={isLoading}
       onRefresh={refresh}
+      className={styles.serviceHealthWidget}
     >
-      <div className={styles.serviceHealth}>
-        {services.length === 0 && !isLoading ? (
-          <div className={styles.emptyState}>
-            <CloudServerOutlined style={{ fontSize: 48, opacity: 0.3 }} />
-            <p>No services found</p>
-          </div>
-        ) : (
-          <div className={styles.serviceGrid}>
-            {services.map((service) => (
-              <ServiceCard
-                key={service.id}
-                service={service}
-                onClick={() => handleServiceClick(service.id)}
-              />
-            ))}
-          </div>
-        )}
+      <div className={styles.serviceHealthWrapper}>
+        <div className={styles.serviceHealth}>
+          {services.length === 0 && !isLoading ? (
+            <div className={styles.emptyState}>
+              <CloudServerOutlined style={{ fontSize: 48, opacity: 0.3 }} />
+              <p>No services found</p>
+            </div>
+          ) : (
+            <div className={styles.serviceGrid}>
+              {services.map((service) => (
+                <ServiceCard
+                  key={service.id}
+                  service={service}
+                  onClick={() => handleServiceClick(service.id)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </BaseWidget>
   );
