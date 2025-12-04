@@ -7,12 +7,11 @@ import { DateTimeTool } from "../../../utils/date-time-tool"
 import { useNavigate } from "react-router-dom";
 import { ActionsSVG } from '@/assets/svg/icons';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
-import { dependenciesType } from './dataTable';
 import { getFieldsByGType } from '@/common/statics/gtypes';
 import { getGTypeFields } from '@/hooks/useGtypes';
 import useDeleteResource from './DeleteResource';
 import React, { useEffect, useState, useMemo } from 'react';
-import DependenciesModal from "@/elchi/components/common/dependency";
+// Dependency graph is now a separate page, not a modal
 import { getLastDotPart } from '@/utils/tools';
 import { getVersionAntdColor } from '@/utils/versionColors';
 
@@ -47,7 +46,7 @@ const CustomListenerDataTable: React.FC<CustomListenerDataTableProps> = ({ path,
     const { project } = useProjectVariable();
     const [updateData, setUpdateData] = useState(1);
     const [queryKey, setQueryKey] = useState(`listResources-${path}`);
-    const [isModalVisible, setIsModalVisible] = useState<dependenciesType>({ name: '', collection: '', gtype: '', version: '', visible: false });
+    // Removed dependency modal state - now uses navigation
     const deleteResource = useDeleteResource(deleteMutate);
     const [deleteModal, setDeleteModal] = useState<{ visible: boolean; record: DataType | null }>({ visible: false, record: null });
     const [currentPage, setCurrentPage] = useState(1);
@@ -89,12 +88,7 @@ const CustomListenerDataTable: React.FC<CustomListenerDataTableProps> = ({ path,
         { key: '6', label: 'Delete', danger: true, icon: <DeleteOutlined /> },
     ];
 
-    const hideModal = () => {
-        setIsModalVisible((prevState) => ({
-            ...prevState,
-            visible: false,
-        }));
-    };
+    // hideModal function removed - dependency now uses navigation instead of modal
 
     const hideDeleteModal = () => {
         setDeleteModal({ visible: false, record: null });
@@ -122,13 +116,7 @@ const CustomListenerDataTable: React.FC<CustomListenerDataTableProps> = ({ path,
 
     const onClick = (record: DataType, key: string) => {
         if (key === "1") {
-            setIsModalVisible({
-                name: record?.name,
-                collection: record?.collection,
-                gtype: record?.gtype,
-                version: record?.version,
-                visible: true,
-            });
+            navigate(`/dependency/${encodeURIComponent(record?.name)}?collection=${record?.collection}&gtype=${record?.gtype}&version=${record?.version}`);
         }
         else if (key === "5") {
             navigate(`/snapshot_dump/${record.name}?version=${record.version}`);
@@ -398,14 +386,7 @@ const CustomListenerDataTable: React.FC<CustomListenerDataTableProps> = ({ path,
                 />
             </div>
         </div>
-        <DependenciesModal
-            visible={isModalVisible.visible}
-            onClose={hideModal}
-            name={isModalVisible.name}
-            collection={isModalVisible.collection}
-            gtype={isModalVisible.gtype}
-            version={isModalVisible.version}
-        />
+        {/* DependenciesModal removed - now uses separate page via navigation */}
         <Modal
             title={
                 <span>

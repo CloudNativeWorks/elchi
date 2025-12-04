@@ -40,6 +40,8 @@ import Search from './pages/Search';
 import WafList from './pages/waf/WafList';
 import WafDetail from './pages/waf/WafDetail';
 import Profile from './pages/profile/Profile';
+import DependencyGraphPage from './pages/DependencyGraphPage';
+import RouteMapPage from './pages/RouteMapPage';
 
 
 const AppRoutes: React.FC = () => (
@@ -128,6 +130,12 @@ const AppRoutes: React.FC = () => (
                 {/* WAF Routes */}
                 <Route path="/waf" element={<WafList />} />
                 <Route path="/waf/:id" element={<WafDetail />} />
+
+                {/* Dependency Graph Route */}
+                <Route path="/dependency/:name" element={<DependencyGraphPage />} />
+
+                {/* Route Map Route */}
+                <Route path="/routemap/:name" element={<RouteMapPage />} />
 
                 {/* Catch-All Route */}
                 <Route path="*" element={<Dashboard />} />

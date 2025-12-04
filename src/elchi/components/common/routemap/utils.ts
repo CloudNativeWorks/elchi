@@ -2,9 +2,9 @@ import { Edge } from '@xyflow/react';
 import {
     ApiNode,
     ApiEdge,
-    DependencyApiResponse,
-    ResourceNode,
-    ResourceEdge,
+    RouteMapApiResponse,
+    RouteMapNode,
+    RouteMapEdge,
     ResourceCategory,
 } from './types';
 
@@ -27,10 +27,10 @@ const isApiEdge = (el: ApiNode | ApiEdge): el is ApiEdge => {
  * Single responsibility: Data transformation
  */
 export const transformApiDataToFlowData = (
-    apiData: DependencyApiResponse
-): { nodes: ResourceNode[]; edges: ResourceEdge[] } => {
-    const nodes: ResourceNode[] = [];
-    const edges: ResourceEdge[] = [];
+    apiData: RouteMapApiResponse
+): { nodes: RouteMapNode[]; edges: RouteMapEdge[] } => {
+    const nodes: RouteMapNode[] = [];
+    const edges: RouteMapEdge[] = [];
 
     // Extract nodes from API response
     let apiNodes: ApiNode[] = [];
@@ -56,7 +56,43 @@ export const transformApiDataToFlowData = (
     apiNodes.forEach((apiNode) => {
         const nodeData = apiNode.data || apiNode;
         const label = nodeData.label || nodeData.name || nodeData.id || 'Unknown';
-        const category = (nodeData.category || nodeData.type || 'default').toLowerCase() as ResourceCategory;
+
+        // Determine category: prefer type over category for accurate categorization
+        // If type is redirect/direct_response/retry/etc, use that as category
+        // Otherwise fall back to category field
+        let category: ResourceCategory;
+        const typeValue = nodeData.type?.toLowerCase();
+        const categoryValue = nodeData.category?.toLowerCase();
+
+        // Map specific types to proper categories
+        // Type field has priority for specific node types
+        if (typeValue === 'redirect') {
+            category = 'redirect';
+        } else if (typeValue === 'direct_response' || typeValue === 'directresponse') {
+            category = 'direct_response';
+        } else if (typeValue === 'retry' || typeValue === 'timeout' || typeValue === 'cors') {
+            category = 'policy';
+        } else if (typeValue === 'cluster') {
+            // Cluster type should always be cluster category (red color)
+            category = 'cluster';
+        } else if (typeValue === 'virtual_host' || typeValue === 'virtualhost') {
+            category = 'virtual_host';
+        } else if (typeValue === 'domain') {
+            category = 'domain';
+        } else if (typeValue === 'route') {
+            category = 'route';
+        } else if (typeValue === 'route_config' || typeValue === 'routeconfig') {
+            category = 'route_config';
+        } else if (typeValue === 'match') {
+            category = 'match';
+        } else if (typeValue === 'weighted_cluster' || typeValue === 'weightedcluster') {
+            category = 'weighted_cluster';
+        } else if (typeValue === 'vhds') {
+            category = 'vhds';
+        } else {
+            // Use category field, or fall back to type, or default
+            category = (categoryValue || typeValue || 'default') as ResourceCategory;
+        }
 
         nodes.push({
             id: nodeData.id || `node-${Math.random().toString(36).substr(2, 9)}`,
@@ -65,10 +101,15 @@ export const transformApiDataToFlowData = (
             data: {
                 label,
                 category,
+                originalCategory: nodeData.category, // Preserve original category from API
                 gtype: nodeData.gtype || '',
                 link: nodeData.link || '',
                 version: nodeData.version,
                 first: nodeData.first || false,
+                type: nodeData.type,
+                source: nodeData.source,
+                resource_id: nodeData.resource_id,
+                properties: nodeData.properties,
             },
         });
     });
@@ -132,7 +173,7 @@ export const getConnectedEdgeIds = (nodeId: string, edges: Edge[]): string[] => 
  * Single responsibility: Search filtering
  */
 export const filterNodesBySearchTerm = (
-    nodes: ResourceNode[],
+    nodes: RouteMapNode[],
     searchTerm: string
 ): Set<string> => {
     if (!searchTerm) {
@@ -159,7 +200,7 @@ export const filterNodesBySearchTerm = (
  * Single responsibility: Category filtering
  */
 export const filterNodesByCategory = (
-    nodes: ResourceNode[],
+    nodes: RouteMapNode[],
     category: string
 ): Set<string> => {
     if (!category || category === 'all') {
@@ -182,7 +223,7 @@ export const filterNodesByCategory = (
  * Get unique categories from nodes
  * Single responsibility: Category extraction
  */
-export const getUniqueCategories = (nodes: ResourceNode[]): string[] => {
+export const getUniqueCategories = (nodes: RouteMapNode[]): string[] => {
     const categories = new Set<string>();
 
     nodes.forEach((node) => {

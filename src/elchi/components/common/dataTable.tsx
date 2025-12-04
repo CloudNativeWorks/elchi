@@ -8,8 +8,7 @@ import { DateTimeTool } from "../../../utils/date-time-tool";
 import { useNavigate } from "react-router-dom";
 import { ActionsSVG } from '@/assets/svg/icons';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
-import DependenciesModal from "@/elchi/components/common/dependency";
-import RouteMapModal from "@/elchi/components/common/routemap";
+// Dependency graph and route map are now separate pages, not modals
 import VersionSelectionModal from "@/elchi/components/common/VersionSelectionModal";
 import useDeleteResource from './DeleteResource';
 import { getGTypeFields } from '@/hooks/useGtypes';
@@ -74,8 +73,7 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({
     const { project } = useProjectVariable();
     const [updateData, setUpdateData] = useState(1);
     const [queryKey, setQueryKey] = useState(`listResources-${path}`);
-    const [isModalVisible, setIsModalVisible] = useState<dependenciesType>({ name: '', collection: '', gtype: '', version: '', visible: false });
-    const [isRouteMapVisible, setIsRouteMapVisible] = useState<dependenciesType>({ name: '', collection: '', gtype: '', version: '', visible: false });
+    // Removed dependency and routemap modal states - now use navigation
     const deleteResource = useDeleteResource(deleteMutate);
     const [deleteModal, setDeleteModal] = useState<{ visible: boolean; record: DataType | null }>({ visible: false, record: null });
     const [currentPage, setCurrentPage] = useState(1);
@@ -167,19 +165,7 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({
         ];
     };
 
-    const hideModal = () => {
-        setIsModalVisible((prevState) => ({
-            ...prevState,
-            visible: false,
-        }));
-    };
-
-    const hideRouteMapModal = () => {
-        setIsRouteMapVisible((prevState) => ({
-            ...prevState,
-            visible: false,
-        }));
-    };
+    // hideModal functions removed - dependency and routemap now use navigation instead of modal
 
     const hideDeleteModal = () => {
         setDeleteModal({ visible: false, record: null });
@@ -225,22 +211,10 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({
                 setDeleteModal({ visible: true, record: consolidatedRecord });
                 break;
             case 'dependency':
-                setIsModalVisible({
-                    name: consolidatedRecord.name,
-                    collection: consolidatedRecord.collection,
-                    gtype: consolidatedRecord.gtype,
-                    version: version,
-                    visible: true,
-                });
+                navigate(`/dependency/${encodeURIComponent(consolidatedRecord.name)}?collection=${consolidatedRecord.collection}&gtype=${consolidatedRecord.gtype}&version=${version}`);
                 break;
             case 'routemap':
-                setIsRouteMapVisible({
-                    name: consolidatedRecord.name,
-                    collection: consolidatedRecord.collection,
-                    gtype: consolidatedRecord.gtype,
-                    version: version,
-                    visible: true,
-                });
+                navigate(`/routemap/${encodeURIComponent(consolidatedRecord.name)}?collection=${consolidatedRecord.collection}&gtype=${consolidatedRecord.gtype}&version=${version}`);
                 break;
             case 'duplicate':
                 const gtype = getGTypeFields(consolidatedRecord.gtype);
@@ -263,13 +237,7 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({
                     action: 'dependency'
                 });
             } else {
-                setIsModalVisible({
-                    name: record?.name,
-                    collection: record?.collection,
-                    gtype: record?.gtype,
-                    version: record?.version,
-                    visible: true,
-                });
+                navigate(`/dependency/${encodeURIComponent(record?.name)}?collection=${record?.collection}&gtype=${record?.gtype}&version=${record?.version}`);
             }
         } else if (key === "4" && isRouteMapSupported(record.gtype)) {
             if (hasMultipleVersions && consolidatedRecord.versions) {
@@ -280,13 +248,7 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({
                     action: 'routemap'
                 });
             } else {
-                setIsRouteMapVisible({
-                    name: record?.name,
-                    collection: record?.collection,
-                    gtype: record?.gtype,
-                    version: record?.version,
-                    visible: true,
-                });
+                navigate(`/routemap/${encodeURIComponent(record?.name)}?collection=${record?.collection}&gtype=${record?.gtype}&version=${record?.version}`);
             }
         } else if ((key === "2" || key === "6") && !isBootstrapPath) {
             if (hasMultipleVersions && consolidatedRecord.versions) {
@@ -791,22 +753,7 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({
             }
             action={versionModal.action}
         />
-        <DependenciesModal
-            visible={isModalVisible.visible}
-            onClose={hideModal}
-            name={isModalVisible.name}
-            collection={isModalVisible.collection}
-            gtype={isModalVisible.gtype}
-            version={isModalVisible.version}
-        />
-        <RouteMapModal
-            visible={isRouteMapVisible.visible}
-            onClose={hideRouteMapModal}
-            name={isRouteMapVisible.name}
-            collection={isRouteMapVisible.collection}
-            gtype={isRouteMapVisible.gtype}
-            version={isRouteMapVisible.version}
-        />
+        {/* DependenciesModal and RouteMapModal removed - now use separate pages via navigation */}
         <Modal
             title={
                 <span>
