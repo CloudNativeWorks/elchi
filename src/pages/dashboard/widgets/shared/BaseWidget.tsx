@@ -29,15 +29,17 @@ export const BaseWidget: React.FC<BaseWidgetProps> = ({
       error={error}
       className={className}
     >
-      <WidgetHeader
-        title={title}
-        icon={icon}
-        lastUpdated={lastUpdated}
-        onRefresh={onRefresh}
-        onExpand={onExpand}
-        loading={loading}
-      />
-      {children}
+      <>
+        <WidgetHeader
+          title={title}
+          icon={icon}
+          lastUpdated={lastUpdated}
+          onRefresh={onRefresh}
+          onExpand={onExpand}
+          loading={loading}
+        />
+        {children}
+      </>
     </WidgetContainer>
   );
 };
