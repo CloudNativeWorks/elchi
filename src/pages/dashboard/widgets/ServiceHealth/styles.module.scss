@@ -6,6 +6,28 @@
 
 .serviceHealth {
   min-height: 200px;
+  max-height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  /* Custom scrollbar styling */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(5, 108, 205, 0.3);
+    border-radius: 3px;
+
+    &:hover {
+      background: rgba(5, 108, 205, 0.5);
+    }
+  }
 }
 
 .serviceGrid {
