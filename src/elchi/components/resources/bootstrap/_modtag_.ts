@@ -56,20 +56,74 @@ export const modtag_grpc_service = [
     },
 ];
 
+export const modtag_bootstrap_deferred_stat_options = [
+    {
+        alias: 'dso',
+        relativePath: 'envoy/config/bootstrap/v3/bootstrap',
+        names: ['Bootstrap_DeferredStatOptions', 'Bootstrap_DeferredStatOptions_SingleFields'],
+    },
+];
+
+export const modtag_overload_manager = [
+    {
+        alias: 'om',
+        relativePath: 'envoy/config/overload/v3/overload',
+        names: ['OverloadManager', 'OverloadManager_SingleFields'],
+    },
+];
+
+export const modtag_resource_monitor = [
+    {
+        alias: 'rm',
+        relativePath: 'envoy/config/overload/v3/overload',
+        names: ['ResourceMonitor', 'ResourceMonitor_SingleFields'],
+    },
+];
+
+export const modtag_overload_action = [
+    {
+        alias: 'oa',
+        relativePath: 'envoy/config/overload/v3/overload',
+        names: ['OverloadAction', 'OverloadAction_SingleFields'],
+    },
+];
+
+export const modtag_trigger = [
+    {
+        alias: 'tr',
+        relativePath: 'envoy/config/overload/v3/overload',
+        names: ['Trigger', 'Trigger_SingleFields', 'ThresholdTrigger', 'ThresholdTrigger_SingleFields', 'ScaledTrigger', 'ScaledTrigger_SingleFields'],
+    },
+];
+
+export const modtag_loadshed_point = [
+    {
+        alias: 'lsp',
+        relativePath: 'envoy/config/overload/v3/overload',
+        names: ['LoadShedPoint', 'LoadShedPoint_SingleFields'],
+    },
+];
+
+export const modtag_buffer_factory_config = [
+    {
+        alias: 'bfc',
+        relativePath: 'envoy/config/overload/v3/overload',
+        names: ['BufferFactoryConfig', 'BufferFactoryConfig_SingleFields'],
+    },
+];
+
 export const modtag_us_bootstrap: TagsType = {
     "Bootstrap": [
         'node_context_params',
         'cluster_manager',
         'hds_config',
-        'deferred_stat_options',
         'stats_config',
         'stats_flush_on_admin',
         'watchdog',
         'watchdogs',
         'tracing',
         'layered_runtime',
-        'overload_manager',
-        'use_tcp_for_dns_lookups',
+        'use_tcp_for_dns_lookups', // deprecated
         'dns_resolution_config',
         'typed_dns_resolver_config',
         'bootstrap_extensions',

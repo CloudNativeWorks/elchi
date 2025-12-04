@@ -33,6 +33,11 @@ import ComponentHttp3ProtocolOptions from "@/elchi/components/resources/extensio
 import ComponentCommonHttpProtocolOptions from "@/elchi/components/resources/extension/http-protocol-options/CommonHttpProtocolOptions";
 import { ConditionalComponent } from "@/elchi/components/common/ConditionalComponent";
 import ComponentUpgradeConfigs from "./UpgradeConfigs";
+import CommonComponentSchemeHeaderTransformation from "@/elchi/components/resources/common/SchemeHeaderTransformation/SchemeHeaderTransformation";
+import ComponentAccessLogOptions from "./AccessLogOptions/AccessLogOptions";
+import ComponentOriginalIPDetectionExtensions from "./OriginalIPDetectionExtensions/OriginalIPDetectionExtensions";
+import ComponentSetCurrentClientCertDetails from "./SetCurrentClientCertDetails/SetCurrentClientCertDetails";
+import ComponentProxyStatusConfig from "./ProxyStatusConfig/ProxyStatusConfig";
 
 type GeneralProps = {
     veri: {
@@ -215,6 +220,17 @@ const ComponentHttpConnectionManager: React.FC<GeneralProps> = ({ veri }) => {
                             }}
                         />
                         <ConditionalComponent
+                            shouldRender={matchesEndOrStartOf("scheme_header_transformation", selectedTags)}
+                            Component={CommonComponentSchemeHeaderTransformation}
+                            componentProps={{
+                                version: veri.version,
+                                reduxStore: reduxStore?.scheme_header_transformation,
+                                keyPrefix: "scheme_header_transformation",
+                                id: `scheme_header_transformation_0`,
+                            }}
+                        />
+
+                        <ConditionalComponent
                             shouldRender={matchesEndOrStartOf("access_log", selectedTags)}
                             Component={CommonComponentAccessLog}
                             componentProps={{
@@ -224,6 +240,51 @@ const ComponentHttpConnectionManager: React.FC<GeneralProps> = ({ veri }) => {
                                 reduxStore: reduxStore?.access_log,
                                 reduxAction: ResourceAction,
                                 id: `access_log_0`,
+                            }}
+                        />
+                        <ConditionalComponent
+                            shouldRender={matchesEndOrStartOf("access_log_options", selectedTags)}
+                            Component={ComponentAccessLogOptions}
+                            componentProps={{
+                                version: veri.version,
+                                reduxStore: reduxStore?.access_log_options,
+                                keyPrefix: "access_log_options",
+                                id: `access_log_options_0`,
+                            }}
+                        />
+                        <ConditionalComponent
+                            shouldRender={matchesEndOrStartOf("original_ip_detection_extensions", selectedTags)}
+                            Component={ComponentOriginalIPDetectionExtensions}
+                            componentProps={{
+                                version: veri.version,
+                                keyPrefix: `original_ip_detection_extensions`,
+                                tagMatchPrefix: `HttpConnectionManager.original_ip_detection_extensions`,
+                                reduxStore: reduxStore?.original_ip_detection_extensions,
+                                reduxAction: ResourceAction,
+                                id: `original_ip_detection_extensions_0`,
+                                title: "Original IP Detection Extensions",
+                            }}
+                        />
+                        <ConditionalComponent
+                            shouldRender={matchesEndOrStartOf("set_current_client_cert_details", selectedTags)}
+                            Component={ComponentSetCurrentClientCertDetails}
+                            componentProps={{
+                                version: veri.version,
+                                reduxStore: reduxStore?.set_current_client_cert_details,
+                                keyPrefix: "set_current_client_cert_details",
+                                title: "Set Current Client Cert Details",
+                                id: `set_current_client_cert_details_0`,
+                            }}
+                        />
+                        <ConditionalComponent
+                            shouldRender={matchesEndOrStartOf("proxy_status_config", selectedTags)}
+                            Component={ComponentProxyStatusConfig}
+                            componentProps={{
+                                version: veri.version,
+                                reduxStore: reduxStore?.proxy_status_config,
+                                keyPrefix: "proxy_status_config",
+                                title: "Proxy Status Config",
+                                id: `proxy_status_config_0`,
                             }}
                         />
                         <ConditionalComponent

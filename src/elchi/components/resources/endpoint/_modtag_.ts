@@ -26,7 +26,6 @@ export const modtag_us_cla: TagsType = {
         "metadata"
     ],
     "endpoint": [
-        "hostname",
         "additional_addresses"
     ],
     "address": [

@@ -13,6 +13,7 @@ import ComponentHashPolicy from './HashPolicy';
 import ComponentAccessLogOptions from './AccessLogOptions';
 import ComponentTunnelingConfig from './TunnelingConfig';
 import CommonComponentAccessLog from '@resources/common/AccessLog/AccessLog';
+import CommonComponentBackoffStrategy from '@resources/common/BackoffStrategy/BackoffStrategy';
 import { GTypes } from '@/common/statics/gtypes';
 import { useGTypeFields } from '@/hooks/useGtypes';
 import useResourceMain from '@/hooks/useResourceMain';
@@ -168,6 +169,17 @@ const ComponentTcpProxy: React.FC<GeneralProps> = ({ veri }) => {
                             keyPrefix: `tunneling_config`,
                             tagMatchPrefix: 'TcpProxy',
                             id: `tunneling_config_0`,
+                        }}
+                    />
+                    <ConditionalComponent
+                        shouldRender={matchesEndOrStartOf('backoff_options', selectedTags)}
+                        Component={CommonComponentBackoffStrategy}
+                        componentProps={{
+                            version: veri.version,
+                            reduxStore: reduxStore?.backoff_options,
+                            keyPrefix: `backoff_options`,
+                            title: "Backoff Options",
+                            id: `backoff_options_0`,
                         }}
                     />
                     <ConditionalComponent

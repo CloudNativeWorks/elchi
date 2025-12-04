@@ -642,6 +642,119 @@ This filter is particularly important in situations where **streaming** is not s
 - Should be used **before** filters that require full-body access, such as \`ext_authz\`, \`jwt_authn\`, or custom WASM filters.
 - May increase **memory usage** significantly under high load or with large request bodies—use with appropriate limits.`
 
+export const D_HTTP_ORIGINAL_SRC = `
+**Original Src** is an HTTP filter that binds upstream connections to the **original source address** determined for the request. This address could come from mechanisms like the Proxy Protocol filter or from trusted HTTP headers (e.g., \`X-Forwarded-For\`, \`X-Real-IP\`).
+
+By preserving the client's original source IP when connecting to upstream services, this filter enables upstreams to see and act on the true client address—essential for logging, access control, geo-location, and rate-limiting based on the actual client IP.
+
+### 🔍 Key Responsibilities
+- Bind upstream connections to the **original client source IP address**.
+- Set the \`SO_MARK\` socket option to ensure proper routing of non-local addresses back through Envoy.
+- Enable transparent proxying scenarios where upstream services need to see the real client IP.
+- Work in conjunction with connection tracking and routing table configurations.
+
+### 🧩 Common Use Cases
+- **Transparent proxying**: Allowing upstream services to log and process the real client IP.
+- **IP-based access control**: Enabling upstreams to enforce firewall rules, ACLs, or rate limits based on true source IPs.
+- **Compliance and auditing**: Preserving client IPs for regulatory logging requirements.
+- **Geo-location services**: Letting upstreams perform location-based decisions using actual client addresses.
+
+### 🧠 Good to Know
+- Requires proper **network configuration** (routing tables, iptables rules) to route response traffic back through Envoy.
+- The \`mark\` field sets the **SO_MARK** socket option—used to ensure non-local addresses can be routed correctly.
+- If \`mark\` is set to \`0\`, the option will not be applied.
+- This filter is intended for use in **trusted network environments** where downstream traffic is verified.
+- Works best with **Proxy Protocol** or trusted header configurations to determine the original source address.
+- May require **CAP_NET_ADMIN** capabilities or running Envoy with elevated privileges depending on the environment.`
+
+export const D_HTTP_GRPC_WEB = `
+**gRPC Web** is an HTTP filter that enables **browser-based JavaScript clients** to communicate with gRPC services. Since browsers cannot directly use HTTP/2 and gRPC's binary framing, gRPC-Web provides a compatibility layer that translates between the browser-friendly HTTP/1.1 (or HTTP/2) requests and standard gRPC backend services.
+
+This filter acts as a **protocol translator**, allowing web applications to call gRPC APIs without requiring a separate REST gateway or custom proxy.
+
+### 🔍 Key Responsibilities
+- Translate **gRPC-Web requests** (from browsers) into standard **gRPC requests** for upstream services.
+- Convert **gRPC responses** back into gRPC-Web format for browser consumption.
+- Support both **application/grpc-web** and **application/grpc-web+proto** content types.
+- Handle **unary** and **server-streaming** RPC calls from web clients.
+- Enable CORS (Cross-Origin Resource Sharing) for gRPC-Web endpoints when needed.
+
+### 🧩 Common Use Cases
+- **Browser-based gRPC clients**: Enabling React, Angular, or Vue.js apps to call gRPC services directly.
+- **Progressive Web Apps (PWAs)**: Allowing mobile-like web apps to use efficient gRPC communication.
+- **Unified API layer**: Using the same gRPC service definitions for both web and native clients.
+- **Microservices communication**: Exposing internal gRPC services to web frontends without building separate REST APIs.
+
+### 🧠 Good to Know
+- This filter has **no configuration fields**—it works out of the box once added to the filter chain.
+- Requires gRPC-Web client libraries in the browser (e.g., \`grpc-web\` npm package for JavaScript).
+- Supports **unary** and **server-streaming** calls, but **client-streaming** and **bidirectional streaming** are not supported in browsers due to HTTP/1.1 limitations.
+- Typically placed **before** the router filter in the HTTP filter chain.
+- Does not require any upstream service changes—services remain standard gRPC.
+- Consider combining with **CORS filter** if requests come from different origins.`
+
+export const D_HTTP_GRPC_HTTP1_BRIDGE = `
+**gRPC HTTP/1.1 Bridge** is an HTTP filter that enables **HTTP/1.1 clients** to communicate with gRPC services by automatically converting between HTTP/1.1 with protobuf payloads and standard gRPC requests/responses. This is particularly useful for clients that cannot use HTTP/2 or the full gRPC protocol stack.
+
+This filter provides a protocol bridge that allows legacy systems, simple HTTP clients, or debugging tools (like curl) to interact with gRPC services without requiring full gRPC client libraries.
+
+### 🔍 Key Responsibilities
+- **Convert protobuf-over-HTTP/1.1** requests to standard gRPC format by adding gRPC framing headers.
+- **Strip gRPC framing** from responses before sending them back to HTTP/1.1 clients.
+- Support requests with \`application/x-protobuf\` content type (when \`upgrade_protobuf_to_grpc\` is enabled).
+- Optionally **remove query parameters** from request URLs to ensure clean gRPC routing.
+- Enable simple debugging and testing of gRPC services using standard HTTP tools.
+
+### 🧩 Common Use Cases
+- **Legacy system integration**: Allowing HTTP/1.1-only clients to call gRPC services.
+- **Debugging gRPC services**: Using curl or Postman to test gRPC endpoints with raw protobuf payloads.
+- **Simplified client implementations**: Avoiding full gRPC client library dependencies for simple use cases.
+- **Gateway scenarios**: Providing HTTP/1.1 access to gRPC backends for compatibility reasons.
+
+### 🧠 Good to Know
+- **Two configuration options:**
+  - \`upgrade_protobuf_to_grpc\`: Automatically converts \`application/x-protobuf\` requests to gRPC (adds framing).
+  - \`ignore_query_parameters\`: Removes query parameters from URLs for cleaner gRPC routing.
+- Does **not** provide full gRPC-Web functionality—this is specifically for HTTP/1.1 with protobuf payloads.
+- Clients must send **serialized protobuf** in the request body with appropriate content type.
+- Responses are returned as **raw protobuf** without gRPC framing (framing is stripped by the filter).
+- Best suited for **unary RPC calls**—streaming is not supported over HTTP/1.1.
+- This filter has **unknown security posture**—use only in trusted environments where both downstream and upstream are trusted.`
+
+export const D_HTTP_HEADER_MUTATION = `
+**Header Mutation** is an HTTP filter that provides comprehensive control over **HTTP headers and trailers** in both requests and responses. It allows you to add, modify, or remove headers and trailers at various points in the request/response lifecycle, enabling advanced header manipulation, security hardening, and protocol compliance.
+
+This filter is essential for implementing cross-cutting concerns like adding correlation IDs, removing sensitive headers, enforcing security policies, or adapting between different API versions.
+
+### 🔍 Key Responsibilities
+- **Mutate request headers** before forwarding to upstream services.
+- **Mutate query parameters** in the request path.
+- **Mutate response headers** before sending to downstream clients.
+- **Mutate request/response trailers** for advanced HTTP/2 scenarios.
+- Support both **filter-level** (applies to all routes) and **per-route** configurations.
+- Enable fine-grained control with allow/disallow expressions using regex matchers.
+
+### 🧩 Common Use Cases
+- **Security**: Remove sensitive headers (e.g., \`Server\`, \`X-Powered-By\`) from responses.
+- **Observability**: Add correlation IDs, trace headers, or custom metadata to requests.
+- **API versioning**: Transform headers between different API versions.
+- **Compliance**: Enforce required headers for regulatory or organizational policies.
+- **Protocol adaptation**: Add/modify headers required by specific upstream services.
+- **Query parameter sanitization**: Clean or transform URL query parameters before routing.
+
+### 🧠 Good to Know
+- **Five mutation points:**
+  - \`request_mutations\`: Applied before forwarding to upstream.
+  - \`query_parameter_mutations\`: Applied to URL query parameters.
+  - \`response_mutations\`: Applied before sending to downstream.
+  - \`response_trailers_mutations\`: Applied to HTTP/2 response trailers.
+  - \`request_trailers_mutations\`: Applied to HTTP/2 request trailers.
+- **Per-route override**: Configure \`HeaderMutationPerRoute\` to apply route-specific mutations.
+- **Execution order**: Filter-level mutations are applied first, then per-route mutations (can be reversed with \`most_specific_header_mutations_wins\`).
+- **Regex matchers**: Use \`allow_expression\` and \`disallow_expression\` for conditional header mutations.
+- This filter is **functional but has not had substantial production burn time**—use with caution.
+- Has **unknown security posture**—use only in trusted environments.`
+
 export const D_HTTP_COMPRESSOR = `
 **Compressor** is an HTTP filter that **compresses HTTP response bodies** using algorithms like Gzip or Brotli. It helps reduce the size of payloads sent to clients, improving bandwidth efficiency and reducing page or data load times—especially useful in web applications and APIs that return large JSON, HTML, or text content.
 
@@ -1179,3 +1292,98 @@ Unlike traditional routing where clusters are pre-defined, the Dynamic Forward P
 - Supports **async DNS resolution** with configurable timeouts and retry policies.
 - **Circuit breakers** protect DNS resolvers from being overwhelmed during traffic spikes.
 - Ideal for **multi-tenant SaaS** architectures where backend hosts are determined per-tenant or per-request.`;
+
+export const original_ip_detection = `## 📡 Original IP Detection
+
+**Original IP Detection** is a set of Envoy extensions that **detect the original client IP address** when requests pass through proxies, load balancers, or CDNs. It helps determine the true client address for logging, rate limiting, geo-blocking, and trusted address evaluation in multi-hop network architectures.
+
+### 🎯 What Does It Do?
+- **Detects original client IP** from custom headers or X-Forwarded-For (XFF) chain.
+- **Custom Header**: Extracts client IP from a specified HTTP header (e.g., \`X-Real-IP\`, \`CF-Connecting-IP\`).
+- **XFF Config**: Parses the X-Forwarded-For header using trusted hop count or CIDR ranges to determine the original IP.
+- **Trusted address evaluation**: Optionally marks detected addresses as trusted for HCM internal address detection.
+- **Request rejection**: Can reject requests when IP detection fails (Custom Header mode only).
+
+### 🧩 Common Use Cases
+- **CDN deployments** where the CDN adds \`CF-Connecting-IP\` or similar headers.
+- **Multi-layer proxy** setups where the original client IP is forwarded through custom headers.
+- **Rate limiting and geo-blocking** based on the true client IP, not the last proxy's address.
+- **Trusted CIDR evaluation** for XFF chains when requests pass through known proxy infrastructure.
+- **Internal vs. external traffic** determination using detected addresses as trusted sources.
+
+### 🧠 Good to Know
+- **Custom Header** mode reads from a single header (first value if multi-valued) and can optionally reject requests if the header is missing or invalid.
+- **XFF Config** mode supports two strategies: \`xff_num_trusted_hops\` (trust N rightmost IPs) or \`xff_trusted_cidrs\` (trust specific CIDR ranges).
+- Only **one of** \`xff_num_trusted_hops\` or \`xff_trusted_cidrs\` can be set in XFF Config.
+- The detected IP can be **marked as trusted** by the extension, affecting HCM's internal address detection and \`use_remote_address\` behavior.
+- **XFF skip append**: Controls whether Envoy appends the remote address to X-Forwarded-For when \`use_remote_address\` is false.
+- Works in conjunction with **HCM's \`original_ip_detection_extensions\`** field for pluggable IP detection.
+- Supports **HTTP status code rejection** (400-511) when Custom Header detection fails, defaulting to 403 if invalid.`;
+
+export const resource_monitor = `## 📊 Resource Monitor
+
+**Resource Monitor** is a set of Envoy extensions that **monitor and limit system resources** to prevent overload and maintain service stability. These monitors track various resource metrics (memory, CPU, connections) and trigger protective actions when thresholds are exceeded.
+
+### 🎯 What Does It Do?
+- **Fixed Heap**: Monitors heap memory usage with a fixed maximum size threshold.
+- **Cgroup Memory**: Tracks container memory usage via Linux cgroups (v1/v2).
+- **CPU Utilization**: Monitors CPU usage in host or container mode.
+- **Downstream Connections**: Limits maximum active downstream connections.
+- **Overload protection**: Works with overload managers to shed load when resources are constrained.
+- **Real-time monitoring**: Continuously tracks resource usage for dynamic decision-making.
+
+### 🔑 Key Features
+- **Multiple monitoring strategies** for different resource types and deployment scenarios.
+- **Container-aware monitoring** using cgroup memory and CPU utilization in container mode.
+- **Connection limiting** to prevent resource exhaustion from excessive client connections.
+- **Integration with overload manager** for coordinated load shedding across resource dimensions.
+
+### 🧠 Good to Know
+- **Fixed Heap** requires \`max_heap_size_bytes\` to be configured.
+- **Cgroup Memory** automatically detects container memory limits; \`max_memory_bytes\` is optional override.
+- **CPU Utilization** supports \`HOST\` mode (entire machine) or \`CONTAINER\` mode (cgroup-based).
+- **Downstream Connections** requires \`max_active_downstream_connections\` to be set.
+- Resource monitors are typically used with **Overload Manager** to trigger circuit breaking.
+- Each monitor can be configured in **Bootstrap's \`overload_manager.resource_monitors\`** array.`;
+
+export const path_rewrite_policy = `## 🔀 Path Rewrite Policy
+
+**Path Rewrite Policy** is an Envoy extension that **rewrites HTTP request paths using URI templates** for flexible path transformation in routing configurations. It enables pattern-based path modification using template strings with variable substitution.
+
+### 🎯 What Does It Do?
+- **URI Template Rewriting**: Rewrites request paths using RFC 6570 URI template syntax.
+- **Pattern Matching**: Supports variable extraction and substitution from request paths.
+- **Dynamic Path Transformation**: Enables flexible path modification without complex regex patterns.
+- **Virtual Host Integration**: Used in Route Configuration's virtual host path rewrite policies.
+
+### ⚙️ Key Configuration Options
+- **path_template_rewrite** (\`string\`, REQUIRED): The URI template string used to rewrite the path. Supports variables like \`{variable}\` for substitution.
+
+### 📝 Usage Notes
+- URI templates follow RFC 6570 specification for variable expansion.
+- Configure in **Route Configuration's \`virtual_hosts\`** under \`routes[].route.path_rewrite_policy\`.
+- More flexible than simple prefix rewriting but less complex than regex-based rewriting.
+- Variables extracted from path matching can be used in template expansion.`;
+
+export const internal_redirect_predicates = `## ↩️ Internal Redirect Predicates
+
+**Internal Redirect Predicates** are Envoy extensions that **control which internal redirects are allowed** by evaluating redirect targets against configurable policies. These predicates prevent redirect loops, ensure safe cross-scheme redirects, and restrict redirects to allowed routes.
+
+### 🎯 What Does It Do?
+- **Allow Listed Routes**: Restricts internal redirects to explicitly allowed route names only.
+- **Previous Routes**: Prevents redirect loops by rejecting redirects to previously visited routes.
+- **Safe Cross Scheme**: Controls HTTP/HTTPS scheme changes during redirects (allows HTTPS→HTTP/HTTPS, blocks HTTP→HTTPS).
+
+### 📌 Available Predicates
+1. **Allow Listed Routes** - Whitelist-based route filtering with \`allowed_route_names\` configuration.
+2. **Previous Routes** - Loop detection predicate (no configuration needed).
+3. **Safe Cross Scheme** - Secure scheme transition control (no configuration needed).
+
+### ⚙️ Key Configuration Options
+- **allowed_route_names** (\`string[]\`): List of route names allowed as redirect targets (Allow Listed Routes only).
+
+### 📝 Usage Notes
+- Configure in **Route Configuration's \`internal_redirect_policy.predicates\`** array.
+- Multiple predicates can be combined - ANY predicate can reject the redirect.
+- Empty route names are not allowed in \`allowed_route_names\`.
+- Safe Cross Scheme allows HTTPS downstream to redirect to both HTTP and HTTPS, but HTTP downstream can only redirect to HTTP.`;

@@ -8,10 +8,12 @@ import { getCollapseItems } from "@/elchi/components/common/CollapseItems";
 import CommonComponentRegexMatchAndSubstitute from '../common/RegexMatchAndSubstitute/RegexMatchAndSubstitute';
 import CommonComponentRetryPolicy from '../common/RetryPolicy/RetryPolicy';
 import CommonComponentRequestMirrorPolicy from '../common/RequestMirrorPolicy/RequestMirrorPolicy';
+import CommonComponentPathRewritePolicy from '../common/PathRewritePolicy/PathRewritePolicy';
 import ComponentMaxStreamDuration from './MaxStreamDuration';
 import ComponentHedgePolicy from './HedgePolicy';
 import ComponentUpgradeConfig from './UpgradeConfig';
 import ComponentHashPolicy from './hash-policy/HashPolicy';
+import ComponentInternalRedirectPolicy from './InternalRedirectPolicy';
 import CommonComponentCluster from '../common/Clusters/Cluster/Cluster';
 import CommonComponentWeightedClusters from '../common/Clusters/WeightedClusters/http/WeightedClusters'
 import useResourceForm from "@/hooks/useResourceForm";
@@ -61,7 +63,7 @@ const ComponentRoute: React.FC<GeneralProps> = ({ veri }) => {
                     required: ["cluster", "cluster_header", "weighted_clusters"],
                     onlyOneTag: [
                         ['cluster_specifier.cluster', 'cluster_specifier.cluster_header', 'cluster_specifier.weighted_clusters'],
-                        ['prefix_rewrite', 'regex_rewrite'],
+                        ['prefix_rewrite', 'regex_rewrite', 'path_rewrite_policy'],
                         ['host_rewrite_specifier.host_rewrite_literal', 'host_rewrite_specifier.auto_host_rewrite', 'host_rewrite_specifier.host_rewrite_header', 'host_rewrite_specifier.host_rewrite_path_regex']
                     ],
                     specificTagPrefix: {
@@ -123,6 +125,17 @@ const ComponentRoute: React.FC<GeneralProps> = ({ veri }) => {
                                     tagPrefix: `regex_rewrite`,
                                     tagMatchPrefix: `${veri.tagMatchPrefix}.regex_rewrite`,
                                     condition: startsWithAny("regex_rewrite", selectedTags),
+                                },
+                                {
+                                    reduxStore: veri.reduxStore?.path_rewrite_policy,
+                                    version: veri.version,
+                                    reduxAction: veri.reduxAction,
+                                    componentName: 'Path Rewrite Policy',
+                                    component: CommonComponentPathRewritePolicy,
+                                    keyPrefix: `${veri.keyPrefix}`,
+                                    tagPrefix: `path_rewrite_policy`,
+                                    tagMatchPrefix: `${veri.tagMatchPrefix}.path_rewrite_policy`,
+                                    condition: startsWithAny("path_rewrite_policy", selectedTags),
                                 },
                                 {
                                     reduxStore: navigateCases(veri.reduxStore, 'host_rewrite_specifier.host_rewrite_path_regex'),
@@ -194,6 +207,16 @@ const ComponentRoute: React.FC<GeneralProps> = ({ veri }) => {
                                     keyPrefix: `${veri.keyPrefix}.hash_policy`,
                                     tagMatchPrefix: `${veri.tagMatchPrefix}.hash_policy`,
                                     condition: matchesEndOrStartOf("hash_policy", selectedTags),
+                                },
+                                {
+                                    reduxStore: veri.reduxStore?.internal_redirect_policy,
+                                    version: veri.version,
+                                    reduxAction: veri.reduxAction,
+                                    componentName: 'Internal Redirect Policy',
+                                    component: ComponentInternalRedirectPolicy,
+                                    keyPrefix: `${veri.keyPrefix}.internal_redirect_policy`,
+                                    tagMatchPrefix: `${veri.tagMatchPrefix}.internal_redirect_policy`,
+                                    condition: matchesEndOrStartOf("internal_redirect_policy", selectedTags),
                                 }
                             ])}
                         />

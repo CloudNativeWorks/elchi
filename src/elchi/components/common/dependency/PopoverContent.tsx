@@ -1,10 +1,34 @@
 import React from 'react';
-import { Button } from 'antd';
-import { LinkOutlined, GlobalOutlined, ClusterOutlined, FilterOutlined, ShareAltOutlined, AimOutlined, SafetyOutlined, CodeOutlined, KeyOutlined, AppstoreOutlined, CloudOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import {
+    LinkOutlined,
+    GlobalOutlined,
+    ClusterOutlined,
+    FilterOutlined,
+    ShareAltOutlined,
+    AimOutlined,
+    SafetyOutlined,
+    CodeOutlined,
+    KeyOutlined,
+    AppstoreOutlined,
+    CloudOutlined,
+    QuestionCircleOutlined,
+} from '@ant-design/icons';
 import { PopoverContentProps } from './types';
-import { getIconForResource, getNodeStyle } from './utils';
+import { getIconForCategory, getNodeStyleByCategory } from './themes';
+import { ThemeColors } from './themes';
 
-const PopoverContent: React.FC<PopoverContentProps> = ({ nodeLabel, category, gtype, link, id, version }) => {
+/**
+ * Popover Content Component
+ * Single responsibility: Display node details in a modern card
+ */
+const PopoverContent: React.FC<PopoverContentProps> = ({
+    nodeLabel,
+    category,
+    gtype,
+    link,
+    id,
+    version,
+}) => {
     const handleClick = (e: React.MouseEvent) => {
         e.preventDefault();
         e.stopPropagation();
@@ -17,65 +41,215 @@ const PopoverContent: React.FC<PopoverContentProps> = ({ nodeLabel, category, gt
         window.location.href = url;
     };
 
-    const iconName = getIconForResource(category);
-    const nodeStyle = getNodeStyle(category);
+    const iconName = getIconForCategory(category);
+    const nodeStyle = getNodeStyleByCategory(category);
 
     // Icon mapping
-    const iconMap: { [key: string]: React.ReactNode } = {
-        'GlobalOutlined': <GlobalOutlined />,
-        'ClusterOutlined': <ClusterOutlined />,
-        'FilterOutlined': <FilterOutlined />,
-        'ShareAltOutlined': <ShareAltOutlined />,
-        'AimOutlined': <AimOutlined />,
-        'SafetyOutlined': <SafetyOutlined />,
-        'CodeOutlined': <CodeOutlined />,
-        'KeyOutlined': <KeyOutlined />,
-        'AppstoreOutlined': <AppstoreOutlined />,
-        'CloudOutlined': <CloudOutlined />,
-        'QuestionCircleOutlined': <QuestionCircleOutlined />
+    const iconMap: Record<string, React.ReactNode> = {
+        GlobalOutlined: <GlobalOutlined />,
+        ClusterOutlined: <ClusterOutlined />,
+        FilterOutlined: <FilterOutlined />,
+        ShareAltOutlined: <ShareAltOutlined />,
+        AimOutlined: <AimOutlined />,
+        SafetyOutlined: <SafetyOutlined />,
+        CodeOutlined: <CodeOutlined />,
+        KeyOutlined: <KeyOutlined />,
+        AppstoreOutlined: <AppstoreOutlined />,
+        CloudOutlined: <CloudOutlined />,
+        QuestionCircleOutlined: <QuestionCircleOutlined />,
     };
 
     const IconComponent = iconMap[iconName] || iconMap['QuestionCircleOutlined'];
 
     return (
-        <div style={{ lineHeight: '1.5' }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ marginBottom: '8px', fontWeight: 'bold', fontSize: '16px', borderBottom: '1px solid #eee', paddingBottom: '5px', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'space-between' }}>
-                <span>{nodeLabel}</span>
-                <div style={{
-                    width: 28,
-                    height: 28,
-                    background: nodeStyle.bg,
+        <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+                background: ThemeColors.glass.background,
+                backdropFilter: ThemeColors.glass.backdrop,
+                border: `1px solid ${ThemeColors.glass.border}`,
+                borderRadius: '12px',
+                padding: '20px',
+                boxShadow: ThemeColors.glass.shadow,
+                width: '320px',
+            }}
+        >
+            {/* Header Section */}
+            <div
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    marginBottom: '20px',
+                    paddingBottom: '16px',
+                    borderBottom: `1px solid ${ThemeColors.glass.border}`,
+                }}
+            >
+                {/* Icon */}
+                <div
+                    style={{
+                        width: 48,
+                        height: 48,
+                        background: nodeStyle.gradient,
+                        border: `2px solid ${nodeStyle.border}`,
+                        borderRadius: '12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '20px',
+                        color: '#fff',
+                        flexShrink: 0,
+                        boxShadow: nodeStyle.shadow,
+                    }}
+                >
+                    {IconComponent}
+                </div>
+
+                {/* Title */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                    <div
+                        style={{
+                            fontSize: '14px',
+                            fontWeight: 700,
+                            color: '#1e293b',
+                            marginBottom: '4px',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                        }}
+                        title={nodeLabel}
+                    >
+                        {nodeLabel}
+                    </div>
+                    <div
+                        style={{
+                            fontSize: '11px',
+                            fontWeight: 600,
+                            color: nodeStyle.border,
+                            textTransform: 'uppercase',
+                            letterSpacing: '0.5px',
+                        }}
+                    >
+                        {category}
+                    </div>
+                </div>
+            </div>
+
+            {/* Details Section */}
+            <div style={{ marginBottom: '16px' }}>
+                {/* Type */}
+                <div
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '10px 12px',
+                        background: 'rgba(241, 245, 249, 0.6)',
+                        borderRadius: '8px',
+                        marginBottom: '8px',
+                    }}
+                >
+                    <div style={{ flex: 1 }}>
+                        <div
+                            style={{
+                                fontSize: '10px',
+                                fontWeight: 600,
+                                color: '#94a3b8',
+                                textTransform: 'uppercase',
+                                letterSpacing: '0.5px',
+                                marginBottom: '2px',
+                            }}
+                        >
+                            Type
+                        </div>
+                        <div
+                            style={{
+                                fontSize: '11px',
+                                fontWeight: 500,
+                                color: '#475569',
+                                fontFamily: 'monospace',
+                                wordBreak: 'break-all',
+                                lineHeight: '1.4',
+                            }}
+                            title={gtype}
+                        >
+                            {gtype}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Version (if available) */}
+                {version && (
+                    <div
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            padding: '10px 12px',
+                            background: 'rgba(241, 245, 249, 0.6)',
+                            borderRadius: '8px',
+                        }}
+                    >
+                        <div style={{ flex: 1 }}>
+                            <div
+                                style={{
+                                    fontSize: '10px',
+                                    fontWeight: 600,
+                                    color: '#94a3b8',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.5px',
+                                    marginBottom: '2px',
+                                }}
+                            >
+                                Version
+                            </div>
+                            <div
+                                style={{
+                                    fontSize: '12px',
+                                    fontWeight: 500,
+                                    color: '#475569',
+                                    fontFamily: 'monospace',
+                                }}
+                            >
+                                {version}
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Action Button */}
+            <button
+                onClick={handleClick}
+                style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    background: nodeStyle.gradient,
                     border: `2px solid ${nodeStyle.border}`,
-                    borderRadius: '6px',
+                    borderRadius: '10px',
+                    color: '#fff',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    marginLeft: 4,
-                    fontSize: '16px',
-                    color: '#fff'
-                }}>
-                    {IconComponent}
-                </div>
-            </div>
-            <div>
-                <strong>Resource:</strong> {category}
-            </div>
-            <div>
-                <strong>Gtype:</strong> {gtype}
-            </div>
-            <div style={{ marginTop: '10px', position: 'relative', zIndex: 1011 }}>
-                <Button 
-                    type="link" 
-                    onClick={handleClick}
-                    icon={<LinkOutlined />}
-                    size="small"
-                    style={{ padding: 0 }}
-                >
-                    Go to Resource
-                </Button>
-            </div>
+                    gap: '8px',
+                    transition: 'all 0.2s ease',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                }}
+                onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+                }}
+                onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+                }}
+            >
+                <LinkOutlined style={{ fontSize: '14px' }} />
+                <span>Go to Resource</span>
+            </button>
         </div>
     );
 };
 
-export default PopoverContent; 
+export default PopoverContent;

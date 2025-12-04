@@ -13,7 +13,7 @@ import { GetYaml } from '@/utils/get-yaml';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import useDeleteResource from './DeleteResource';
 import { GTypeFieldsBase } from '@/common/statics/gtypes';
-import DependenciesModal from './dependency';
+// Dependency graph is now a separate page, not a modal
 import { useServiceData } from '@/hooks/useServiceData';
 
 
@@ -50,13 +50,7 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
         state.VersionedResources[options.envoyVersion]?.ElchiDiscovery || []
     );
 
-    const [isModalVisible, setIsModalVisible] = useState({
-        visible: false,
-        name: '',
-        collection: '',
-        gtype: '',
-        version: '',
-    });
+    // Removed dependency modal state - now uses navigation
     const deleteResource = useDeleteResource(deleteMutate);
 
     // Downstream IP selection modal state
@@ -200,14 +194,7 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
     };
 
     const handleDependencies = () => {
-        setIsModalVisible({
-            visible: true,
-            name: options.name,
-            collection: options.GType.collection,
-            gtype: options.gtype,
-            version: options.envoyVersion,
-        });
-
+        navigate(`/dependency/${encodeURIComponent(options.name)}?collection=${options.GType.collection}&gtype=${options.gtype}&version=${options.envoyVersion}`);
         setLoading(false);
     };
 
@@ -422,14 +409,7 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
                 </div>
             </Col>
 
-            <DependenciesModal
-                visible={isModalVisible.visible}
-                onClose={() => setIsModalVisible({ visible: false, name: '', collection: '', gtype: '', version: '' })}
-                name={isModalVisible.name}
-                collection={isModalVisible.collection}
-                gtype={isModalVisible.gtype}
-                version={isModalVisible.version}
-            />
+            {/* DependenciesModal removed - now uses separate page via navigation */}
 
             {/* Downstream IP Selection Modal for Bootstrap */}
             <Modal

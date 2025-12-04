@@ -16,9 +16,13 @@ import {
     BarChartOutlined,
     AppstoreOutlined,
     RightOutlined,
-    GlobalOutlined
+    GlobalOutlined,
+    RadarChartOutlined,
+    DashboardOutlined,
+    SwapOutlined,
+    BranchesOutlined
 } from '@ant-design/icons';
-import { D_E_ACCESS_LOG, D_E_CLUSTER_DYNAMIC_FORWARD_PROXY, D_E_COMPRESSOR_LIBRARY, D_E_HEALTH_CHECK_EVENT_FILE_SINK, D_E_HTTP_PROTOCOL_OPTIONS, D_E_STAT_SINKS, D_E_STATEFUL_SESSION_STATE, D_E_URI_TEMPLATE_MATCH } from "@/common/statics/ResourceDescriptions";
+import { D_E_ACCESS_LOG, D_E_CLUSTER_DYNAMIC_FORWARD_PROXY, D_E_COMPRESSOR_LIBRARY, D_E_HEALTH_CHECK_EVENT_FILE_SINK, D_E_HTTP_PROTOCOL_OPTIONS, D_E_STAT_SINKS, D_E_STATEFUL_SESSION_STATE, D_E_URI_TEMPLATE_MATCH, original_ip_detection, resource_monitor, path_rewrite_policy, internal_redirect_predicates } from "@/common/statics/ResourceDescriptions";
 
 const { Title, Text } = Typography;
 
@@ -37,7 +41,11 @@ const getExtensionIcon = (extensionName: string) => {
         'Http Protocol Options': <ApiOutlined />,
         'Uri Template Match': <AimOutlined />,
         'Stateful Session State': <DatabaseOutlined />,
-        'Stat Sinks': <BarChartOutlined />
+        'Stat Sinks': <BarChartOutlined />,
+        'Original IP Detection': <RadarChartOutlined />,
+        'Resource Monitor': <DashboardOutlined />,
+        'Path Rewrite Policy': <SwapOutlined />,
+        'Internal Redirect Predicates': <BranchesOutlined />
     };
     return iconMap[extensionName] || <AppstoreOutlined />;
 };
@@ -74,10 +82,28 @@ const extensions = [
         category: "envoy.upstreams.http.http_protocol_options"
     },
     {
-        name: 'Uri Template Match',
-        path: '/extensions/utm',
-        data: D_E_URI_TEMPLATE_MATCH,
-        category: "envoy.path.match.uri_template.uri_template_matcher"
+        name: 'Original IP Detection',
+        path: '/extensions/original_ip_detection',
+        data: original_ip_detection,
+        category: "envoy.http.original_ip_detection"
+    },
+    {
+        name: 'Internal Redirect Predicates',
+        path: '/extensions/internal_redirect_predicates',
+        data: internal_redirect_predicates,
+        category: "envoy.internal_redirect_predicates"
+    },
+    {
+        name: 'Path Rewrite Policy',
+        path: '/extensions/path_rewrite_policy',
+        data: path_rewrite_policy,
+        category: "envoy.path.rewrite"
+    },
+    {
+        name: 'Resource Monitor',
+        path: '/extensions/resource_monitor',
+        data: resource_monitor,
+        category: "envoy.resource_monitors"
     },
     {
         name: 'Stateful Session State',
@@ -91,6 +117,12 @@ const extensions = [
         path: '/extensions/stat_sinks',
         data: D_E_STAT_SINKS,
         category: "envoy.stats_sinks"
+    },
+    {
+        name: 'Uri Template Match',
+        path: '/extensions/utm',
+        data: D_E_URI_TEMPLATE_MATCH,
+        category: "envoy.path.match.uri_template.uri_template_matcher"
     },
 ];
 

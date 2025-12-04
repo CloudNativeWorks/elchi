@@ -88,6 +88,14 @@ export const modtag_hash_policy = [
     },
 ];
 
+export const modtag_internal_redirect_policy = [
+    {
+        alias: 'irp',
+        relativePath: 'envoy/config/route/v3/route_components',
+        names: ['InternalRedirectPolicy', 'InternalRedirectPolicy_SingleFields'],
+    },
+];
+
 export const modtag_hash_policy_header = [
     {
         alias: 'hph',
@@ -168,10 +176,8 @@ export const modtag_us_virtualhost: TagsType = {
         'cluster_specifier.cluster_specifier_plugin',
         'cluster_specifier.inline_cluster_specifier_plugin',
         'metadata_match',
-        'path_rewrite_policy',
         'early_data_policy',
         'rate_limits',
-        'internal_redirect_policy',
         'include_vh_rate_limits',
         'cors',
         'max_internal_redirects',

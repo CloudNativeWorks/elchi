@@ -26,7 +26,7 @@ import {
 } from '@ant-design/icons';
 import { useCustomGetQuery } from "@/common/api";
 import { useProjectVariable } from "@/hooks/useProjectVariable";
-import { D_HTTP_ADAPTIVE_CONCURRENCY, D_HTTP_ADMISSION_CONTROL, D_HTTP_BANDWIDTH_LIMIT, D_HTTP_BASIC_AUTH, D_HTTP_BUFFER, D_HTTP_COMPRESSOR, D_HTTP_CORS, D_HTTP_CSRF_POLICY, D_HTTP_DYNAMIC_FORWARD_PROXY, D_HTTP_EXT_AUTHZ, D_HTTP_EXT_PROC, D_HTTP_JWT_AUTHN, D_HTTP_LOCAL_RATE_LIMIT, D_HTTP_LUA, D_HTTP_OAUTH2, D_HTTP_RBAC, D_HTTP_ROUTER, D_HTTP_STATEFUL_SESSION, D_HTTP_WASM, D_L_HTTP_INSPECTOR, D_L_LOCAL_RATE_LIMIT, D_L_ORIGINAL_DST, D_L_ORIGINAL_SRC, D_L_PROXY_PROTOCOL, D_L_TLS_INSPECTOR, D_N_CONNECTION_LIMIT, D_N_HTTP_CONNECTION_MANAGER, D_N_LOCAL_RATE_LIMIT, D_N_NETWORK_RBAC, D_N_TCP_PROXY, D_UDP_DNS_FILTER, D_UDP_PROXY } from "@/common/statics/ResourceDescriptions";
+import { D_HTTP_ADAPTIVE_CONCURRENCY, D_HTTP_ADMISSION_CONTROL, D_HTTP_BANDWIDTH_LIMIT, D_HTTP_BASIC_AUTH, D_HTTP_BUFFER, D_HTTP_COMPRESSOR, D_HTTP_CORS, D_HTTP_CSRF_POLICY, D_HTTP_DYNAMIC_FORWARD_PROXY, D_HTTP_EXT_AUTHZ, D_HTTP_EXT_PROC, D_HTTP_GRPC_HTTP1_BRIDGE, D_HTTP_GRPC_WEB, D_HTTP_HEADER_MUTATION, D_HTTP_JWT_AUTHN, D_HTTP_LOCAL_RATE_LIMIT, D_HTTP_LUA, D_HTTP_OAUTH2, D_HTTP_ORIGINAL_SRC, D_HTTP_RBAC, D_HTTP_ROUTER, D_HTTP_STATEFUL_SESSION, D_HTTP_WASM, D_L_HTTP_INSPECTOR, D_L_LOCAL_RATE_LIMIT, D_L_ORIGINAL_DST, D_L_ORIGINAL_SRC, D_L_PROXY_PROTOCOL, D_L_TLS_INSPECTOR, D_N_CONNECTION_LIMIT, D_N_HTTP_CONNECTION_MANAGER, D_N_LOCAL_RATE_LIMIT, D_N_NETWORK_RBAC, D_N_TCP_PROXY, D_UDP_DNS_FILTER, D_UDP_PROXY } from "@/common/statics/ResourceDescriptions";
 
 const { Title, Text } = Typography;
 
@@ -272,6 +272,27 @@ const filters = [
                 canonical_name: "envoy.filters.http.ext_proc"
             },
             {
+                name: 'gRPC Web',
+                path: '/filters/http/grpc_web',
+                value: 50,
+                data: D_HTTP_GRPC_WEB,
+                canonical_name: "envoy.filters.http.grpc_web"
+            },
+            {
+                name: 'gRPC HTTP/1.1 Bridge',
+                path: '/filters/http/grpc_http1_bridge',
+                value: 50,
+                data: D_HTTP_GRPC_HTTP1_BRIDGE,
+                canonical_name: "envoy.filters.http.grpc_http1_bridge"
+            },
+            {
+                name: 'Header Mutation',
+                path: '/filters/http/header_mutation',
+                value: 50,
+                data: D_HTTP_HEADER_MUTATION,
+                canonical_name: "envoy.filters.http.header_mutation"
+            },
+            {
                 name: 'JWT Authentication',
                 path: '/filters/http/http_jwt_authn',
                 value: 50,
@@ -298,6 +319,13 @@ const filters = [
                 value: 500,
                 data: D_HTTP_OAUTH2,
                 canonical_name: "envoy.filters.http.oauth2"
+            },
+            {
+                name: 'Original Src',
+                path: '/filters/http/original_src',
+                value: 50,
+                data: D_HTTP_ORIGINAL_SRC,
+                canonical_name: "envoy.filters.http.original_src"
             },
             {
                 name: 'RBAC',

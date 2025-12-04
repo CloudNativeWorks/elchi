@@ -1,0 +1,47 @@
+import React from 'react';
+import { useParams, useSearchParams } from 'react-router-dom';
+import RouteMapGraph from '@/elchi/components/common/routemap';
+
+/**
+ * Route Map Page Wrapper
+ * Extracts URL params and passes them to RouteMapGraph component
+ */
+const RouteMapPage: React.FC = () => {
+    const { name } = useParams<{ name: string }>();
+    const [searchParams] = useSearchParams();
+
+    const collection = searchParams.get('collection') || '';
+    const gtype = searchParams.get('gtype') || '';
+    const version = searchParams.get('version') || '';
+
+    if (!name || !collection || !gtype || !version) {
+        return (
+            <div
+                style={{
+                    width: '100%',
+                    height: '100vh',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    background: '#f8fafc',
+                }}
+            >
+                <div style={{ textAlign: 'center', color: '#64748b' }}>
+                    <h3>Missing required parameters</h3>
+                    <p>Please provide name, collection, gtype, and version</p>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <RouteMapGraph
+            name={decodeURIComponent(name)}
+            collection={collection}
+            gtype={gtype}
+            version={version}
+        />
+    );
+};
+
+export default RouteMapPage;

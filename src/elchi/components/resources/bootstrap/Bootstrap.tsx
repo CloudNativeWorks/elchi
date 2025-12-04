@@ -22,6 +22,8 @@ import { useLoading } from "@/hooks/loadingContext";
 import { useManagedLoading } from "@/hooks/useManageLoading";
 import { ConditionalComponent } from "../../common/ConditionalComponent";
 import ComponentMemoryAllocatorManager from "./MemoryAllocatorManager";
+import ComponentDeferredStatOptions from "./DeferredStatOptions";
+import ComponentOverloadManager from "./OverloadManager/OverloadManager";
 import CommonComponentStatsSinks from "@/elchi/components/resources/common/StatsSinks/StatsSinks";
 import { ResourceAction } from "@/redux/reducers/slice";
 
@@ -93,7 +95,7 @@ const ComponentBootstrap: React.FC<GeneralProps> = ({ veri }) => {
                             handleChangeTag={handleChangeTag}
                             doNotChange={["dynamic_resources", "static_resources"]}
                             onlyOneTag={[["stats_flush_interval", "stats_flush.stats_flush_on_admin"]]}
-                            specificTagPrefix={{ "stats_flush_on_admin": "stats_flush" }}
+                            specificTagPrefix={{ "stats_flush_on_admin": "stats_flush", "stats_eviction_interval": "stats_eviction" }}
                             unchangeableTags={["admin", "node", "dynamic_resources", "static_resources"]}
                         />
                     </Col>
@@ -155,6 +157,16 @@ const ComponentBootstrap: React.FC<GeneralProps> = ({ veri }) => {
                             }}
                         />
                         <ConditionalComponent
+                            shouldRender={matchesEndOrStartOf("deferred_stat_options", selectedTags)}
+                            Component={ComponentDeferredStatOptions}
+                            componentProps={{
+                                version: veri.version,
+                                keyPrefix: `deferred_stat_options`,
+                                reduxStore: reduxStore?.deferred_stat_options,
+                                id: `deferred_stat_options_0`,
+                            }}
+                        />
+                        <ConditionalComponent
                             shouldRender={matchesEndOrStartOf("admin", selectedTags)}
                             Component={ComponentAdmin}
                             componentProps={{
@@ -177,6 +189,18 @@ const ComponentBootstrap: React.FC<GeneralProps> = ({ veri }) => {
                                 id: `memory_allocator_manager_0`,
                             }}
                         />
+
+                        <ConditionalComponent
+                            shouldRender={matchesEndOrStartOf("overload_manager", selectedTags)}
+                            Component={ComponentOverloadManager}
+                            componentProps={{
+                                version: veri.version,
+                                keyPrefix: `overload_manager`,
+                                reduxStore: reduxStore?.overload_manager,
+                                id: `overload_manager_0`,
+                            }}
+                        />
+
                     </Col>
                 </Row>
             </>
