@@ -1,0 +1,17 @@
+/**
+ * Request Rate Timeline Widget Styles
+ */
+
+@import '../../styles/variables.scss';
+
+.controls {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: $space-md;
+  gap: $space-sm;
+}
+
+.chartContainer {
+  width: 100%;
+  min-height: 200px;
+}

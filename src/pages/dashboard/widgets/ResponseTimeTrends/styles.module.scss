@@ -1,0 +1,7 @@
+@import '../../styles/variables.scss';
+
+.controls {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: $space-md;
+}

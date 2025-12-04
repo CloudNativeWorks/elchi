@@ -1,0 +1,296 @@
+/**
+ * Dashboard Layout Styles
+ * Main dashboard container and grid system
+ */
+
+@import './variables.scss';
+
+.dashboardContainer {
+  min-height: 100vh;
+  background: $gradient-background;
+  padding: $space-lg;
+  font-family: $font-family;
+
+  @include respond-to('md') {
+    padding: $space-md;
+  }
+
+  @include respond-to('sm') {
+    padding: $space-sm;
+  }
+}
+
+.dashboardGrid {
+  display: grid;
+  grid-template-columns: repeat(24, 1fr);
+  gap: $space-lg;
+  max-width: 1920px;
+  margin: 0 auto;
+
+  @include respond-to('xl') {
+    gap: $space-md;
+  }
+
+  @include respond-to('md') {
+    grid-template-columns: 1fr;
+    gap: $space-md;
+  }
+}
+
+// Hero Section
+.heroSection {
+  grid-column: 1 / -1;
+  animation: slide-up 0.5s ease-out;
+}
+
+// Traffic Section
+.trafficSection {
+  grid-column: 1 / -1;
+  animation: slide-up 0.6s ease-out;
+}
+
+// Analytics Section (2 columns)
+.analyticsSection {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $space-lg;
+  animation: slide-up 0.7s ease-out;
+
+  @include respond-to('lg') {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Topology Section (60% / 40% split)
+.topologySection {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 6fr 4fr;
+  gap: $space-lg;
+  animation: slide-up 0.8s ease-out;
+
+  @include respond-to('lg') {
+    grid-template-columns: 1fr;
+  }
+}
+
+// Stats Section
+.statsSection {
+  grid-column: 1 / -1;
+  animation: slide-up 0.9s ease-out;
+}
+
+// Resources Section
+.resourcesSection {
+  grid-column: 1 / -1;
+  animation: slide-up 1s ease-out;
+}
+
+// New Chart Sections
+.chartsSection {
+  grid-column: 1 / -1;
+  animation: slide-up 0.8s ease-out;
+}
+
+.metricsSection {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $space-lg;
+  animation: slide-up 0.9s ease-out;
+
+  @include respond-to('lg') {
+    grid-template-columns: 1fr;
+  }
+}
+
+.quickStatsSection {
+  grid-column: 1 / -1;
+  animation: slide-up 1s ease-out;
+}
+
+// Grid Utilities
+.halfWidth {
+  width: 100%;
+}
+
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
+// Section Title
+.sectionTitle {
+  font-size: $font-size-display;
+  font-weight: $font-weight-bold;
+  color: $text-primary;
+  margin-bottom: $space-lg;
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+
+  .icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: $radius-md;
+    background: $gradient-primary;
+    color: $text-white;
+    font-size: 16px;
+  }
+
+  @include respond-to('md') {
+    font-size: $font-size-title;
+    margin-bottom: $space-md;
+
+    .icon {
+      width: 28px;
+      height: 28px;
+      font-size: 14px;
+    }
+  }
+}
+
+// Loading State
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  color: $text-secondary;
+  font-size: $font-size-body;
+
+  .spinner {
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Error State
+.error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  padding: $space-xl;
+  text-align: center;
+
+  .errorIcon {
+    font-size: 48px;
+    color: $color-danger;
+    margin-bottom: $space-md;
+  }
+
+  .errorTitle {
+    font-size: $font-size-title;
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
+    margin-bottom: $space-sm;
+  }
+
+  .errorMessage {
+    font-size: $font-size-body;
+    color: $text-secondary;
+    margin-bottom: $space-lg;
+  }
+
+  .retryButton {
+    padding: $space-sm $space-lg;
+    background: $gradient-primary;
+    color: $text-white;
+    border: none;
+    border-radius: $radius-md;
+    font-size: $font-size-body;
+    font-weight: $font-weight-medium;
+    cursor: pointer;
+    transition: all $transition-normal;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: $shadow-lg;
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+// Full Width Container
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
+// Half Width Container
+.halfWidth {
+  grid-column: span 12;
+
+  @include respond-to('md') {
+    grid-column: 1 / -1;
+  }
+}
+
+// Third Width Container
+.thirdWidth {
+  grid-column: span 8;
+
+  @include respond-to('lg') {
+    grid-column: span 12;
+  }
+
+  @include respond-to('md') {
+    grid-column: 1 / -1;
+  }
+}
+
+// Quarter Width Container
+.quarterWidth {
+  grid-column: span 6;
+
+  @include respond-to('lg') {
+    grid-column: span 12;
+  }
+
+  @include respond-to('md') {
+    grid-column: 1 / -1;
+  }
+}
+
+// One Third Width Container
+.oneThirdWidth {
+  grid-column: span 8;
+
+  @include respond-to('md') {
+    grid-column: 1 / -1;
+  }
+}
+
+// Two Thirds Width Container
+.twoThirdsWidth {
+  grid-column: span 16;
+
+  @include respond-to('md') {
+    grid-column: 1 / -1;
+  }
+}
+
+// Fade In Animation
+.fadeIn {
+  animation: fade-in 0.5s ease-out;
+}
+
+// Slide Up Animation
+.slideUp {
+  animation: slide-up 0.5s ease-out;
+}

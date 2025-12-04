@@ -13,6 +13,7 @@ import {
 } from '@ant-design/icons';
 import { useMetricsApiMutation } from '@/common/operations-api';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
+import { useDashboardRefresh } from '@/pages/dashboard/context/DashboardRefreshContext';
 
 const { Title, Text } = Typography;
 
@@ -124,7 +125,7 @@ interface TrafficStats {
     activeListeners: number;
 }
 
-interface TrafficOverviewProps {}
+interface TrafficOverviewProps { }
 
 interface DetailedMetric {
     domain: string;
@@ -161,6 +162,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
     const [searchText, setSearchText] = useState('');
     const { project } = useProjectVariable();
     const metricsApiMutation = useMetricsApiMutation();
+    const { triggerRefresh } = useDashboardRefresh();
 
     const fetchOverviewStats = useCallback(async () => {
         if (!project) return;
@@ -381,8 +383,9 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
     }, [metricsApiMutation.mutateAsync, project]);
 
     const handleManualRefresh = useCallback(() => {
-        fetchOverviewStats();
-    }, [fetchOverviewStats]);
+        fetchOverviewStats(); // Refresh Traffic Overview
+        triggerRefresh(); // Trigger global refresh for all widgets
+    }, [fetchOverviewStats, triggerRefresh]);
 
     useEffect(() => {
         fetchOverviewStats();
@@ -986,10 +989,10 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
 
     return (
         <div style={{
-            background: 'linear-gradient(90deg, rgba(5, 108, 205, 0.95) 0%, rgba(0, 198, 251, 0.85) 100%)',
+            background: 'linear-gradient(90deg, rgba(5, 108, 205, 0.8) 0%, rgba(0, 198, 251, 0.6) 50%)',
             borderRadius: 24,
             padding: 24,
-            marginBottom: 24,
+            marginBottom: 0,
             position: 'relative',
             overflow: 'hidden'
         }}>
