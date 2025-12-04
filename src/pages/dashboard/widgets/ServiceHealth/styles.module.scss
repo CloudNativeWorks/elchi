@@ -2,11 +2,10 @@
  * Service Health Widget Styles
  */
 
-@import '../../styles/variables.scss';
+@use '../../styles/variables.scss' as *;
 
 .serviceHealth {
-  min-height: 200px;
-  max-height: 400px;
+  height: 200px;
   overflow-y: auto;
   overflow-x: hidden;
 
