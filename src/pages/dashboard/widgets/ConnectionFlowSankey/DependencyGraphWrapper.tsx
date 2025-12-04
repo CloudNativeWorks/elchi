@@ -3,7 +3,7 @@
  * Simplified version without search/filter controls
  */
 
-import React, { useEffect, useCallback, useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import {
   ReactFlow,
   Background,

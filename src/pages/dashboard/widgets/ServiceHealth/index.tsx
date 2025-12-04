@@ -8,7 +8,6 @@ import { CloudServerOutlined } from '@ant-design/icons';
 import { BaseWidget } from '../shared/BaseWidget';
 import { ServiceCard } from './ServiceCard';
 import { useServiceStatus } from '../../hooks/useServiceStatus';
-import { useNavigate } from 'react-router-dom';
 import styles from './styles.module.scss';
 
 interface ServiceHealthProps {
@@ -17,7 +16,6 @@ interface ServiceHealthProps {
 
 export const ServiceHealth: React.FC<ServiceHealthProps> = ({ loading: externalLoading = false }) => {
   const { services, loading, error, refresh } = useServiceStatus();
-  const navigate = useNavigate();
 
   const isLoading = loading || externalLoading;
 

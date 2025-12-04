@@ -3,7 +3,7 @@
  * Shared styles for dashboard widgets
  */
 
-@import './variables.scss';
+@use './variables.scss' as *;
 
 // Base Widget Container
 .widgetContainer {
@@ -11,6 +11,7 @@
   border-radius: $radius-xl;
   padding: $space-lg;
   transition: all $transition-normal;
+  position: relative;
 
   &:hover {
     transform: translateY(-2px);
@@ -136,6 +137,30 @@
   .spinner {
     animation: spin 1s linear infinite;
     font-size: 24px;
+  }
+}
+
+// Widget Loading Overlay
+.widgetLoadingOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(4px);
+  border-radius: inherit;
+  z-index: 100;
+  pointer-events: none;
+
+  .spinner {
+    animation: spin 1s linear infinite;
+    font-size: 24px;
+    color: $color-primary;
+    opacity: 1;
   }
 }
 

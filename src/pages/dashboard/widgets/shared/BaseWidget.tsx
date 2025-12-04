@@ -13,7 +13,6 @@ export const BaseWidget: React.FC<BaseWidgetProps> = ({
   icon,
   gradient,
   size = 'medium',
-  refreshInterval,
   loading = false,
   error = null,
   lastUpdated,

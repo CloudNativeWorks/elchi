@@ -5,7 +5,6 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { ServiceStatus } from '../types/dashboard.types';
-import { REFRESH_INTERVALS } from '../utils/constants';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import { api } from '@/common/api';
 import { determineServiceStatus } from '../utils/calculations';
@@ -32,7 +31,6 @@ export function useServiceStatus(
   options: UseServiceStatusOptions = {}
 ): UseServiceStatusReturn {
   const {
-    refreshInterval = REFRESH_INTERVALS.HIGH,
     enabled = true,
     limit = 10,
   } = options;
@@ -65,7 +63,7 @@ export function useServiceStatus(
       });
 
       // Query 2: Get error requests per service - using downstream metrics
-      const errorQuery = `sum by (envoy_http_conn_manager_prefix) (rate({__name__=~".*_${project}_http_downstream_rq_xx", envoy_http_conn_manager_prefix!="admin", envoy_response_code_class=~"4|5"}[${windowSec}s]))`;
+      const errorQuery = `sum by (envoy_http_conn_manager_prefix) (rate({__name__=~".*_${project}_http_downstream_rq_xx_total", envoy_http_conn_manager_prefix!="admin", envoy_response_code_class=~"4|5"}[${windowSec}s]))`;
 
       const errorsResult = await api.get('/api/v1/query_range', {
         params: { query: errorQuery, start, end, step }
@@ -80,6 +78,7 @@ export function useServiceStatus(
 
       // Process results
       const servicesMap = new Map<string, ServiceStatus>();
+      const requestRatesMap = new Map<string, number>(); // Store request rates separately
 
       // Process request counts
       if (requestsResult?.data?.data?.result) {
@@ -89,6 +88,8 @@ export function useServiceStatus(
           const lastValue = values.length > 0 ? parseFloat(values[values.length - 1][1]) : 0;
           const requestRate = lastValue || 0;
           const requestCount = Math.floor(requestRate * windowSec); // Approximate count
+
+          requestRatesMap.set(serviceName, requestRate); // Store for error rate calculation
 
           servicesMap.set(serviceName, {
             id: serviceName,
@@ -109,13 +110,15 @@ export function useServiceStatus(
           const serviceName = series.metric.envoy_http_conn_manager_prefix || 'unknown';
           const values = series.values || [];
           const lastValue = values.length > 0 ? parseFloat(values[values.length - 1][1]) : 0;
-          const errorRate = lastValue || 0;
+          const errorRateValue = lastValue || 0;
 
           const service = servicesMap.get(serviceName);
-          if (service) {
-            const totalRate = service.requestCount / windowSec;
-            service.errorRate = totalRate > 0 ? (errorRate / totalRate) * 100 : 0;
-            service.uptime = 100 - service.errorRate;
+          const totalRate = requestRatesMap.get(serviceName);
+
+          if (service && totalRate) {
+            // Error rate = (error rate / total request rate) * 100
+            service.errorRate = totalRate > 0 ? (errorRateValue / totalRate) * 100 : 0;
+            service.uptime = Math.max(0, 100 - service.errorRate);
             service.status = determineServiceStatus(service.errorRate, service.avgResponseTime);
           }
         });
@@ -165,57 +168,6 @@ export function useServiceStatus(
   }, [enabled, project, fetchServices, refreshTrigger]);
 
   return { services, loading, error, refresh };
-}
-
-/**
- * Get mock service data
- * TODO: Replace with actual API call
- */
-function getMockServices(): ServiceStatus[] {
-  const now = new Date();
-
-  return [
-    {
-      id: '1',
-      name: 'api-gateway',
-      status: 'healthy',
-      uptime: 99.8,
-      requestCount: 125847,
-      errorRate: 1.2,
-      avgResponseTime: 45,
-      timestamp: now,
-    },
-    {
-      id: '2',
-      name: 'auth-service',
-      status: 'healthy',
-      uptime: 99.9,
-      requestCount: 45623,
-      errorRate: 0.5,
-      avgResponseTime: 32,
-      timestamp: now,
-    },
-    {
-      id: '3',
-      name: 'payment-service',
-      status: 'degraded',
-      uptime: 97.5,
-      requestCount: 12456,
-      errorRate: 8.3,
-      avgResponseTime: 156,
-      timestamp: now,
-    },
-    {
-      id: '4',
-      name: 'notification-service',
-      status: 'healthy',
-      uptime: 99.6,
-      requestCount: 78945,
-      errorRate: 2.1,
-      avgResponseTime: 28,
-      timestamp: now,
-    },
-  ];
 }
 
 export default useServiceStatus;

@@ -106,7 +106,7 @@ export const ResponseTimeTrends: React.FC = () => {
   };
 
   return (
-    <BaseWidget title="Response Time Trends" icon={<LineChartOutlined />} loading={loading} error={error} onRefresh={fetchData}>
+    <BaseWidget title="Clusters Response Time Trends (Top 10)" icon={<LineChartOutlined />} loading={loading} error={error} onRefresh={fetchData}>
       <div className={styles.controls}>
         <Select value={percentile} onChange={setPercentile} style={{ width: 80 }} size="small">
           {PERCENTILES.map((p) => (

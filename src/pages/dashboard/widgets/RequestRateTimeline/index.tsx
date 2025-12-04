@@ -158,7 +158,7 @@ export const RequestRateTimeline: React.FC = () => {
 
   return (
     <BaseWidget
-      title="Request Rate Timeline"
+      title="Clusters Request Rate (Top 10)"
       icon={<LineChartOutlined />}
       loading={loading}
       error={error}

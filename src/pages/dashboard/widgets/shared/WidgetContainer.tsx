@@ -21,16 +21,6 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
     ? { background: gradient, color: 'white' }
     : {};
 
-  if (loading) {
-    return (
-      <div className={containerClass} style={containerStyle}>
-        <div className={styles.widgetLoading}>
-          <span className={styles.spinner}>⟳</span>
-        </div>
-      </div>
-    );
-  }
-
   if (error) {
     return (
       <div className={containerClass} style={containerStyle}>
@@ -44,7 +34,14 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
 
   return (
     <div className={containerClass} style={containerStyle}>
-      <div className={styles.widgetContent}>{children}</div>
+      <div className={styles.widgetContent} style={{ opacity: loading ? 0.5 : 1, transition: 'opacity 0.2s' }}>
+        {children}
+      </div>
+      {loading && (
+        <div className={styles.widgetLoadingOverlay}>
+          <span className={styles.spinner}>⟳</span>
+        </div>
+      )}
     </div>
   );
 };

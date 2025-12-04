@@ -1,11 +1,12 @@
 /**
  * Advanced Visualizations Section
- * Contains Donut and Sankey
+ * Contains Donut, Sankey, and Client Resources
  */
 
 import React from 'react';
 import { ClusterHealthDonut } from '../widgets/ClusterHealthDonut';
 import { ConnectionFlowSankey } from '../widgets/ConnectionFlowSankey';
+import { ClientResources } from '../widgets/ClientResources';
 import styles from '../styles/dashboard.module.scss';
 
 export const AdvancedSection: React.FC = () => {

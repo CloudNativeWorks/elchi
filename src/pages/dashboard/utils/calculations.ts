@@ -3,7 +3,7 @@
  * Health scores, percentages, and metric calculations
  */
 
-import { ComponentHealth, SystemHealth } from '../types/dashboard.types';
+import { ComponentHealth } from '../types/dashboard.types';
 
 /**
  * Calculate overall system health score (0-100)
