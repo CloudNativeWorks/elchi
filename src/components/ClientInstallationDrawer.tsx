@@ -282,111 +282,6 @@ const ClientInstallationDrawer: React.FC<ClientInstallationDrawerProps> = ({ ope
 
                     <Divider />
 
-                    {/* What the Script Does */}
-                    <div style={{ marginBottom: 32 }}>
-                        <Title level={4}>
-                            <CodeOutlined style={{ color: '#722ed1', marginRight: 8 }} />
-                            What Does the Installation Script Do?
-                        </Title>
-
-                        <Paragraph>
-                            The elchi-install.sh script performs a complete system setup optimized for high-performance load balancing:
-                        </Paragraph>
-
-                        <div style={{ marginTop: 16 }}>
-                            <Text strong>Kernel Parameter Optimizations:</Text>
-                            <ul style={{ marginTop: 8, marginBottom: 16, paddingLeft: 20 }}>
-                                <li><Text code>net.netfilter.nf_conntrack_max = 2097152</Text> - Handles 2M+ concurrent connections</li>
-                                <li><Text code>net.ipv4.tcp_tw_reuse = 1</Text> - Reuses TIME_WAIT sockets for new connections</li>
-                                <li><Text code>net.ipv4.tcp_fin_timeout = 30</Text> - Reduces FIN-WAIT-2 timeout from 60s to 30s</li>
-                                <li><Text code>fs.file-max = 4097152</Text> - System-wide file descriptor limit (4M)</li>
-                                <li><Text code>fs.nr_open = 2048576</Text> - Per-process file descriptor hard limit (2M)</li>
-                                <li><Text code>net.core.somaxconn = 32768</Text> - Max queued connections (32K)</li>
-                                <li><Text code>net.ipv4.tcp_max_syn_backlog = 32768</Text> - SYN queue size for DDoS protection</li>
-                                <li><Text code>net.core.rmem_max = 16777216</Text> - Max receive buffer (16MB)</li>
-                                <li><Text code>net.core.wmem_max = 16777216</Text> - Max send buffer (16MB)</li>
-                                <li><Text code>net.ipv4.ip_forward = 1</Text> - Enables packet forwarding between interfaces</li>
-                                <li><Text code>net.ipv4.tcp_keepalive_time = 120</Text> - TCP keepalive probe after 2 min idle</li>
-                                <li><Text code>net.ipv4.ip_local_port_range = 1024 65535</Text> - Ephemeral port range</li>
-                                <li><Text code>fs.inotify.max_user_watches = 262144</Text> - File watch limit for config monitoring</li>
-                            </ul>
-                        </div>
-
-                        <div style={{ marginTop: 16 }}>
-                            <Text strong>System Limits Configuration:</Text>
-                            <ul style={{ marginTop: 8, marginBottom: 16, paddingLeft: 20 }}>
-                                <li><Text code>* soft nofile 655360</Text> - Soft limit for open files per process</li>
-                                <li><Text code>* hard nofile 655360</Text> - Hard limit for open files per process</li>
-                                <li><Text code>* soft nproc 32768</Text> - Max processes/threads (soft limit)</li>
-                                <li><Text code>* hard nproc 32768</Text> - Max processes/threads (hard limit)</li>
-                                <li><Text code>* soft memlock unlimited</Text> - Memory lock limit for high-performance I/O</li>
-                                <li><Text code>* hard memlock unlimited</Text> - Allows unlimited memory locking</li>
-                            </ul>
-                        </div>
-
-                        <div style={{ marginTop: 16 }}>
-                            <Text strong>User & Permission Setup:</Text>
-                            <ul style={{ marginTop: 8, marginBottom: 16, paddingLeft: 20 }}>
-                                <li>Creates system users: <Text code>elchi</Text> and <Text code>envoyuser</Text></li>
-                                <li>Configures sudoers rules for systemd, netplan, and FRR management</li>
-                                <li>Sets up <Text code>/etc/elchi</Text> and <Text code>/var/lib/elchi</Text> directory hierarchy</li>
-                                <li>Applies SELinux/AppArmor compatible permissions</li>
-                            </ul>
-                        </div>
-
-                        <div style={{ marginTop: 16 }}>
-                            <Text strong>Elchi Client Installation:</Text>
-                            <ul style={{ marginTop: 8, marginBottom: 16, paddingLeft: 20 }}>
-                                <li>Downloads latest elchi-client binary from GitHub releases</li>
-                                <li>Verifies binary integrity with SHA256 checksum</li>
-                                <li>Creates configuration file with your server settings</li>
-                                <li>Installs and enables systemd service for auto-start</li>
-                            </ul>
-                        </div>
-
-                        <div style={{ marginTop: 16 }}>
-                            <Text strong>Network & Connection Tracking:</Text>
-                            <ul style={{ marginTop: 8, marginBottom: 16, paddingLeft: 20 }}>
-                                <li><Text code>nf_conntrack hashsize=524288</Text> - Connection tracking hash table size</li>
-                                <li><Text code>nf_conntrack expect_hashsize=524288</Text> - Expected connections hash table</li>
-                                <li><Text code>net.netfilter.nf_conntrack_tcp_timeout_established = 7200</Text> - 2 hour timeout for established connections</li>
-                                <li><Text code>net.netfilter.nf_conntrack_tcp_timeout_time_wait = 120</Text> - 2 min TIME_WAIT timeout</li>
-                                <li>Converts Ubuntu netplan to <Text code>99-elchi-interfaces.yaml</Text> format</li>
-                                <li>Sets up routing table management via <Text code>/var/lib/elchi/rt_tables.conf</Text></li>
-                                <li>Creates symlink to <Text code>/etc/iproute2/rt_tables.d/elchi.conf</Text></li>
-                            </ul>
-                        </div>
-
-                        {/* BGP/FRR Section */}
-                        <div style={{ marginTop: 16 }}>
-                            <Text strong>Optional: BGP Routing (--enable-bgp):</Text>
-                            <ul style={{ marginTop: 8, marginBottom: 16, paddingLeft: 20 }}>
-                                <li>Installs FRR 10.4.0 from official repository</li>
-                                <li>Enables zebra and bgpd daemons only</li>
-                                <li>Configures auto-save for routing configurations</li>
-                                <li>Sets up gRPC for programmatic route management</li>
-                            </ul>
-                        </div>
-
-                        <Alert
-                            type="success"
-                            showIcon
-                            message="Production-Ready Setup"
-                            description={
-                                <div>
-                                    <div>• <strong>High Performance:</strong> Optimized for 2M+ concurrent connections</div>
-                                    <div>• <strong>Auto-Recovery:</strong> Service auto-restarts on failure</div>
-                                    <div>• <strong>Security:</strong> Proper user isolation and permission management</div>
-                                    <div>• <strong>Monitoring:</strong> Full systemd integration with journald logging</div>
-                                    <div>• <strong>Network Control:</strong> Complete netplan and routing table management</div>
-                                </div>
-                            }
-                            style={{ marginTop: 16 }}
-                        />
-                    </div>
-
-                    <Divider />
-
                     {/* Supported Operating Systems */}
                     <div style={{ marginBottom: 24 }}>
                         <Title level={4}>
@@ -405,14 +300,13 @@ const ClientInstallationDrawer: React.FC<ClientInstallationDrawerProps> = ({ ope
                             <Text strong>Architecture:</Text>
                             <div style={{ marginTop: 8 }}>
                                 <Text>• AMD64 / x86_64</Text><br />
-                                <Text>• ARM64 / aarch64</Text>
                             </div>
                         </div>
 
                         <div style={{ marginTop: 16 }}>
                             <Text strong>Minimum Resources:</Text>
                             <div style={{ marginTop: 8 }}>
-                                <Text>• RAM: 2GB (4GB+ recommended for production)</Text><br />
+                                <Text>• RAM: 4GB (8GB+ recommended for production)</Text><br />
                                 <Text>• Disk: 50GB free space</Text><br />
                                 <Text>• Network: Stable internet connection</Text>
                             </div>

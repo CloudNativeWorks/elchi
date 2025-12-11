@@ -29,6 +29,9 @@ export const ConnectionFlowSankey: React.FC = () => {
     const fetchDependencies = async () => {
       try {
         setLoading(true);
+        // Clear previous data first
+        setDependencies(null);
+        setListenerInfo(null);
 
         // Get all listeners
         const listenersRes = await api.get(`/api/v3/xds/listeners?project=${project}`);
@@ -62,6 +65,8 @@ export const ConnectionFlowSankey: React.FC = () => {
         setLoading(false);
       } catch (error) {
         console.error('Error fetching dependencies:', error);
+        setDependencies(null);
+        setListenerInfo(null);
         setLoading(false);
       }
     };

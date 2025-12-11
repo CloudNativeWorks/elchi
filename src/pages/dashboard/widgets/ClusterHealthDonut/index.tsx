@@ -79,7 +79,7 @@ export const ClusterHealthDonut: React.FC = () => {
     series: [{
       type: 'pie',
       radius: ['40%', '70%'],
-      center: ['50%', '35%'],
+      center: ['50%', '40%'],
       label: { show: true, formatter: '{c}%', fontSize: 12 },
       data: [
         { value: data.healthy, name: 'Healthy', itemStyle: { color: '#10b981' } },

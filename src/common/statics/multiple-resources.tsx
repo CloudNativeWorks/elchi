@@ -16,6 +16,8 @@ export const multipleResource: Record<string, { name: string, defaultValue: stri
         options: [
             { value: "envoy.extensions.access_loggers.file.v3.FileAccessLog", label: "File Access Log" },
             { value: "envoy.extensions.access_loggers.fluentd.v3.FluentdAccessLogConfig", label: "Fluentd Access Log" },
+            { value: "envoy.extensions.access_loggers.grpc.v3.HttpGrpcAccessLogConfig", label: "HTTP gRPC Access Log" },
+            { value: "envoy.extensions.access_loggers.grpc.v3.TcpGrpcAccessLogConfig", label: "TCP gRPC Access Log" },
             { value: "envoy.extensions.access_loggers.stream.v3.StdoutAccessLog", label: "Stdout Access Log" },
             { value: "envoy.extensions.access_loggers.stream.v3.StderrAccessLog", label: "Stderr Access Log" }
         ]

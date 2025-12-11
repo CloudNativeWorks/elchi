@@ -15,7 +15,7 @@ import { BaseWidget } from '../shared/BaseWidget';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import { useDashboardRefresh } from '../../context/DashboardRefreshContext';
 import { api } from '@/common/api';
-import { formatNumber } from '../../utils/formatters';
+import { formatNumber, formatMilliseconds } from '../../utils/formatters';
 import styles from './styles.module.scss';
 
 echarts.use([LineChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer]);
@@ -87,15 +87,19 @@ export const ResponseTimeTrends: React.FC = () => {
         const time = new Date(params[0].value[0] * 1000).toLocaleString();
         let tooltip = `<strong>${time}</strong><br/>`;
         params.forEach((param: any) => {
-          tooltip += `${param.marker} ${param.seriesName}: <strong>${formatNumber(param.value[1], 0)}ms</strong><br/>`;
+          tooltip += `${param.marker} ${param.seriesName}: <strong>${formatMilliseconds(param.value[1], 0)}</strong><br/>`;
         });
         return tooltip;
       },
     },
-    legend: { show: true, bottom: 0 },
-    grid: { left: '3%', right: '4%', bottom: '50px', top: '10px', containLabel: true },
+    legend: {
+      show: true,
+      bottom: 0,
+      type: 'scroll',
+    },
+    grid: { left: '3%', right: '4%', bottom: '60px', top: '10px', containLabel: true },
     xAxis: { type: 'time' },
-    yAxis: { type: 'value', name: 'ms', axisLabel: { formatter: (v: number) => formatNumber(v, 0) } },
+    yAxis: { type: 'value', axisLabel: { formatter: (v: number) => formatMilliseconds(v, 0) } },
     series: chartData.map((s) => ({
       name: s.metric.envoy_cluster_name || 'Unknown',
       type: 'line',

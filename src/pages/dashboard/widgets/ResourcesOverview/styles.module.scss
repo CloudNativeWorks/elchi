@@ -2,7 +2,7 @@
  * Resources Overview Widget Styles
  */
 
-@import '../../styles/variables.scss';
+@use '../../styles/variables.scss' as *;
 
 .container {
   width: 100%;

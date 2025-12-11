@@ -26,7 +26,7 @@ import {
 } from '@ant-design/icons';
 import { useCustomGetQuery } from "@/common/api";
 import { useProjectVariable } from "@/hooks/useProjectVariable";
-import { D_HTTP_ADAPTIVE_CONCURRENCY, D_HTTP_ADMISSION_CONTROL, D_HTTP_BANDWIDTH_LIMIT, D_HTTP_BASIC_AUTH, D_HTTP_BUFFER, D_HTTP_COMPRESSOR, D_HTTP_CORS, D_HTTP_CSRF_POLICY, D_HTTP_DYNAMIC_FORWARD_PROXY, D_HTTP_EXT_AUTHZ, D_HTTP_EXT_PROC, D_HTTP_GRPC_HTTP1_BRIDGE, D_HTTP_GRPC_WEB, D_HTTP_HEADER_MUTATION, D_HTTP_JWT_AUTHN, D_HTTP_LOCAL_RATE_LIMIT, D_HTTP_LUA, D_HTTP_OAUTH2, D_HTTP_ORIGINAL_SRC, D_HTTP_RBAC, D_HTTP_ROUTER, D_HTTP_STATEFUL_SESSION, D_HTTP_WASM, D_L_HTTP_INSPECTOR, D_L_LOCAL_RATE_LIMIT, D_L_ORIGINAL_DST, D_L_ORIGINAL_SRC, D_L_PROXY_PROTOCOL, D_L_TLS_INSPECTOR, D_N_CONNECTION_LIMIT, D_N_HTTP_CONNECTION_MANAGER, D_N_LOCAL_RATE_LIMIT, D_N_NETWORK_RBAC, D_N_TCP_PROXY, D_UDP_DNS_FILTER, D_UDP_PROXY } from "@/common/statics/ResourceDescriptions";
+import { D_HTTP_ADAPTIVE_CONCURRENCY, D_HTTP_ADMISSION_CONTROL, D_HTTP_BANDWIDTH_LIMIT, D_HTTP_BASIC_AUTH, D_HTTP_BUFFER, D_HTTP_COMPRESSOR, D_HTTP_CORS, D_HTTP_CSRF_POLICY, D_HTTP_DYNAMIC_FORWARD_PROXY, D_HTTP_EXT_AUTHZ, D_HTTP_EXT_PROC, D_HTTP_GRPC_HTTP1_BRIDGE, D_HTTP_GRPC_WEB, D_HTTP_HEADER_MUTATION, D_HTTP_JWT_AUTHN, D_HTTP_LOCAL_RATE_LIMIT, D_HTTP_LUA, D_HTTP_OAUTH2, D_HTTP_ORIGINAL_SRC, D_HTTP_RBAC, D_HTTP_ROUTER, D_HTTP_STATEFUL_SESSION, D_HTTP_WASM, D_L_HTTP_INSPECTOR, D_L_LOCAL_RATE_LIMIT, D_L_ORIGINAL_DST, D_L_ORIGINAL_SRC, D_L_PROXY_PROTOCOL, D_L_TLS_INSPECTOR, D_N_CONNECTION_LIMIT, D_N_HTTP_CONNECTION_MANAGER, D_N_LOCAL_RATE_LIMIT, D_N_MONGO_PROXY, D_N_NETWORK_RBAC, D_N_REDIS_PROXY, D_N_SNI_CLUSTER, D_N_SNI_DYNAMIC_FORWARD_PROXY, D_N_TCP_PROXY, D_UDP_DNS_FILTER, D_UDP_PROXY } from "@/common/statics/ResourceDescriptions";
 
 const { Title, Text } = Typography;
 
@@ -49,6 +49,10 @@ const getFilterIcon = (filterName: string) => {
         'Local Ratelimit': <ThunderboltOutlined />,
         'RBAC': <KeyOutlined />,
         'Tcp Proxy': <KeyOutlined />,
+        'Mongo Proxy': <ApiOutlined />,
+        'Redis Proxy': <ApiOutlined />,
+        'SNI Cluster': <ApiOutlined />,
+        'SNI Dynamic Forward Proxy': <GlobalOutlined />,
         'DNS Filter': <SendOutlined />,
         'UDP Proxy': <ApiOutlined />,
         'Adaptive Concurrency': <MonitorOutlined />,
@@ -151,11 +155,39 @@ const filters = [
                 canonical_name: "envoy.filters.network.local_ratelimit"
             },
             {
+                name: 'Mongo Proxy',
+                path: '/filters/network/mongo_proxy',
+                value: 225,
+                data: D_N_MONGO_PROXY,
+                canonical_name: "envoy.filters.network.mongo_proxy"
+            },
+            {
                 name: 'RBAC',
                 path: '/filters/network/network_rbac',
                 value: 225,
                 data: D_N_NETWORK_RBAC,
                 canonical_name: "envoy.filters.network.rbac"
+            },
+            {
+                name: 'Redis Proxy',
+                path: '/filters/network/redis_proxy',
+                value: 226,
+                data: D_N_REDIS_PROXY,
+                canonical_name: "envoy.filters.network.redis_proxy"
+            },
+            {
+                name: 'SNI Dynamic Forward Proxy',
+                path: '/filters/network/sni_dynamic_forward_proxy',
+                value: 228,
+                data: D_N_SNI_DYNAMIC_FORWARD_PROXY,
+                canonical_name: "envoy.filters.network.sni_dynamic_forward_proxy"
+            },
+            {
+                name: 'SNI Cluster',
+                path: '/filters/network/sni_cluster',
+                value: 227,
+                data: D_N_SNI_CLUSTER,
+                canonical_name: "envoy.filters.network.sni_cluster"
             },
             {
                 name: 'Tcp Proxy',

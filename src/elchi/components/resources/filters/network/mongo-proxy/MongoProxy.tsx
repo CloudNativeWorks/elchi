@@ -1,26 +1,23 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { Col, Row, Divider } from 'antd';
+import { ResourceAction } from '@/redux/reducers/slice';
 import { HeadOfResource } from '@/elchi/components/common/HeadOfResources';
-import { FieldConfigType, startsWithAny } from '@/utils/tools';
+import { FieldConfigType, matchesEndOrStartOf } from '@/utils/tools';
 import CommonComponentSingleOptions from '@/elchi/components/resources/common/SingleOptions/SingleOptions';
+import CommonComponentFaultDelay from '@/elchi/components/resources/common/FaultDelay/FaultDelay';
 import CustomAnchor from '@/elchi/components/common/CustomAnchor';
 import { GTypes } from '@/common/statics/gtypes';
 import { useGTypeFields } from '@/hooks/useGtypes';
 import useResourceMain from '@/hooks/useResourceMain';
 import { useModels } from '@/hooks/useModels';
 import { useTags } from '@/hooks/useTags';
-import { modtag_dns_filter } from './_modtag_';
+import { modtag_mongo_proxy, modtag_us_mongoproxy } from './_modtag_';
 import { generateFields } from '@/common/generate-fields';
 import RenderLoading from '@/elchi/components/common/Loading';
 import { useLoading } from '@/hooks/loadingContext';
 import { useManagedLoading } from '@/hooks/useManageLoading';
-import ComponentClientContextConfig from './ClientConfig';
-import ComponentServerContextConfig from './ServerConfig';
 import { ConditionalComponent } from '@/elchi/components/common/ConditionalComponent';
-import CommonComponentAccessLog from '@resources/common/AccessLog/AccessLog';
-import { ResourceAction } from '@/redux/reducers/slice';
-
 
 type GeneralProps = {
     veri: {
@@ -31,25 +28,26 @@ type GeneralProps = {
     }
 };
 
-const ComponentDnsFilter: React.FC<GeneralProps> = ({ veri }) => {
-    const GType = useGTypeFields(GTypes.ListenerDnsFilter);
+const ComponentMongoProxy: React.FC<GeneralProps> = ({ veri }) => {
+    const GType = useGTypeFields(GTypes.MongoProxy);
     const location = useLocation();
-    const { vModels, loading_m } = useModels(veri.version, modtag_dns_filter);
-    const { vTags, loading } = useTags(veri.version, modtag_dns_filter);
+    const { vModels, loading_m } = useModels(veri.version, modtag_mongo_proxy);
+    const { vTags, loading } = useTags(veri.version, modtag_mongo_proxy);
     const { loadingCount } = useLoading();
     const { reduxStore, selectedTags, handleChangeTag } = useResourceMain({
         version: veri.version,
-        alias: "df",
+        alias: "mp",
         vModels,
         vTags,
-        modelName: "DnsFilterConfig",
+        modelName: "MongoProxy",
     });
 
     const fieldConfigs: FieldConfigType[] = [
         ...generateFields({
-            f: vTags.df?.DnsFilterConfig,
-            sf: vTags.df?.DnsFilterConfig_SingleFields,
+            f: vTags.mp?.MongoProxy,
+            sf: vTags.mp?.MongoProxy_SingleFields,
             e: [],
+            r: ['stat_prefix']
         })
     ];
 
@@ -71,25 +69,28 @@ const ComponentDnsFilter: React.FC<GeneralProps> = ({ veri }) => {
                     offset: 0,
                     name: veri.generalName,
                     reduxStore: reduxStore,
-                    voidToJSON: vModels.df?.DnsFilterConfig.toJSON,
+                    voidToJSON: vModels.mp?.MongoProxy.toJSON,
                     queryResource: veri.queryResource,
                     envoyVersion: veri.version,
                     gtype: reduxStore?.$type,
                 }}
             />
-            <Divider type='horizontal' orientation='left' orientationMargin='0'>DNS Filter</Divider>
+            <Divider type='horizontal' orientation='left' orientationMargin='0'>Mongo Proxy</Divider>
             <Row>
                 <Col md={4} style={{ display: "block", maxHeight: "auto", overflowY: "auto" }}>
                     <CustomAnchor
-                        resourceConfKeys={vTags.df?.DnsFilterConfig}
-                        singleOptionKeys={vTags.df?.DnsFilterConfig_SingleFields}
+                        resourceConfKeys={vTags.mp?.MongoProxy}
+                        unsuportedTags={modtag_us_mongoproxy['MongoProxy']}
+                        singleOptionKeys={vTags.mp?.MongoProxy_SingleFields}
                         selectedTags={selectedTags}
                         handleChangeTag={handleChangeTag}
+                        tagMatchPrefix={'MongoProxy'}
+                        required={['stat_prefix']}
                     />
                 </Col>
                 <Col md={20}>
                     <ConditionalComponent
-                        shouldRender={selectedTags?.some(item => vTags.df?.DnsFilterConfig_SingleFields.includes(item))}
+                        shouldRender={selectedTags?.some(item => vTags.mp?.MongoProxy_SingleFields.includes(item))}
                         Component={CommonComponentSingleOptions}
                         componentProps={{
                             version: veri.version,
@@ -100,36 +101,15 @@ const ComponentDnsFilter: React.FC<GeneralProps> = ({ veri }) => {
                         }}
                     />
                     <ConditionalComponent
-                        shouldRender={startsWithAny("server_config", selectedTags)}
-                        Component={ComponentServerContextConfig}
+                        shouldRender={matchesEndOrStartOf('delay', selectedTags)}
+                        Component={CommonComponentFaultDelay}
                         componentProps={{
                             version: veri.version,
-                            reduxStore: reduxStore?.server_config,
-                            keyPrefix: 'server_config',
-                            title: 'Server Config',
-                            id: `server_config_0`,
-                        }}
-                    />
-                    <ConditionalComponent
-                        shouldRender={startsWithAny("client_config", selectedTags)}
-                        Component={ComponentClientContextConfig}
-                        componentProps={{
-                            version: veri.version,
-                            reduxStore: reduxStore?.client_config,
-                            keyPrefix: 'client_config',
-                            title: 'Client Config',
-                            id: `client_config_0`,
-                        }}
-                    />
-                    <ConditionalComponent
-                        shouldRender={startsWithAny("access_log", selectedTags)}
-                        Component={CommonComponentAccessLog}
-                        componentProps={{
-                            version: veri.version,
-                            reduxStore: reduxStore?.access_log,
+                            reduxStore: reduxStore?.delay,
                             reduxAction: ResourceAction,
-                            keyPrefix: 'access_log',
-                            tagMatchPrefix: 'DnsFilterConfig',
+                            keyPrefix: `delay`,
+                            tagMatchPrefix: 'MongoProxy',
+                            id: `delay_0`,
                         }}
                     />
                 </Col>
@@ -138,4 +118,4 @@ const ComponentDnsFilter: React.FC<GeneralProps> = ({ veri }) => {
     );
 }
 
-export default React.memo(ComponentDnsFilter);
+export default React.memo(ComponentMongoProxy);

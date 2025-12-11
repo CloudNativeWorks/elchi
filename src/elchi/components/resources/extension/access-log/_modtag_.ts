@@ -16,6 +16,32 @@ export const modtag_fluentd_access_log = [
     },
 ];
 
+export const modtag_http_grpc_access_log = [
+    {
+        alias: 'hgal',
+        relativePath: 'envoy/extensions/access_loggers/grpc/v3/als',
+        names: ['HttpGrpcAccessLogConfig', 'HttpGrpcAccessLogConfig_SingleFields'],
+    },
+    {
+        alias: 'cgal',
+        relativePath: 'envoy/extensions/access_loggers/grpc/v3/als',
+        names: ['CommonGrpcAccessLogConfig', 'CommonGrpcAccessLogConfig_SingleFields'],
+    },
+];
+
+export const modtag_tcp_grpc_access_log = [
+    {
+        alias: 'tgal',
+        relativePath: 'envoy/extensions/access_loggers/grpc/v3/als',
+        names: ['TcpGrpcAccessLogConfig', 'TcpGrpcAccessLogConfig_SingleFields'],
+    },
+    {
+        alias: 'cgal',
+        relativePath: 'envoy/extensions/access_loggers/grpc/v3/als',
+        names: ['CommonGrpcAccessLogConfig', 'CommonGrpcAccessLogConfig_SingleFields'],
+    },
+];
+
 export const modtag_stdout_access_log = [
     {
         alias: 'outal',

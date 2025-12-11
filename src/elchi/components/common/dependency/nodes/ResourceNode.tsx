@@ -179,18 +179,18 @@ const ResourceNode: React.FC<NodeProps<ResourceNodeType>> = ({ data, selected })
                 {/* Category badge */}
                 <div
                     style={{
-                        fontSize: '8px',
+                        fontSize: '6px',
                         fontWeight: 600,
                         color: nodeStyle.text,
                         textTransform: 'uppercase',
                         letterSpacing: '0.3px',
-                        opacity: 0.85,
+                        opacity: 1,
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
+                        whiteSpace: 'wrap',
                     }}
                 >
-                    {data.category}
+                    {data.gtype.split('.').pop()}
                 </div>
             </div>
         </div>

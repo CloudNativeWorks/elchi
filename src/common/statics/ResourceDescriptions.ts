@@ -458,6 +458,88 @@ This filter handles connection lifecycle events (open, close, idle), performs lo
 - Offers options for **idle timeout**, **maximum connection duration**, and **connection-level access logging**.
 - Does **not parse** the application protocol—traffic is forwarded byte-for-byte.`
 
+export const D_N_MONGO_PROXY = `
+**Mongo Proxy** is a network filter that provides MongoDB wire protocol parsing, access logging, query statistics, and fault injection capabilities for MongoDB connections. It enables deep observability into MongoDB traffic and allows operations teams to monitor and analyze database operations without modifying application code.
+
+This filter decodes MongoDB operations (queries, inserts, updates, deletes) and emits detailed metrics and logs, making it invaluable for debugging, performance monitoring, and operational insights.
+
+### 🔍 Key Responsibilities
+- Parse and decode **MongoDB wire protocol** messages (OP_QUERY, OP_INSERT, OP_UPDATE, etc.).
+- Emit detailed **statistics** for MongoDB operations (command counts, latencies, errors).
+- Generate **structured access logs** containing MongoDB operation details.
+- Support **fault injection** (delays) for testing resilience and timeouts.
+- Produce **dynamic metadata** about MongoDB operations for use in other filters.`
+
+export const D_N_SNI_CLUSTER = `
+**SNI Cluster** is a network filter that automatically sets the upstream cluster name based on the SNI (Server Name Indication) field from the TLS handshake. This enables dynamic routing of TLS connections to different upstream clusters based on the requested hostname, without terminating TLS at the proxy level.
+
+This filter is particularly useful for TLS pass-through scenarios where the proxy needs to route encrypted traffic to different backends based on the SNI hostname, while keeping the traffic encrypted end-to-end.
+
+### 🔍 Key Responsibilities
+- Extract the **SNI hostname** from the TLS ClientHello message.
+- Set the **upstream cluster name** to match the SNI hostname.
+- Enable **dynamic routing** of TLS connections without TLS termination.
+- Support **pass-through proxying** of encrypted traffic.
+
+### 🧩 Common Use Cases
+- Routing TLS connections to different backend clusters based on hostname (e.g., \`api.example.com\` to api-cluster, \`web.example.com\` to web-cluster).
+- Implementing TLS pass-through proxying without decrypting traffic at the edge.
+- Building multi-tenant proxies where each tenant has a separate upstream cluster.
+- Creating hostname-based routing for encrypted traffic.
+
+### 🧠 Good to Know
+- This filter has **no configuration fields**—it simply reads the SNI and sets the cluster name.
+- Requires the upstream cluster name to **match the SNI hostname exactly**.
+- Works only with TLS connections that include SNI in the ClientHello.
+- Must be placed **before** the TCP proxy filter in the filter chain.
+- The cluster must be pre-configured in the Envoy configuration.`
+
+export const D_N_SNI_DYNAMIC_FORWARD_PROXY = `
+**SNI Dynamic Forward Proxy** is a network filter that enables dynamic DNS resolution and connection pooling for TLS connections based on the SNI (Server Name Indication) hostname. Unlike the static SNI Cluster filter, this filter performs DNS lookups at connection time and maintains a shared DNS cache across all connections.
+
+This filter is essential for building forward proxies that route TLS connections to arbitrary hostnames without pre-configured clusters, while efficiently managing DNS resolution and connection pooling.
+
+### 🔍 Key Responsibilities
+- Extract the **SNI hostname** from the TLS ClientHello message.
+- Perform **dynamic DNS resolution** for the SNI hostname using a shared DNS cache.
+- Establish connections to resolved IP addresses with **connection pooling**.
+- Support **port override** for upstream connections (default: use original destination port).
+- Optionally **save upstream addresses** for connection management.
+
+### 🧩 Common Use Cases
+- Building **forward proxies** that route TLS connections to arbitrary hostnames.
+- Implementing **dynamic routing** for TLS traffic without pre-configured clusters.
+- Creating **multi-tenant proxies** with efficient DNS caching and connection pooling.
+- Enabling **on-demand upstream resolution** for TLS pass-through scenarios.
+
+### 🧠 Good to Know
+- Requires **dns_cache_config** (REQUIRED)—shared DNS cache configuration for upstream resolution.
+- Must be used with **TLS Inspector listener filter** to extract SNI from ClientHello.
+- The **port_value** field allows overriding the upstream port (useful for non-standard ports).
+- The **save_upstream_address** field enables storing resolved addresses for connection tracking.
+- Works only with TLS connections that include SNI in the ClientHello message.`
+
+export const D_N_REDIS_PROXY = `
+**Redis Proxy** is a network filter that provides Redis protocol parsing, connection pooling, command routing, and observability capabilities for Redis connections. It acts as an intelligent proxy between clients and Redis servers, enabling advanced features like prefix-based routing, authentication, and detailed metrics collection.
+
+This filter decodes Redis commands (GET, SET, MGET, etc.) and supports both standalone Redis and cluster deployments, providing deep visibility into Redis traffic patterns and performance characteristics.
+
+### 🔍 Key Responsibilities
+- Parse and decode **Redis protocol** (RESP) commands and responses.
+- Provide **connection pooling** to Redis upstream clusters for improved performance.
+- Support **prefix-based routing** to route commands to different Redis clusters based on key prefixes.
+- Implement **downstream authentication** (username/password) for client connections.
+- Emit detailed **statistics** and metrics for Redis operations (command latencies, errors, connection stats).
+- Support **fault injection** for testing resilience and failure scenarios.
+- Enable **custom command handling** for Redis-compatible protocols.
+
+### 🧩 Common Use Cases
+- Routing Redis commands to different clusters based on key prefixes (e.g., \`user:*\` to user-cluster).
+- Providing connection pooling and load balancing for Redis clusters.
+- Adding authentication layer in front of Redis servers.
+- Monitoring Redis traffic patterns and performance metrics.
+- Testing application resilience with fault injection.`
+
 export const D_UDP_DNS_FILTER = `
 **DNS Filter** is a UDP listener filter that enables the proxy to act as a **DNS resolver or forwarder**. It processes DNS queries over UDP, matches them against a configured set of domains and records, and responds directly or forwards the request to an upstream DNS server.
 

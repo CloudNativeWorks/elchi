@@ -3,7 +3,7 @@
  * Main dashboard container and grid system
  */
 
-@import './variables.scss';
+@use './variables.scss' as *;
 
 .dashboardContainer {
   min-height: 100vh;

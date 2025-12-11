@@ -13,6 +13,8 @@ import { FieldTypes } from "@/common/statics/general";
 import { ConditionalComponent } from "@/elchi/components/common/ConditionalComponent";
 import { EForm } from "@/elchi/components/common/e-components/EForm";
 import { EFields } from "@/elchi/components/common/e-components/EFields";
+import CommonComponentStringMatchers from '@resources/common/StringMatcher/StringMatchers';
+import { ResourceAction } from '@/redux/reducers/slice';
 
 
 type GeneralProps = {
@@ -36,6 +38,7 @@ const ComponentDnsTable: React.FC<GeneralProps> = ({ veri }) => {
         ...generateFields({
             f: vTags.dt?.DnsTable,
             sf: vTags.dt?.DnsTable_SingleFields,
+            e: ['known_suffixes'],
         }),
         { tag: "virtual_domains", type: FieldTypes.ArrayIcon, fieldPath: 'virtual_domains', spanNum: 8, drawerShow: () => { setVirtualDomains(true); }, },
     ];
@@ -45,7 +48,7 @@ const ComponentDnsTable: React.FC<GeneralProps> = ({ veri }) => {
             <HorizonTags veri={{
                 tags: vTags.dt?.DnsTable,
                 selectedTags: selectedTags,
-                unsupportedTags: ["known_suffixes"],
+                unsupportedTags: [],
                 handleChangeTag: handleChangeTag,
                 keyPrefix: veri.keyPrefix,
             }} />
@@ -71,6 +74,20 @@ const ComponentDnsTable: React.FC<GeneralProps> = ({ veri }) => {
                         reduxStore: veri.reduxStore?.virtual_domains,
                         drawerClose: () => { setVirtualDomains(false); },
                         id: `virtual_domains_0`,
+                    }}
+                />
+                <ConditionalComponent
+                    shouldRender={startsWithAny("known_suffixes", selectedTags)}
+                    Component={CommonComponentStringMatchers}
+                    componentProps={{
+                        version: veri.version,
+                        reduxStore: veri.reduxStore?.known_suffixes,
+                        reduxAction: ResourceAction,
+                        selectedTags: selectedTags,
+                        tag: "known_suffixes",
+                        keyPrefix: `${veri.keyPrefix}.known_suffixes`,
+                        tagMatchPrefix: 'DnsTable',
+                        title: 'Known Suffixes',
                     }}
                 />
             </Col>

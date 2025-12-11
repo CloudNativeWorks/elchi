@@ -34,6 +34,10 @@ const formatUptime = (seconds: number): string => {
 export const ClientResources: React.FC = () => {
   const { clients, loading, error, refresh } = useClientResources({ limit: 20 });
   const navigate = useNavigate();
+  const [expanded, setExpanded] = React.useState(false);
+
+  const displayedClients = expanded ? clients : clients.slice(0, 6);
+  const hasMore = clients.length > 6;
 
   return (
     <BaseWidget
@@ -53,13 +57,14 @@ export const ClientResources: React.FC = () => {
           </div>
         </div>
       ) : (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-          gap: 12,
-          padding: '4px 0',
-        }}>
-          {clients.map((client) => {
+        <>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+            gap: 12,
+            padding: '4px 0',
+          }}>
+            {displayedClients.map((client) => {
             const isOffline = client.cpu_usage < 0;
             const cpuColor = isOffline ? '#bfbfbf' : getStatusColor(client.cpu_usage);
             const memColor = isOffline ? '#bfbfbf' : getStatusColor(client.memory_usage);
@@ -260,6 +265,39 @@ export const ClientResources: React.FC = () => {
             );
           })}
         </div>
+
+        {hasMore && (
+          <div style={{
+            marginTop: 16,
+            textAlign: 'center',
+          }}>
+            <button
+              onClick={() => setExpanded(!expanded)}
+              style={{
+                padding: '8px 16px',
+                fontSize: 12,
+                fontWeight: 500,
+                color: '#056ccd',
+                background: 'transparent',
+                border: '1px solid rgba(5, 108, 205, 0.3)',
+                borderRadius: 6,
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(5, 108, 205, 0.05)';
+                e.currentTarget.style.borderColor = '#056ccd';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'transparent';
+                e.currentTarget.style.borderColor = 'rgba(5, 108, 205, 0.3)';
+              }}
+            >
+              {expanded ? `Show Less` : `Show All ${clients.length} Clients`}
+            </button>
+          </div>
+        )}
+      </>
       )}
     </BaseWidget>
   );

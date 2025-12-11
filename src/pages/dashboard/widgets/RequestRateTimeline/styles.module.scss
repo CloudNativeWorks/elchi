@@ -2,7 +2,7 @@
  * Request Rate Timeline Widget Styles
  */
 
-@import '../../styles/variables.scss';
+@use '../../styles/variables.scss' as *;
 
 .controls {
   display: flex;

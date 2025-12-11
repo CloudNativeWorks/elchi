@@ -174,6 +174,25 @@ export function getPercentageColor(value: number, reversed: boolean = false): st
 }
 
 /**
+ * Format milliseconds for response time display
+ * Converts to seconds if >= 1000ms
+ */
+export function formatMilliseconds(ms: number, decimals: number = 1): string {
+  if (ms === 0) return '0ms';
+  if (isNaN(ms) || !isFinite(ms)) return 'N/A';
+
+  const abs = Math.abs(ms);
+  const sign = ms < 0 ? '-' : '';
+
+  // Convert to seconds if >= 1000ms
+  if (abs >= 1000) {
+    return sign + (abs / 1000).toFixed(decimals) + 's';
+  }
+
+  return sign + abs.toFixed(decimals) + 'ms';
+}
+
+/**
  * Truncate string with ellipsis
  */
 export function truncateString(str: string, maxLength: number = 30): string {
