@@ -1,0 +1,435 @@
+/**
+ * Widget Styles
+ * Shared styles for dashboard widgets
+ */
+
+@use './variables.scss' as *;
+
+// Base Widget Container
+.widgetContainer {
+  @include glassmorphism;
+  border-radius: $radius-xl;
+  padding: $space-lg;
+  transition: all $transition-normal;
+  position: relative;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-xl;
+  }
+
+  &.small {
+    min-height: 200px;
+  }
+
+  &.medium {
+    min-height: 300px;
+  }
+
+  &.large {
+    min-height: 400px;
+  }
+
+  &.xlarge {
+    min-height: 500px;
+  }
+
+  @include respond-to('md') {
+    padding: $space-md;
+    border-radius: $radius-lg;
+
+    &:hover {
+      transform: none;
+    }
+  }
+}
+
+// Widget Header
+.widgetHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $space-lg;
+
+  .widgetTitle {
+    display: flex;
+    align-items: center;
+    gap: $space-sm;
+    font-size: $font-size-title;
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
+
+    .icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 24px;
+      color: $color-primary;
+    }
+  }
+
+  .widgetActions {
+    display: flex;
+    align-items: center;
+    gap: $space-sm;
+
+    .lastUpdated {
+      font-size: $font-size-caption;
+      color: $text-tertiary;
+      margin-right: $space-sm;
+
+      @include respond-to('md') {
+        display: none;
+      }
+    }
+
+    .actionButton {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      color: $text-secondary;
+      cursor: pointer;
+      border-radius: $radius-md;
+      transition: all $transition-fast;
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.05);
+        color: $color-primary;
+      }
+
+      &:active {
+        transform: scale(0.95);
+      }
+
+      &.loading {
+        animation: spin 1s linear infinite;
+      }
+    }
+  }
+
+  @include respond-to('md') {
+    margin-bottom: $space-md;
+
+    .widgetTitle {
+      font-size: $font-size-body;
+    }
+  }
+}
+
+// Widget Content
+.widgetContent {
+  position: relative;
+}
+
+// Widget Loading
+.widgetLoading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  color: $text-secondary;
+
+  .spinner {
+    animation: spin 1s linear infinite;
+    font-size: 24px;
+  }
+}
+
+// Widget Loading Overlay
+.widgetLoadingOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(4px);
+  border-radius: inherit;
+  z-index: 100;
+  pointer-events: none;
+
+  .spinner {
+    animation: spin 1s linear infinite;
+    font-size: 24px;
+    color: $color-primary;
+    opacity: 1;
+  }
+}
+
+// Widget Error
+.widgetError {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: $space-lg;
+  text-align: center;
+
+  .errorIcon {
+    font-size: 32px;
+    color: $color-danger;
+    margin-bottom: $space-md;
+  }
+
+  .errorMessage {
+    font-size: $font-size-body;
+    color: $text-secondary;
+  }
+}
+
+// Widget Empty State
+.widgetEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+  padding: $space-lg;
+  text-align: center;
+  color: $text-secondary;
+
+  .emptyIcon {
+    font-size: 48px;
+    margin-bottom: $space-md;
+    opacity: 0.5;
+  }
+
+  .emptyTitle {
+    font-size: $font-size-body;
+    font-weight: $font-weight-medium;
+    color: $text-secondary;
+    margin-bottom: $space-sm;
+  }
+
+  .emptyDescription {
+    font-size: $font-size-caption;
+    color: $text-tertiary;
+  }
+}
+
+// Metric Card
+.metricCard {
+  @include glassmorphism;
+  border-radius: $radius-lg;
+  padding: $space-lg;
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+  cursor: pointer;
+  transition: all $transition-normal;
+
+  &:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: $shadow-xl;
+  }
+
+  &.primary {
+    background: $gradient-primary;
+    color: $text-white;
+  }
+
+  &.success {
+    background: $gradient-success;
+    color: $text-white;
+  }
+
+  &.warning {
+    background: $gradient-warning;
+    color: $text-white;
+  }
+
+  &.danger {
+    background: $gradient-danger;
+    color: $text-white;
+  }
+
+  &.info {
+    background: $gradient-info;
+    color: $text-white;
+  }
+
+  .metricHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .metricLabel {
+      font-size: $font-size-caption;
+      font-weight: $font-weight-medium;
+      opacity: 0.9;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .metricIcon {
+      font-size: 20px;
+      opacity: 0.8;
+    }
+  }
+
+  .metricValue {
+    font-size: $font-size-hero;
+    font-weight: $font-weight-bold;
+    line-height: 1;
+
+    .metricUnit {
+      font-size: $font-size-body;
+      font-weight: $font-weight-medium;
+      margin-left: $space-xs;
+      opacity: 0.8;
+    }
+  }
+
+  .metricTrend {
+    display: flex;
+    align-items: center;
+    gap: $space-xs;
+    font-size: $font-size-caption;
+    opacity: 0.9;
+
+    &.up {
+      color: $color-success;
+    }
+
+    &.down {
+      color: $color-danger;
+    }
+
+    &.stable {
+      opacity: 0.7;
+    }
+  }
+
+  @include respond-to('md') {
+    padding: $space-md;
+
+    .metricValue {
+      font-size: $font-size-display;
+    }
+  }
+}
+
+// Status Badge
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-xs;
+  padding: $space-xs $space-sm;
+  border-radius: $radius-full;
+  font-size: $font-size-caption;
+  font-weight: $font-weight-medium;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &.healthy {
+    background: rgba(16, 185, 129, 0.1);
+    color: $color-success;
+  }
+
+  &.degraded {
+    background: rgba(245, 158, 11, 0.1);
+    color: $color-warning;
+  }
+
+  &.down {
+    background: rgba(239, 68, 68, 0.1);
+    color: $color-danger;
+  }
+
+  &.critical {
+    background: rgba(239, 68, 68, 0.1);
+    color: $color-danger;
+  }
+
+  &.warning {
+    background: rgba(245, 158, 11, 0.1);
+    color: $color-warning;
+  }
+
+  &.info {
+    background: rgba(6, 182, 212, 0.1);
+    color: $color-info;
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: $radius-full;
+    background: currentColor;
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  &.small {
+    padding: 2px $space-xs;
+    font-size: $font-size-tiny;
+
+    .dot {
+      width: 4px;
+      height: 4px;
+    }
+  }
+
+  &.large {
+    padding: $space-sm $space-md;
+    font-size: $font-size-caption;
+
+    .dot {
+      width: 8px;
+      height: 8px;
+    }
+  }
+}
+
+// Loading Skeleton
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.06) 0%,
+    rgba(0, 0, 0, 0.1) 50%,
+    rgba(0, 0, 0, 0.06) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: $radius-md;
+
+  &.card {
+    height: 300px;
+  }
+
+  &.metric {
+    height: 120px;
+  }
+
+  &.chart {
+    height: 250px;
+  }
+
+  &.list {
+    height: 40px;
+    margin-bottom: $space-sm;
+  }
+
+  &.text {
+    height: 16px;
+    width: 100%;
+  }
+}
+
+// Animations
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,0 +1,219 @@
+/**
+ * SCSS Variables
+ * Design tokens for the space command center dashboard
+ */
+
+// Colors - Space Command Center Palette
+$color-primary: #0a7fda;
+$color-accent: #00c6fb;
+
+$color-success: #10b981;
+$color-warning: #f59e0b;
+$color-danger: #ef4444;
+$color-info: #06b6d4;
+
+$color-purple: #8b5cf6;
+$color-indigo: #6366f1;
+$color-pink: #ec4899;
+$color-gray: #6b7280;
+
+// Background Colors
+$bg-light: #f8fafc;
+$bg-surface: #ffffff;
+$bg-glass: rgba(255, 255, 255, 0.95);
+$bg-glass-hover: rgba(255, 255, 255, 0.98);
+
+// Border Colors
+$border-light: rgba(255, 255, 255, 0.3);
+$border-gray: #e5e7eb;
+
+// Text Colors
+$text-primary: #111827;
+$text-secondary: #6b7280;
+$text-tertiary: #9ca3af;
+$text-white: #ffffff;
+
+// Gradients
+$gradient-primary: linear-gradient(135deg, #056ccd 0%, #00c6fb 100%);
+$gradient-success: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+$gradient-warning: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+$gradient-danger: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+$gradient-info: linear-gradient(135deg, #06b6d4 0%, #22d3ee 100%);
+$gradient-purple: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+$gradient-indigo: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
+$gradient-background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+
+// Typography
+$font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+$font-mono: 'JetBrains Mono', 'Monaco', 'Courier', monospace;
+
+$font-size-hero: 32px;
+$font-size-display: 24px;
+$font-size-title: 18px;
+$font-size-body: 14px;
+$font-size-caption: 12px;
+$font-size-tiny: 10px;
+
+$font-weight-regular: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+// Spacing
+$space-xs: 4px;
+$space-sm: 8px;
+$space-md: 16px;
+$space-lg: 24px;
+$space-xl: 32px;
+$space-xxl: 48px;
+
+// Border Radius
+$radius-sm: 8px;
+$radius-md: 12px;
+$radius-lg: 16px;
+$radius-xl: 20px;
+$radius-full: 9999px;
+
+// Shadows
+$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+$shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+$shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+
+// Transitions
+$transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+$transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+$transition-slow: 350ms cubic-bezier(0.4, 0, 0.2, 1);
+
+// Breakpoints
+$breakpoint-xs: 480px;
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;
+$breakpoint-xxl: 1600px;
+
+// Z-Index
+$z-dropdown: 1000;
+$z-sticky: 1020;
+$z-fixed: 1030;
+$z-modal-backdrop: 1040;
+$z-modal: 1050;
+$z-popover: 1060;
+$z-tooltip: 1070;
+
+// Glassmorphism Effect
+@mixin glassmorphism {
+  background: $bg-glass;
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid $border-light;
+  box-shadow: $shadow-glass;
+}
+
+// Card Hover Effect
+@mixin card-hover {
+  transition: all $transition-normal;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $shadow-xl;
+  }
+}
+
+// Pulse Animation
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(10, 127, 218, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(10, 127, 218, 0.6);
+  }
+}
+
+// Slide Up Animation
+@keyframes slide-up {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+// Shimmer Animation
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+// Fade In Animation
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+// Float Animation
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+// Responsive Mixins
+@mixin respond-to($breakpoint) {
+  @if $breakpoint == 'xs' {
+    @media (max-width: $breakpoint-xs) { @content; }
+  } @else if $breakpoint == 'sm' {
+    @media (max-width: $breakpoint-sm) { @content; }
+  } @else if $breakpoint == 'md' {
+    @media (max-width: $breakpoint-md) { @content; }
+  } @else if $breakpoint == 'lg' {
+    @media (max-width: $breakpoint-lg) { @content; }
+  } @else if $breakpoint == 'xl' {
+    @media (max-width: $breakpoint-xl) { @content; }
+  } @else if $breakpoint == 'xxl' {
+    @media (max-width: $breakpoint-xxl) { @content; }
+  }
+}
+
+// Text Truncate
+@mixin text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Scrollbar Styling
+@mixin custom-scrollbar {
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: $radius-full;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.3);
+    }
+  }
+}

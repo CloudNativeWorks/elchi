@@ -1,0 +1,147 @@
+/**
+ * Service Health Widget Styles
+ */
+
+@use '../../styles/variables.scss' as *;
+
+.serviceHealthWidget {
+  // Override all container defaults
+  max-height: 360px !important;
+  min-height: 360px !important;
+  height: 360px !important;
+  overflow: hidden !important;
+  display: flex !important;
+  flex-direction: column !important;
+  padding: $space-lg !important;
+
+  &:hover {
+    transform: none !important;
+  }
+
+  // Target the widgetContent div inside
+  > div {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+    position: relative !important;
+  }
+
+  // Target widgetHeader through global class
+  :global(.widgetHeader) {
+    flex-shrink: 0 !important;
+    margin-bottom: $space-lg !important;
+  }
+}
+
+.serviceHealthWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0; // Important for flex children to allow scrolling
+  overflow: hidden; // Prevent wrapper from growing
+}
+
+.serviceHealth {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  /* Custom scrollbar styling */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(5, 108, 205, 0.3);
+    border-radius: 3px;
+
+    &:hover {
+      background: rgba(5, 108, 205, 0.5);
+    }
+  }
+}
+
+.serviceGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $space-md;
+}
+
+.serviceCard {
+  padding: $space-md;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: $radius-md;
+  border-left: 3px solid;
+  transition: all $transition-normal;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.04);
+    transform: translateX(4px);
+  }
+
+  .serviceHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: $space-md;
+
+    .serviceName {
+      font-size: $font-size-body;
+      font-weight: $font-weight-semibold;
+      color: $text-primary;
+    }
+
+    .serviceStatus {
+      font-size: 20px;
+    }
+  }
+
+  .serviceMetrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: $space-sm;
+
+    @include respond-to('md') {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .metric {
+      .metricLabel {
+        font-size: $font-size-tiny;
+        color: $text-tertiary;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 2px;
+      }
+
+      .metricValue {
+        font-size: $font-size-caption;
+        font-weight: $font-weight-semibold;
+        color: $text-primary;
+      }
+    }
+  }
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $space-xl;
+  color: $text-tertiary;
+  text-align: center;
+
+  p {
+    margin-top: $space-md;
+    font-size: $font-size-body;
+  }
+}

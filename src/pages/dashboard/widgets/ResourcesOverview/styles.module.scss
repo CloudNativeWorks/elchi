@@ -1,0 +1,144 @@
+/**
+ * Resources Overview Widget Styles
+ */
+
+@use '../../styles/variables.scss' as *;
+
+.container {
+  width: 100%;
+  background: $bg-surface;
+  border-radius: $radius-lg;
+  padding: $space-lg;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  margin-bottom: $space-lg;
+  padding-bottom: $space-md;
+  border-bottom: 1px solid $border-gray;
+}
+
+.headerIcon {
+  font-size: 20px;
+  color: $color-primary;
+}
+
+.headerTitle {
+  font-size: $font-size-title;
+  font-weight: $font-weight-semibold;
+  color: $text-primary;
+  margin: 0;
+}
+
+.resourcesGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $space-md;
+
+  @include respond-to('md') {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include respond-to('sm') {
+    grid-template-columns: 1fr;
+  }
+}
+
+.resourceCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: $space-sm;
+  padding: $space-lg;
+  background: linear-gradient(135deg, rgba(10, 127, 218, 0.05) 0%, rgba(0, 198, 251, 0.05) 100%);
+  border-radius: $radius-lg;
+  border: 1px solid rgba(10, 127, 218, 0.2);
+  transition: all $transition-normal;
+  overflow: hidden;
+  text-align: center;
+  cursor: pointer;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, $color-primary, $color-accent);
+    opacity: 0;
+    transition: opacity $transition-normal;
+  }
+
+  &:hover {
+    transform: translateY(-4px);
+    border-color: rgba(10, 127, 218, 0.4);
+    box-shadow: 0 8px 32px rgba(10, 127, 218, 0.2);
+    background: linear-gradient(135deg, rgba(10, 127, 218, 0.1) 0%, rgba(0, 198, 251, 0.1) 100%);
+
+    &::before {
+      opacity: 1;
+    }
+
+    .resourceIcon {
+      transform: scale(1.15) rotate(5deg);
+      color: $color-primary;
+    }
+  }
+}
+
+.resourceIcon {
+  font-size: 36px;
+  color: $color-primary;
+  transition: all $transition-normal;
+  margin-bottom: $space-xs;
+}
+
+.resourceInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.resourceLabel {
+  font-size: $font-size-tiny;
+  color: $text-secondary;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: $font-weight-semibold;
+}
+
+.resourceCount {
+  font-size: 32px;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  line-height: 1;
+}
+
+// Empty state
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $space-xxl;
+  color: $text-tertiary;
+  text-align: center;
+
+  .emptyIcon {
+    font-size: 64px;
+    opacity: 0.3;
+    margin-bottom: $space-lg;
+  }
+
+  .emptyText {
+    font-size: $font-size-body;
+    margin: 0;
+  }
+}

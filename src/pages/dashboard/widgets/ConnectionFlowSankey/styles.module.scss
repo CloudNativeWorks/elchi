@@ -1,0 +1,11 @@
+@import '../../styles/variables.scss';
+
+.placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: $text-tertiary;
+  text-align: center;
+}
