@@ -125,6 +125,7 @@ const ComponentRedisProxy: React.FC<GeneralProps> = ({ veri }) => {
                             reduxStore: reduxStore?.prefix_routes,
                             reduxAction: ResourceAction,
                             keyPrefix: `prefix_routes`,
+                            id: `prefix_routes_0`,
                         }}
                     />
                     <ConditionalComponent
@@ -159,6 +160,7 @@ const ComponentRedisProxy: React.FC<GeneralProps> = ({ veri }) => {
                             tagPrefix: 'specifier',
                             parentName: 'Redis Proxy',
                             fileName: 'downstream-auth-username',
+                            id: `downstream_auth_username_0`,
                         }}
                     />
                     <ConditionalComponent
