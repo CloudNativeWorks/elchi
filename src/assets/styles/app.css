@@ -23,10 +23,23 @@ input[data-lpignore="true"]::-ms-clear {
     display: none !important;
 }
 
-/* Target LastPass icon container */
+/* Target LastPass icon container - all variations */
 div[data-lastpass-icon-root],
-div[data-lastpass-root] {
+div[data-lastpass-root],
+span[data-lastpass-icon-root],
+div[id^="lp-"],
+div[class*="lastpass"],
+span[class*="lastpass"],
+div[id*="lastpass"],
+span[id*="lastpass"] {
     display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    position: absolute !important;
+    width: 0 !important;
+    height: 0 !important;
+    z-index: -9999 !important;
 }
 
 /* Additional password manager icon hiding */
@@ -37,6 +50,39 @@ input.no-password-manager ~ div[data-lastpass-icon-root] {
     opacity: 0 !important;
     width: 0 !important;
     height: 0 !important;
+}
+
+/* Hide all password manager overlays */
+div[style*="background-image"][style*="lastpass"],
+div[style*="data:image"][style*="svg"] {
+    display: none !important;
+}
+
+/* Prevent autofill styling */
+input.no-password-manager:-webkit-autofill,
+input.no-password-manager:-webkit-autofill:hover,
+input.no-password-manager:-webkit-autofill:focus,
+input.no-password-manager:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0 30px white inset !important;
+    -webkit-text-fill-color: inherit !important;
+    transition: background-color 5000s ease-in-out 0s !important;
+}
+
+/* Hide Bitwarden icons */
+div[id^="bit-"],
+div[class*="bitwarden"] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+}
+
+/* Hide 1Password icons */
+div[id^="__1password"],
+div[class*="1password"],
+com-1password-button {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
 }
 
 @keyframes pulse {

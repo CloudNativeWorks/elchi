@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Drawer, Button, Alert, Modal, Typography } from 'antd';
+import { Drawer, Button, Alert, Modal, Typography, App as AntdApp } from 'antd';
 import { ClientListTable } from './ClientListTable';
 import { useDeployUndeployService } from '@/hooks/useServiceActions';
 import { OperationsType } from '@/common/types';
@@ -95,6 +95,7 @@ interface OpenStackInterface {
 
 export function DeployServiceDialog({ open, onClose, serviceName, project, action: initialAction, existingClients, onSuccess, version }: DeployServiceDialogProps) {
     const { project: currentProject } = useProjectVariable();
+    const { modal } = AntdApp.useApp();
     const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
     const [downstreamAddresses, setDownstreamAddresses] = useState<Record<string, string>>({});
     const [selectedInterfaces, setSelectedInterfaces] = useState<Record<string, string>>({});
@@ -261,7 +262,7 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
         }
 
         // Show confirmation dialog
-        Modal.confirm({
+        modal.confirm({
             title: 'Confirm Redeploy',
             icon: <ExclamationCircleOutlined style={{ color: '#1890ff' }} />,
             content: (

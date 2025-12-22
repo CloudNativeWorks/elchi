@@ -39,6 +39,10 @@ import AuditDetail from './pages/audit/AuditDetail';
 import Search from './pages/Search';
 import WafList from './pages/waf/WafList';
 import WafDetail from './pages/waf/WafDetail';
+import CertificateList from './pages/acme/CertificateList';
+import CertificateDetail from './pages/acme/CertificateDetail';
+import DnsCredentialDetail from './pages/acme/DnsCredentialDetail';
+import AcmeAccountDetail from './pages/acme/AcmeAccountDetail';
 import Profile from './pages/profile/Profile';
 import DependencyGraphPage from './pages/DependencyGraphPage';
 import RouteMapPage from './pages/RouteMapPage';
@@ -130,6 +134,15 @@ const AppRoutes: React.FC = () => (
                 {/* WAF Routes */}
                 <Route path="/waf" element={<WafList />} />
                 <Route path="/waf/:id" element={<WafDetail />} />
+
+                {/* ACME Certificate Routes */}
+                <Route path="/acme" element={<CertificateList />} />
+                <Route path="/acme/create" element={<CertificateDetail />} />
+                <Route path="/acme/:id" element={<CertificateDetail />} />
+                <Route path="/acme/acme-accounts/create" element={<AcmeAccountDetail />} />
+                <Route path="/acme/acme-accounts/:id" element={<AcmeAccountDetail />} />
+                <Route path="/acme/dns-credentials/create" element={<DnsCredentialDetail />} />
+                <Route path="/acme/dns-credentials/:id" element={<DnsCredentialDetail />} />
 
                 {/* Dependency Graph Route */}
                 <Route path="/dependency/:name" element={<DependencyGraphPage />} />

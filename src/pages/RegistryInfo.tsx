@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Card, Typography, Spin, Alert, Tag, Space, Collapse, Badge, Table, Input, Row, Col, Statistic, Pagination, Progress, Tooltip, Empty, Divider, Button, Drawer, Modal, message, Tabs } from 'antd';
+import { Card, Typography, Spin, Alert, Tag, Space, Collapse, Badge, Table, Input, Row, Col, Statistic, Pagination, Progress, Tooltip, Empty, Divider, Button, Drawer, message, Tabs, App as AntdApp } from 'antd';
 import MonacoEditor from '@monaco-editor/react';
 import { DatabaseOutlined, ClusterOutlined, ControlOutlined, SearchOutlined, GlobalOutlined, NodeIndexOutlined, TeamOutlined, ApiOutlined, EyeOutlined, DeleteOutlined, ExclamationCircleOutlined, ShareAltOutlined, AimOutlined, AppstoreOutlined, CloudOutlined, SettingOutlined, KeyOutlined, ReloadOutlined } from '@ant-design/icons';
 import { useCustomGetQuery, api } from '@/common/api';
@@ -97,6 +97,7 @@ const safeNumberCompare = (a: number | null | undefined, b: number | null | unde
 
 const RegistryInfo: React.FC = () => {
     const { project } = useProjectVariable();
+    const { modal } = AntdApp.useApp();
     const [controlPlaneSearchTerm, setControlPlaneSearchTerm] = useState('');
     const [controllerSearchTerm, setControllerSearchTerm] = useState('');
     const [controlPlanePage, setControlPlanePage] = useState(1);
@@ -218,7 +219,7 @@ const RegistryInfo: React.FC = () => {
     };
 
     const handleClearSnapshot = () => {
-        Modal.confirm({
+        modal.confirm({
             title: 'Clear Snapshot',
             icon: <ExclamationCircleOutlined />,
             content: `Are you sure you want to clear the snapshot for node ${selectedNodeId}? This action cannot be undone. Needs Service RELOAD/RESTART`,
@@ -260,7 +261,7 @@ const RegistryInfo: React.FC = () => {
 
     // Delete handlers
     const handleDeleteControlPlane = (controlPlaneId: string) => {
-        Modal.confirm({
+        modal.confirm({
             title: 'Delete Control Plane',
             icon: <ExclamationCircleOutlined />,
             content: `Are you sure you want to delete control plane "${controlPlaneId}"? This action cannot be undone.`,
@@ -286,7 +287,7 @@ const RegistryInfo: React.FC = () => {
     };
 
     const handleDeleteController = (controllerId: string) => {
-        Modal.confirm({
+        modal.confirm({
             title: 'Delete Controller',
             icon: <ExclamationCircleOutlined />,
             content: `Are you sure you want to delete controller "${controllerId}"? This action cannot be undone.`,

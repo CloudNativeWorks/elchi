@@ -61,7 +61,6 @@ const ComponentUdpProxy: React.FC<GeneralProps> = ({ veri }) => {
         return <RenderLoading checkPage={true} isLoadingQuery={true} error={""} />;
     }
 
-    console.log(vTags.up?.UdpProxyConfig_SingleFields)
     return (
         <>
             <HeadOfResource

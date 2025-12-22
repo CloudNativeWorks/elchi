@@ -70,7 +70,6 @@ const ClusterDiscoveryType: React.FC<GeneralProps> = ({ veri }) => {
         }
     };
 
-    console.log(rState)
     return (
         <ECard title="Cluster Discovery Type" id={id}>
             <Row>

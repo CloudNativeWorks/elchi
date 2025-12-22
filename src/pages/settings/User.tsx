@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Input, Select, Switch, Card, Typography, Space, Row, Col, Tag, Table, Alert, Modal, message } from 'antd';
+import { Form, Input, Select, Switch, Card, Typography, Space, Row, Col, Tag, Table, Alert, message, App as AntdApp } from 'antd';
 import { UserOutlined, MailOutlined, KeyOutlined, TeamOutlined, ProjectOutlined, SettingOutlined, ArrowLeftOutlined, CloseOutlined, SaveOutlined, PlusOutlined, SafetyOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { useCustomGetQuery } from '@/common/api';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -32,6 +32,7 @@ const User: React.FC = () => {
     const query = new URLSearchParams(location.search);
     const user_id = query.get('user_id');
     const navigate = useNavigate();
+    const { modal } = AntdApp.useApp();
     const mutate = useCustomApiMutation();
     const [baseGroupCleared, setBaseGroupCleared] = useState(false);
     const [changedValues, setChangedValues] = useState<Partial<UserFormValues>>({});
@@ -48,7 +49,7 @@ const User: React.FC = () => {
     };
 
     const handleResetOTP = () => {
-        Modal.confirm({
+        modal.confirm({
             title: 'Reset User 2FA?',
             icon: <ExclamationCircleOutlined style={{ color: '#ff4d4f' }} />,
             content: (
@@ -231,16 +232,16 @@ const User: React.FC = () => {
                 <Form
                     form={form}
                     layout="vertical"
-                    name={`user-form-${Date.now()}`}
+                    name={`secure-form-${Math.random().toString(36)}`}
                     onValuesChange={onValuesChange}
                     onFinish={onFinish}
-                    autoComplete="off"
+                    autoComplete="new-password"
                 >
-                    {/* Anti-autofill honey pot fields with common default values */}
-                    <div style={{ position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none', height: 0, width: 0 }}>
-                        <input type="text" name="username" tabIndex={-1} autoComplete="username" defaultValue="admin" style={{ display: 'none' }} />
-                        <input type="password" name="password" tabIndex={-1} autoComplete="current-password" defaultValue="password" style={{ display: 'none' }} />
-                        <input type="email" name="email" tabIndex={-1} autoComplete="email" defaultValue="admin@example.com" style={{ display: 'none' }} />
+                    {/* Anti-autofill honey pot fields - decoy fields for password managers */}
+                    <div style={{ position: 'absolute', left: '-9999px', top: '-9999px', opacity: 0, pointerEvents: 'none', height: 0, width: 0, overflow: 'hidden' }}>
+                        <input type="text" name="fake-username" tabIndex={-1} autoComplete="off" readOnly />
+                        <input type="password" name="fake-password" tabIndex={-1} autoComplete="new-password" readOnly />
+                        <input type="text" name="search" tabIndex={-1} autoComplete="off" readOnly />
                     </div>
                     {/* Basic Information Section */}
                     <div style={{ marginBottom: 32 }}>
@@ -258,7 +259,7 @@ const User: React.FC = () => {
                                     <Input
                                         prefix={<UserOutlined style={{ color: '#bfbfbf' }} />}
                                         placeholder="Enter username"
-                                        autoComplete="off"
+                                        autoComplete="new-password"
                                         autoCorrect="off"
                                         autoCapitalize="off"
                                         spellCheck="false"
@@ -266,28 +267,16 @@ const User: React.FC = () => {
                                         data-1p-ignore="true"
                                         data-bwignore="true"
                                         data-form-type="other"
+                                        data-lpignore-input="true"
                                         type="text"
                                         inputMode="text"
                                         disabled={username === 'admin' || (dataUser?.auth_type === 'ldap' && !isCreatePage)}
                                         size="large"
-                                        style={{ 
+                                        style={{
                                             fontFamily: 'inherit',
                                             letterSpacing: 'normal'
                                         }}
                                         className="no-password-manager"
-                                        onBlur={(e) => {
-                                            // Prevent autofill override by checking against expected value
-                                            if (!isCreatePage && dataUser?.username && e.target.value !== dataUser.username) {
-                                                form.setFieldValue(['user', 'username'], dataUser.username);
-                                            }
-                                        }}
-                                        onChange={(e) => {
-                                            // Allow manual changes but prevent autofill
-                                            if (!isCreatePage && dataUser?.username && e.target.value === 'admin' && dataUser.username !== 'admin') {
-                                                // This looks like autofill, revert it
-                                                form.setFieldValue(['user', 'username'], dataUser.username);
-                                            }
-                                        }}
                                     />
                                 </Form.Item>
                             </Col>
@@ -301,7 +290,7 @@ const User: React.FC = () => {
                                     <Input
                                         prefix={<MailOutlined style={{ color: '#bfbfbf' }} />}
                                         placeholder="Enter email address"
-                                        autoComplete="off"
+                                        autoComplete="new-password"
                                         autoCorrect="off"
                                         autoCapitalize="off"
                                         spellCheck="false"
@@ -309,11 +298,12 @@ const User: React.FC = () => {
                                         data-1p-ignore="true"
                                         data-bwignore="true"
                                         data-form-type="other"
+                                        data-lpignore-input="true"
                                         type="text"
                                         inputMode="email"
                                         disabled={dataUser?.auth_type === 'ldap' && !isCreatePage}
                                         size="large"
-                                        style={{ 
+                                        style={{
                                             fontFamily: 'inherit',
                                             letterSpacing: 'normal'
                                         }}
@@ -344,7 +334,7 @@ const User: React.FC = () => {
                                                 if (dataUser?.auth_type === 'ldap') {
                                                     return Promise.resolve();
                                                 }
-                                                
+
                                                 if (!value && isCreatePage) {
                                                     return Promise.reject(new Error('Please input your password!'));
                                                 }
@@ -353,22 +343,22 @@ const User: React.FC = () => {
                                                     if (value.length < 12) {
                                                         return Promise.reject(new Error('Password must be at least 12 characters long.'));
                                                     }
-                                                    
+
                                                     // Require uppercase
                                                     if (!/[A-Z]/.test(value)) {
                                                         return Promise.reject(new Error('Password must contain at least one uppercase letter.'));
                                                     }
-                                                    
+
                                                     // Require lowercase
                                                     if (!/[a-z]/.test(value)) {
                                                         return Promise.reject(new Error('Password must contain at least one lowercase letter.'));
                                                     }
-                                                    
+
                                                     // Require numbers
                                                     if (!/\d/.test(value)) {
                                                         return Promise.reject(new Error('Password must contain at least one number.'));
                                                     }
-                                                    
+
                                                     // Require at least 1 special character
                                                     const specialChars = /[@$!%*?&]/.test(value);
                                                     const specialCharCount = (value.match(/[@$!%*?&]/g) || []).length;
@@ -384,7 +374,7 @@ const User: React.FC = () => {
                                     <Input.Password
                                         prefix={<KeyOutlined style={{ color: '#bfbfbf' }} />}
                                         placeholder={dataUser?.auth_type === 'ldap' ? "LDAP users authenticate via LDAP server" : "Min 12 chars, 1 uppercase, 1 lowercase, 1 number, 1 special (@$!%*?&)"}
-                                        autoComplete="off"
+                                        autoComplete="new-password"
                                         autoCorrect="off"
                                         autoCapitalize="off"
                                         spellCheck="false"
@@ -392,9 +382,10 @@ const User: React.FC = () => {
                                         data-1p-ignore="true"
                                         data-bwignore="true"
                                         data-form-type="other"
+                                        data-lpignore-input="true"
                                         size="large"
                                         disabled={dataUser?.auth_type === 'ldap' && !isCreatePage}
-                                        style={{ 
+                                        style={{
                                             fontFamily: 'inherit',
                                             letterSpacing: 'normal'
                                         }}
@@ -419,7 +410,7 @@ const User: React.FC = () => {
                                                 if (dataUser?.auth_type === 'ldap') {
                                                     return Promise.resolve();
                                                 }
-                                                
+
                                                 const password = getFieldValue(['user', 'password']);
                                                 if (!value && isCreatePage) {
                                                     return Promise.reject(new Error('Please confirm your password!'));
@@ -437,7 +428,7 @@ const User: React.FC = () => {
                                     <Input.Password
                                         prefix={<KeyOutlined style={{ color: '#bfbfbf' }} />}
                                         placeholder={dataUser?.auth_type === 'ldap' ? "LDAP users authenticate via LDAP server" : "Confirm password"}
-                                        autoComplete="off"
+                                        autoComplete="new-password"
                                         autoCorrect="off"
                                         autoCapitalize="off"
                                         spellCheck="false"
@@ -445,9 +436,10 @@ const User: React.FC = () => {
                                         data-1p-ignore="true"
                                         data-bwignore="true"
                                         data-form-type="other"
+                                        data-lpignore-input="true"
                                         size="large"
                                         disabled={dataUser?.auth_type === 'ldap' && !isCreatePage}
-                                        style={{ 
+                                        style={{
                                             fontFamily: 'inherit',
                                             letterSpacing: 'normal'
                                         }}

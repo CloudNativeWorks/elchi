@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   Card, Typography, Row, Col, Tag, Progress, Table, Button,
-  Space, Timeline, Alert, Tooltip, Modal
+  Space, Timeline, Alert, Tooltip, App as AntdApp
 } from 'antd';
 import {
   ArrowLeftOutlined, ReloadOutlined, RedoOutlined, DeleteOutlined,
   CheckCircleOutlined, CloseCircleOutlined, ClockCircleOutlined,
   PlayCircleOutlined, ExclamationCircleOutlined, InfoCircleOutlined,
-  UserOutlined, FileTextOutlined
+  UserOutlined, FileTextOutlined, SafetyCertificateOutlined, GlobalOutlined
 } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
@@ -25,6 +25,7 @@ const { Text } = Typography;
 const JobDetail: React.FC = () => {
   const { jobId } = useParams<{ jobId: string }>();
   const navigate = useNavigate();
+  const { modal } = AntdApp.useApp();
   const {
     loading,
     getJob,
@@ -114,7 +115,7 @@ const JobDetail: React.FC = () => {
         navigate('/jobs');
         break;
       case 'force-restart':
-        Modal.confirm({
+        modal.confirm({
           title: 'Force Restart Job',
           icon: <ExclamationCircleOutlined />,
           content: 'This will completely restart the job from the beginning. Continue?',
@@ -445,19 +446,21 @@ const JobDetail: React.FC = () => {
               </Text>
             </div>
             <Row gutter={[24, 24]}>
-              <Col span={12}>
-                <div style={{ marginBottom: 16 }}>
-                  <Text type="secondary" style={{ fontSize: 12 }}>Resource</Text>
-                  <div style={{ marginTop: 4 }}>
-                    <Text strong style={{ fontSize: 14 }}>{job.metadata.source_resource.name}</Text>
-                    <div>
-                      <Text style={{ fontSize: 12, color: '#8c8c8c' }}>
-                        {job.metadata.source_resource.collection} • {job.metadata.source_resource.action}
-                      </Text>
+              {job.metadata.source_resource && (
+                <Col span={12}>
+                  <div style={{ marginBottom: 16 }}>
+                    <Text type="secondary" style={{ fontSize: 12 }}>Resource</Text>
+                    <div style={{ marginTop: 4 }}>
+                      <Text strong style={{ fontSize: 14 }}>{job.metadata.source_resource.name}</Text>
+                      <div>
+                        <Text style={{ fontSize: 12, color: '#8c8c8c' }}>
+                          {job.metadata.source_resource.collection} • {job.metadata.source_resource.action}
+                        </Text>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Col>
+                </Col>
+              )}
               <Col span={12}>
                 <div style={{ marginBottom: 16 }}>
                   <Text type="secondary" style={{ fontSize: 12 }}>Triggered By</Text>
@@ -568,6 +571,80 @@ const JobDetail: React.FC = () => {
                   </Col>
                 </>
               )}
+              {job.type === 'ACME_VERIFICATION' && job.metadata.acme && (
+                <>
+                  <Col span={12}>
+                    <div style={{ marginBottom: 16 }}>
+                      <Text type="secondary" style={{ fontSize: 12 }}>Certificate Name</Text>
+                      <div style={{ marginTop: 4 }}>
+                        <Button
+                          type="link"
+                          size="small"
+                          style={{ padding: 0, height: 'auto', fontSize: 14, fontWeight: 600 }}
+                          onClick={() => navigate(`/acme/${job.metadata.acme?.certificate_id}`)}
+                        >
+                          <SafetyCertificateOutlined style={{ marginRight: 4 }} />
+                          {job.metadata.acme.certificate_name}
+                        </Button>
+                      </div>
+                    </div>
+                  </Col>
+                  <Col span={12}>
+                    <div style={{ marginBottom: 16 }}>
+                      <Text type="secondary" style={{ fontSize: 12 }}>Environment</Text>
+                      <div style={{ marginTop: 4 }}>
+                        <Tag
+                          className='auto-width-tag'
+                          color={job.metadata.acme.environment === 'production' ? 'green' : 'blue'}
+                          style={{ borderRadius: 6 }}
+                        >
+                          {job.metadata.acme.environment}
+                        </Tag>
+                      </div>
+                    </div>
+                  </Col>
+                  <Col span={12}>
+                    <div style={{ marginBottom: 16 }}>
+                      <Text type="secondary" style={{ fontSize: 12 }}>DNS Provider</Text>
+                      <div style={{ marginTop: 4 }}>
+                        <Tag className='auto-width-tag' color="cyan" style={{ borderRadius: 6 }}>
+                          {job.metadata.acme.dns_provider}
+                        </Tag>
+                      </div>
+                    </div>
+                  </Col>
+                  <Col span={12}>
+                    <div style={{ marginBottom: 16 }}>
+                      <Text type="secondary" style={{ fontSize: 12 }}>Domains</Text>
+                      <div style={{ marginTop: 4 }}>
+                        {job.metadata.acme.domains.slice(0, 3).map((domain: string) => (
+                          <Tag key={domain} className='auto-width-tag' color="blue" style={{ borderRadius: 6, marginRight: 4, marginBottom: 4 }}>
+                            <GlobalOutlined style={{ marginRight: 4 }} />
+                            {domain}
+                          </Tag>
+                        ))}
+                        {job.metadata.acme.domains.length > 3 && (
+                          <Tag className='auto-width-tag' color="default" style={{ borderRadius: 6 }}>
+                            +{job.metadata.acme.domains.length - 3} more
+                          </Tag>
+                        )}
+                      </div>
+                    </div>
+                  </Col>
+                  <Col span={24}>
+                    <div style={{ marginBottom: 16 }}>
+                      <Text type="secondary" style={{ fontSize: 12 }}>Target Versions</Text>
+                      <div style={{ marginTop: 4 }}>
+                        {job.metadata.acme.versions.map((version: string) => (
+                          <Tag key={version} className='auto-width-tag' color="purple" style={{ borderRadius: 6, marginRight: 4 }}>
+                            {version}
+                          </Tag>
+                        ))}
+                      </div>
+                    </div>
+                  </Col>
+                </>
+              )}
             </Row>
           </Card>
         </Col>
@@ -601,6 +678,7 @@ const JobDetail: React.FC = () => {
                   <Text style={{ fontSize: 13 }}>
                     {job.type === 'WAF_PROPAGATION' ? 'Total Wasm Filters' :
                       job.type === 'RESOURCE_UPGRADE' || job.type === 'RESOURCE_UPGRADE(DRY)' ? 'Total Listeners' :
+                      job.type === 'ACME_VERIFICATION' ? 'Verification Steps' :
                         'Total Listeners'}
                   </Text>
                 </div>
@@ -715,10 +793,11 @@ const JobDetail: React.FC = () => {
             />
           </Card>
 
-          {/* Actions - Hidden for RESOURCE_UPGRADE jobs */}
+          {/* Actions - Hidden for RESOURCE_UPGRADE and ACME verification jobs */}
           {(canRetry || hasFailedSnapshots) &&
            job.type !== 'RESOURCE_UPGRADE' &&
-           job.type !== 'RESOURCE_UPGRADE(DRY)' && (
+           job.type !== 'RESOURCE_UPGRADE(DRY)' &&
+           job.type !== 'ACME_VERIFICATION' && (
             <Card
               style={{
                 borderRadius: 16,
@@ -1296,6 +1375,122 @@ const JobDetail: React.FC = () => {
             </div>
           </div>
         )}
+
+      {/* ACME Certificate Execution Details */}
+      {job.type === 'ACME_VERIFICATION' && job.execution_details?.acme && (
+        <Card
+          style={{
+            marginTop: 24,
+            borderRadius: 16,
+            border: 'none',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+          }}
+        >
+          <div style={{ marginBottom: 20 }}>
+            <Text type="secondary" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>
+              VERIFICATION DETAILS
+            </Text>
+          </div>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <div style={{ marginBottom: 16 }}>
+                <Text type="secondary" style={{ fontSize: 12 }}>Certificate ID</Text>
+                <div style={{ marginTop: 4 }}>
+                  <Button
+                    type="link"
+                    size="small"
+                    style={{ padding: 0, height: 'auto', fontSize: 14, fontWeight: 600 }}
+                    onClick={() => navigate(`/acme/${job.execution_details?.acme?.certificate_id}`)}
+                  >
+                    {job.execution_details.acme.certificate_id}
+                  </Button>
+                </div>
+              </div>
+            </Col>
+            <Col span={12}>
+              <div style={{ marginBottom: 16 }}>
+                <Text type="secondary" style={{ fontSize: 12 }}>Secret Name</Text>
+                <div style={{ marginTop: 4 }}>
+                  <Tag className='auto-width-tag' color="purple" style={{ borderRadius: 6 }}>
+                    {job.execution_details.acme.secret_name}
+                  </Tag>
+                </div>
+              </div>
+            </Col>
+            <Col span={12}>
+              <div style={{ marginBottom: 16 }}>
+                <Text type="secondary" style={{ fontSize: 12 }}>Status</Text>
+                <div style={{ marginTop: 4 }}>
+                  <Tag
+                    className='auto-width-tag'
+                    color={job.execution_details.acme.status === 'active' ? 'success' : 'default'}
+                    style={{ borderRadius: 6 }}
+                  >
+                    {job.execution_details.acme.status}
+                  </Tag>
+                </div>
+              </div>
+            </Col>
+            <Col span={12}>
+              <div style={{ marginBottom: 16 }}>
+                <Text type="secondary" style={{ fontSize: 12 }}>Domains</Text>
+                <div style={{ marginTop: 4 }}>
+                  {job.execution_details.acme.domains.map((domain: string) => (
+                    <Tag key={domain} className='auto-width-tag' color="blue" style={{ borderRadius: 6, marginRight: 4, marginBottom: 4 }}>
+                      {domain}
+                    </Tag>
+                  ))}
+                </div>
+              </div>
+            </Col>
+            {job.execution_details.acme.issued_at && (
+              <Col span={12}>
+                <div style={{ marginBottom: 16 }}>
+                  <Text type="secondary" style={{ fontSize: 12 }}>Issued At</Text>
+                  <div style={{ marginTop: 4 }}>
+                    <Text strong style={{ fontSize: 14 }}>
+                      {dayjs(job.execution_details.acme.issued_at).format('YYYY-MM-DD HH:mm:ss')}
+                    </Text>
+                  </div>
+                </div>
+              </Col>
+            )}
+            {job.execution_details.acme.expires_at && (
+              <Col span={12}>
+                <div style={{ marginBottom: 16 }}>
+                  <Text type="secondary" style={{ fontSize: 12 }}>Expires At</Text>
+                  <div style={{ marginTop: 4 }}>
+                    <Text strong style={{ fontSize: 14 }}>
+                      {dayjs(job.execution_details.acme.expires_at).format('YYYY-MM-DD HH:mm:ss')}
+                    </Text>
+                  </div>
+                </div>
+              </Col>
+            )}
+          </Row>
+
+          {job.execution_details.acme.error_message && (
+            <Alert
+              message="Verification Error"
+              description={job.execution_details.acme.error_message}
+              type="error"
+              showIcon
+              style={{ marginTop: 16, borderRadius: 8 }}
+            />
+          )}
+
+          {job.status === 'COMPLETED' && !job.execution_details.acme.error_message && (
+            <Alert
+              message="Certificate Verified Successfully"
+              description={`SSL/TLS certificate has been verified and issued for ${job.execution_details.acme.domains.length} domain(s).`}
+              type="success"
+              showIcon
+              style={{ marginTop: 16, borderRadius: 8 }}
+            />
+          )}
+        </Card>
+      )}
 
       {/* Snapshot Details */}
       {job.execution_details?.processed_snapshots?.length > 0 && (

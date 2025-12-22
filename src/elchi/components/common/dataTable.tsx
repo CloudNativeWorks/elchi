@@ -1,6 +1,6 @@
-import { DeleteOutlined, DeploymentUnitOutlined, ExclamationCircleFilled, InboxOutlined, CopyOutlined, ShareAltOutlined, ArrowUpOutlined } from '@ant-design/icons';
+import { DeleteOutlined, DeploymentUnitOutlined, ExclamationCircleFilled, InboxOutlined, CopyOutlined, ShareAltOutlined, ArrowUpOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-import { message, Dropdown, Table, Typography, Modal, Tag, Pagination, Select } from 'antd';
+import { message, Dropdown, Table, Typography, Modal, Tag, Pagination, Select, Tooltip, App as AntdApp } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import React, { useEffect, useState } from 'react';
 import { useCustomGetQuery, useDeleteMutation } from "../../../common/api";
@@ -32,6 +32,10 @@ interface DataType {
     service?: {
         enabled?: boolean;
         name?: string;
+    };
+    metadata?: {
+        managed_by_letsencrypt?: boolean;
+        letsencrypt_cert_id?: string;
     };
     created_at: string;
     updated_at: string;
@@ -69,6 +73,7 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({
     onSelectionChange
 }) => {
     const deleteMutate = useDeleteMutation()
+    const { modal } = AntdApp.useApp();
     const [messageApi, contextHolder] = message.useMessage();
     const { project } = useProjectVariable();
     const [updateData, setUpdateData] = useState(1);
@@ -285,7 +290,7 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({
             if (higherVersions.length > 0) {
                 let selectedVersion: string | undefined;
 
-                Modal.confirm({
+                modal.confirm({
                     title: `Upgrade ${getLastDotPart(record.gtype)}`,
                     icon: <ExclamationCircleFilled />,
                     width: 480,
@@ -390,8 +395,19 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({
             fixed: 'left',
             render: (_, record) => (
                 <Dropdown menu={{ items: getResourceActions(record), onClick: (e) => onClick(record, e.key) }} trigger={['contextMenu']}>
-                    <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <Text strong>{`${record.name}`}</Text>
+                        {record.metadata?.managed_by_letsencrypt && (
+                            <Tooltip title="Managed by Let's Encrypt">
+                                <Tag
+                                    icon={<SafetyCertificateOutlined />}
+                                    color="cyan"
+                                    style={{ margin: 0, fontSize: 11 }}
+                                >
+                                    Let's Encrypt
+                                </Tag>
+                            </Tooltip>
+                        )}
                     </div>
                 </Dropdown>
             )
