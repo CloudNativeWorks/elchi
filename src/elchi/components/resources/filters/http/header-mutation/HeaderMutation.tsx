@@ -55,8 +55,6 @@ const ComponentHeaderMutation: React.FC<GeneralProps> = ({ veri }) => {
         return <RenderLoading checkPage={true} isLoadingQuery={true} error={""} />;
     }
 
-    console.log(selectedTags)
-
     return (
         reduxStore && (
             <>

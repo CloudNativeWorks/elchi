@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { 
-    Card, 
-    Form, 
-    Input, 
-    Switch, 
-    Button, 
-    Space, 
+import {
+    Card,
+    Form,
+    Input,
+    Switch,
+    Button,
+    Space,
     Typography,
-    Spin, 
-    Modal, 
+    Spin,
     message,
     InputNumber,
     Divider,
     Row,
-    Col
+    Col,
+    App as AntdApp
 } from 'antd';
 import { 
     SaveOutlined, 
@@ -47,6 +47,7 @@ interface LdapConfig {
 const LdapConfig: React.FC = () => {
     const { project } = useProjectVariable();
     const [form] = Form.useForm();
+    const { modal } = AntdApp.useApp();
     const [messageApi, contextHolder] = message.useMessage();
     const [testCredentials, setTestCredentials] = useState({ username: '', password: '' });
     const [testModalVisible, setTestModalVisible] = useState(false);
@@ -144,7 +145,7 @@ const LdapConfig: React.FC = () => {
     };
 
     const handleDelete = () => {
-        Modal.confirm({
+        modal.confirm({
             title: 'Delete LDAP Configuration',
             icon: <ExclamationCircleOutlined />,
             content: 'Are you sure you want to delete the LDAP configuration? This action cannot be undone.',

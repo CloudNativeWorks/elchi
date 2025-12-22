@@ -2,8 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
     Table, Button, Tag, Space, Typography, Card, Row, Col,
     Select, DatePicker, Input, Progress,
-    Dropdown, MenuProps, Modal
+    Dropdown, App as AntdApp
 } from 'antd';
+import type { MenuProps } from 'antd';
 import {
     ReloadOutlined, DeleteOutlined, RedoOutlined, ExclamationCircleOutlined,
     ScheduleOutlined, CheckCircleOutlined, CloseCircleOutlined,
@@ -35,6 +36,7 @@ const { Option } = Select;
 
 const JobList: React.FC = () => {
     const navigate = useNavigate();
+    const { modal } = AntdApp.useApp();
     const {
         loading,
         listJobs,
@@ -140,7 +142,8 @@ const JobList: React.FC = () => {
     const getJobTypeTag = (type: JobType) => {
         const typeConfig = {
             SNAPSHOT_UPDATE: { color: 'blue', text: 'Snapshot Update' },
-            DISCOVERY_UPDATE: { color: 'green', text: 'Discovery Update' }
+            DISCOVERY_UPDATE: { color: 'green', text: 'Discovery Update' },
+            ACME_VERIFICATION: { color: 'cyan', text: 'ACME Certificate Verification' }
         };
 
         const config = typeConfig[type] || { color: 'default', text: type };
@@ -171,7 +174,7 @@ const JobList: React.FC = () => {
     };
 
     const handleStuckJobsCleanup = async () => {
-        Modal.confirm({
+        modal.confirm({
             title: 'Clean Up Stuck Jobs',
             icon: <ExclamationCircleOutlined />,
             content: `This will clean up ${stuckJobsCount} stuck/abandoned jobs. This action cannot be undone.`,
@@ -291,17 +294,36 @@ const JobList: React.FC = () => {
             title: 'Resource',
             key: 'resource',
             width: 230,
-            render: (_: any, job: BackgroundJob) => (
-                <div>
-                    <Text strong style={{ fontSize: 12 }}>
-                        {job.metadata.source_resource.name}
-                    </Text>
-                    <br />
-                    <Text type="secondary" style={{ fontSize: 11 }}>
-                        {job.metadata.source_resource.collection} • {job.metadata.source_resource.action}
-                    </Text>
-                </div>
-            ),
+            render: (_: any, job: BackgroundJob) => {
+                if (job.type === 'ACME_VERIFICATION' && job.metadata.acme) {
+                    return (
+                        <div>
+                            <Text strong style={{ fontSize: 12 }}>
+                                {job.metadata.acme.certificate_name}
+                            </Text>
+                            <br />
+                            <Text type="secondary" style={{ fontSize: 11 }}>
+                                {job.metadata.acme.domains[0]}
+                                {job.metadata.acme.domains.length > 1 && ` +${job.metadata.acme.domains.length - 1}`}
+                            </Text>
+                        </div>
+                    );
+                }
+                if (job.metadata.source_resource) {
+                    return (
+                        <div>
+                            <Text strong style={{ fontSize: 12 }}>
+                                {job.metadata.source_resource.name}
+                            </Text>
+                            <br />
+                            <Text type="secondary" style={{ fontSize: 11 }}>
+                                {job.metadata.source_resource.collection} • {job.metadata.source_resource.action}
+                            </Text>
+                        </div>
+                    );
+                }
+                return <Text type="secondary" style={{ fontSize: 11 }}>-</Text>;
+            },
         },
         {
             title: 'User',
@@ -328,16 +350,41 @@ const JobList: React.FC = () => {
                     return <Text type="secondary" style={{ fontSize: 11 }}>No work needed</Text>;
                 }
 
+                if (job.type === 'ACME_VERIFICATION') {
+                    return (
+                        <div>
+                            <Progress
+                                percent={job.progress.percentage}
+                                size="small"
+                                status={job.status === 'FAILED' ? 'exception' : job.status === 'COMPLETED' ? 'success' : 'active'}
+                                strokeColor={job.status === 'COMPLETED' ? '#52c41a' : undefined}
+                            />
+                            <Text style={{ fontSize: 11 }}>
+                                {job.status === 'COMPLETED' ? 'Verified' : job.status === 'FAILED' ? 'Failed' : 'Verifying...'}
+                            </Text>
+                        </div>
+                    );
+                }
+
                 return (
                     <div>
                         <Progress
                             percent={job.progress.percentage}
                             size="small"
-                            status={job.status === 'FAILED' ? 'exception' : 'active'}
+                            status={job.status === 'FAILED' ? 'exception' : job.progress.percentage === 100 ? 'success' : 'active'}
+                            strokeColor={job.progress.percentage === 100 ? '#52c41a' : undefined}
                         />
                         <Text style={{ fontSize: 11 }}>
-                            {job.progress.completed}/{job.progress.total}
-                            {job.progress.failed > 0 && ` (${job.progress.failed} failed)`}
+                            {job.progress.percentage === 100 ? (
+                                <>
+                                    Finished ({job.progress.completed}/{job.progress.total})
+                                </>
+                            ) : (
+                                <>
+                                    {job.progress.completed}/{job.progress.total}
+                                    {job.progress.failed > 0 && ` (${job.progress.failed} failed)`}
+                                </>
+                            )}
                         </Text>
                     </div>
                 );

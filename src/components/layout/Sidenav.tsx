@@ -1,7 +1,7 @@
 import React from "react";
 import { Menu, Select } from "antd";
 import { NavLink, useLocation } from "react-router-dom";
-import { 
+import {
     HomeOutlined,
     RocketOutlined,
     GlobalOutlined,
@@ -10,6 +10,7 @@ import {
     ClusterOutlined,
     AimOutlined,
     SafetyOutlined,
+    SafetyCertificateOutlined,
     KeyOutlined,
     FilterOutlined,
     AppstoreOutlined,
@@ -153,6 +154,12 @@ const menuConfig = [
 		label: "WAF",
 	},
 	{
+		key: "/acme",
+		to: "/acme",
+		icon: "SafetyCertificateOutlined",
+		label: "Certificates",
+	},
+	{
 		key: "/Administration",
 		to: "#",
 		label: "Administration",
@@ -205,6 +212,7 @@ const iconMap = {
 	ClusterOutlined: ClusterOutlined,
 	AimOutlined: AimOutlined,
 	SafetyOutlined: SafetyOutlined,
+	SafetyCertificateOutlined: SafetyCertificateOutlined,
 	KeyOutlined: KeyOutlined,
 	FilterOutlined: FilterOutlined,
 	AppstoreOutlined: AppstoreOutlined,

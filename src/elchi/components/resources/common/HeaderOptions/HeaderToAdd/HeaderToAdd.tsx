@@ -199,7 +199,7 @@ const HeaderToAdd: React.FC<GeneralProps> = ({ veri }) => {
                 onOk={() => form.submit()}
                 onCancel={() => setState((prevState) => ({ ...prevState, modal: false }))}
                 footer={[
-                    <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+                    <div key="footer-actions" style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
                         <ElchiButton
                             onlyText={true}
                             key="cancel"

@@ -8,7 +8,7 @@ export type JobStatus =
   | 'FAILED' 
   | 'NO_WORK_NEEDED';
 
-export type JobType = 'SNAPSHOT_UPDATE' | 'DISCOVERY_UPDATE' | 'WAF_PROPAGATION' | 'RESOURCE_UPGRADE' | 'RESOURCE_UPGRADE(DRY)';
+export type JobType = 'SNAPSHOT_UPDATE' | 'DISCOVERY_UPDATE' | 'WAF_PROPAGATION' | 'RESOURCE_UPGRADE' | 'RESOURCE_UPGRADE(DRY)' | 'ACME_VERIFICATION';
 
 export type PokeStatus = 'PENDING' | 'SUCCESS' | 'FAILED';
 
@@ -138,8 +138,21 @@ export interface UpgradeConfig {
   client_responses?: ClientResponse[][];
 }
 
+export interface AcmeMetadata {
+  certificate_id: string;
+  certificate_name: string;
+  domains: string[];
+  environment: 'staging' | 'production';
+  dns_provider: string;
+  acme_account_id: string;
+  dns_credential_id?: string;
+  project: string;
+  versions: string[];
+  is_renewal?: boolean;
+}
+
 export interface JobMetadata {
-  source_resource: SourceResource;
+  source_resource?: SourceResource;
   trigger_user: TriggerUser;
   affected_listeners: string[] | null;
   total_affected: number;
@@ -152,6 +165,8 @@ export interface JobMetadata {
   affected_wasm?: string[];
   // RESOURCE_UPGRADE specific fields
   upgrade_config?: UpgradeConfig;
+  // ACME_VERIFICATION specific fields
+  acme?: AcmeMetadata;
 }
 
 export interface SnapshotExecution {
@@ -162,8 +177,19 @@ export interface SnapshotExecution {
   error?: string;
 }
 
+export interface AcmeExecutionDetails {
+  certificate_id: string;
+  secret_name: string;
+  domains: string[];
+  status: string;
+  issued_at?: string;
+  expires_at?: string;
+  error_message?: string;
+}
+
 export interface ExecutionDetails {
-  processed_snapshots: SnapshotExecution[];
+  processed_snapshots?: SnapshotExecution[];
+  acme?: AcmeExecutionDetails;
 }
 
 export interface WorkerInfo {

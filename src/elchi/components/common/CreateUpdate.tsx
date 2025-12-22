@@ -1,4 +1,4 @@
-import { message, Divider, Col, Dropdown, Button, Space, Modal, Select, Spin } from 'antd';
+import { message, Divider, Col, Dropdown, Button, Space, Modal, Select, Spin, App as AntdApp } from 'antd';
 import { useCustomMutation, useDeleteMutation, api } from "@/common/api";
 import { CustomMutationOptions, ConfigDiscovery, OperationsType } from "@/common/types";
 import { useOperationsApiMutation } from "@/common/operations-api";
@@ -41,6 +41,7 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
     const deleteMutate = useDeleteMutation();
     const operationsMutate = useOperationsApiMutation();
     const navigate = useNavigate();
+    const { modal } = AntdApp.useApp();
     const [messageApi, contextHolder] = message.useMessage();
     const [loading, setLoading] = useState(false);
     const { project } = useProjectVariable();
@@ -227,7 +228,7 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
     };
 
     const showSaveAndSendConfirm = () => {
-        Modal.confirm({
+        modal.confirm({
             title: 'Save & Send Bootstrap',
             icon: <ExclamationCircleOutlined />,
             content: 'This will save the bootstrap configuration and send an update command to all clients. The service will be reloaded. Do you want to continue?',

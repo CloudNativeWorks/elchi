@@ -3,16 +3,16 @@
  */
 
 import React, { useState } from 'react';
-import { 
-  Drawer, 
-  Button, 
-  Input, 
-  Space, 
-  Typography, 
-  Modal, 
+import {
+  Drawer,
+  Button,
+  Input,
+  Space,
+  Typography,
   Empty,
   Card,
-  Form
+  Form,
+  App as AntdApp
 } from 'antd';
 import { 
   SaveOutlined, 
@@ -104,6 +104,7 @@ export const SnippetDrawer: React.FC<SnippetDrawerProps> = ({
   version,
   gtype,
 }) => {
+  const { modal } = AntdApp.useApp();
   const [mode, setMode] = useState<'list' | 'save' | 'apply' | 'update'>('list');
   const [selectedSnippet, setSelectedSnippet] = useState<ResourceSnippet | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -219,7 +220,7 @@ export const SnippetDrawer: React.FC<SnippetDrawerProps> = ({
    * Handle delete snippet
    */
   const handleDeleteSnippet = (snippet: ResourceSnippet) => {
-    Modal.confirm({
+    modal.confirm({
       title: 'Delete Snippet',
       content: `Are you sure you want to delete "${snippet.name}"?`,
       okText: 'Delete',

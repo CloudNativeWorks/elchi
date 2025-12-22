@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Table, Button, Tag, Modal, Typography, Spin, Tooltip, Badge, Tabs } from 'antd';
+import { Table, Button, Tag, Typography, Spin, Tooltip, Badge, Tabs, App as AntdApp } from 'antd';
 import { DownloadOutlined, CheckCircleOutlined, ExclamationCircleOutlined, ReloadOutlined, CloudDownloadOutlined, CalendarOutlined, CodeOutlined, FileZipOutlined, CopyOutlined } from '@ant-design/icons';
 import { useCustomGetQuery } from '@/common/api';
 import { useMutation } from '@tanstack/react-query';
@@ -77,6 +77,7 @@ interface VersionOperationResponse {
 
 const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAddress }) => {
     const { project } = useProjectVariable();
+    const { modal } = AntdApp.useApp();
 
     // Get available versions from API
     const { data: availableVersions, isLoading: loadingAvailable } = useCustomGetQuery({
@@ -162,7 +163,7 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
             return;
         }
 
-        Modal.confirm({
+        modal.confirm({
             title: 'Install Version',
             icon: <ExclamationCircleOutlined />,
             content: (
@@ -251,7 +252,7 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
     }, [clientId, downstreamAddress]);
 
     const handleSetCorozaVersion = useCallback(async (version: string) => {
-        Modal.confirm({
+        modal.confirm({
             title: 'Install Coroza Version',
             icon: <ExclamationCircleOutlined />,
             content: (

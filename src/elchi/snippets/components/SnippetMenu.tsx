@@ -3,7 +3,7 @@
  */
 
 import React, { useState } from 'react';
-import { Button, Dropdown, Modal } from 'antd';
+import { Button, Dropdown, App as AntdApp } from 'antd';
 import type { MenuProps } from 'antd';
 import { 
   SaveOutlined, 
@@ -43,6 +43,7 @@ export const SnippetMenu: React.FC<SnippetMenuProps> = ({
   version,
   gtype = undefined,
 }) => {
+  const { modal } = AntdApp.useApp();
   const [saveModalOpen, setSaveModalOpen] = useState(false);
   const [applyModalOpen, setApplyModalOpen] = useState(false);
   const [selectedSnippet, setSelectedSnippet] = useState<ResourceSnippet | null>(null);
@@ -101,7 +102,7 @@ export const SnippetMenu: React.FC<SnippetMenuProps> = ({
   const handleDeleteSnippet = (snippet: ResourceSnippet, event: React.MouseEvent) => {
     event.stopPropagation();
     
-    Modal.confirm({
+    modal.confirm({
       title: 'Delete Snippet',
       content: `Are you sure you want to delete "${snippet.name}"?`,
       okText: 'Delete',

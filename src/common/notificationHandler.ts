@@ -34,21 +34,82 @@ export interface ErrorResponse {
 
 export const extractErrorMessage = (error: any): string => {
   if (!error) return 'An unknown error occurred';
-  
+
   // String error
   if (typeof error === 'string') return error;
-  
-  // Check for validation errors with structured error list
+
+  // Check for Let's Encrypt rate limit errors with details and hint
   const responseData = error?.response?.data || error?.data;
+  if (responseData?.details || responseData?.hint) {
+    const mainError = responseData?.error || responseData?.message || 'An error occurred';
+    const details = responseData?.details;
+    const hint = responseData?.hint;
+
+    // Build comprehensive error message
+    let message = mainError;
+
+    if (details) {
+      // Extract key information from details
+      const detailsStr = typeof details === 'string' ? details : JSON.stringify(details);
+
+      // Check if it's a Let's Encrypt rate limit error
+      if (detailsStr.includes('rate limit') || detailsStr.includes('rateLimited')) {
+        message = '🚫 Let\'s Encrypt Rate Limit Exceeded\n\n';
+
+        // Extract retry time if available (full UTC timestamp)
+        const retryMatch = detailsStr.match(/retry after (\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\s+UTC)/i) ||
+                          detailsStr.match(/wait until (\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\s+UTC)/i) ||
+                          detailsStr.match(/retry after (\d{4}-\d{2}-\d{2}\s+\d{2}\s+UTC)/i) ||
+                          detailsStr.match(/wait until (\d{4}-\d{2}-\d{2}\s+\d{2}\s+UTC)/i);
+        if (retryMatch) {
+          message += `⏰ Please wait until: ${retryMatch[1].trim()}\n\n`;
+        }
+
+        // Extract domain if available
+        const domainMatch = detailsStr.match(/for ["']([^"']+)["']/);
+        if (domainMatch) {
+          message += `🌐 Domain: ${domainMatch[1]}\n\n`;
+        }
+
+        // Add the error type
+        if (detailsStr.includes('failed authorization')) {
+          message += '❌ Too many failed verification attempts\n';
+        } else if (detailsStr.includes('too many certificates')) {
+          message += '❌ Too many certificates issued\n';
+        }
+
+        message += '\n💡 Suggestions:\n';
+        message += '  • Use staging environment for testing\n';
+        message += '  • Try a different subdomain\n';
+        message += '  • Wait for the rate limit window to reset\n';
+
+        if (hint) {
+          message += `\n${hint}`;
+        }
+      } else {
+        // Non-rate-limit error with details
+        message += `\n\n📋 Details:\n${details}`;
+        if (hint) {
+          message += `\n\n💡 Hint: ${hint}`;
+        }
+      }
+    } else if (hint) {
+      message += `\n\n💡 Hint: ${hint}`;
+    }
+
+    return message;
+  }
+
+  // Check for validation errors with structured error list
   if (responseData?.data?.valid === false && responseData?.data?.errors) {
     const errors = responseData.data.errors;
     const mainMessage = responseData.message || 'Validation failed';
-    
+
     if (errors.length > 0) {
-      const errorList = errors.map((err: any, index: number) => 
+      const errorList = errors.map((err: any, index: number) =>
         `${index + 1}. ${err.field || 'Unknown field'}: ${err.message || 'Unknown error'}`
       ).join('\n');
-      
+
       return `${mainMessage}\n\nError Details:\n${errorList}`;
     }
   }
@@ -169,24 +230,28 @@ export const setNotificationApi = (api: any) => {
 export const showErrorNotification = (error: any, customMessage?: string, title?: string): void => {
   const errorMessage = customMessage || extractErrorMessage(error);
   const cacheKey = `${title || 'Error'}:${errorMessage}`;
-  
+
   // Check if this exact error was already shown recently
   if (errorCache.has(cacheKey)) {
     return;
   }
-  
+
   // Add to cache and set timer to remove it
   errorCache.add(cacheKey);
   setTimeout(() => {
     errorCache.delete(cacheKey);
   }, CACHE_DURATION);
-  
+
   if (notificationApi) {
+    // Use longer duration for rate limit errors (10 seconds)
+    const isRateLimitError = errorMessage.includes('Rate Limit') || errorMessage.includes('rate limit');
+    const duration = isRateLimitError ? 10 : 6;
+
     notificationApi.error({
       message: title || 'Error',
       description: formatMessageWithLineBreaks(errorMessage),
-      duration: 6,
-      placement: 'topRight',
+      duration,
+      placement: 'bottomRight',
       showProgress: true,
       className: 'modern-error-notification'
     });
@@ -212,7 +277,7 @@ export const showWarningNotification = (message: string, title?: string): void =
       message: title || 'Warning',
       description: formatMessageWithLineBreaks(message),
       duration: 6,
-      placement: 'topRight',
+      placement: 'bottomRight',
       showProgress: true,
       className: 'modern-warning-notification'
     });
@@ -238,7 +303,7 @@ export const showSuccessNotification = (message: string, title?: string): void =
       message: title || 'Success',
       description: formatMessageWithLineBreaks(message),
       duration: 4,
-      placement: 'topRight',
+      placement: 'bottomRight',
       showProgress: true,
       className: 'modern-success-notification'
     });

@@ -44,8 +44,6 @@ const CommonComponentRegexMatcher: React.FC<GeneralProps> = ({ veri }) => {
         }),
     ];
 
-    console.log(selectedTags)
-
     return (
         <ECard title={veri.title || "Regex Matcher"}>
             <HorizonTags veri={{
@@ -55,7 +53,7 @@ const CommonComponentRegexMatcher: React.FC<GeneralProps> = ({ veri }) => {
                 handleChangeTag: handleChangeTag,
                 keyPrefix: veri.keyPrefix,
                 tagPrefix: '',
-                specificTagPrefix: {'google_re2': 'engine_type'},
+                specificTagPrefix: { 'google_re2': 'engine_type' },
                 required: [],
             }} />
             <Divider style={{ marginTop: '8px', marginBottom: '8px' }} type="horizontal" />
