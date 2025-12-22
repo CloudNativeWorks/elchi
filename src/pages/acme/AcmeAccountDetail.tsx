@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Form, Descriptions, Tag, Spin, Input, Select, Button } from 'antd';
 import { SafetyCertificateOutlined, SaveOutlined, CheckCircleOutlined, ArrowLeftOutlined } from '@ant-design/icons';
@@ -24,6 +24,7 @@ const AcmeAccountDetail: React.FC = () => {
   const [caProvider, setCAProvider] = useState<CAProvider>('letsencrypt');
   const [eabCredentials, setEABCredentials] = useState<EABCredentials | undefined>();
   const [requiresEAB, setRequiresEAB] = useState(false);
+  const [formValues, setFormValues] = useState<any>({});
 
   const { createMutation } = useAcmeAccountMutations();
 
@@ -73,17 +74,17 @@ const AcmeAccountDetail: React.FC = () => {
     }
   };
 
-  // Check if form can be submitted (only used in create mode)
-  const canSubmit = useMemo(() => {
+  // Check if form can be submitted
+  const canSubmit = () => {
     if (!isCreateMode) return true; // Not relevant in view mode
     const basicFieldsValid =
-      form.getFieldValue('name') &&
-      form.getFieldValue('email') &&
-      form.getFieldValue('environment') &&
+      formValues.name &&
+      formValues.email &&
+      formValues.environment &&
       caProvider;
     const eabValid = !requiresEAB || (eabCredentials?.key_id && eabCredentials?.hmac_key);
     return basicFieldsValid && eabValid;
-  }, [isCreateMode, form, caProvider, requiresEAB, eabCredentials]);
+  };
 
   if (isLoading) {
     return (
@@ -122,7 +123,7 @@ const AcmeAccountDetail: React.FC = () => {
             icon={<SaveOutlined />}
             onClick={handleSave}
             loading={createMutation.isPending}
-            disabled={!canSubmit}
+            disabled={!canSubmit()}
           >
             {createMutation.isPending ? 'Creating...' : 'Create ACME Account'}
           </ElchiButton>
@@ -156,7 +157,11 @@ const AcmeAccountDetail: React.FC = () => {
 
           {/* Body */}
           <div style={{ padding: '16px 20px' }}>
-            <Form form={form} layout="vertical">
+            <Form
+              form={form}
+              layout="vertical"
+              onValuesChange={(_, allValues) => setFormValues(allValues)}
+            >
               <Form.Item
                 name="name"
                 label="Account Name"
