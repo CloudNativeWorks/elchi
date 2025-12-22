@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
-import { Layout, notification } from "antd";
+import { Layout, App as AntdApp } from "antd";
 import Sidenav from "./Sidenav";
 import Header from "./Header";
 import { DecodeToken } from "@utils/tools";
@@ -12,6 +12,7 @@ function Main() {
 	const sidenavColor = "#1890ff"
 	const location = useLocation();
 	const userDetail = DecodeToken(Cookies.get('bb_token'))
+	const { notification } = AntdApp.useApp();
 	const timeoutId = useRef<NodeJS.Timeout | null>(null);
 	const [collapsed, setCollapsed] = useState(() => {
 		const domainKey = window.location.hostname;
