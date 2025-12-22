@@ -88,6 +88,7 @@ const DnsCredentialDetail: React.FC = () => {
           ? {
             project_id: values.project_id,
             service_account_json: values.service_account_json,
+            ...(values.zone_id && { zone_id: values.zone_id }),
           }
           : values.provider === 'cloudflare' || values.provider === 'digitalocean'
           ? {

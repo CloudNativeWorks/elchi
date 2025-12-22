@@ -162,6 +162,7 @@ export interface DuplicateCertificateRequest {
 export interface GoogleCredentials {
   project_id: string;
   service_account_json: string;
+  zone_id?: string; // Optional: Managed Zone ID for Google Cloud DNS
 }
 
 export interface GodaddyCredentials {

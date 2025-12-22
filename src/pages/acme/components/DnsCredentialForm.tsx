@@ -45,6 +45,7 @@ const DnsCredentialForm: React.FC<DnsCredentialFormProps> = ({ form, isCreateMod
     form.setFieldsValue({
       project_id: undefined,
       service_account_json: undefined,
+      zone_id: undefined,
       api_key: undefined,
       api_secret: undefined,
       api_token: undefined,
@@ -80,6 +81,7 @@ const DnsCredentialForm: React.FC<DnsCredentialFormProps> = ({ form, isCreateMod
         return {
           project_id: values.project_id,
           service_account_json: values.service_account_json,
+          ...(values.zone_id && { zone_id: values.zone_id }),
         };
       case 'godaddy':
         return {
@@ -218,6 +220,14 @@ const DnsCredentialForm: React.FC<DnsCredentialFormProps> = ({ form, isCreateMod
               disabled={!isCreateMode}
               style={{ fontFamily: 'monospace', fontSize: 12 }}
             />
+          </Form.Item>
+
+          <Form.Item
+            name="zone_id"
+            label="Managed Zone ID (Optional)"
+            tooltip="Optional: Specify a specific Cloud DNS managed zone ID. If not provided, the zone will be auto-detected."
+          >
+            <Input placeholder="my-dns-zone" disabled={!isCreateMode} />
           </Form.Item>
         </>
       )}

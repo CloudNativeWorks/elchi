@@ -388,7 +388,6 @@ const CertificateDetail: React.FC = () => {
               <ul style={{ marginBottom: 0 }}>
                 <li>DNS propagation taking longer than 5 minutes</li>
                 <li>Temporary DNS provider issues</li>
-                <li>Let's Encrypt service temporary unavailability</li>
               </ul>
             </div>
           }
@@ -435,16 +434,6 @@ const CertificateDetail: React.FC = () => {
           verifying={verifyMutation.isPending}
           refreshing={challengesLoading}
           certificateStatus={certificate?.status}
-        />
-      )}
-
-      {shouldShowDnsVerification && !challengesLoading && (!dnsChallenges || dnsChallenges.length === 0) && (
-        <Alert
-          message="No DNS Challenges Found"
-          description="Unable to retrieve DNS challenge information. Please refresh the page or contact support."
-          type="warning"
-          showIcon
-          style={{ marginBottom: 16 }}
         />
       )}
 
