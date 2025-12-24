@@ -27,10 +27,10 @@ type GeneralProps = {
 const Vhds: React.FC<GeneralProps> = ({ veri }) => {
     const dispatch = useDispatch();
     const { project } = useProjectVariable();
-    
+
     const [searchQuery, setSearchQuery] = useState<string>('');
     const debouncedSearch = useCallback(debounce((value: string) => setSearchQuery(value), 300), []);
-    
+
     const { data: queryData } = useCustomGetQuery({
         queryKey: `custom_vhds_${searchQuery}`,
         enabled: true,
@@ -46,7 +46,7 @@ const Vhds: React.FC<GeneralProps> = ({ veri }) => {
             name: filteredItem.name,
             gtype: filteredItem.gtype,
             priority: 0,
-            category: "vhds",
+            category: "virtual_host",
             canonical_name: filteredItem.canonical_name,
             parent_name: veri.routeName
         };
@@ -81,7 +81,7 @@ const Vhds: React.FC<GeneralProps> = ({ veri }) => {
     };
 
     useEffect(() => {
-        const vhdsItemIndex = veri.reduxStore?.findIndex((item: any) => item.category === 'vhds');
+        const vhdsItemIndex = veri.reduxStore?.findIndex((item: any) => item.category === 'virtual_host');
         if (vhdsItemIndex === -1) {
             return;
         }
@@ -119,7 +119,7 @@ const Vhds: React.FC<GeneralProps> = ({ veri }) => {
                                 placeholder={"vhds"}
                                 value={
                                     veri.reduxStore
-                                        .find(item => item.category === "vhds")?.name || undefined
+                                        .find(item => item.category === "virtual_host")?.name || undefined
                                 }
                                 onChange={(val) => handleConfigDiscovery(val)}
                                 onSearch={debouncedSearch}
