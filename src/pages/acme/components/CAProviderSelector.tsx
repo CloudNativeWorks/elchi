@@ -81,19 +81,18 @@ const CAProviderSelector: React.FC<CAProviderSelectorProps> = ({
 
             {selectedProvider.requires_eab && (
               <Alert
-                message="External Account Binding Required"
+                message="Public Certificate Authority API Required"
                 description={
                   <Space direction="vertical" size="small">
                     <Text>
-                      This CA requires EAB credentials. You'll need to obtain these from{' '}
-                      {selectedProvider.eab_instructions_url ? (
-                        <Link href={selectedProvider.eab_instructions_url} target="_blank">
-                          {selectedProvider.name} documentation
-                        </Link>
-                      ) : (
-                        `${selectedProvider.name}`
-                      )}
-                      .
+                      To use {selectedProvider.name}, you must first enable the Public Certificate Authority API in your Google Cloud project.
+                    </Text>
+                    <Text>
+                      Visit{' '}
+                      <Link href={"https://console.cloud.google.com/marketplace/product/google/publicca.googleapis.com"} target="_blank" rel="noopener noreferrer">
+                        Google Cloud Marketplace
+                      </Link>
+                      {' '}to enable the API, then return here to configure your EAB credentials.
                     </Text>
                   </Space>
                 }

@@ -13,13 +13,14 @@ import {
     Divider,
     Row,
     Col,
-    App as AntdApp
+    App as AntdApp,
+    Modal
 } from 'antd';
-import { 
-    SaveOutlined, 
-    DeleteOutlined, 
-    ExclamationCircleOutlined, 
-    WifiOutlined, 
+import {
+    SaveOutlined,
+    DeleteOutlined,
+    ExclamationCircleOutlined,
+    WifiOutlined,
     UserOutlined,
     LockOutlined,
     DatabaseOutlined,
@@ -213,8 +214,8 @@ const LdapConfig: React.FC = () => {
                                     label="Enable LDAP Authentication"
                                     valuePropName="checked"
                                 >
-                                    <Switch 
-                                        checkedChildren="Enabled" 
+                                    <Switch
+                                        checkedChildren="Enabled"
                                         unCheckedChildren="Disabled"
                                     />
                                 </Form.Item>
@@ -222,7 +223,7 @@ const LdapConfig: React.FC = () => {
                         </Row>
 
                         <Divider orientation="left">Server Configuration</Divider>
-                        
+
                         <Row gutter={24}>
                             <Col span={16}>
                                 <Form.Item
@@ -230,7 +231,7 @@ const LdapConfig: React.FC = () => {
                                     label="LDAP Server"
                                     rules={[{ required: true, message: 'Please enter LDAP server address' }]}
                                 >
-                                    <Input 
+                                    <Input
                                         prefix={<DatabaseOutlined />}
                                         placeholder="ldap.company.com"
                                     />
@@ -242,7 +243,7 @@ const LdapConfig: React.FC = () => {
                                     label="Port"
                                     rules={[{ required: true, message: 'Please enter port number' }]}
                                 >
-                                    <InputNumber 
+                                    <InputNumber
                                         style={{ width: '100%' }}
                                         min={1}
                                         max={65535}
@@ -286,7 +287,7 @@ const LdapConfig: React.FC = () => {
                                     label="Bind User DN"
                                     rules={[{ required: true, message: 'Please enter bind user DN' }]}
                                 >
-                                    <Input 
+                                    <Input
                                         prefix={<UserOutlined />}
                                         placeholder="cn=elchi-service,ou=serviceaccounts,dc=company,dc=com"
                                     />
@@ -301,7 +302,7 @@ const LdapConfig: React.FC = () => {
                                     label="Bind Password"
                                     rules={[{ required: true, message: 'Please enter bind password' }]}
                                 >
-                                    <Input.Password 
+                                    <Input.Password
                                         prefix={<LockOutlined />}
                                         placeholder="Enter bind user password"
                                     />
@@ -318,8 +319,8 @@ const LdapConfig: React.FC = () => {
                                     label="Enable TLS"
                                     valuePropName="checked"
                                 >
-                                    <Switch 
-                                        checkedChildren="Enabled" 
+                                    <Switch
+                                        checkedChildren="Enabled"
                                         unCheckedChildren="Disabled"
                                     />
                                 </Form.Item>
@@ -330,8 +331,8 @@ const LdapConfig: React.FC = () => {
                                     label="Skip TLS Verification"
                                     valuePropName="checked"
                                 >
-                                    <Switch 
-                                        checkedChildren="Skip" 
+                                    <Switch
+                                        checkedChildren="Skip"
                                         unCheckedChildren="Verify"
                                     />
                                 </Form.Item>
@@ -349,7 +350,7 @@ const LdapConfig: React.FC = () => {
                             >
                                 Save Configuration
                             </ElchiButton>
-                            
+
                             <ElchiButton
                                 icon={<WifiOutlined />}
                                 onClick={handleTestConnection}
@@ -413,14 +414,14 @@ const LdapConfig: React.FC = () => {
                         <Text type="secondary">
                             Enter test credentials to verify LDAP authentication is working correctly.
                         </Text>
-                        
+
                         <Input
                             prefix={<UserOutlined />}
                             placeholder="Username"
                             value={testCredentials.username}
                             onChange={(e) => setTestCredentials(prev => ({ ...prev, username: e.target.value }))}
                         />
-                        
+
                         <Input.Password
                             prefix={<LockOutlined />}
                             placeholder="Password"

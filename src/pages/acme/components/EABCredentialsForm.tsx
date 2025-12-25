@@ -1,11 +1,11 @@
 import React from 'react';
 import { Form, Input, Alert, Space, Typography, Button, message } from 'antd';
-import { KeyOutlined, CheckCircleOutlined, LinkOutlined } from '@ant-design/icons';
+import { KeyOutlined, CheckCircleOutlined, LinkOutlined, CodeOutlined } from '@ant-design/icons';
 import { useMutation } from '@tanstack/react-query';
 import { letsencryptApi } from '../letsencryptApi';
 import type { CAProvider, EABCredentials } from '../types';
 
-const { Text, Link } = Typography;
+const { Text, Link, Paragraph } = Typography;
 const { TextArea } = Input;
 
 interface EABCredentialsFormProps {
@@ -80,9 +80,25 @@ const EABCredentialsForm: React.FC<EABCredentialsFormProps> = ({
                 'For ZeroSSL, obtain EAB credentials from your ZeroSSL account dashboard.'}
             </Text>
             {caProvider === 'google' && (
-              <Text type="warning">
-                ⚠️ Google EAB credentials expire 7 days after creation if not used.
-              </Text>
+              <>
+                <Paragraph
+                  copyable
+                  code
+                  style={{
+                    marginBottom: 8,
+                    backgroundColor: '#f6f8fa',
+                    padding: '8px 12px',
+                    borderRadius: 6,
+                    fontSize: 13
+                  }}
+                >
+                  <CodeOutlined style={{ marginRight: 6 }} />
+                  gcloud publicca external-account-keys create
+                </Paragraph>
+                <Text type="warning">
+                  ⚠️ Google EAB credentials expire 7 days after creation if not used.
+                </Text>
+              </>
             )}
           </Space>
         }

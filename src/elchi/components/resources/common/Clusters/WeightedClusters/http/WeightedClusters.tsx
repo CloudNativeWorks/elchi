@@ -55,7 +55,10 @@ const CommonComponentWeightedClusters: React.FC<GeneralProps> = ({ veri }) => {
                             unsupportedTags: ["total_weight"],
                             tagMatchPrefix: `${veri.tagMatchPrefix}.cluster_specifier.weighted_clusters`,
                             handleChangeTag: handleChangeTag,
-                            specificTagPrefix: { 'header_name': 'random_value_specifier' }
+                            specificTagPrefix: { 'header_name': 'random_value_specifier', 'use_hash_policy': 'random_value_specifier' },
+                            onlyOneTag: [
+                                ['random_value_specifier.header_name', 'random_value_specifier.use_hash_policy'],
+                            ],
                         }} />
                         <Divider style={{ marginTop: '8px', marginBottom: '8px' }} type="horizontal" />
                         <EForm>

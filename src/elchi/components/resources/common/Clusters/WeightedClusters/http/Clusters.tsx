@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Col, Collapse, Divider, Row, Button, Drawer } from 'antd';
-import { DeleteTwoTone } from "@ant-design/icons";
+import { Col, Collapse, Divider, Row, Button, Drawer, Empty } from 'antd';
+import { DeleteTwoTone, ClusterOutlined } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { ActionType, ResourceType } from "@/redux/reducer-helpers/common";
 import { handleChangeResources } from '@/redux/dispatcher';
@@ -92,30 +92,98 @@ const CommonComponentWClusters: React.FC<GeneralProps> = ({ veri }) => {
             size='large'
             width={900}
         >
-            <ElchiIconButton style={{ marginBottom: 10 }} onClick={addCluster} key={`button_${veri.keyPrefix}`} />
-            <Collapse
-                key={`Collapse_${veri.keyPrefix}`}
-                accordion
-                size='small'
-                defaultActiveKey={[stateActiveItem]}
-                onChange={onChange}
-                bordered={false}
-                items={
-                    veri.reduxStore?.map((data: any, index: number) => (
-                        {
-                            label: data.name || data.cluster_header,
-                            extra:
-                                <>
-                                    <label style={{ marginRight: 35 }}>Weight: {data.weight || 'auto'}</label>
-                                    <Button
-                                        key={"btn_ " + index.toString()}
-                                        icon={<DeleteTwoTone twoToneColor="#eb2f96" />}
-                                        size='small'
-                                        onClick={(e) => { onRemove(e, index) }}
-                                        iconPosition={"end"}
-                                    />
-                                </>,
-                            children:
+            <ElchiIconButton key={`button_${veri.keyPrefix}`} onClick={addCluster} style={{ marginBottom: 10 }} />
+
+            {!veri.reduxStore || veri.reduxStore.length === 0 ? (
+                <div style={{
+                    background: 'linear-gradient(135deg, rgba(248, 250, 252, 0.8) 0%, rgba(241, 245, 249, 0.9) 100%)',
+                    border: '2px dashed rgba(148, 163, 184, 0.3)',
+                    borderRadius: 16,
+                    padding: '40px 20px',
+                    textAlign: 'center',
+                    margin: '20px 0',
+                    backdropFilter: 'blur(10px)',
+                    transition: 'all 0.3s ease',
+                }}>
+                    <Empty
+                        image={<ClusterOutlined style={{ fontSize: 48, color: '#94a3b8' }} />}
+                        description={
+                            <div style={{ marginTop: 16 }}>
+                                <h4 style={{
+                                    color: '#475569',
+                                    marginBottom: 8,
+                                    fontSize: 16,
+                                    fontWeight: 500
+                                }}>
+                                    No Weighted Clusters
+                                </h4>
+                                <p style={{
+                                    color: '#64748b',
+                                    margin: 0,
+                                    fontSize: 14,
+                                    lineHeight: 1.5
+                                }}>
+                                    Click the + button above to add your first weighted cluster configuration
+                                </p>
+                            </div>
+                        }
+                    />
+                </div>
+            ) : (
+                <Collapse
+                    key={`Collapse_${veri.keyPrefix}`}
+                    accordion
+                    size='small'
+                    defaultActiveKey={[stateActiveItem]}
+                    onChange={onChange}
+                    bordered={false}
+                    style={{
+                        background: 'transparent',
+                        borderRadius: 12,
+                    }}
+                    items={
+                        veri.reduxStore?.map((data: any, index: number) => (
+                            {
+                                label: (
+                                    <span style={{
+                                        fontWeight: 500,
+                                        color: '#1e293b',
+                                        fontSize: 14
+                                    }}>
+                                        {data.name || data.cluster_header}
+                                    </span>
+                                ),
+                                extra:
+                                    <>
+                                        <label style={{
+                                            marginRight: 20,
+                                            color: '#64748b',
+                                            fontSize: 13,
+                                            fontWeight: 500
+                                        }}>
+                                            Weight: <span style={{ color: '#1e293b' }}>{data.weight || 'auto'}</span>
+                                        </label>
+                                        <Button
+                                            key={"btn_ " + index.toString()}
+                                            icon={<DeleteTwoTone twoToneColor="#ef4444" />}
+                                            size='small'
+                                            onClick={(e) => { onRemove(e, index) }}
+                                            iconPosition={"end"}
+                                            style={{
+                                                borderRadius: 8,
+                                                border: '1px solid rgba(239, 68, 68, 0.2)',
+                                                background: 'rgba(254, 242, 242, 0.5)',
+                                            }}
+                                        />
+                                    </>,
+                                style: {
+                                    marginBottom: 8,
+                                    borderRadius: 12,
+                                    border: '1px solid rgba(226, 232, 240, 0.5)',
+                                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.8) 100%)',
+                                    backdropFilter: 'blur(10px)',
+                                },
+                                children:
                                 <>
                                     <Row>
                                         <HorizonTags veri={{
@@ -176,9 +244,10 @@ const CommonComponentWClusters: React.FC<GeneralProps> = ({ veri }) => {
                                         ])}
                                     />
                                 </>
-                        })
-                    )}
-            />
+                            })
+                        )}
+                />
+            )}
             <ElchiButton onlyText style={{ marginTop: 15 }} onClick={() => veri.drawerClose()}>Close</ElchiButton>
         </Drawer>
     )

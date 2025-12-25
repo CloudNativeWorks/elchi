@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { 
-  Modal, Progress, Typography, Alert, Space, Button, 
+import {
+  Modal, Progress, Typography, Alert, Space, Button,
   Timeline, Descriptions, Tag, Spin, Result
 } from 'antd';
 import {
@@ -44,7 +44,7 @@ const JobProgressModal: React.FC<JobProgressModalProps> = ({
     const jobData = await getJob(jobId);
     if (jobData) {
       setJob(jobData);
-      
+
       // Stop auto-refresh if job is completed
       if (['COMPLETED', 'FAILED', 'NO_WORK_NEEDED'].includes(jobData.status)) {
         setAutoRefresh(false);
@@ -103,7 +103,7 @@ const JobProgressModal: React.FC<JobProgressModalProps> = ({
   const getStatusColor = (status: JobStatus) => {
     const colors = {
       PENDING: 'processing',
-      CLAIMED: 'warning', 
+      CLAIMED: 'warning',
       RUNNING: 'processing',
       COMPLETED: 'success',
       FAILED: 'error',
@@ -114,11 +114,11 @@ const JobProgressModal: React.FC<JobProgressModalProps> = ({
 
   const formatDuration = (startTime?: string, endTime?: string) => {
     if (!startTime) return '-';
-    
+
     const start = dayjs(startTime);
     const end = endTime ? dayjs(endTime) : dayjs();
     const diff = end.diff(start);
-    
+
     if (diff < 1000) return '< 1s';
     return dayjs.duration(diff).humanize();
   };
@@ -204,8 +204,8 @@ const JobProgressModal: React.FC<JobProgressModalProps> = ({
         </Descriptions>
 
         {/* Timeline */}
-        <Timeline size="small">
-          <Timeline.Item 
+        <Timeline>
+          <Timeline.Item
             dot={<InfoCircleOutlined />}
             color="blue"
           >
@@ -213,9 +213,9 @@ const JobProgressModal: React.FC<JobProgressModalProps> = ({
             <br />
             <Text type="secondary">{dayjs(job.created_at).format('HH:mm:ss')} ({dayjs(job.created_at).fromNow()})</Text>
           </Timeline.Item>
-          
+
           {job.started_at && (
-            <Timeline.Item 
+            <Timeline.Item
               dot={<PlayCircleOutlined />}
               color="green"
             >
@@ -226,7 +226,7 @@ const JobProgressModal: React.FC<JobProgressModalProps> = ({
           )}
 
           {job.completed_at && (
-            <Timeline.Item 
+            <Timeline.Item
               dot={job.status === 'COMPLETED' ? <CheckCircleOutlined /> : <CloseCircleOutlined />}
               color={job.status === 'COMPLETED' ? 'green' : 'red'}
             >
@@ -263,16 +263,16 @@ const JobProgressModal: React.FC<JobProgressModalProps> = ({
       onCancel={onClose}
       footer={
         <Space>
-          <Button 
-            icon={<ReloadOutlined />} 
-            onClick={loadJob} 
+          <Button
+            icon={<ReloadOutlined />}
+            onClick={loadJob}
             loading={loading}
             disabled={!job}
           >
             Refresh
           </Button>
           {isJobActive && (
-            <Button 
+            <Button
               type={autoRefresh ? 'primary' : 'default'}
               onClick={() => setAutoRefresh(!autoRefresh)}
             >
