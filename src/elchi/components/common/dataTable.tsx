@@ -34,8 +34,8 @@ interface DataType {
         name?: string;
     };
     metadata?: {
-        managed_by_letsencrypt?: boolean;
-        letsencrypt_cert_id?: string;
+        acme_enabled?: boolean;
+        acme_cert_id?: string;
     };
     created_at: string;
     updated_at: string;
@@ -107,19 +107,19 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({
         const params = new URLSearchParams();
         params.append('limit', pageSize.toString());
         params.append('offset', ((currentPage - 1) * pageSize).toString());
-        
+
         // Add filters from parent component
         Object.entries(filters).forEach(([key, value]) => {
             if (value !== undefined && value !== null && value !== '') {
                 params.append(key, value.toString());
             }
         });
-        
+
         if (sortBy) {
             params.append('sort_by', sortBy);
             params.append('sort_order', sortOrder);
         }
-        
+
         return params.toString();
     };
 
@@ -148,8 +148,9 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({
     };
 
     const getResourceActions = (record: DataType): MenuProps['items'] => {
-        // Show Upgrade if AVAILABLE_VERSIONS > 1 and not listener
+        // Disable Upgrade and Duplicate if acme_enabled
         const availableVersions = window.APP_CONFIG?.AVAILABLE_VERSIONS || [];
+        const isAcmeEnabled = record.metadata?.acme_enabled === true;
         const showUpgrade = !isListener && availableVersions.length > 1;
 
         return [
@@ -159,10 +160,20 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({
             ] : []),
             ...(isBootstrapPath ? [] : [
                 { type: 'divider' as const },
-                { key: isListener ? '7' : '3', label: 'Duplicate', icon: <CopyOutlined /> },
+                {
+                    key: isListener ? '7' : '3',
+                    label: 'Duplicate',
+                    icon: <CopyOutlined />,
+                    disabled: isAcmeEnabled
+                },
                 // Show Upgrade if AVAILABLE_VERSIONS > 1 and not listener
                 ...(showUpgrade ? [
-                    { key: '5', label: 'Upgrade', icon: <ArrowUpOutlined /> },
+                    {
+                        key: '5',
+                        label: 'Upgrade',
+                        icon: <ArrowUpOutlined />,
+                        disabled: isAcmeEnabled
+                    },
                 ] : []),
                 { type: 'divider' as const },
                 { key: isListener ? '6' : '2', label: 'Delete', danger: true, icon: <DeleteOutlined /> },
@@ -397,14 +408,14 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({
                 <Dropdown menu={{ items: getResourceActions(record), onClick: (e) => onClick(record, e.key) }} trigger={['contextMenu']}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                         <Text strong>{`${record.name}`}</Text>
-                        {record.metadata?.managed_by_letsencrypt && (
-                            <Tooltip title="Managed by Let's Encrypt">
+                        {record.metadata?.acme_enabled && (
+                            <Tooltip title="Managed by Acme">
                                 <Tag
                                     icon={<SafetyCertificateOutlined />}
                                     color="cyan"
                                     style={{ margin: 0, fontSize: 11 }}
                                 >
-                                    Let's Encrypt
+                                    Acme
                                 </Tag>
                             </Tooltip>
                         )}
@@ -742,7 +753,7 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({
                     showSizeChanger={true}
                     showQuickJumper={true}
                     pageSizeOptions={['20', '50', '100', '200']}
-                    showTotal={(total, range) => 
+                    showTotal={(total, range) =>
                         `${range[0]}-${range[1]} of ${total} items`
                     }
                 />
@@ -761,11 +772,11 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({
             }))}
             title={
                 versionModal.action === 'delete' ? 'Select Version to Delete' :
-                versionModal.action === 'dependency' ? 'Select Version for Dependencies' :
-                versionModal.action === 'routemap' ? 'Select Version for Route Map' :
-                versionModal.action === 'duplicate' ? 'Select Version to Duplicate' :
-                versionModal.action === 'upgrade' ? 'Select Version to Upgrade' :
-                'Select Version'
+                    versionModal.action === 'dependency' ? 'Select Version for Dependencies' :
+                        versionModal.action === 'routemap' ? 'Select Version for Route Map' :
+                            versionModal.action === 'duplicate' ? 'Select Version to Duplicate' :
+                                versionModal.action === 'upgrade' ? 'Select Version to Upgrade' :
+                                    'Select Version'
             }
             action={versionModal.action}
         />
