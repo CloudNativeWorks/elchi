@@ -393,30 +393,34 @@ export function ClientListTable({
                                     <span style={{ color: '#666' }}>Loading...</span>
                                 </div>
                             ) : (
-                                <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                     <Select
                                         size="small"
                                         placeholder={interfaces.length === 0 ? "No interfaces available" : "Select interface"}
                                         value={selectedInterface}
                                         onChange={(value) => handleInterfaceChange(record.client_id, value)}
-                                        style={{ flex: 1, fontSize: 11 }}
+                                        style={{ fontSize: 11, width: '180px' }}
                                         status={actionType === OperationsType.DEPLOY && !selectedInterface ? 'error' : undefined}
                                         disabled={interfaces.length === 0 || disabledAddressEdit?.(record.client_id)}
                                         optionLabelProp="shortLabel"
-                                        options={interfaces.map(iface => ({
-                                            value: iface.id,
-                                            shortLabel: iface.name || `${iface.id.substring(0, 13)}...`,
-                                            label: (
-                                                <div style={{ fontSize: 11 }}>
-                                                    <div style={{ fontWeight: 500 }}>
-                                                        {iface.name || iface.id.substring(0, 8)}
+                                        title={selectedInterface ? interfaces.find(i => i.id === selectedInterface)?.name || '' : ''}
+                                        options={interfaces.map(iface => {
+                                            const shortName = iface.name || iface.id.substring(0, 13);
+                                            return {
+                                                value: iface.id,
+                                                shortLabel: shortName.length > 30 ? `${shortName.substring(0, 30)}...` : shortName,
+                                                label: (
+                                                    <div style={{ fontSize: 11 }}>
+                                                        <div style={{ fontWeight: 500 }}>
+                                                            {iface.name || iface.id.substring(0, 8)}
+                                                        </div>
+                                                        <div style={{ color: '#666', fontSize: 10 }}>
+                                                            IP: {iface.fixed_ips.map(ip => ip.ip_address).join(', ')} | Status: {iface.status || 'N/A'}
+                                                        </div>
                                                     </div>
-                                                    <div style={{ color: '#666', fontSize: 10 }}>
-                                                        IP: {iface.fixed_ips.map(ip => ip.ip_address).join(', ')} | Status: {iface.status || 'N/A'}
-                                                    </div>
-                                                </div>
-                                            )
-                                        }))}
+                                                )
+                                            };
+                                        })}
                                     />
                                     <Button
                                         type="text"
@@ -437,7 +441,8 @@ export function ClientListTable({
                                             height: 'auto',
                                             fontSize: 11,
                                             color: '#1890ff',
-                                            minWidth: 'auto'
+                                            whiteSpace: 'nowrap',
+                                            flexShrink: 0
                                         }}
                                     >
                                         Details
@@ -640,9 +645,12 @@ export function ClientListTable({
                                 target.tagName === 'SELECT' ||
                                 target.tagName === 'BUTTON' ||
                                 target.closest('.ant-select') ||
+                                target.closest('.ant-select-selector') ||
+                                target.closest('.ant-select-dropdown') ||
                                 target.closest('.ant-input') ||
                                 target.closest('.ant-btn')
                             ) {
+                                e.stopPropagation();
                                 return;
                             }
 
