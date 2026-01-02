@@ -21,9 +21,3 @@ export interface ClusterDiscovery {
   discovery_duration?: string;
   last_request_time?: string;
 }
-
-export interface DiscoveryResponse {
-  clusters: ClusterDiscovery[];
-  count: number;
-  success: boolean;
-}

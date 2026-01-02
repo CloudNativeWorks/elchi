@@ -14,4 +14,3 @@ export const DashboardContainer: React.FC<DashboardContainerProps> = ({ children
   return <div className={styles.dashboardContainer}>{children}</div>;
 };
 
-export default DashboardContainer;

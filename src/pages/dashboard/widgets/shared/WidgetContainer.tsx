@@ -45,5 +45,3 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
     </div>
   );
 };
-
-export default WidgetContainer;

@@ -49,17 +49,8 @@ export function compareVeriReduxStoreAndHttpFilter(prevProps: any, nextProps: an
     return _.isEqual(prevProps.veri.reduxStore, nextProps.veri.reduxStore) && _.isEqual(prevProps.veri.httpFilters, nextProps.veri.httpFilters);
 }
 
-export function compareVeriReduxStoreAndTags(prevProps: any, nextProps: any) {
-    return _.isEqual(prevProps.veri.reduxStore, nextProps.veri.reduxStore) && _.isEqual(prevProps.veri.tags, nextProps.veri.tags);
-}
-
 export function compareVeriReduxStoreAndSelectedTags(prevProps: any, nextProps: any) {
     return _.isEqual(prevProps.veri.reduxStore, nextProps.veri.reduxStore) && _.isEqual(prevProps.veri.selectedTags, nextProps.veri.selectedTags);
-}
-
-// direct
-export function compareReduxStoreOnly(prevProps: any, nextProps: any) {
-    return _.isEqual(prevProps.reduxStore, nextProps.reduxStore);
 }
 
 export function compareReduxStoreAndNameAndConfigDiscovery(prevProps: any, nextProps: any) {
@@ -69,15 +60,6 @@ export function compareReduxStoreAndNameAndConfigDiscovery(prevProps: any, nextP
         && _.isEqual(prevProps.managed, nextProps.managed)
         && _.isEqual(prevProps.validate, nextProps.validate)
         && _.isEqual(prevProps.waf, nextProps.waf);
-}
-
-export function compareTagsOnly(prevProps: any, nextProps: any) {
-    return _.isEqual(prevProps.selectedTags, nextProps.selectedTags);
-}
-
-export function compareTagsAndHandleChangeTag(prevProps: any, nextProps: any) {
-    return _.isEqual(prevProps.selectedTags, nextProps.selectedTags)
-        && _.isEqual(prevProps.handleChangeTag, nextProps.handleChangeTag);
 }
 
 export function compareResourceConfKeys(prevProps: any, nextProps: any) {

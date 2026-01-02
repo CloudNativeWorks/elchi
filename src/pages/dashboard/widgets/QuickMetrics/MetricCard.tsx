@@ -34,52 +34,52 @@ export const MetricCard: React.FC<MetricCardProps> = ({
     type === 'percentage'
       ? formatPercentage(Number(value), 1)
       : typeof value === 'number'
-      ? formatNumber(value, 0)
-      : value;
+        ? formatNumber(value, 0)
+        : value;
 
   const sparklineOptions = trend
     ? {
-        animation: false,
-        grid: {
-          left: 0,
-          right: 0,
-          top: 0,
-          bottom: 0,
-        },
-        xAxis: {
-          type: 'category',
-          show: false,
-        },
-        yAxis: {
-          type: 'value',
-          show: false,
-        },
-        series: [
-          {
-            type: 'line',
-            data: trend,
-            smooth: true,
-            symbol: 'none',
-            lineStyle: {
-              color: color,
-              width: 2,
-            },
-            areaStyle: {
-              color: {
-                type: 'linear',
-                x: 0,
-                y: 0,
-                x2: 0,
-                y2: 1,
-                colorStops: [
-                  { offset: 0, color: `${color}40` },
-                  { offset: 1, color: `${color}00` },
-                ],
-              },
+      animation: false,
+      grid: {
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
+      },
+      xAxis: {
+        type: 'category',
+        show: false,
+      },
+      yAxis: {
+        type: 'value',
+        show: false,
+      },
+      series: [
+        {
+          type: 'line',
+          data: trend,
+          smooth: true,
+          symbol: 'none',
+          lineStyle: {
+            color: color,
+            width: 2,
+          },
+          areaStyle: {
+            color: {
+              type: 'linear',
+              x: 0,
+              y: 0,
+              x2: 0,
+              y2: 1,
+              colorStops: [
+                { offset: 0, color: `${color}40` },
+                { offset: 1, color: `${color}00` },
+              ],
             },
           },
-        ],
-      }
+        },
+      ],
+    }
     : null;
 
   return (
@@ -104,5 +104,3 @@ export const MetricCard: React.FC<MetricCardProps> = ({
     </div>
   );
 };
-
-export default MetricCard;

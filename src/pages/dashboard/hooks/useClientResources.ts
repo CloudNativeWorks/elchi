@@ -187,4 +187,3 @@ export function useClientResources(
   return { clients, loading, error, refresh };
 }
 
-export default useClientResources;

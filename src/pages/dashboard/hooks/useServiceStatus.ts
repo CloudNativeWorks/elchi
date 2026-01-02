@@ -169,5 +169,3 @@ export function useServiceStatus(
 
   return { services, loading, error, refresh };
 }
-
-export default useServiceStatus;

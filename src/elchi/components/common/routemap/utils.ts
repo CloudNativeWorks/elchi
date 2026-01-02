@@ -34,8 +34,12 @@ export const transformApiDataToFlowData = (
 
     // Extract nodes from API response
     let apiNodes: ApiNode[] = [];
-    if (apiData.nodes && Array.isArray(apiData.nodes)) {
+    if (apiData.graph?.nodes && Array.isArray(apiData.graph.nodes)) {
+        apiNodes = apiData.graph.nodes;
+    } else if (apiData.nodes && Array.isArray(apiData.nodes)) {
         apiNodes = apiData.nodes;
+    } else if (apiData.graph?.elements && Array.isArray(apiData.graph.elements)) {
+        apiNodes = apiData.graph.elements.filter(isApiNode);
     } else if (apiData.elements && Array.isArray(apiData.elements)) {
         apiNodes = apiData.elements.filter(isApiNode);
     } else if (Array.isArray(apiData)) {
@@ -44,8 +48,12 @@ export const transformApiDataToFlowData = (
 
     // Extract edges from API response
     let apiEdges: ApiEdge[] = [];
-    if (apiData.edges && Array.isArray(apiData.edges)) {
+    if (apiData.graph?.edges && Array.isArray(apiData.graph.edges)) {
+        apiEdges = apiData.graph.edges;
+    } else if (apiData.edges && Array.isArray(apiData.edges)) {
         apiEdges = apiData.edges;
+    } else if (apiData.graph?.elements && Array.isArray(apiData.graph.elements)) {
+        apiEdges = apiData.graph.elements.filter(isApiEdge);
     } else if (apiData.elements && Array.isArray(apiData.elements)) {
         apiEdges = apiData.elements.filter(isApiEdge);
     } else if (Array.isArray(apiData)) {
@@ -243,24 +251,4 @@ export const nodeMatchesFilters = (
     categoryMatchIds: Set<string>
 ): boolean => {
     return searchMatchIds.has(nodeId) && categoryMatchIds.has(nodeId);
-};
-
-/**
- * Generate unique ID
- * Single responsibility: ID generation
- */
-export const generateId = (prefix: string = 'id'): string => {
-    return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-};
-
-/**
- * Calculate adaptive node dimensions based on count
- * Single responsibility: Dimension calculation
- */
-export const calculateNodeDimensions = (nodeCount: number): { width: number; height: number } => {
-    if (nodeCount === 1) return { width: 180, height: 100 };
-    if (nodeCount <= 5) return { width: 160, height: 90 };
-    if (nodeCount <= 15) return { width: 140, height: 80 };
-    if (nodeCount <= 30) return { width: 120, height: 70 };
-    return { width: 100, height: 60 };
 };

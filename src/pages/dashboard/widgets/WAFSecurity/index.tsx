@@ -219,5 +219,3 @@ export const WAFSecurity: React.FC = () => {
     </BaseWidget>
   );
 };
-
-export default WAFSecurity;

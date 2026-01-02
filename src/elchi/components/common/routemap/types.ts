@@ -31,6 +31,9 @@ export interface ApiNode {
     first?: boolean;
     link?: string;
     version?: string;
+    source?: string;
+    resource_id?: string;
+    properties?: Record<string, any>;
     data?: ApiNodeData;
     group?: string;
 }
@@ -73,22 +76,26 @@ export interface ApiEdgeData {
  * API response structure for route map graph
  */
 export interface RouteMapApiResponse {
-    resource: {
+    resource?: {
         name: string;
         type: string;
         collection: string;
         project: string;
         version: string;
     };
-    graph: {
+    graph?: {
         nodes?: ApiNode[];
         edges?: ApiEdge[];
         elements?: Array<ApiNode | ApiEdge>;
     };
-    stats: {
+    stats?: {
         nodes: number;
         edges: number;
     };
+    // Direct properties for backward compatibility
+    nodes?: ApiNode[];
+    edges?: ApiEdge[];
+    elements?: Array<ApiNode | ApiEdge>;
 }
 
 /**
@@ -136,11 +143,6 @@ export type RouteMapEdge = Edge<RouteMapEdgeData>;
 export type LayoutDirection = 'LR' | 'RL' | 'TB' | 'BT';
 
 /**
- * Layout algorithm options
- */
-export type LayoutAlgorithm = 'elk' | 'dagre';
-
-/**
  * Component props for the main route map graph page
  */
 export interface RouteMapGraphProps {
@@ -173,16 +175,6 @@ export interface SelectedNodeInfo {
     gtype: string;
     link: string;
     version?: string;
-}
-
-/**
- * Graph controls props
- */
-export interface GraphControlsProps {
-    onZoomIn: () => void;
-    onZoomOut: () => void;
-    onFit: () => void;
-    onLayoutChange?: (direction: LayoutDirection) => void;
 }
 
 /**
@@ -220,15 +212,4 @@ export interface ElkLayoutOptions {
     nodeSpacing?: number;
     layerSpacing?: number;
     edgeSpacing?: number;
-}
-
-/**
- * Graph interaction state
- */
-export interface GraphInteractionState {
-    selectedNodeId: string | null;
-    highlightedNodeIds: Set<string>;
-    highlightedEdgeIds: Set<string>;
-    searchTerm: string;
-    filterCategory: string;
 }

@@ -356,5 +356,3 @@ export const EmptyStateCard: React.FC<EmptyStateCardProps> = ({
         </div>
     );
 };
-
-export default EmptyStateCard;

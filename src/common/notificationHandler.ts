@@ -8,29 +8,13 @@ const CACHE_DURATION = 5000; // 5 seconds
 // Helper function to convert \n to JSX line breaks
 const formatMessageWithLineBreaks = (message: string) => {
   const lines = message.split('\n');
-  return lines.map((line, index) => 
+  return lines.map((line, index) =>
     React.createElement(React.Fragment, { key: index }, [
       line,
       index < lines.length - 1 ? React.createElement('br', { key: `br-${index}` }) : null
     ])
   );
 };
-
-export interface ErrorResponse {
-  message?: string;
-  error?: string;
-  data?: {
-    message?: string;
-    error?: string;
-  };
-  response?: {
-    data?: {
-      message?: string;
-      error?: string;
-    };
-    status?: number;
-  };
-}
 
 export const extractErrorMessage = (error: any): string => {
   if (!error) return 'An unknown error occurred';
@@ -58,9 +42,9 @@ export const extractErrorMessage = (error: any): string => {
 
         // Extract retry time if available (full UTC timestamp)
         const retryMatch = detailsStr.match(/retry after (\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\s+UTC)/i) ||
-                          detailsStr.match(/wait until (\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\s+UTC)/i) ||
-                          detailsStr.match(/retry after (\d{4}-\d{2}-\d{2}\s+\d{2}\s+UTC)/i) ||
-                          detailsStr.match(/wait until (\d{4}-\d{2}-\d{2}\s+\d{2}\s+UTC)/i);
+          detailsStr.match(/wait until (\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\s+UTC)/i) ||
+          detailsStr.match(/retry after (\d{4}-\d{2}-\d{2}\s+\d{2}\s+UTC)/i) ||
+          detailsStr.match(/wait until (\d{4}-\d{2}-\d{2}\s+\d{2}\s+UTC)/i);
         if (retryMatch) {
           message += `⏰ Please wait until: ${retryMatch[1].trim()}\n\n`;
         }
@@ -113,7 +97,7 @@ export const extractErrorMessage = (error: any): string => {
       return `${mainMessage}\n\nError Details:\n${errorList}`;
     }
   }
-  
+
   // Check different possible error message locations
   const possibleMessages = [
     error?.response?.data?.message,
@@ -136,7 +120,7 @@ export const extractErrorMessage = (error: any): string => {
     error?.statusText,
     error?.detail
   ];
-  
+
   // Generic HTTP error messages to filter out
   const genericMessages = [
     'Request failed with status code',
@@ -150,41 +134,41 @@ export const extractErrorMessage = (error: any): string => {
     'Service Unavailable',
     'Gateway Timeout'
   ];
-  
+
   // Collect all valid messages, filtering out generic HTTP errors
   const validMessages: string[] = [];
   for (const msg of possibleMessages) {
     if (msg && typeof msg === 'string' && !validMessages.includes(msg)) {
       // Check if this is a generic HTTP error message
-      const isGeneric = genericMessages.some(generic => 
+      const isGeneric = genericMessages.some(generic =>
         msg.toLowerCase().includes(generic.toLowerCase())
       );
-      
+
       // Only add if it's not a generic message, or if no specific messages exist yet
       if (!isGeneric) {
         validMessages.push(msg);
       }
     }
   }
-  
+
   // Return combined messages if specific messages found
   if (validMessages.length > 0) {
     return validMessages.join('\n ');
   }
-  
+
   // Check for network/connection errors first
   if (error?.code === 'ERR_NETWORK' || error?.message?.includes('Network Error')) {
     return 'Unable to connect to Elchi Controller. Please check your connection.';
   }
-  
+
   if (error?.code === 'ECONNREFUSED' || error?.message?.includes('ECONNREFUSED')) {
     return 'Server is not responding. The service may be temporarily unavailable.';
   }
-  
+
   if (error?.code === 'ENOTFOUND' || error?.message?.includes('ENOTFOUND')) {
     return 'Server not found. Please check the server address.';
   }
-  
+
   if (error?.code === 'ERR_CONNECTION_TIMED_OUT' || error?.message?.includes('timeout')) {
     return 'Connection timed out. Please try again.';
   }
@@ -212,12 +196,12 @@ export const extractErrorMessage = (error: any): string => {
         return `Server error (${error.response.status})`;
     }
   }
-  
+
   // Check if there's no response at all (server completely down)
   if (error?.request && !error?.response) {
     return 'Server is not responding. Please check if the service is running.';
   }
-  
+
   return 'An unexpected error occurred';
 };
 
@@ -260,18 +244,18 @@ export const showErrorNotification = (error: any, customMessage?: string, title?
 
 export const showWarningNotification = (message: string, title?: string): void => {
   const cacheKey = `${title || 'Warning'}:${message}`;
-  
+
   // Check if this exact warning was already shown recently
   if (errorCache.has(cacheKey)) {
     return;
   }
-  
+
   // Add to cache and set timer to remove it
   errorCache.add(cacheKey);
   setTimeout(() => {
     errorCache.delete(cacheKey);
   }, CACHE_DURATION);
-  
+
   if (notificationApi) {
     notificationApi.warning({
       message: title || 'Warning',
@@ -286,18 +270,18 @@ export const showWarningNotification = (message: string, title?: string): void =
 
 export const showSuccessNotification = (message: string, title?: string): void => {
   const cacheKey = `${title || 'Success'}:${message}`;
-  
+
   // Check if this exact success was already shown recently
   if (errorCache.has(cacheKey)) {
     return;
   }
-  
+
   // Add to cache and set timer to remove it
   errorCache.add(cacheKey);
   setTimeout(() => {
     errorCache.delete(cacheKey);
   }, CACHE_DURATION);
-  
+
   if (notificationApi) {
     notificationApi.success({
       message: title || 'Success',
@@ -313,9 +297,9 @@ export const showSuccessNotification = (message: string, title?: string): void =
 // Extract success message from API response
 export const extractSuccessMessage = (data: any): string => {
   if (!data) return 'Operation completed successfully';
-  
+
   const responseData = Array.isArray(data) ? data[0] : data;
-  
+
   // Check different possible success message locations
   const possibleMessages = [
     responseData?.message,
@@ -333,20 +317,20 @@ export const extractSuccessMessage = (data: any): string => {
     responseData?.meta?.message,
     responseData?.details?.message
   ];
-  
+
   for (const msg of possibleMessages) {
     if (msg && typeof msg === 'string') {
       return msg;
     }
   }
-  
+
   return 'Operation completed successfully';
 };
 
 // Handle API responses with success: false (business logic errors)
 export const handleApiResponse = (
-  data: any, 
-  successCallback?: (data: any) => void, 
+  data: any,
+  successCallback?: (data: any) => void,
   customErrorMessage?: string,
   options?: {
     showAutoSuccess?: boolean;
@@ -357,74 +341,74 @@ export const handleApiResponse = (
   if (data && typeof data === 'object') {
     // Handle array responses
     const responseData = Array.isArray(data) ? data[0] : data;
-    
+
     if (responseData.success === false) {
       // Business logic error - show warning
-      const errorMessage = customErrorMessage || 
-        responseData.error || 
-        responseData.envoy_version?.error_message || 
-        responseData.message || 
+      const errorMessage = customErrorMessage ||
+        responseData.error ||
+        responseData.envoy_version?.error_message ||
+        responseData.message ||
         'Operation failed';
-      
+
       showWarningNotification(errorMessage, 'Operation Failed');
       return false;
     }
-    
+
     // Check for error field first (business logic errors)
     if (responseData.error) {
       // Business logic error - show warning
-      const errorMessage = customErrorMessage || 
-        responseData.error || 
-        responseData.envoy_version?.error_message || 
-        responseData.message || 
+      const errorMessage = customErrorMessage ||
+        responseData.error ||
+        responseData.envoy_version?.error_message ||
+        responseData.message ||
         'Operation failed';
-      
+
       showWarningNotification(errorMessage, 'Operation Failed');
       return false;
     }
 
     // Check for various success indicators
-    const isSuccess = responseData.success === true || 
-                     responseData.success === undefined || 
-                     responseData.status === 'success' ||
-                     responseData.state === 'success' ||
-                     responseData.result === 'success' ||
-                     responseData.ok === true ||
-                     (responseData.code >= 200 && responseData.code < 300) ||
-                     (!responseData.success && !responseData.error && !responseData.fail);
-    
+    const isSuccess = responseData.success === true ||
+      responseData.success === undefined ||
+      responseData.status === 'success' ||
+      responseData.state === 'success' ||
+      responseData.result === 'success' ||
+      responseData.ok === true ||
+      (responseData.code >= 200 && responseData.code < 300) ||
+      (!responseData.success && !responseData.error && !responseData.fail);
+
     if (isSuccess) {
       // Success case - show automatic success notification by default (unless explicitly disabled)
       const shouldShowSuccess = options?.showAutoSuccess !== false; // Default true
-      
+
       if (shouldShowSuccess) {
         const successMessage = options?.customSuccessMessage || extractSuccessMessage(data);
         showSuccessNotification(successMessage, options?.successTitle || 'Success');
       }
-      
+
       // Check for safety mechanism notifications
       if (responseData.safely_applied) {
         showSuccessNotification(
-          'Operation was performed with safety mechanisms enabled.', 
+          'Operation was performed with safety mechanisms enabled.',
           'Operation Completed Safely'
         );
       }
-      
+
       if (successCallback) {
         successCallback(data);
       }
       return true;
     }
   }
-  
+
   // For unknown response formats, show success by default (unless explicitly disabled)
   const shouldShowSuccess = options?.showAutoSuccess !== false; // Default true
-  
+
   if (shouldShowSuccess) {
     const successMessage = options?.customSuccessMessage || 'Operation completed successfully';
     showSuccessNotification(successMessage, options?.successTitle || 'Success');
   }
-  
+
   // If success callback provided, call it for unknown response formats
   if (successCallback) {
     successCallback(data);

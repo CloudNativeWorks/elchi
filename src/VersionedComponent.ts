@@ -1,8 +1,13 @@
 import React from "react";
 
+// Extend LazyExoticComponent to include preload method (used by some bundlers)
+type PreloadableLazyComponent<T extends React.ComponentType<any>> = React.LazyExoticComponent<T> & {
+    preload?: () => Promise<{ default: T }>;
+};
+
 export const componentNames = ['VersionedComponent'] as const;
 export type ComponentName = typeof componentNames[number];
-export const availableModule = (componentPath: string): Record<ComponentName, React.LazyExoticComponent<React.ComponentType<any>>> => {
+export const availableModule = (componentPath: string): Record<ComponentName, PreloadableLazyComponent<React.ComponentType<any>>> => {
     const components = import.meta.glob('./elchi/components/resources/**/*.tsx', { eager: false });
     const importPath = `./elchi/components/resources/${componentPath}.tsx`;
 

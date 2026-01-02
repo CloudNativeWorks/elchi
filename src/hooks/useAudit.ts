@@ -33,39 +33,6 @@ export interface AuditLog {
     };
 }
 
-export interface AuditResponse {
-    message: string;
-    data: AuditLog[];
-    pagination: {
-        total: number;
-        limit: number;
-        skip: number;
-        count: number;
-        has_more: boolean;
-    };
-}
-
-export interface AuditStats {
-    total_entries: number;
-    success_rate: number;
-    error_rate: number;
-    average_response_ms: number;
-    top_actions: Record<string, number>;
-    top_users: Record<string, number>;
-    top_resources: Record<string, number>;
-}
-
-export interface AuditStatsResponse {
-    message: string;
-    data: AuditStats;
-    filters: {
-        start_time: string;
-        end_time: string;
-        project: string;
-        resource_type: string;
-    };
-}
-
 export interface UseAuditLogsProps {
     filters?: {
         user_id?: string;
@@ -87,7 +54,7 @@ export interface UseAuditLogsProps {
 export const useAuditLogs = ({ filters = {}, pagination = {}, enabled = true }: UseAuditLogsProps) => {
     const buildQueryParams = () => {
         const params = new URLSearchParams();
-        
+
         // Always add project if provided in filters
         if (filters.project) params.set('project', filters.project);
         if (filters.user_id) params.set('user_id', filters.user_id);
@@ -99,7 +66,7 @@ export const useAuditLogs = ({ filters = {}, pagination = {}, enabled = true }: 
         if (filters.end_time) params.set('end_time', filters.end_time);
         if (pagination.limit) params.set('limit', pagination.limit.toString());
         if (pagination.skip) params.set('skip', pagination.skip.toString());
-        
+
         return params.toString();
     };
 
@@ -114,7 +81,7 @@ export const useAuditLogs = ({ filters = {}, pagination = {}, enabled = true }: 
 export const useAuditStats = ({ filters = {}, enabled = true }: { filters?: any; enabled?: boolean }) => {
     const buildQueryParams = () => {
         const params = new URLSearchParams();
-        
+
         if (filters.start_time) params.set('start_time', filters.start_time);
         if (filters.end_time) params.set('end_time', filters.end_time);
         if (filters.project) params.set('project', filters.project);
@@ -123,7 +90,7 @@ export const useAuditStats = ({ filters = {}, enabled = true }: { filters?: any;
         if (filters.action) params.set('action', filters.action);
         if (filters.success !== undefined) params.set('success', filters.success.toString());
         if (filters.user_id) params.set('user_id', filters.user_id);
-        
+
         return params.toString();
     };
 

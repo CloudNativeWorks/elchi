@@ -3,17 +3,12 @@ import { RootState } from '../store';
 import { isValidComponentName } from '@/elchi/components/scenarios/execution/validationUtils';
 
 // Basic selectors
-export const selectScenarioState = (state: RootState) => state.scenario;
-
 export const selectComponentCatalog = (state: RootState) => state.scenario.componentCatalog;
-export const selectCatalogLoading = (state: RootState) => state.scenario.catalogLoading;
-export const selectCatalogError = (state: RootState) => state.scenario.catalogError;
 
 export const selectCurrentScenario = (state: RootState) => state.scenario.currentScenario;
 export const selectScenarioLoading = (state: RootState) => state.scenario.scenarioLoading;
 export const selectScenarioError = (state: RootState) => state.scenario.scenarioError;
 
-export const selectExecution = (state: RootState) => state.scenario.execution;
 export const selectExecutionResult = (state: RootState) => state.scenario.executionResult;
 export const selectExecutionLoading = (state: RootState) => state.scenario.executionLoading;
 
@@ -21,7 +16,6 @@ export const selectExecutionLoading = (state: RootState) => state.scenario.execu
 export const selectComponentInstances = (state: RootState) => state.scenario.execution.componentInstances;
 export const selectComponentNames = (state: RootState) => state.scenario.execution.componentNames;
 export const selectFieldValues = (state: RootState) => state.scenario.execution.fieldValues;
-export const selectConnectedFields = (state: RootState) => state.scenario.execution.connectedFields;
 export const selectCurrentStep = (state: RootState) => state.scenario.execution.currentStep;
 export const selectSelectedVersion = (state: RootState) => state.scenario.execution.selectedVersion;
 export const selectManaged = (state: RootState) => state.scenario.execution.managed;
@@ -39,14 +33,6 @@ export const selectCurrentComponent = createSelector(
     [selectSortedComponents, selectCurrentStep],
     (sortedComponents, currentStep) => {
         return sortedComponents[currentStep] || null;
-    }
-);
-
-// Get component definition by type
-export const selectComponentDefinition = createSelector(
-    [selectComponentCatalog, (_state: RootState, componentType: string) => componentType],
-    (catalog, componentType) => {
-        return catalog?.find(c => c.name === componentType) || null;
     }
 );
 
@@ -74,53 +60,6 @@ export const selectCurrentComponentName = createSelector(
     }
 );
 
-// Get connected field options for a specific field - memoized by field connected config
-export const selectConnectedFieldOptions = createSelector([
-    selectComponentInstances,
-    selectComponentNames,  
-    selectFieldValues,
-    selectComponentCatalog,
-    (_state: RootState, fieldDef: any) => fieldDef?.connected
-], (componentInstances, componentNames, fieldValues, catalog, connectedConfig) => {
-    if (!connectedConfig || !catalog) return [];
-    
-    // ConnectedConfig now only uses component_types (array format)
-    const componentTypes = connectedConfig.component_types || [];
-    
-    if (componentTypes.length === 0) return [];
-    
-    const connectedComponents = componentInstances.filter(comp => 
-        componentTypes.includes(comp.type)
-    );
-    
-    return connectedComponents.map(comp => {
-        const updatedComponentName = componentNames[comp.name] || comp.name;
-        
-        // Get field value using same logic as ArrayFieldItem
-        let displayValue: string;
-        const fieldKey = `${comp.name}.${connectedConfig.field_name}`;
-        const runtimeFieldValue = fieldValues[fieldKey];
-        
-        if (runtimeFieldValue !== undefined && runtimeFieldValue !== null) {
-            displayValue = String(runtimeFieldValue);
-        } else {
-            const connectedField = comp.selected_fields.find(f => 
-                f.field_name === connectedConfig.field_name
-            );
-            if (connectedField?.value !== undefined && connectedField.value !== null) {
-                displayValue = String(connectedField.value);
-            } else {
-                displayValue = updatedComponentName;
-            }
-        }
-        
-        return {
-            value: displayValue,
-            label: `${updatedComponentName} (Connected Field)`
-        };
-    });
-});
-
 // Helper function to validate nested choice field
 const validateNestedChoiceField = (
     fieldValue: any,
@@ -136,7 +75,7 @@ const validateNestedChoiceField = (
     // If field value has nested_selection, validate based on that
     if (fieldValue && typeof fieldValue === 'object' && fieldValue.nested_selection) {
         const selectedChoice = fieldValue.nested_selection.selected_choice;
-        
+
         if (!selectedChoice) {
             return false;
         }
@@ -153,13 +92,13 @@ const validateNestedChoiceField = (
                 // Get sub-field value from Redux fieldValues using nested field key format
                 const subFieldKey = `nested_${fieldDef.name}_${selectedChoice}.${subField.name}`;
                 const subFieldValue = fieldValues[subFieldKey];
-                                
+
                 // Handle array fields - check if array exists and has items
                 if (subField.type === 'array') {
                     if (!subFieldValue || !Array.isArray(subFieldValue) || subFieldValue.length === 0) {
                         return false;
                     }
-                    
+
                     // Validate array items if they have required properties
                     if (subField.array_schema?.properties) {
                         for (let i = 0; i < subFieldValue.length; i++) {
@@ -189,11 +128,11 @@ const validateNestedChoiceField = (
                 }
             }
         }
-        
+
     } else {
         // If no nested_selection but field is required, it's invalid
         const isRequired = fieldDef.required_for_execution;
-        
+
         if (isRequired) {
             return false;
         }
@@ -207,41 +146,41 @@ export const selectIsCurrentStepValid = createSelector(
     [selectCurrentComponent, selectCurrentComponentDefinition, selectComponentNames, selectFieldValues],
     (currentComponent, componentDef, componentNames, fieldValues) => {
         if (!currentComponent || !componentDef) return true;
-        
+
         // Check if component name is valid
         const currentComponentName = componentNames[currentComponent.name] || currentComponent.name;
         if (!currentComponentName.trim() || !isValidComponentName(currentComponentName)) {
             return false;
         }
-        
+
         // Check required fields
         for (const selectedField of currentComponent.selected_fields) {
             const fieldDef = componentDef.available_fields.find(f => f.name === selectedField.field_name);
             if (!fieldDef) continue;
-            
+
             const fieldKey = `${currentComponent.name}.${selectedField.field_name}`;
             const fieldValue = fieldValues[fieldKey];
-            
+
             // Check if field is required for execution
             const isRequired = selectedField.required || fieldDef.required_for_execution;
-            
+
             if (fieldDef.type === 'nested_choice') {
                 // Special validation for nested choice fields
                 if (isRequired && !validateNestedChoiceField(fieldValue, fieldDef, currentComponent.name, fieldValues)) {
                     return false;
                 }
-                
+
                 // Additional validation is already done in validateNestedChoiceField
                 // No need for duplicate validation here
             } else if (fieldDef.type === 'object' && fieldDef.array_schema?.properties) {
                 // Validate object type fields with properties
                 if (isRequired || fieldValue) { // Check if object is required or has value
                     const objectValue = fieldValue || {};
-                    
+
                     // Check each property in the object
                     for (const [propName, propDef] of Object.entries(fieldDef.array_schema.properties)) {
                         const propValue = objectValue[propName];
-                        
+
                         // Check if property is required
                         if ((propDef as any).required) {
                             // Handle conditional fields within object
@@ -250,7 +189,7 @@ export const selectIsCurrentStepValid = createSelector(
                                 if (!conditionalValue || !conditionalValue.selected_choice) {
                                     return false;
                                 }
-                                
+
                                 // Check sub-fields of selected option
                                 const selectedChoice = conditionalValue.selected_choice;
                                 const selectedOptionDef = (propDef as any).properties?.[selectedChoice];
@@ -282,7 +221,7 @@ export const selectIsCurrentStepValid = createSelector(
                         if (!fieldValue || !Array.isArray(fieldValue) || fieldValue.length === 0) {
                             return false;
                         }
-                        
+
                         // Validate array items if they have required properties
                         if (fieldDef.array_schema?.properties) {
                             for (let i = 0; i < fieldValue.length; i++) {
@@ -306,15 +245,7 @@ export const selectIsCurrentStepValid = createSelector(
                 }
             }
         }
-        
-        return true;
-    }
-);
 
-// Get all components of a specific type
-export const selectComponentsByType = createSelector(
-    [selectComponentInstances, (_state: RootState, componentType: string) => componentType],
-    (componentInstances, componentType) => {
-        return componentInstances.filter(comp => comp.type === componentType);
+        return true;
     }
 );

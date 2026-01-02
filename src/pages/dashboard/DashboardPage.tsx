@@ -81,5 +81,3 @@ export const DashboardPage: React.FC = () => {
     </DashboardRefreshProvider>
   );
 };
-
-export default DashboardPage;

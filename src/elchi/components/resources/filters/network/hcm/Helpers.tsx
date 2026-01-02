@@ -55,14 +55,3 @@ export const SortableRow = ({ children, ...props }: RowProps) => {
         </tr>
     );
 };
-
-export function moveArrayItemToNewPosition(arr: any[], oldIndex: number, newIndex: number) {
-    const updatedArray = [...arr];
-    const [item] = updatedArray.splice(oldIndex, 1);
-    updatedArray.splice(newIndex, 0, item);
-    const updatedResources = updatedArray.map((resource, index) => ({
-        ...resource,
-        priority: index
-    }));
-    return updatedResources;
-}

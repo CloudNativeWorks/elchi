@@ -113,11 +113,6 @@ export type ResourceEdge = Edge<ResourceEdgeData>;
 export type LayoutDirection = 'LR' | 'RL' | 'TB' | 'BT';
 
 /**
- * Layout algorithm options
- */
-export type LayoutAlgorithm = 'elk' | 'dagre';
-
-/**
  * Component props for the main dependency graph page
  */
 export interface DependencyGraphProps {
@@ -146,16 +141,6 @@ export interface SelectedNodeInfo {
     gtype: string;
     link: string;
     version?: string;
-}
-
-/**
- * Graph controls props
- */
-export interface GraphControlsProps {
-    onZoomIn: () => void;
-    onZoomOut: () => void;
-    onFit: () => void;
-    onLayoutChange?: (direction: LayoutDirection) => void;
 }
 
 /**
@@ -188,15 +173,4 @@ export interface ElkLayoutOptions {
     nodeSpacing?: number;
     layerSpacing?: number;
     edgeSpacing?: number;
-}
-
-/**
- * Graph interaction state
- */
-export interface GraphInteractionState {
-    selectedNodeId: string | null;
-    highlightedNodeIds: Set<string>;
-    highlightedEdgeIds: Set<string>;
-    searchTerm: string;
-    filterCategory: string;
 }

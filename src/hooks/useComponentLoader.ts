@@ -2,8 +2,13 @@ import { useState, useCallback, useRef } from 'react';
 import * as dynamicModules from "@/VersionedComponent";
 import { showErrorNotification } from '@/common/notificationHandler';
 
+// Extend LazyExoticComponent to include preload method (used by some bundlers)
+type PreloadableLazyComponent<T extends React.ComponentType<any>> = React.LazyExoticComponent<T> & {
+    preload?: () => Promise<{ default: T }>;
+};
+
 export interface ComponentLoaderState {
-    component: React.LazyExoticComponent<React.ComponentType<any>> | null;
+    component: PreloadableLazyComponent<React.ComponentType<any>> | null;
     isLoading: boolean;
     error: string | null;
     retryCount: number;
@@ -48,7 +53,7 @@ export const useComponentLoader = (options: ComponentLoaderOptions = {}) => {
         }
     }, []);
 
-    const loadComponentWithTimeout = useCallback(async (moduleName: string): Promise<React.LazyExoticComponent<React.ComponentType<any>>> => {
+    const loadComponentWithTimeout = useCallback(async (moduleName: string): Promise<PreloadableLazyComponent<React.ComponentType<any>>> => {
         return new Promise((resolve, reject) => {
             // Set timeout
             timeoutRef.current = setTimeout(() => {
@@ -169,5 +174,3 @@ export const useComponentLoader = (options: ComponentLoaderOptions = {}) => {
         isComponentReady: state.component !== null && !state.isLoading && !state.error,
     };
 };
-
-export default useComponentLoader;

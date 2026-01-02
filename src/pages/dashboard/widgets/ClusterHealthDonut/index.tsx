@@ -94,5 +94,3 @@ export const ClusterHealthDonut: React.FC = () => {
     </BaseWidget>
   );
 };
-
-export default ClusterHealthDonut;

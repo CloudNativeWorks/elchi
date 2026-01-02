@@ -1,13 +1,3 @@
-
-
-export interface ConfigDiscovery {
-    name: string;
-    config_discovery: {
-        config_source: typeof ConfigSource,
-        type_urls: string[];
-    };
-}
-
 export interface HttpFilterConfigDiscovery {
     name: string;
     config_discovery: {

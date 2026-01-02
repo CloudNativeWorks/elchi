@@ -76,16 +76,16 @@ export const SnippetSVG: React.FC<SVGProps> = ({ onClick }) => {
                 <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
                 <g id="SVGRepo_iconCarrier">
                     {/* Main snippet boxes - more prominent */}
-                    <path d="M6 5C6 3.34315 7.34315 2 9 2H13C14.6569 2 16 3.34315 16 5V9C16 10.6569 14.6569 12 13 12H9C7.34315 12 6 10.6569 6 9V5Z" stroke="#ffffff" strokeWidth="2" fill="none"/>
-                    <path d="M6 15C6 13.3431 7.34315 12 9 12H13C14.6569 12 16 13.3431 16 15V19C16 20.6569 14.6569 22 13 22H9C7.34315 22 6 20.6569 6 19V15Z" stroke="#ffffff" strokeWidth="2" fill="none"/>
-                    
+                    <path d="M6 5C6 3.34315 7.34315 2 9 2H13C14.6569 2 16 3.34315 16 5V9C16 10.6569 14.6569 12 13 12H9C7.34315 12 6 10.6569 6 9V5Z" stroke="#ffffff" strokeWidth="2" fill="none" />
+                    <path d="M6 15C6 13.3431 7.34315 12 9 12H13C14.6569 12 16 13.3431 16 15V19C16 20.6569 14.6569 22 13 22H9C7.34315 22 6 20.6569 6 19V15Z" stroke="#ffffff" strokeWidth="2" fill="none" />
+
                     {/* Secondary boxes */}
-                    <path opacity="0.6" d="M18 5C18 3.34315 19.3431 2 21 2H23C24.6569 2 26 3.34315 26 5V9C26 10.6569 24.6569 12 23 12H21C19.3431 12 18 10.6569 18 9V5Z" stroke="#ffffff" strokeWidth="1.5" fill="none"/>
-                    <path opacity="0.6" d="M18 15C18 13.3431 19.3431 12 21 12H23C24.6569 12 26 13.3431 26 15V19C26 20.6569 24.6569 22 23 22H21C19.3431 22 18 20.6569 18 19V15Z" stroke="#ffffff" strokeWidth="1.5" fill="none"/>
-                    
+                    <path opacity="0.6" d="M18 5C18 3.34315 19.3431 2 21 2H23C24.6569 2 26 3.34315 26 5V9C26 10.6569 24.6569 12 23 12H21C19.3431 12 18 10.6569 18 9V5Z" stroke="#ffffff" strokeWidth="1.5" fill="none" />
+                    <path opacity="0.6" d="M18 15C18 13.3431 19.3431 12 21 12H23C24.6569 12 26 13.3431 26 15V19C26 20.6569 24.6569 22 23 22H21C19.3431 22 18 20.6569 18 19V15Z" stroke="#ffffff" strokeWidth="1.5" fill="none" />
+
                     {/* Connection dots */}
-                    <circle cx="3" cy="7" r="1.5" fill="#ffffff"/>
-                    <circle cx="3" cy="17" r="1.5" fill="#ffffff"/>
+                    <circle cx="3" cy="7" r="1.5" fill="#ffffff" />
+                    <circle cx="3" cy="17" r="1.5" fill="#ffffff" />
                 </g>
             </svg>
         </Button>
@@ -179,21 +179,6 @@ export const PasteSVG: React.FC<SVGProps> = ({ onClick }) => {
         </Button>
     );
 };
-
-export const CloudPlusBadgeIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg width="2.1em" height="2.1em" viewBox="0 0 36 32" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <path d="M22.5 26a6.5 6.5 0 0 0 0-13c-1.1 0-2.16.21-3.15.6A8 8 0 1 0 9.5 26H22.5z" />
-        <path d="M28 3v8" stroke="#52c41a" strokeWidth={4.5} strokeLinecap="round" />
-        <path d="M24 7h8" stroke="#52c41a" strokeWidth={4.5} strokeLinecap="round" />
-    </svg>
-);
-
-export const CloudMinusBadgeIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg width="2.1em" height="2.1em" viewBox="0 0 36 32" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <path d="M22.5 26a6.5 6.5 0 0 0 0-13c-1.1 0-2.16.21-3.15.6A8 8 0 1 0 9.5 26H22.5z" />
-        <path d="M23 7h10" stroke="#ff4d4f" strokeWidth={4.5} strokeLinecap="round" />
-    </svg>
-);
 
 export const DeployLineIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg

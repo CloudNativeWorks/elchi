@@ -276,18 +276,6 @@ export function capitalizeWords(str: string): string {
         .join(' ');
 }
 
-export function removePrefixes(selectedTags: string[], prefix: string): string[] {
-    return selectedTags.map(tag => (tag.startsWith(prefix) ? tag.slice(prefix.length) : tag));
-}
-
-export const getRandomColor = (): string => {
-    const r = Math.floor(Math.random() * 256);
-    const g = Math.floor(Math.random() * 256);
-    const b = Math.floor(Math.random() * 256);
-    return `${r}, ${g}, ${b}`;
-};
-
-
 export const getHref = (tag: string, singleOptionKeys?: string[], headerOptionKeys?: string[], num?: number) => {
     let href = '';
 
@@ -319,15 +307,6 @@ export const isOnlyOne = (orginTag: string, onlyOneTag: string[][] | undefined, 
             selectedTag !== orginTag
         )
     );
-};
-
-export const parseError = (error: string): string => {
-    if (error?.includes("E11000 duplicate key error collection")) {
-        const match = error.match(/general\.name:\s*["'](.*?)["']/i);
-        const name = match ? match[1] : "unknown";
-        return `Name '${name}' already using!`;
-    }
-    return error;
 };
 
 export const getLastDotPart = (str: string): string => {

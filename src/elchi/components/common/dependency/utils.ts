@@ -203,23 +203,3 @@ export const nodeMatchesFilters = (
 ): boolean => {
     return searchMatchIds.has(nodeId) && categoryMatchIds.has(nodeId);
 };
-
-/**
- * Generate unique ID
- * Single responsibility: ID generation
- */
-export const generateId = (prefix: string = 'id'): string => {
-    return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-};
-
-/**
- * Calculate adaptive node dimensions based on count
- * Single responsibility: Dimension calculation
- */
-export const calculateNodeDimensions = (nodeCount: number): { width: number; height: number } => {
-    if (nodeCount === 1) return { width: 180, height: 100 };
-    if (nodeCount <= 5) return { width: 160, height: 90 };
-    if (nodeCount <= 15) return { width: 140, height: 80 };
-    if (nodeCount <= 30) return { width: 120, height: 70 };
-    return { width: 100, height: 60 };
-};

@@ -57,5 +57,3 @@ export const WidgetHeader: React.FC<WidgetHeaderProps> = ({
     </div>
   );
 };
-
-export default WidgetHeader;

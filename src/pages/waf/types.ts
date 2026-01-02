@@ -42,16 +42,6 @@ export interface UpdateWafConfigRequest {
     data: WafConfigData;
 }
 
-export interface WafConfigResponse {
-    message: string;
-    data: WafConfig;
-}
-
-export interface WafConfigListResponse {
-    message: string;
-    data: WafConfig[];
-}
-
 export interface WafFilter {
     project: string;
 }

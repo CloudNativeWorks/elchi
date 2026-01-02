@@ -23,14 +23,14 @@ function findParentGType(keyPath: string): string {
     // Access the global Redux store from window (if available)
     const globalStore = (window as any)?.store?.getState?.();
     if (!globalStore) return "";
-    
+
     const pathParts = keyPath.split('.');
     let current = globalStore;
-    
+
     // Traverse up the path to find a parent with $type
     for (let i = pathParts.length - 1; i >= 0; i--) {
       current = globalStore;
-      
+
       // Navigate to the parent object
       for (const part of pathParts.slice(0, i)) {
         if (current && typeof current === 'object') {
@@ -45,13 +45,13 @@ function findParentGType(keyPath: string): string {
           break;
         }
       }
-      
+
       // Check if this parent has $type
       if (current && current.$type) {
         return current.$type;
       }
     }
-    
+
     return "";
   } catch (error) {
     console.warn('Error finding parent gtype:', error);
@@ -78,23 +78,23 @@ export function detectGType(context: PathContext): string {
 
   // Try to get from window location
   const path = window.location.pathname || window.location.hash;
-  
+
   // Extract resource type from URL patterns like /resources/cluster or #/resources/listener
   const resourceMatch = path.match(/resources\/([^\/]+)/);
   if (resourceMatch) {
     const resource = resourceMatch[1];
-    
+
     // Use resourceMapping first
     const gtype = resourceMapping[resource];
     if (gtype) {
       return gtype;
     }
-    
+
     // Fallback to enum key matching
     const gtypeKey = Object.keys(GTypes).find(
       key => key.toLowerCase() === resource.toLowerCase()
     );
-    
+
     if (gtypeKey) {
       return GTypes[gtypeKey as keyof typeof GTypes];
     }
@@ -105,21 +105,21 @@ export function detectGType(context: PathContext): string {
   const createMatch = path.match(/create\/([^\/]+)/);
   const editMatch = path.match(/edit\/([^\/]+)/);
   const match = createMatch || editMatch;
-  
+
   if (match) {
     const resourceType = match[1];
-    
+
     // Use resourceMapping first
     const gtype = resourceMapping[resourceType];
     if (gtype) {
       return gtype;
     }
-    
+
     // Fallback to enum key matching
     const gtypeKey = Object.keys(GTypes).find(
       key => key.toLowerCase() === resourceType.toLowerCase()
     );
-    
+
     if (gtypeKey) {
       return GTypes[gtypeKey as keyof typeof GTypes];
     }
@@ -142,21 +142,21 @@ export function discoverPath(context: {
 }): SnippetMetadata {
   // Use the keys (keyPrefix) if provided - this is the most accurate
   const field_path = context.keys || context.ctype;
-  
+
   // Check if the actual data is an array
   const is_array = checkIfArray(context.reduxStore);
-  
+
   // Try to get GType from reduxStore.$type first, then fall back to detection
   let gtype = context.gtype;
   if (!gtype && context.reduxStore?.$type) {
     gtype = context.reduxStore.$type;
   }
-  
+
   // If still no gtype and we have a key path, try to find parent's $type
   if (!gtype && context.keys && context.keys.includes('.')) {
     gtype = findParentGType(context.keys);
   }
-  
+
   if (!gtype) {
     gtype = detectGType({
       componentType: context.ctype,
@@ -170,26 +170,6 @@ export function discoverPath(context: {
     is_array,
     gtype
   };
-}
-
-/**
- * Extract component type from CCard ctype or title
- * This is dynamic based on what CCard provides
- */
-export function extractComponentType(ctype: string, title?: string): string {
-  // ctype is usually the component type directly
-  if (ctype) {
-    return ctype;
-  }
-  
-  // Fallback to title if ctype is not available
-  if (title) {
-    // Convert title to component type format
-    // "Health Checks" -> "health_checks"
-    return title.toLowerCase().replace(/\s+/g, '_');
-  }
-  
-  return 'unknown';
 }
 
 /**

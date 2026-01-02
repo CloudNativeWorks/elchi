@@ -14,5 +14,3 @@ export const ChartsSection: React.FC = () => {
     </div>
   );
 };
-
-export default ChartsSection;

@@ -43,5 +43,3 @@ export const BaseWidget: React.FC<BaseWidgetProps> = ({
     </WidgetContainer>
   );
 };
-
-export default BaseWidget;

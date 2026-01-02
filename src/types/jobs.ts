@@ -1,11 +1,11 @@
 // Job System Types based on async job system documentation
 
-export type JobStatus = 
-  | 'PENDING' 
-  | 'CLAIMED' 
-  | 'RUNNING' 
-  | 'COMPLETED' 
-  | 'FAILED' 
+export type JobStatus =
+  | 'PENDING'
+  | 'CLAIMED'
+  | 'RUNNING'
+  | 'COMPLETED'
+  | 'FAILED'
   | 'NO_WORK_NEEDED';
 
 export type JobType = 'SNAPSHOT_UPDATE' | 'DISCOVERY_UPDATE' | 'WAF_PROPAGATION' | 'RESOURCE_UPGRADE' | 'RESOURCE_UPGRADE(DRY)' | 'ACME_VERIFICATION';
@@ -37,13 +37,6 @@ export interface SourceResource {
   action: 'CREATE' | 'UPDATE' | 'DELETE' | 'DISCOVERY_UPDATE';
   project_id?: string;
   version?: string;
-}
-
-export interface UpgradeOptions {
-  auto_create_missing: boolean;
-  validate_clients: boolean;
-  update_bootstrap: boolean;
-  dry_run: boolean;
 }
 
 export interface MissingResource {
@@ -283,48 +276,4 @@ export interface JobStatsResponse {
     start_date: string;
   };
   message: string;
-}
-
-// WebSocket message types for real-time updates
-export interface JobUpdateMessage {
-  type: 'JOB_PROGRESS' | 'JOB_STATUS' | 'JOB_COMPLETED' | 'JOB_FAILED';
-  job_id: string;
-  data: Partial<BackgroundJob>;
-  timestamp: string;
-}
-
-// Filter and sorting options
-export interface JobFilters {
-  status?: JobStatus[];
-  type?: JobType[];
-  project?: string;
-  created_by?: string;
-  date_range?: {
-    start: string;
-    end: string;
-  };
-}
-
-export interface JobSortOption {
-  field: keyof BackgroundJob;
-  direction: 'asc' | 'desc';
-  label: string;
-}
-
-// UI-specific types
-export interface JobTableColumn {
-  title: string;
-  dataIndex: string;
-  key: string;
-  width?: string;
-  sorter?: boolean;
-  render?: (record: BackgroundJob) => React.ReactNode;
-}
-
-export interface JobActionOption {
-  key: string;
-  label: string;
-  icon: React.ReactNode;
-  danger?: boolean;
-  disabled?: boolean;
 }

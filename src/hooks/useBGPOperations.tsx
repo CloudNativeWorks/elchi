@@ -112,94 +112,6 @@ export interface BGPConfig {
     rib_stale_time?: number;
 }
 
-// BGP Field Mapping Configuration
-export const BGP_FIELD_MAPPINGS = {
-    // API field -> Frontend field mappings (for incoming data)
-    API_TO_FRONTEND: {
-        'router_always_next_hop': 'next_hop_self',
-        'router_reflection_client': 'route_reflector_client',
-        'soft_reconfiguration': 'soft_reconfiguration',
-        'peer_shutdown': 'shutdown',
-        'multihop_enable': 'ebgp_multihop',
-        'disable_connected_check_enable': 'disable_connected_check',
-        // Add more mappings as needed
-    },
-    // Frontend field -> API field mappings (for outgoing data)
-    FRONTEND_TO_API: {
-        'next_hop_self': 'router_always_next_hop',
-        'route_reflector_client': 'router_reflection_client',
-        'soft_reconfiguration': 'soft_reconfiguration',
-        'shutdown': 'peer_shutdown',
-        'ebgp_multihop': 'multihop_enable',
-        'disable_connected_check': 'disable_connected_check_enable',
-        // Add more mappings as needed
-    }
-};
-
-// Helper function to add new field mappings easily
-export const addFieldMapping = (apiField: string, frontendField: string) => {
-    BGP_FIELD_MAPPINGS.API_TO_FRONTEND[apiField] = frontendField;
-    BGP_FIELD_MAPPINGS.FRONTEND_TO_API[frontendField] = apiField;
-};
-
-// Helper function to remove field mappings
-export const removeFieldMapping = (apiField: string, frontendField: string) => {
-    delete BGP_FIELD_MAPPINGS.API_TO_FRONTEND[apiField];
-    delete BGP_FIELD_MAPPINGS.FRONTEND_TO_API[frontendField];
-};
-
-// Helper function to list all current mappings
-export const listFieldMappings = () => {
-    return BGP_FIELD_MAPPINGS;
-};
-
-// Helper function to map API response fields to frontend fields
-export const mapApiToFrontend = (apiData: any, addressFamily?: any): any => {
-    if (!apiData) return apiData;
-
-    const mapped = { ...apiData };
-
-    // Apply direct field mappings
-    Object.entries(BGP_FIELD_MAPPINGS.API_TO_FRONTEND).forEach(([apiField, frontendField]) => {
-        if (apiData[apiField] !== undefined) {
-            mapped[frontendField] = apiData[apiField];
-            delete mapped[apiField];
-        }
-    });
-
-    // Handle address family specific fields
-    if (addressFamily?.ipv4_unicast) {
-        const af = addressFamily.ipv4_unicast;
-
-        Object.entries(BGP_FIELD_MAPPINGS.API_TO_FRONTEND).forEach(([apiField, frontendField]) => {
-            if (af[apiField] !== undefined) {
-                mapped[frontendField] = af[apiField];
-            }
-        });
-    } else {
-        console.log('No address family ipv4_unicast data found');
-    }
-
-    return mapped;
-};
-
-// Helper function to map frontend fields to API fields
-export const mapFrontendToApi = (frontendData: any): any => {
-    if (!frontendData) return frontendData;
-
-    const mapped = { ...frontendData };
-
-    // Apply reverse field mappings
-    Object.entries(BGP_FIELD_MAPPINGS.FRONTEND_TO_API).forEach(([frontendField, apiField]) => {
-        if (frontendData[frontendField] !== undefined) {
-            mapped[apiField] = frontendData[frontendField];
-            delete mapped[frontendField];
-        }
-    });
-
-    return mapped;
-};
-
 export interface BGPNeighborTimers {
     keepalive?: number;
     holdtime?: number;
@@ -214,34 +126,6 @@ export interface BGPNeighborRouteMaps {
 export interface BGPNeighborPrefixLists {
     prefix_list_in?: string;
     prefix_list_out?: string;
-}
-
-export interface BGPNeighbor {
-    peer_ip: string;
-    remote_as: number;
-    description?: string;
-    password?: string;
-    enabled?: boolean;
-    route_map_in?: string;
-    route_map_out?: string;
-    timers?: BGPNeighborTimers;
-    route_maps?: BGPNeighborRouteMaps;
-    prefix_lists?: BGPNeighborPrefixLists;
-    next_hop_self?: boolean;
-    route_reflector_client?: boolean;
-    soft_reconfiguration?: boolean;
-    shutdown?: boolean;
-    update_source?: string;
-    local_as?: number;
-    allowas_in?: number;
-    weight?: number;
-    ebgp_multihop?: boolean;
-    ebgp_multihop_ttl?: number;
-    disable_connected_check?: boolean;
-    // Per-Neighbor Graceful Restart Fields
-    graceful_restart?: boolean;
-    graceful_restart_helper?: boolean;
-    graceful_restart_disable?: boolean;
 }
 
 export interface BGPNetwork {
@@ -285,240 +169,6 @@ export interface BGPPrefixList {
     prefix: string;
     le?: number;  // less-equal prefix length
     ge?: number;  // greater-equal prefix length
-}
-
-export interface BGPState {
-    enabled: boolean;
-    autonomous_system: number;
-    router_id: string;
-    neighbor_states: BGPNeighborState[];
-}
-
-export interface BGPNeighborState {
-    peer_ip: string;
-    state: string;
-    uptime: number;
-    prefixes_received: number;
-    prefixes_sent: number;
-}
-
-export interface BGPGlobalStatistics {
-    updates_sent: number;
-    updates_received: number;
-    total_messages_sent: number;
-    total_messages_received: number;
-    dampened_routes: number;
-    history_routes: number;
-    suppressed_routes: number;
-    withdraw_messages: number;
-}
-
-export interface BGPTableStatistics {
-    table_name: string;
-    total_prefixes: number;
-    memory_usage: number;
-    dampened_prefixes: number;
-    history_prefixes: number;
-    valid_prefixes: number;
-}
-
-export interface BGPMessageStatistics {
-    opens_sent: number;
-    opens_received: number;
-    notifications_sent: number;
-    notifications_received: number;
-    updates_sent: number;
-    updates_received: number;
-    keepalives_sent: number;
-    keepalives_received: number;
-    route_refresh_sent: number;
-    route_refresh_received: number;
-    capability_sent: number;
-    capability_received: number;
-    total_sent: number;
-    total_received: number;
-}
-
-export interface BGPNeighborStatistics {
-    peer_ip: string;
-    messages_sent: number;
-    messages_received: number;
-    updates_sent: number;
-    updates_received: number;
-    keepalives_sent: number;
-    keepalives_received: number;
-    notifications_sent: number;
-    notifications_received: number;
-    route_refreshes_sent: number;
-    route_refreshes_received: number;
-    prefixes_received: number;
-    prefixes_sent: number;
-}
-
-export interface BGPStatistics {
-    total_neighbors: number;
-    established_neighbors: number;
-    total_routes: number;
-    ipv4_routes: number;
-    ipv6_routes: number;
-    memory_usage: number;
-    global_stats: BGPGlobalStatistics;
-    table_stats: BGPTableStatistics[];
-    message_stats: BGPMessageStatistics;
-    neighbor_stats: BGPNeighborStatistics[];
-}
-
-export interface BGPPolicyConfig {
-    route_maps: BGPRouteMap[];
-    community_lists: BGPCommunityList[];
-    prefix_lists: BGPPrefixList[];
-    total_route_maps: number;
-    total_community_lists: number;
-    total_prefix_lists: number;
-    policy_statistics: Record<string, string>;
-}
-
-export interface BGPProtocolStatus {
-    daemon_running: boolean;
-    configuration_valid: boolean;
-    daemon_version: string;
-    daemon_uptime: number;
-    memory_usage_kb: number;
-    cpu_usage_percent: number;
-    active_features: string[];
-    daemon_statistics: Record<string, string>;
-}
-
-export interface BGPRedistributionMetrics {
-    protocol: string;
-    routes_redistributed: number;
-    routes_filtered: number;
-    route_map: string;
-    enabled: boolean;
-}
-
-export interface BGPRedistributionStatus {
-    connected_enabled: boolean;
-    static_enabled: boolean;
-    ospf_enabled: boolean;
-    rip_enabled: boolean;
-    kernel_enabled: boolean;
-    redistribution_metrics: Record<string, BGPRedistributionMetrics>;
-}
-
-export interface BGPValidationError {
-    error_code: string;
-    error_message: string;
-    field_name: string;
-    field_value: string;
-    severity: 'critical' | 'high' | 'medium' | 'low';
-}
-
-export interface BGPValidationWarning {
-    warning_code: string;
-    warning_message: string;
-    field_name: string;
-    field_value: string;
-    recommendation: string;
-}
-
-export interface BGPConfigConsistency {
-    router_id_consistent: boolean;
-    as_number_consistent: boolean;
-    timers_consistent: boolean;
-    neighbors_reachable: boolean;
-    networks_valid: boolean;
-    consistency_issues: string[];
-    recommendations: string[];
-}
-
-export interface BGPNeighborCompatibility {
-    peer_ip: string;
-    as_compatible: boolean;
-    address_family_compatible: boolean;
-    capabilities_compatible: boolean;
-    timers_compatible: boolean;
-    compatibility_issues: string[];
-    compatibility_warnings: string[];
-}
-
-export interface BGPASNumbersValidation {
-    local_as: number;
-    remote_as: number;
-    local_as_valid: boolean;
-    remote_as_valid: boolean;
-    local_as_reserved: boolean;
-    remote_as_reserved: boolean;
-    as_path_valid: boolean;
-    validation_messages: string[];
-}
-
-export interface BGPTransactionOperation {
-    operation_type: string;
-    config?: BGPConfig;
-    neighbor?: BGPNeighbor;
-    network?: BGPNetwork;
-    route_map?: BGPRouteMap;
-    community_list?: BGPCommunityList;
-    prefix_list?: BGPPrefixList;
-    description?: string;
-}
-
-export interface BGPTransactionResponse {
-    success: boolean;
-    transaction_id: string;
-    message: string;
-    operation_results: string[];
-    operations_count: number;
-    execution_time_ms: number;
-}
-
-export interface BGPPerformanceMetrics {
-    cpu_usage_percent: number;
-    memory_usage_mb: number;
-    routes_processed_per_second: number;
-    updates_processed_per_second: number;
-    neighbor_session_count: number;
-    active_prefixes_count: number;
-    cache_hit_ratio: number;
-    average_processing_time_ms: number;
-}
-
-export interface BGPCacheStats {
-    total_entries: number;
-    memory_usage_mb: number;
-    hit_ratio: number;
-    miss_ratio: number;
-    evictions: number;
-    cache_size_limit_mb: number;
-    oldest_entry_age_seconds: number;
-    newest_entry_age_seconds: number;
-}
-
-export interface BGPNeighborResponse {
-    peer_ip: string;
-    remote_as: number;
-    description?: string;
-    state: string;
-    uptime: string;
-    received_routes: number;
-    sent_routes: number;
-    next_hop_self?: boolean;
-    password?: string;
-    keepalive_time?: number;
-    hold_time?: number;
-    route_reflector_client?: boolean;
-    soft_reconfiguration?: boolean;
-    shutdown?: boolean;
-    ebgp_multihop?: boolean;
-    local_as?: number;
-    weight?: number;
-    prefix_list_in?: string;
-    prefix_list_out?: string;
-    // Per-Neighbor Graceful Restart Fields
-    graceful_restart?: boolean;
-    graceful_restart_helper?: boolean;
-    graceful_restart_disable?: boolean;
 }
 
 export interface BGPNeighborRequest {
@@ -608,7 +258,7 @@ export const useBGPOperations = () => {
                 peer_ip: peerIp
             }),
             getBGPConfig: (clientId: string) => sendBGPRequest(clientId, BGPOperationType.GET_CONFIG),
-            updateBGPConfig: (clientId: string, config: BGPConfig, localAs?: number, remoteAs?: number) => sendBGPRequest(clientId, BGPOperationType.SET_CONFIG, { 
+            updateBGPConfig: (clientId: string, config: BGPConfig, localAs?: number, remoteAs?: number) => sendBGPRequest(clientId, BGPOperationType.SET_CONFIG, {
                 config,
                 ...(localAs && { local_as: localAs }),
                 ...(remoteAs && { remote_as: remoteAs })
@@ -639,7 +289,7 @@ export const useBGPOperations = () => {
                     neighbor
                 }
             }),
-            
+
             // BGP Policy Operations - Route Maps
             applyBGPRouteMap: (clientId: string, routeMap: BGPRouteMap) => sendBGPRequest(clientId, BGPOperationType.APPLY_ROUTE_MAP, {
                 route_map: routeMap
@@ -647,7 +297,7 @@ export const useBGPOperations = () => {
             removeBGPRouteMap: (clientId: string, name: string, sequence?: number) => sendBGPRequest(clientId, BGPOperationType.REMOVE_ROUTE_MAP, {
                 route_map: { name, sequence }
             }),
-            
+
             // BGP Policy Operations - Prefix Lists
             applyBGPPrefixList: (clientId: string, prefixList: BGPPrefixList) => sendBGPRequest(clientId, BGPOperationType.APPLY_PREFIX_LIST, {
                 prefix_list: prefixList
@@ -655,7 +305,7 @@ export const useBGPOperations = () => {
             removeBGPPrefixList: (clientId: string, name: string, sequence?: number) => sendBGPRequest(clientId, BGPOperationType.REMOVE_PREFIX_LIST, {
                 prefix_list: { name, sequence }
             }),
-            
+
             // BGP Policy Operations - Community Lists
             applyBGPCommunityList: (clientId: string, communityList: BGPCommunityList) => sendBGPRequest(clientId, BGPOperationType.APPLY_COMMUNITY_LIST, {
                 community_list: communityList

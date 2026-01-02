@@ -133,5 +133,3 @@ export function useDashboardData(): DashboardState {
     refreshing: false,
   };
 }
-
-export default useDashboardData;

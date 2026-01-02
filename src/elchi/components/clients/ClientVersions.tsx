@@ -146,7 +146,7 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
         const isSupported = supportedVersions.includes(version);
 
         if (!isSupported) {
-            Modal.warning({
+            modal.warning({
                 title: 'Unsupported Version',
                 icon: <ExclamationCircleOutlined />,
                 content: (
@@ -954,7 +954,7 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                     children: corozaTabContent
                 }
             ]}
-            
+
         />
     );
 };

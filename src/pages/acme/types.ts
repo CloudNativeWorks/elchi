@@ -154,10 +154,6 @@ export interface CreateCertificateRequest {
   dns_credential_id?: string;
 }
 
-export interface DuplicateCertificateRequest {
-  version: string;
-}
-
 // DNS Credentials Types
 export interface GoogleCredentials {
   project_id: string;

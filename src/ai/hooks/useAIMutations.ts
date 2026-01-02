@@ -3,12 +3,12 @@ import { api } from '../../common/api';
 import Config from '../../conf';
 import { useProjectVariable } from '../../hooks/useProjectVariable';
 import { useOpenRouterToken } from '../../hooks/useOpenRouterToken';
-import type { 
-  ConfigAnalyzerRequest, 
-  ConfigAnalysisResult, 
+import type {
+  ConfigAnalyzerRequest,
+  ConfigAnalysisResult,
   LogAnalyzerRequest,
   LogAnalysisResult,
-  AIStatus, 
+  AIStatus,
   SupportedFeatures,
   ResourceOption
 } from '../../types/aiConfig';
@@ -18,7 +18,7 @@ import { RESOURCE_COLLECTIONS, COMPONENT_TYPES } from '../../types/aiConfig';
 export const useAnalyzeConfigMutation = () => {
   const { project } = useProjectVariable();
   const { hasToken } = useOpenRouterToken();
-  
+
   const mutationFn = async (request: ConfigAnalyzerRequest): Promise<ConfigAnalysisResult> => {
     if (!hasToken) {
       throw new Error('OpenRouter API token not configured. Please set it in Settings > AI.');
@@ -31,16 +31,16 @@ export const useAnalyzeConfigMutation = () => {
     };
 
     const response = await api.post<any>(
-      `${Config.baseApi}ai/analyze?project=${project}`, 
+      `${Config.baseApi}ai/analyze?project=${project}`,
       requestWithProject
     );
-    
+
     // Store the full response including token_usage
     const result = response.data.analysis_result;
     if (response.data.token_usage) {
       result.token_usage = response.data.token_usage;
     }
-    
+
     return result;
   };
 
@@ -53,14 +53,14 @@ export const useAnalyzeConfigMutation = () => {
 export const useAIStatus = (enabled = true) => {
   const { hasToken } = useOpenRouterToken();
   const { project } = useProjectVariable();
-  
+
   return useQuery({
     queryKey: ['ai-status', hasToken, project],
     queryFn: async (): Promise<AIStatus> => {
       const response = await api.get<AIStatus>(
         `${Config.baseApi}ai/status?project=${project}`
       );
-      
+
       return response.data;
     },
     enabled: enabled && hasToken && !!project,
@@ -68,50 +68,34 @@ export const useAIStatus = (enabled = true) => {
   });
 };
 
-// Get Supported Features Hook
-export const useAIFeatures = (enabled = true) => {
-  return useQuery({
-    queryKey: ['ai-features'],
-    queryFn: async (): Promise<SupportedFeatures> => {
-      const response = await api.get<SupportedFeatures>(
-        `${Config.baseApi}ai/features`
-      );
-      
-      return response.data;
-    },
-    enabled,
-    refetchOnWindowFocus: false,
-  });
-};
-
 // Get Available Resources by Resource Type Hook with Search
 export const useAvailableResources = (resourceTypeKey: string, searchQuery = '', enabled = true) => {
   const { project } = useProjectVariable();
-  
+
   return useQuery({
     queryKey: ['available-resources', resourceTypeKey, project, searchQuery],
     queryFn: async (): Promise<ResourceOption[]> => {
       if (!resourceTypeKey) return [];
-      
+
       // Check if it's a component type (gtype) or collection
       const componentType = COMPONENT_TYPES.find(ct => ct.gtype === resourceTypeKey);
-      
+
       // Build query parameters
       let queryParams = `project=${project}&search=${encodeURIComponent(searchQuery || '')}`;
-      
+
       if (componentType) {
         // It's a specific component type - get gtype and collection info
         const { gtype, collection } = componentType;
         queryParams += `&gtype=${encodeURIComponent(gtype)}&collection=${collection}`;
-        
+
         try {
           const response = await api.get<any>(
             `${Config.baseApi}custom/resource_list_search?${queryParams}`
           );
-          
+
           // Handle paginated response structure
           const data = response.data.data || response.data;
-          
+
           return data.map((resource: any) => ({
             name: resource.name || resource.general?.name,
             project: resource.project || resource.general?.project || project,
@@ -127,17 +111,17 @@ export const useAvailableResources = (resourceTypeKey: string, searchQuery = '',
         // It's a standard collection
         const collectionConfig = RESOURCE_COLLECTIONS.find(c => c.name === resourceTypeKey);
         if (!collectionConfig) return [];
-        
+
         queryParams += `&collection=${resourceTypeKey}`;
-        
+
         try {
           const response = await api.get<any>(
             `${Config.baseApi}custom/resource_list_search?${queryParams}`
           );
-          
+
           // Handle paginated response structure
           const data = response.data.data || response.data;
-          
+
           return data.map((resource: any) => ({
             name: resource.name || resource.general?.name,
             project: resource.project || resource.general?.project || project,
@@ -156,16 +140,11 @@ export const useAvailableResources = (resourceTypeKey: string, searchQuery = '',
   });
 };
 
-// Get Available Listeners Hook (backward compatibility)
-export const useAvailableListeners = (enabled = true) => {
-  return useAvailableResources('listeners', '', enabled);
-};
-
 // Analyze Service Logs Hook
 export const useAnalyzeLogsMutation = () => {
   const { project } = useProjectVariable();
   const { hasToken } = useOpenRouterToken();
-  
+
   const mutationFn = async (request: LogAnalyzerRequest): Promise<LogAnalysisResult> => {
     if (!hasToken) {
       throw new Error('OpenRouter API token not configured. Please set it in Settings > AI.');
@@ -174,7 +153,7 @@ export const useAnalyzeLogsMutation = () => {
     // Convert our LogAnalyzerRequest to backend expected format
     // Backend expects resource-based analysis, so we'll use 'services' as collection
     // and format logs as a single string
-    const logsString = request.logs.map(log => 
+    const logsString = request.logs.map(log =>
       `[${log.timestamp}] [${log.level}] [${log.component || 'unknown'}] ${log.message}`
     ).join('\n');
 
@@ -190,10 +169,10 @@ export const useAnalyzeLogsMutation = () => {
     };
 
     const response = await api.post<any>(
-      `${Config.baseApi}ai/analyze-logs?project=${project}`, 
+      `${Config.baseApi}ai/analyze-logs?project=${project}`,
       backendRequest
     );
-    
+
     // Convert backend response to our expected format
     const backendResult = response.data.analysis_result;
     const result: LogAnalysisResult = {
@@ -206,7 +185,7 @@ export const useAnalyzeLogsMutation = () => {
       processed_at: backendResult.processed_at || new Date().toISOString(),
       token_usage: response.data.token_usage // Add token usage from backend
     };
-    
+
     return result;
   };
 

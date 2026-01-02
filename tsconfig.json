@@ -63,11 +63,11 @@
         ]
     },
     "include": [
-        "./src",
-        "dist",
-        "./src/elchi/versions/**/*.ts"
+        "./src"
     ],
     "exclude": [
-        "node_modules"
+        "node_modules",
+        "dist",
+        "src/elchi/versions"
     ],
 }

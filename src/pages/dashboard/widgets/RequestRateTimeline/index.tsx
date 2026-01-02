@@ -190,5 +190,3 @@ export const RequestRateTimeline: React.FC = () => {
     </BaseWidget>
   );
 };
-
-export default RequestRateTimeline;

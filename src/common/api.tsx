@@ -46,9 +46,9 @@ const refreshAccessToken = async () => {
 
         const newAccessToken = response.data.token;
         const newRefreshToken = response.data.refresh_token;
-        
+
         Cookies.set('bb_token', newAccessToken);
-        
+
         // Update refresh token if provided (token rotation)
         if (newRefreshToken) {
             Cookies.set('bb_refresh_token', newRefreshToken);
@@ -70,19 +70,19 @@ api.interceptors.response.use(
         const originalRequest = error.config;
 
         // Only attempt refresh for 401 TOKEN_EXPIRED errors
-        if (error.response?.status === 401 && 
-            error.response?.data?.error_type === 'TOKEN_EXPIRED' && 
+        if (error.response?.status === 401 &&
+            error.response?.data?.error_type === 'TOKEN_EXPIRED' &&
             !originalRequest._retry) {
-            
+
             originalRequest._retry = true;
 
             try {
                 const newToken = await refreshAccessToken();
-                
+
                 // Retry original request with new token
                 originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
                 return api(originalRequest);
-                
+
             } catch (refreshError) {
                 // Refresh failed, redirect to login
                 console.error('Refresh token failed:', refreshError);
@@ -111,11 +111,11 @@ api.interceptors.response.use(
             const isTemplateCheck = error.config?.url?.includes('/templates/check/');
             if (!isTemplateCheck && !isLoginEndpoint) {
                 showErrorNotification(error);
-                
+
                 // Trigger error summary refresh on API errors (but not too frequently)
-                if (error.response?.status >= 500 || 
-                    (error.response?.status >= 400 && error.response?.status < 500 && 
-                     error.response?.status !== 404)) {
+                if (error.response?.status >= 500 ||
+                    (error.response?.status >= 400 && error.response?.status < 500 &&
+                        error.response?.status !== 404)) {
                     // Dynamic import to avoid circular dependency
                     import('../hooks/useErrorSummary').then(({ triggerErrorSummaryRefresh }) => {
                         triggerErrorSummaryRefresh();
@@ -198,14 +198,14 @@ export const useCustomMutation = () => {
                 'envoy-version': envoyVersion,
             }
         });
-        
+
         // Handle success notification
         handleApiResponse(response.data, undefined, undefined, {
             showAutoSuccess,
             customSuccessMessage,
             successTitle
         });
-        
+
         return response;
     }
 
@@ -220,14 +220,14 @@ export const useDeleteMutation = () => {
     const mutationFn = async (options: DeleteMutationOptions) => {
         const { path, showAutoSuccess, customSuccessMessage, successTitle } = options;
         const response = await api.delete(Config.baseApi + path);
-        
+
         // Handle success notification
         handleApiResponse(response.data, undefined, undefined, {
             showAutoSuccess,
             customSuccessMessage,
             successTitle
         });
-        
+
         return response;
     }
 
@@ -264,20 +264,6 @@ export const useAuthMutation = (path: string) => {
 export const useDemoMutation = (path: string) => {
     const mutationFn = async (email: string) => {
         const response = await api.post(`${path}/${email}`, null);
-        return response;
-    }
-
-    const mutation = useMutation({
-        mutationFn,
-    });
-
-    return mutation;
-};
-
-
-export const useScenarioMutation = (path: string) => {
-    const mutationFn = async (options: ScenarioMutationOptions) => {
-        const response = await api.post(path, options);
         return response;
     }
 

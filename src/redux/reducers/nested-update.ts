@@ -16,40 +16,6 @@ export const DeleteNestedObject = (draft: any, keys: string[]) => {
     }
 };
 
-export const DeleteNestedConfigDiscovery = (draft: any, keys: string[]) => {
-    let current = draft;
-    for (let i = 0; i < keys.length - 1; i++) {
-        current = current[keys[i]];
-        if (typeof current === 'undefined') {
-            return;
-        }
-    }
-
-    const lastKey = keys[keys.length - 1];
-    if (Array.isArray(current)) {
-        current.splice(Number(lastKey), 1);
-    } else {
-        delete current[lastKey];
-    }
-
-    if (keys.includes('extensions')) {
-        const extensionsIndex = keys.indexOf('extensions');
-        let parent = draft;
-        for (let i = 0; i < extensionsIndex - 1; i++) {
-            parent = parent[keys[i]];
-        }
-
-        const parentKey = keys[extensionsIndex - 1];
-        if (parent[parentKey]?.extensions?.length === 0) {
-            if (Array.isArray(parent)) {
-                parent.splice(Number(parentKey), 1);
-            } else {
-                delete parent[parentKey];
-            }
-        }
-    }
-};
-
 export const DeleteConfigDiscoveryByParentName = (draft: any, parentName: string) => {
     const index = draft.findIndex((item: any) => item.parent_name === parentName);
 

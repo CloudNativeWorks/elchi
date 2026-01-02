@@ -14,5 +14,3 @@ export const TrafficSection: React.FC = () => {
     </div>
   );
 };
-
-export default TrafficSection;

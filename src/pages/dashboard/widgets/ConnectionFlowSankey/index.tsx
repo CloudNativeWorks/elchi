@@ -114,5 +114,3 @@ export const ConnectionFlowSankey: React.FC = () => {
     </BaseWidget>
   );
 };
-
-export default ConnectionFlowSankey;

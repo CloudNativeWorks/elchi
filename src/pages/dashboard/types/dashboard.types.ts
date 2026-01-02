@@ -153,10 +153,3 @@ export enum RefreshInterval {
   MEDIUM = 60000,    // 1m
   LOW = 300000,      // 5m
 }
-
-// Time Range for Charts
-export interface TimeRange {
-  start: Date;
-  end: Date;
-  label: string;
-}

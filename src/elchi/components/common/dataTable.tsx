@@ -42,14 +42,6 @@ interface DataType {
     canonical_name: string;
 }
 
-export type dependenciesType = {
-    name: string;
-    collection: string;
-    gtype: string;
-    version: string;
-    visible: boolean;
-}
-
 interface CustomDataTableProps {
     path: string;
     filters?: Record<string, any>;

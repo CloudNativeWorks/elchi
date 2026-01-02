@@ -161,14 +161,3 @@ export function Base64FromBytes(buffer: ArrayBuffer): string {
     });
     return btoa(bin.join(""));
 }
-
-export function BytesFromBase64(b64: string): Uint8Array {
-    const binaryString = window.atob(b64);
-    const len = binaryString.length;
-    const bytes = new Uint8Array(len);
-    for (let i = 0; i < len; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-    }
-    return bytes;
-}
-

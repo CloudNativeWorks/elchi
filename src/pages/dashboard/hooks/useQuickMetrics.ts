@@ -177,5 +177,3 @@ export function useQuickMetrics() {
 
   return { metrics, loading };
 }
-
-export default useQuickMetrics;

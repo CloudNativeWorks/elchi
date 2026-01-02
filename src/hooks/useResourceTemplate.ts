@@ -2,11 +2,11 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/common/api';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import { showErrorNotification, showSuccessNotification } from '@/common/notificationHandler';
-import type { 
-  ResourceTemplate, 
-  TemplateCheckResponse, 
-  CreateTemplateRequest, 
-  TemplateListResponse 
+import type {
+  ResourceTemplate,
+  TemplateCheckResponse,
+  CreateTemplateRequest,
+  TemplateListResponse
 } from '@/types/template';
 
 export const useResourceTemplate = () => {
@@ -61,7 +61,7 @@ export const useResourceTemplate = () => {
     return useMutation({
       mutationFn: async (data: { gtype: string; version: string; template: CreateTemplateRequest }) => {
         const response = await api.post(
-          `/api/v3/templates/${data.gtype}?project=${project}&version=${data.version}`, 
+          `/api/v3/templates/${data.gtype}?project=${project}&version=${data.version}`,
           data.template
         );
         return response.data;
@@ -82,7 +82,7 @@ export const useResourceTemplate = () => {
     return useMutation({
       mutationFn: async (data: { gtype: string; version: string; template: CreateTemplateRequest }) => {
         const response = await api.put(
-          `/api/v3/templates/${data.gtype}?project=${project}&version=${data.version}`, 
+          `/api/v3/templates/${data.gtype}?project=${project}&version=${data.version}`,
           data.template
         );
         return response.data;
@@ -127,5 +127,3 @@ export const useResourceTemplate = () => {
     useDeleteTemplate
   };
 };
-
-export default useResourceTemplate;

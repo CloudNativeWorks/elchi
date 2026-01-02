@@ -14,5 +14,3 @@ export const QuickStatsSection: React.FC = () => {
     </div>
   );
 };
-
-export default QuickStatsSection;

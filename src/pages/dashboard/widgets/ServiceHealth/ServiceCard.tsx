@@ -77,5 +77,3 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({ service, onClick }) =>
     </div>
   );
 };
-
-export default ServiceCard;

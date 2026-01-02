@@ -68,5 +68,3 @@ export const QuickMetrics: React.FC = () => {
     </div>
   );
 };
-
-export default QuickMetrics;

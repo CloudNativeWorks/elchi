@@ -115,5 +115,3 @@ export const ResourcesOverview: React.FC<ResourcesOverviewProps> = ({
     </div>
   );
 };
-
-export default ResourcesOverview;

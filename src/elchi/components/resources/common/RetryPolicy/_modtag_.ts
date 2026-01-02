@@ -6,14 +6,6 @@ export const modtag_retry_policy = [
     },
 ];
 
-export const tags_reset_header = [
-    {
-        alias: 'RetryPolicy_ResetHeader',
-        relativePath: 'envoy/config/route/v3/route_components',
-        tagName: 'RetryPolicy_ResetHeader',
-    },
-];
-
 export const modtag_retry_backoff = [
     {
         alias: 'rbo',

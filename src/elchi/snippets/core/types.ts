@@ -6,21 +6,21 @@ export interface ResourceSnippet {
   // Identification
   id: string;
   name: string;
-  
+
   // Auto-discovered metadata
   component_type: string;  // "health_check", "outlier_detection", etc.
   gtype: string;          // Full GType enum value: "envoy.config.cluster.v3.Cluster"
   field_path: string;     // "health_checks", "outlier_detection"
   is_array: boolean;
-  
+
   // Version & Project
   version: string;
   project: string;
-  
+
   // Snippet data
   snippet_data: Record<string, any>;
   data_hash?: string;     // Optional - only in responses
-  
+
   // Timestamps
   created_at?: Date;      // Optional - only in responses
   updated_at?: Date;      // Optional - only in responses
@@ -49,12 +49,6 @@ export interface SnippetFilter {
   search?: string;
   limit?: number;
   offset?: number;
-}
-
-export interface SnippetApiResponse<T = any> {
-  data?: T;
-  error?: string;
-  success: boolean;
 }
 
 export interface ApplySnippetOptions {

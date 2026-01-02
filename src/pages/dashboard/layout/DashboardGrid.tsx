@@ -13,5 +13,3 @@ interface DashboardGridProps {
 export const DashboardGrid: React.FC<DashboardGridProps> = ({ children }) => {
   return <div className={styles.dashboardGrid}>{children}</div>;
 };
-
-export default DashboardGrid;

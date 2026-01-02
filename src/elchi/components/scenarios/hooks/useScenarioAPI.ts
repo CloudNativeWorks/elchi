@@ -143,28 +143,9 @@ export interface UpdateScenarioRequest {
     components?: ComponentInstance[];
 }
 
-export interface ExecuteScenarioRequest {
-    scenario_id: string;
-    components: ComponentInstance[];
-    managed: boolean;
-    project: string;
-    version: string;
-}
-
 export interface ScenarioListResponse {
     scenarios: Scenario[];
     total: number;
-}
-
-export interface ExecuteScenarioResponse {
-    resources: any[];
-    success: boolean;
-    message?: string;
-    applied_count?: number;
-}
-
-export interface ValidateScenarioRequest {
-    components: ComponentInstance[];
 }
 
 export interface ValidateScenarioResponse {
@@ -263,12 +244,12 @@ export const useScenarioAPI = () => {
     // Update scenario mutation
     const useUpdateScenario = () => {
         return useMutation({
-            mutationFn: async ({ 
-                scenarioId, 
-                data 
-            }: { 
-                scenarioId: string; 
-                data: UpdateScenarioRequest 
+            mutationFn: async ({
+                scenarioId,
+                data
+            }: {
+                scenarioId: string;
+                data: UpdateScenarioRequest
             }): Promise<Scenario> => {
                 const response = await api.put(`/api/v3/scenario/scenarios/${scenarioId}?project=${project}`, data);
                 return response.data;
@@ -335,7 +316,7 @@ export const useScenarioAPI = () => {
                 if (data.project) {
                     params.append('project', data.project);
                 }
-                
+
                 const url = `/api/v3/scenario/import${params.toString() ? `?${params.toString()}` : ''}`;
                 const response = await api.post(url, data);
                 // Backend response format: { data: { success, message, imported, skipped, conflicts, ... }, message }
@@ -368,8 +349,4 @@ export const generateScenarioId = (name: string): string => {
         .replace(/[^a-z0-9]+/g, '_')
         .replace(/(^_|_$)/g, '')
         .substring(0, 20) + '_' + Date.now().toString().slice(-4);
-};
-
-export const validateScenarioId = (id: string): boolean => {
-    return /^[a-z0-9_]+$/.test(id) && id.length >= 3 && id.length <= 50;
 };

@@ -15,7 +15,7 @@ import { BaseWidget } from '../shared/BaseWidget';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import { useDashboardRefresh } from '../../context/DashboardRefreshContext';
 import { api } from '@/common/api';
-import { formatNumber, formatMilliseconds } from '../../utils/formatters';
+import { formatMilliseconds } from '../../utils/formatters';
 import styles from './styles.module.scss';
 
 echarts.use([LineChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer]);
@@ -122,5 +122,3 @@ export const ResponseTimeTrends: React.FC = () => {
     </BaseWidget>
   );
 };
-
-export default ResponseTimeTrends;

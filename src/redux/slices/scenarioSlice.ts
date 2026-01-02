@@ -262,12 +262,6 @@ const scenarioSlice = createSlice({
                 project: ''
             };
             state.executionResult = null;
-        },
-        
-        // Clear errors
-        clearErrors: (state) => {
-            state.catalogError = null;
-            state.scenarioError = null;
         }
     },
     extraReducers: (builder) => {
@@ -330,8 +324,7 @@ export const {
     updateComponentName,
     updateFieldValue,
     setCurrentStep,
-    clearExecution,
-    clearErrors
+    clearExecution
 } = scenarioSlice.actions;
 
 export default scenarioSlice.reducer;

@@ -13,7 +13,7 @@ import SelectVersion from "@/elchi/components/common/SelectVersion";
 import RenderLoading from "@/elchi/components/common/Loading";
 import UnsupportedVersion from "@/components/UnsupportedVersion";
 import ComponentLoadErrorBoundary from "@/components/ComponentLoadErrorBoundary";
-import useComponentLoader from "@/hooks/useComponentLoader";
+import { useComponentLoader } from "@/hooks/useComponentLoader";
 
 
 type state = {

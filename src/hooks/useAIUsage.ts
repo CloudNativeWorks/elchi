@@ -54,19 +54,3 @@ export const useAIUsageStats = () => {
     retry: false, // Don't retry on error
   });
 };
-
-export const useAIRecentUsage = (limit: number = 50) => {
-  const { project } = useProjectVariable();
-
-  return useQuery({
-    queryKey: ['ai-recent-usage', project, limit],
-    queryFn: async (): Promise<AIUsageRecord[]> => {
-      const response = await api.get<AIRecentUsageResponse>(
-        `${Config.baseApi}ai/usage/recent?project=${project}&limit=${limit}`
-      );
-      return response.data.usage || [];
-    },
-    enabled: !!project,
-    refetchInterval: 120000, // Refresh every 2 minutes
-  });
-};

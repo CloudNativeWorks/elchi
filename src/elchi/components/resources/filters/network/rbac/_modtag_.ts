@@ -8,14 +8,6 @@ export const modtag_rbac = [
     },
 ];
 
-export const modtag_rbac_rules = [
-    {
-        alias: 'rr',
-        relativePath: 'envoy/config/rbac/v3/rbac',
-        names: ['RBAC', 'RBAC_SingleFields'],
-    },
-];
-
 export const modtag_r_rbac: TagsType = {
     "rbac": [
         "matcher",

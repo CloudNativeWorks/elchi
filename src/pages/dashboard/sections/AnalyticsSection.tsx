@@ -20,5 +20,3 @@ export const AnalyticsSection: React.FC = () => {
     </div>
   );
 };
-
-export default AnalyticsSection;

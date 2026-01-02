@@ -44,29 +44,29 @@ class ErrorSummaryManager {
     updateErrorState(errorCount: number) {
         const hadErrors = this.lastErrorCount > 0;
         const hasErrors = errorCount > 0;
-        
+
         // If errors increased or new errors appeared
         if (errorCount > this.lastErrorCount || (!hadErrors && hasErrors)) {
             this.hasRecentErrors = true;
         }
-        
+
         this.lastErrorCount = errorCount;
         this.lastCheckTime = Date.now();
     }
 
     getPollingInterval(): number {
         const timeSinceLastCheck = Date.now() - this.lastCheckTime;
-        
+
         // If there are recent errors, poll more frequently
         if (this.hasRecentErrors && timeSinceLastCheck < 5 * 60 * 1000) { // 5 minutes
             return 30 * 1000; // 30 seconds
         }
-        
+
         // If there were errors in last check, poll moderately
         if (this.lastErrorCount > 0) {
             return 2 * 60 * 1000; // 2 minutes
         }
-        
+
         // Default polling for no errors
         return 5 * 60 * 1000; // 5 minutes
     }
@@ -80,7 +80,7 @@ export const useErrorSummary = ({ project, enabled = true, triggerRefresh }: Use
     const hasToken = !!Cookies.get('bb_token');
     const errorManager = ErrorSummaryManager.getInstance();
     const triggerCountRef = useRef(0);
-    
+
     // Smart polling interval based on error state
     const getRefreshInterval = useCallback(() => {
         return errorManager.getPollingInterval();
@@ -104,10 +104,10 @@ export const useErrorSummary = ({ project, enabled = true, triggerRefresh }: Use
             try {
                 const response = await api.get(`/api/v3/custom/error_summary?project=${project}`);
                 const data = response.data as ErrorSummaryData;
-                
+
                 // Update error manager state
                 errorManager.updateErrorState(data.total_error || 0);
-                
+
                 return data;
             } catch (error: any) {
                 // Only show notification for non-auth errors
@@ -166,5 +166,3 @@ export const triggerErrorSummaryRefresh = () => {
     const errorManager = ErrorSummaryManager.getInstance();
     errorManager.notifyNewErrors();
 };
-
-export default useErrorSummary;

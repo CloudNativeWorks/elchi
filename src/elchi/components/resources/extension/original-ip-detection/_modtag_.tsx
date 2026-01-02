@@ -13,11 +13,3 @@ export const modtag_xff = [
         names: ['XffConfig', 'XffConfig_SingleFields'],
     },
 ];
-
-export const modtag_xff_trusted_cidrs = [
-    {
-        alias: 'xfftc',
-        relativePath: 'envoy/extensions/http/original_ip_detection/xff/v3/xff',
-        names: ['XffTrustedCidrs'],
-    },
-];

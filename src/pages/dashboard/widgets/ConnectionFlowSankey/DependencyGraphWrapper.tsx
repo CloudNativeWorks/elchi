@@ -82,5 +82,3 @@ export const DependencyGraphWrapper: React.FC<DependencyGraphWrapperProps> = ({ 
     </div>
   );
 };
-
-export default DependencyGraphWrapper;

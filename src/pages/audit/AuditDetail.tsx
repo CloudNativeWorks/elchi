@@ -711,7 +711,7 @@ const AuditDetail: React.FC = () => {
                                                             </div>
                                                         </Col>
                                                     </Row>
-                                                    
+
                                                     {/* CHANGES in separate row below */}
                                                     <Row>
                                                         <Col span={24}>

@@ -32,14 +32,6 @@ export const modtag_memory_allocator_manager = [
     },
 ];
 
-export const modtag_cluster = [
-    {
-        alias: 'c',
-        relativePath: 'envoy/config/cluster/v3/cluster',
-        names: ['Cluster'],
-    },
-];
-
 export const modtag_api_config_source = [
     {
         alias: 'acs',
@@ -69,14 +61,6 @@ export const modtag_overload_manager = [
         alias: 'om',
         relativePath: 'envoy/config/overload/v3/overload',
         names: ['OverloadManager', 'OverloadManager_SingleFields'],
-    },
-];
-
-export const modtag_resource_monitor = [
-    {
-        alias: 'rm',
-        relativePath: 'envoy/config/overload/v3/overload',
-        names: ['ResourceMonitor', 'ResourceMonitor_SingleFields'],
     },
 ];
 

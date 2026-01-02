@@ -29,11 +29,3 @@ export const modtag_endpoint_hc = [
         names: ['Endpoint_HealthCheckConfig', 'Endpoint_HealthCheckConfig_SingleFields'],
     },
 ];
-
-export const tags_policy = [
-    {
-        alias: 'Policy',
-        relativePath: 'envoy/config/endpoint/v3/endpoint',
-        tagName: 'Policy',
-    }
-];

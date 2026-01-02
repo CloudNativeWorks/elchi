@@ -70,5 +70,3 @@ export const ServiceHealth: React.FC<ServiceHealthProps> = ({ loading: externalL
     </BaseWidget>
   );
 };
-
-export default ServiceHealth;

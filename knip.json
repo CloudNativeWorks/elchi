@@ -1,0 +1,62 @@
+{
+  "$schema": "https://unpkg.com/knip@latest/schema.json",
+  "entry": [
+    "src/main.tsx",
+    "src/Route.tsx",
+    "src/App.tsx",
+    "src/ProtectedRoute.tsx",
+    "src/common/statics/gtypes.ts",
+    "src/pages/**/*.{ts,tsx}",
+    "src/elchi/components/**/*.{ts,tsx}",
+    "!src/elchi/versions/**"
+  ],
+  "project": [
+    "src/**/*.{ts,tsx}",
+    "!src/elchi/versions/**"
+  ],
+  "paths": {
+    "@/*": [
+      "src/*"
+    ],
+    "@redux/*": [
+      "src/redux/*"
+    ],
+    "@utils/*": [
+      "src/utils/*"
+    ],
+    "@components/*": [
+      "src/elchi/components/*"
+    ],
+    "@versions/*": [
+      "src/elchi/versions/*"
+    ],
+    "@elchi/*": [
+      "src/elchi/*"
+    ],
+    "@handlers/*": [
+      "src/elchi/handlers/*"
+    ],
+    "@resources/*": [
+      "src/elchi/components/resources/*"
+    ]
+  },
+  "ignore": [
+    "src/elchi/versions/**",
+    "dist/**"
+  ],
+  "ignoreDependencies": [
+    "@grafana/runtime",
+    "@grafana/ui",
+    "@emotion/css",
+    "@types/styled-components",
+    "cytoscape",
+    "cytoscape-dagre",
+    "json-viewer-react",
+    "lodash-es",
+    "react-highlight-words",
+    "rxjs"
+  ],
+  "ignoreExportsUsedInFile": true,
+  "includeEntryExports": true,
+  "vite": true
+}

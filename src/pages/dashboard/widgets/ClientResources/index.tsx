@@ -31,7 +31,7 @@ const formatUptime = (seconds: number): string => {
   return `${minutes}m`;
 };
 
-export const ClientResources: React.FC = () => {
+const ClientResources: React.FC = () => {
   const { clients, loading, error, refresh } = useClientResources({ limit: 20 });
   const navigate = useNavigate();
   const [expanded, setExpanded] = React.useState(false);
@@ -65,239 +65,239 @@ export const ClientResources: React.FC = () => {
             padding: '4px 0',
           }}>
             {displayedClients.map((client) => {
-            const isOffline = client.cpu_usage < 0;
-            const cpuColor = isOffline ? '#bfbfbf' : getStatusColor(client.cpu_usage);
-            const memColor = isOffline ? '#bfbfbf' : getStatusColor(client.memory_usage);
-            const diskColor = isOffline ? '#bfbfbf' : getStatusColor(client.disk_usage);
+              const isOffline = client.cpu_usage < 0;
+              const cpuColor = isOffline ? '#bfbfbf' : getStatusColor(client.cpu_usage);
+              const memColor = isOffline ? '#bfbfbf' : getStatusColor(client.memory_usage);
+              const diskColor = isOffline ? '#bfbfbf' : getStatusColor(client.disk_usage);
 
-            return (
-              <div
-                key={client.client_id}
+              return (
+                <div
+                  key={client.client_id}
+                  style={{
+                    background: isOffline
+                      ? 'linear-gradient(135deg, rgba(0, 0, 0, 0.02) 0%, rgba(0, 0, 0, 0.03) 100%)'
+                      : 'linear-gradient(135deg, rgba(5, 108, 205, 0.03) 0%, rgba(0, 198, 251, 0.03) 100%)',
+                    border: isOffline ? '1px solid rgba(0, 0, 0, 0.1)' : '1px solid rgba(5, 108, 205, 0.1)',
+                    borderRadius: 8,
+                    padding: 10,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    position: 'relative',
+                    overflow: 'hidden',
+                    opacity: isOffline ? 0.7 : 1,
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = isOffline
+                      ? '0 4px 12px rgba(0, 0, 0, 0.1)'
+                      : '0 4px 12px rgba(5, 108, 205, 0.15)';
+                    e.currentTarget.style.borderColor = isOffline
+                      ? 'rgba(0, 0, 0, 0.2)'
+                      : 'rgba(5, 108, 205, 0.3)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = 'none';
+                    e.currentTarget.style.borderColor = isOffline
+                      ? 'rgba(0, 0, 0, 0.1)'
+                      : 'rgba(5, 108, 205, 0.1)';
+                  }}
+                  onClick={() => navigate(`/clients/${client.client_id}`)}
+                >
+                  {/* Status indicator */}
+                  <div style={{
+                    position: 'absolute',
+                    top: 6,
+                    right: 6,
+                    width: 6,
+                    height: 6,
+                    borderRadius: '50%',
+                    background: isOffline ? '#ff4d4f' : '#52c41a',
+                    boxShadow: isOffline ? 'none' : '0 0 6px #52c41a',
+                  }} />
+
+                  {/* Client name */}
+                  <div style={{
+                    fontSize: 12,
+                    fontWeight: 600,
+                    color: '#262626',
+                    marginBottom: 8,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    paddingRight: 12,
+                  }}>
+                    {client.name}
+                  </div>
+
+                  {/* CPU Section */}
+                  <div style={{ marginBottom: 8 }}>
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginBottom: 4,
+                    }}>
+                      <span style={{ fontSize: 10, color: '#8c8c8c', fontWeight: 500 }}>CPU</span>
+                      <span style={{
+                        fontSize: 11,
+                        fontWeight: 700,
+                        color: cpuColor,
+                      }}>
+                        {isOffline ? '—' : `${Math.round(client.cpu_usage)}%`}
+                      </span>
+                    </div>
+                    <div style={{
+                      width: '100%',
+                      height: 4,
+                      background: 'rgba(0, 0, 0, 0.06)',
+                      borderRadius: 2,
+                      overflow: 'hidden',
+                    }}>
+                      <div style={{
+                        width: isOffline ? '0%' : `${client.cpu_usage}%`,
+                        height: '100%',
+                        background: cpuColor,
+                        borderRadius: 2,
+                        transition: 'width 0.3s ease',
+                      }} />
+                    </div>
+                    <div style={{ fontSize: 9, color: '#bfbfbf', marginTop: 2 }}>
+                      {isOffline ? 'offline' : `${client.cpu_cores} cores`}
+                    </div>
+                  </div>
+
+                  {/* Memory Section */}
+                  <div style={{ marginBottom: 8 }}>
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginBottom: 4,
+                    }}>
+                      <span style={{ fontSize: 10, color: '#8c8c8c', fontWeight: 500 }}>MEM</span>
+                      <span style={{
+                        fontSize: 11,
+                        fontWeight: 700,
+                        color: memColor,
+                      }}>
+                        {isOffline ? '—' : `${Math.round(client.memory_usage)}%`}
+                      </span>
+                    </div>
+                    <div style={{
+                      width: '100%',
+                      height: 4,
+                      background: 'rgba(0, 0, 0, 0.06)',
+                      borderRadius: 2,
+                      overflow: 'hidden',
+                    }}>
+                      <div style={{
+                        width: isOffline ? '0%' : `${client.memory_usage}%`,
+                        height: '100%',
+                        background: memColor,
+                        borderRadius: 2,
+                        transition: 'width 0.3s ease',
+                      }} />
+                    </div>
+                    <div style={{ fontSize: 9, color: '#bfbfbf', marginTop: 2 }}>
+                      {isOffline ? 'offline' : formatBytes(client.memory_total)}
+                    </div>
+                  </div>
+
+                  {/* Disk Section */}
+                  <div style={{ marginBottom: 8 }}>
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginBottom: 4,
+                    }}>
+                      <span style={{ fontSize: 10, color: '#8c8c8c', fontWeight: 500 }}>DISK</span>
+                      <span style={{
+                        fontSize: 11,
+                        fontWeight: 700,
+                        color: diskColor,
+                      }}>
+                        {isOffline ? '—' : `${Math.round(client.disk_usage)}%`}
+                      </span>
+                    </div>
+                    <div style={{
+                      width: '100%',
+                      height: 4,
+                      background: 'rgba(0, 0, 0, 0.06)',
+                      borderRadius: 2,
+                      overflow: 'hidden',
+                    }}>
+                      <div style={{
+                        width: isOffline ? '0%' : `${client.disk_usage}%`,
+                        height: '100%',
+                        background: diskColor,
+                        borderRadius: 2,
+                        transition: 'width 0.3s ease',
+                      }} />
+                    </div>
+                    <div style={{ fontSize: 9, color: '#bfbfbf', marginTop: 2 }}>
+                      {isOffline ? 'offline' : '/'}
+                    </div>
+                  </div>
+
+                  {/* Bottom Info: Uptime & Connections */}
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    paddingTop: 6,
+                    borderTop: '1px solid rgba(0, 0, 0, 0.06)',
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span style={{ fontSize: 9, color: '#8c8c8c' }}>⏱</span>
+                      <span style={{ fontSize: 10, color: '#595959', fontWeight: 500 }}>
+                        {isOffline ? '—' : formatUptime(client.uptime)}
+                      </span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <span style={{ fontSize: 9, color: '#8c8c8c' }}>🔗</span>
+                      <span style={{ fontSize: 10, color: '#595959', fontWeight: 500 }}>
+                        {isOffline ? '—' : client.connections}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {hasMore && (
+            <div style={{
+              marginTop: 16,
+              textAlign: 'center',
+            }}>
+              <button
+                onClick={() => setExpanded(!expanded)}
                 style={{
-                  background: isOffline
-                    ? 'linear-gradient(135deg, rgba(0, 0, 0, 0.02) 0%, rgba(0, 0, 0, 0.03) 100%)'
-                    : 'linear-gradient(135deg, rgba(5, 108, 205, 0.03) 0%, rgba(0, 198, 251, 0.03) 100%)',
-                  border: isOffline ? '1px solid rgba(0, 0, 0, 0.1)' : '1px solid rgba(5, 108, 205, 0.1)',
-                  borderRadius: 8,
-                  padding: 10,
+                  padding: '8px 16px',
+                  fontSize: 12,
+                  fontWeight: 500,
+                  color: '#056ccd',
+                  background: 'transparent',
+                  border: '1px solid rgba(5, 108, 205, 0.3)',
+                  borderRadius: 6,
                   cursor: 'pointer',
                   transition: 'all 0.2s',
-                  position: 'relative',
-                  overflow: 'hidden',
-                  opacity: isOffline ? 0.7 : 1,
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = isOffline
-                    ? '0 4px 12px rgba(0, 0, 0, 0.1)'
-                    : '0 4px 12px rgba(5, 108, 205, 0.15)';
-                  e.currentTarget.style.borderColor = isOffline
-                    ? 'rgba(0, 0, 0, 0.2)'
-                    : 'rgba(5, 108, 205, 0.3)';
+                  e.currentTarget.style.background = 'rgba(5, 108, 205, 0.05)';
+                  e.currentTarget.style.borderColor = '#056ccd';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = 'none';
-                  e.currentTarget.style.borderColor = isOffline
-                    ? 'rgba(0, 0, 0, 0.1)'
-                    : 'rgba(5, 108, 205, 0.1)';
+                  e.currentTarget.style.background = 'transparent';
+                  e.currentTarget.style.borderColor = 'rgba(5, 108, 205, 0.3)';
                 }}
-                onClick={() => navigate(`/clients/${client.client_id}`)}
               >
-                {/* Status indicator */}
-                <div style={{
-                  position: 'absolute',
-                  top: 6,
-                  right: 6,
-                  width: 6,
-                  height: 6,
-                  borderRadius: '50%',
-                  background: isOffline ? '#ff4d4f' : '#52c41a',
-                  boxShadow: isOffline ? 'none' : '0 0 6px #52c41a',
-                }} />
-
-                {/* Client name */}
-                <div style={{
-                  fontSize: 12,
-                  fontWeight: 600,
-                  color: '#262626',
-                  marginBottom: 8,
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  paddingRight: 12,
-                }}>
-                  {client.name}
-                </div>
-
-                {/* CPU Section */}
-                <div style={{ marginBottom: 8 }}>
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: 4,
-                  }}>
-                    <span style={{ fontSize: 10, color: '#8c8c8c', fontWeight: 500 }}>CPU</span>
-                    <span style={{
-                      fontSize: 11,
-                      fontWeight: 700,
-                      color: cpuColor,
-                    }}>
-                      {isOffline ? '—' : `${Math.round(client.cpu_usage)}%`}
-                    </span>
-                  </div>
-                  <div style={{
-                    width: '100%',
-                    height: 4,
-                    background: 'rgba(0, 0, 0, 0.06)',
-                    borderRadius: 2,
-                    overflow: 'hidden',
-                  }}>
-                    <div style={{
-                      width: isOffline ? '0%' : `${client.cpu_usage}%`,
-                      height: '100%',
-                      background: cpuColor,
-                      borderRadius: 2,
-                      transition: 'width 0.3s ease',
-                    }} />
-                  </div>
-                  <div style={{ fontSize: 9, color: '#bfbfbf', marginTop: 2 }}>
-                    {isOffline ? 'offline' : `${client.cpu_cores} cores`}
-                  </div>
-                </div>
-
-                {/* Memory Section */}
-                <div style={{ marginBottom: 8 }}>
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: 4,
-                  }}>
-                    <span style={{ fontSize: 10, color: '#8c8c8c', fontWeight: 500 }}>MEM</span>
-                    <span style={{
-                      fontSize: 11,
-                      fontWeight: 700,
-                      color: memColor,
-                    }}>
-                      {isOffline ? '—' : `${Math.round(client.memory_usage)}%`}
-                    </span>
-                  </div>
-                  <div style={{
-                    width: '100%',
-                    height: 4,
-                    background: 'rgba(0, 0, 0, 0.06)',
-                    borderRadius: 2,
-                    overflow: 'hidden',
-                  }}>
-                    <div style={{
-                      width: isOffline ? '0%' : `${client.memory_usage}%`,
-                      height: '100%',
-                      background: memColor,
-                      borderRadius: 2,
-                      transition: 'width 0.3s ease',
-                    }} />
-                  </div>
-                  <div style={{ fontSize: 9, color: '#bfbfbf', marginTop: 2 }}>
-                    {isOffline ? 'offline' : formatBytes(client.memory_total)}
-                  </div>
-                </div>
-
-                {/* Disk Section */}
-                <div style={{ marginBottom: 8 }}>
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: 4,
-                  }}>
-                    <span style={{ fontSize: 10, color: '#8c8c8c', fontWeight: 500 }}>DISK</span>
-                    <span style={{
-                      fontSize: 11,
-                      fontWeight: 700,
-                      color: diskColor,
-                    }}>
-                      {isOffline ? '—' : `${Math.round(client.disk_usage)}%`}
-                    </span>
-                  </div>
-                  <div style={{
-                    width: '100%',
-                    height: 4,
-                    background: 'rgba(0, 0, 0, 0.06)',
-                    borderRadius: 2,
-                    overflow: 'hidden',
-                  }}>
-                    <div style={{
-                      width: isOffline ? '0%' : `${client.disk_usage}%`,
-                      height: '100%',
-                      background: diskColor,
-                      borderRadius: 2,
-                      transition: 'width 0.3s ease',
-                    }} />
-                  </div>
-                  <div style={{ fontSize: 9, color: '#bfbfbf', marginTop: 2 }}>
-                    {isOffline ? 'offline' : '/'}
-                  </div>
-                </div>
-
-                {/* Bottom Info: Uptime & Connections */}
-                <div style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  paddingTop: 6,
-                  borderTop: '1px solid rgba(0, 0, 0, 0.06)',
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: '#8c8c8c' }}>⏱</span>
-                    <span style={{ fontSize: 10, color: '#595959', fontWeight: 500 }}>
-                      {isOffline ? '—' : formatUptime(client.uptime)}
-                    </span>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <span style={{ fontSize: 9, color: '#8c8c8c' }}>🔗</span>
-                    <span style={{ fontSize: 10, color: '#595959', fontWeight: 500 }}>
-                      {isOffline ? '—' : client.connections}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {hasMore && (
-          <div style={{
-            marginTop: 16,
-            textAlign: 'center',
-          }}>
-            <button
-              onClick={() => setExpanded(!expanded)}
-              style={{
-                padding: '8px 16px',
-                fontSize: 12,
-                fontWeight: 500,
-                color: '#056ccd',
-                background: 'transparent',
-                border: '1px solid rgba(5, 108, 205, 0.3)',
-                borderRadius: 6,
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'rgba(5, 108, 205, 0.05)';
-                e.currentTarget.style.borderColor = '#056ccd';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'transparent';
-                e.currentTarget.style.borderColor = 'rgba(5, 108, 205, 0.3)';
-              }}
-            >
-              {expanded ? `Show Less` : `Show All ${clients.length} Clients`}
-            </button>
-          </div>
-        )}
-      </>
+                {expanded ? `Show Less` : `Show All ${clients.length} Clients`}
+              </button>
+            </div>
+          )}
+        </>
       )}
     </BaseWidget>
   );

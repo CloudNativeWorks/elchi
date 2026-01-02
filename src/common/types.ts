@@ -1,6 +1,5 @@
 /* eslint-disable no-unused-vars */
 import { AxiosInstance, Method } from 'axios';
-import * as DynamicModules from "@/VersionedComponent"
 import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 
 export interface ConfigDiscoveryWithIndex extends ConfDiscovery {
@@ -12,9 +11,6 @@ export interface TypedConfigWithIndex {
     disabled?: boolean;
     tableIndex: number;
 }
-
-export type Components = Record<DynamicModules.ComponentName, React.ComponentType<any>>;
-
 
 export interface AxiosInstanceExtended extends AxiosInstance {
     [key: string]: any;
@@ -404,17 +400,4 @@ export interface MetricsApiMutationOptions {
             }[];
         };
     };
-}
-
-export interface Identity {
-    client_id: string;
-    session_token: string;
-    client_name: string;
-}
-
-export interface BaseResponse {
-    identity: Identity;
-    command_id: string;
-    success: boolean;
-    error?: string;
 }

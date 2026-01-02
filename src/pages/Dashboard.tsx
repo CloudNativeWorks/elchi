@@ -4,7 +4,7 @@
  */
 
 import React from 'react';
-import DashboardPage from './dashboard/DashboardPage';
+import { DashboardPage } from './dashboard/DashboardPage';
 
 /**
  * Main Dashboard component

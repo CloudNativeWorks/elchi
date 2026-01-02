@@ -10,10 +10,6 @@ export interface DiscoveryTokenResponse {
   message?: string;
 }
 
-export interface DiscoveryTokenRequest {
-  discovery_token: string;
-}
-
 export interface DiscoveryTokenHookReturn {
   token: string | null;
   isLoading: boolean;
@@ -30,10 +26,10 @@ export const useDiscoveryToken = (): DiscoveryTokenHookReturn => {
   const [error, setError] = useState<string | null>(null);
 
   // Query to get Discovery token
-  const { 
-    data: tokenData, 
-    isLoading, 
-    refetch: refetchToken 
+  const {
+    data: tokenData,
+    isLoading,
+    refetch: refetchToken
   } = useQuery({
     queryKey: ['discovery-token', project],
     queryFn: async (): Promise<DiscoveryTokenResponse> => {
@@ -93,7 +89,7 @@ export const useDiscoveryToken = (): DiscoveryTokenHookReturn => {
 
   // Check for mutations loading state
   const isMutationLoading = deleteTokenMutation.isPending ||
-                           generateTokenMutation.isPending;
+    generateTokenMutation.isPending;
 
   return {
     token: tokenData?.discovery_token || null,

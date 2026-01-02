@@ -1,5 +1,3 @@
-import { TagsType } from "@/elchi/tags/tagsType"
-
 export const modtag_connection_rate_limit = [
     {
         alias: 'crl',
@@ -7,7 +5,3 @@ export const modtag_connection_rate_limit = [
         names: ['RedisProxy_ConnectionRateLimit', 'RedisProxy_ConnectionRateLimit_SingleFields'],
     },
 ];
-
-export const modtag_us_connectionratelimit: TagsType = {
-    'RedisProxy_ConnectionRateLimit': []
-}

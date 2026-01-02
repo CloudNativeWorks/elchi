@@ -16,5 +16,3 @@ export const MetricsSection: React.FC = () => {
     </div>
   );
 };
-
-export default MetricsSection;

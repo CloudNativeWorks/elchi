@@ -273,5 +273,3 @@ export const useJobOperations = () => {
     getJobStats,
   };
 };
-
-export default useJobOperations;
