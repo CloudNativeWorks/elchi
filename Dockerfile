@@ -11,7 +11,7 @@ WORKDIR /app
 # Copy package.json and lock file
 COPY package*.json ./
 
-RUN npm ci || npm ci || npm ci
+RUN npm ci --legacy-peer-deps || npm ci --legacy-peer-deps || npm ci --legacy-peer-deps
 
 # Copy project source code
 COPY . .
