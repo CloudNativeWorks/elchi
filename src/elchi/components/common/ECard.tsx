@@ -1,7 +1,9 @@
 import React, { ReactNode, useState } from 'react';
 import { Card } from 'antd';
+import { FullscreenOutlined } from '@ant-design/icons';
 import { CollapseSVG, ExpandSVG, SnippetSVG } from '@/assets/svg/icons';
 import { SnippetDrawer } from '@/elchi/snippets/components/SnippetDrawer';
+import FullscreenModal from './FullscreenModal';
 
 
 interface CustomCardProps {
@@ -17,21 +19,25 @@ interface CustomCardProps {
     [key: string]: any;
 }
 
-const ECard: React.FC<CustomCardProps> = ({ 
-    children, 
-    title, 
-    reduxStore, 
-    ctype, 
-    toJSON, 
-    onApply, 
-    keys, 
-    version, 
-    ...props 
+const ECard: React.FC<CustomCardProps> = ({
+    children,
+    title,
+    reduxStore,
+    ctype,
+    toJSON,
+    onApply,
+    keys,
+    version,
+    ...props
 }) => {
     const [expanded, setExpanded] = useState(true);
     const [snippetDrawerOpen, setSnippetDrawerOpen] = useState(false);
+    const [fullscreen, setFullscreen] = useState(false);
     const toggleExpand = () => {
         setExpanded(!expanded);
+    };
+    const toggleFullscreen = () => {
+        setFullscreen(!fullscreen);
     };
 
     return (
@@ -53,7 +59,32 @@ const ECard: React.FC<CustomCardProps> = ({
                                 <SnippetSVG onClick={() => setSnippetDrawerOpen(true)} />
                             </div>
                         )}
-                        
+
+                        {/* Fullscreen Button */}
+                        <div
+                            style={{
+                                display: 'inline-block',
+                                marginTop: 5,
+                                cursor: 'pointer',
+                                transition: 'all 0.3s ease'
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.transform = 'scale(1.2)';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.transform = 'scale(1)';
+                            }}
+                        >
+                            <FullscreenOutlined
+                                onClick={toggleFullscreen}
+                                style={{
+                                    fontSize: 14,
+                                    color: '#fff',
+                                    filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
+                                }}
+                            />
+                        </div>
+
                         {/* Collapse/Expand */}
                         {expanded
                             ? <CollapseSVG onClick={toggleExpand} />
@@ -82,6 +113,15 @@ const ECard: React.FC<CustomCardProps> = ({
                     gtype={reduxStore?.$type || (Array.isArray(reduxStore) ? reduxStore[0]?.$type : undefined)}
                 />
             )}
+
+            {/* Fullscreen Modal */}
+            <FullscreenModal
+                open={fullscreen}
+                title={title}
+                onClose={toggleFullscreen}
+            >
+                {children}
+            </FullscreenModal>
         </>
     );
 };

@@ -50,6 +50,7 @@ const Domains: React.FC<GeneralProps> = ({ veri }) => {
                                 value={veri.reduxStore}
                                 onChange={(val) => handleChange(val)}
                                 options={[]}
+                                className="domains-select"
                             />
                         </Form.Item>
                     </Form>

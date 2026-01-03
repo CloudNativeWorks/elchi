@@ -1219,4 +1219,13 @@ com-1password-button {
     border-radius: 8px !important;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
     animation: slideInSmooth 0.4s ease-out !important;
-} 
+}
+
+/* Domains Select Tag Height Fix */
+.domains-select .ant-select-selection-item {
+    height: 20px !important;
+    line-height: 18px !important;
+    padding: 1px 4px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+}
