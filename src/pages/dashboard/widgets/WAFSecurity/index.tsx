@@ -151,8 +151,7 @@ export const WAFSecurity: React.FC = () => {
       left: '3%',
       right: '4%',
       bottom: '18%',
-      top: '5%',
-      containLabel: true
+      top: '5%'
     },
     xAxis: {
       type: 'category',

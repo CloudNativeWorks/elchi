@@ -97,7 +97,7 @@ export const ResponseTimeTrends: React.FC = () => {
       bottom: 0,
       type: 'scroll',
     },
-    grid: { left: '3%', right: '4%', bottom: '60px', top: '10px', containLabel: true },
+    grid: { left: '3%', right: '4%', bottom: '60px', top: '10px' },
     xAxis: { type: 'time' },
     yAxis: { type: 'value', axisLabel: { formatter: (v: number) => formatMilliseconds(v, 0) } },
     series: chartData.map((s) => ({

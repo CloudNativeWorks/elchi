@@ -5,7 +5,6 @@ import { compareVeri, memorizeComponent } from "@/hooks/useMemoComponent";
 import useResourceForm from "@/hooks/useResourceForm";
 import { useTags } from "@/hooks/useTags";
 import { modtag_trigger } from "../_modtag_";
-import { EForm } from "../../../common/e-components/EForm";
 import { ConditionalComponent } from "@/elchi/components/common/ConditionalComponent";
 import { matchesEndOrStartOf } from "@/utils/tools";
 import { FieldComponent } from "@/elchi/components/common/FormItems";
@@ -57,25 +56,23 @@ const ComponentTrigger: React.FC<GeneralProps> = ({ veri }) => {
             <Divider style={{ marginTop: '8px', marginBottom: '8px' }} type="horizontal" />
             <Row>
                 <Col md={24}>
-                    <EForm>
-                        <FieldComponent
-                            veri={{
-                                alwaysShow: true,
-                                selectedTags: [],
-                                handleChange: handleChangeRedux,
-                                tag: "name",
-                                value: veri.reduxStore?.name,
-                                type: FieldTypes.Select,
-                                placeholder: "(Resource Monitor Name)",
-                                values: queryData?.map((obj: any) => obj.canonical_name) || [],
-                                keyPrefix: veri.keyPrefix,
-                                spanNum: 24,
-                                required: true,
-                                displayName: "Resource Monitor Name",
-                                onSearch: debouncedSearch,
-                            }}
-                        />
-                    </EForm>
+                    <FieldComponent
+                        veri={{
+                            alwaysShow: true,
+                            selectedTags: [],
+                            handleChange: handleChangeRedux,
+                            tag: "name",
+                            value: veri.reduxStore?.name,
+                            type: FieldTypes.Select,
+                            placeholder: "(Resource Monitor Name)",
+                            values: queryData?.map((obj: any) => obj.canonical_name) || [],
+                            keyPrefix: veri.keyPrefix,
+                            spanNum: 24,
+                            required: true,
+                            displayName: "Resource Monitor Name",
+                            onSearch: debouncedSearch,
+                        }}
+                    />
 
                     <ConditionalComponent
                         shouldRender={matchesEndOrStartOf("trigger_oneof.threshold", selectedTags)}

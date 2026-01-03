@@ -246,8 +246,7 @@ const MetricChart: React.FC<ExtendedChartProps> = ({ data, title, metricConfig, 
                 left: '0%',
                 right: '1%',
                 bottom: '40px',
-                top: '40px',
-                containLabel: true
+                top: '40px'
             },
             xAxis: {
                 type: 'time',
@@ -427,8 +426,7 @@ const MetricChart: React.FC<ExtendedChartProps> = ({ data, title, metricConfig, 
                 left: '2%',
                 right: '2%',
                 bottom: '8%',
-                top: '10%',
-                containLabel: true
+                top: '10%'
             },
             legend: {
                 ...options.legend,

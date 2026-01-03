@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
     Space,
     Typography,
-    Radio,
     Modal,
     Alert,
     Descriptions,
@@ -29,9 +28,6 @@ const { Text, Title } = Typography;
 const { confirm } = Modal;
 const { TextArea } = Input;
 
-type BackupType = 'project' | 'global';
-type PermissionStrategy = 'preserve' | 'reassign' | 'clear';
-
 interface ImportResult {
     success: boolean;
     dry_run: boolean;
@@ -39,12 +35,14 @@ interface ImportResult {
         total_resources: number;
         created: number;
         updated: number;
+        skipped: number;
         failed: number;
     };
     details: Record<string, {
         total: number;
         created: number;
         updated: number;
+        skipped: number;
         failed: number;
         warnings?: string[];
     }>;
@@ -55,25 +53,20 @@ interface ImportResult {
 
 const Backup: React.FC = () => {
     const { project } = useProjectVariable();
-    const [backupType, setBackupType] = useState<BackupType>('project');
     const [includeDefaults, setIncludeDefaults] = useState(false);
     const [description, setDescription] = useState('');
     const [fileList, setFileList] = useState<UploadFile[]>([]);
-    const [permissionStrategy, setPermissionStrategy] = useState<PermissionStrategy>('preserve');
     const [importPreview, setImportPreview] = useState<ImportResult | null>(null);
 
     // Export mutation
     const exportMutation = useMutation({
         mutationFn: async () => {
             const payload: any = {
-                backup_type: backupType,
+                backup_type: 'project',
+                project_id: project,
                 include_defaults: includeDefaults,
                 description: description || undefined
             };
-
-            if (backupType === 'project') {
-                payload.project_id = project;
-            }
 
             const response = await api.post('/api/v3/setting/maintenance/backup/export', payload);
             return response.data;
@@ -84,7 +77,7 @@ const Backup: React.FC = () => {
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            const filename = `backup-${backupType}-${data.metadata.backup_id}.json`;
+            const filename = `backup-project-${data.metadata.backup_id}.json`;
             a.download = filename;
             document.body.appendChild(a);
             a.click();
@@ -132,7 +125,7 @@ const Backup: React.FC = () => {
         mutationFn: async (backupData: any) => {
             const response = await api.post('/api/v3/setting/maintenance/backup/import', {
                 backup_data: backupData,
-                permission_strategy: permissionStrategy,
+                target_project: project,
                 dry_run: true
             });
             return response.data as ImportResult;
@@ -161,7 +154,10 @@ const Backup: React.FC = () => {
                             <Descriptions.Item label="Will Update">
                                 <Tag color="processing">{data.summary.updated}</Tag>
                             </Descriptions.Item>
-                            <Descriptions.Item label="Will Fail" span={2}>
+                            <Descriptions.Item label="Will Skip">
+                                <Tag color="default">{data.summary.skipped}</Tag>
+                            </Descriptions.Item>
+                            <Descriptions.Item label="Will Fail">
                                 <Tag color={data.summary.failed > 0 ? 'error' : 'default'}>{data.summary.failed}</Tag>
                             </Descriptions.Item>
                         </Descriptions>
@@ -204,7 +200,7 @@ const Backup: React.FC = () => {
         mutationFn: async (backupData: any) => {
             const response = await api.post('/api/v3/setting/maintenance/backup/import', {
                 backup_data: backupData,
-                permission_strategy: permissionStrategy,
+                target_project: project,
                 dry_run: false
             });
             return response.data as ImportResult;
@@ -232,10 +228,13 @@ const Backup: React.FC = () => {
                             <Descriptions.Item label="Updated">
                                 <Tag color="processing">{data.summary.updated}</Tag>
                             </Descriptions.Item>
+                            <Descriptions.Item label="Skipped">
+                                <Tag color="default">{data.summary.skipped}</Tag>
+                            </Descriptions.Item>
                             <Descriptions.Item label="Failed">
                                 <Tag color={data.summary.failed > 0 ? 'error' : 'default'}>{data.summary.failed}</Tag>
                             </Descriptions.Item>
-                            <Descriptions.Item label="Imported By">
+                            <Descriptions.Item label="Imported By" span={2}>
                                 <Text>{data.imported_by}</Text>
                             </Descriptions.Item>
                         </Descriptions>
@@ -250,6 +249,7 @@ const Backup: React.FC = () => {
                                         <th style={{ textAlign: 'center', padding: '8px', fontWeight: 600 }}>Total</th>
                                         <th style={{ textAlign: 'center', padding: '8px', fontWeight: 600 }}>Created</th>
                                         <th style={{ textAlign: 'center', padding: '8px', fontWeight: 600 }}>Updated</th>
+                                        <th style={{ textAlign: 'center', padding: '8px', fontWeight: 600 }}>Skipped</th>
                                         <th style={{ textAlign: 'center', padding: '8px', fontWeight: 600 }}>Failed</th>
                                     </tr>
                                 </thead>
@@ -273,6 +273,11 @@ const Backup: React.FC = () => {
                                                 <td style={{ textAlign: 'center', padding: '6px 8px' }}>
                                                     <Tag color={stats.updated > 0 ? 'processing' : 'default'} style={{ fontSize: 11, margin: 0 }}>
                                                         {stats.updated}
+                                                    </Tag>
+                                                </td>
+                                                <td style={{ textAlign: 'center', padding: '6px 8px' }}>
+                                                    <Tag color="default" style={{ fontSize: 11, margin: 0 }}>
+                                                        {stats.skipped}
                                                     </Tag>
                                                 </td>
                                                 <td style={{ textAlign: 'center', padding: '6px 8px' }}>
@@ -311,15 +316,13 @@ const Backup: React.FC = () => {
     });
 
     const handleExport = () => {
-        const typeLabel = backupType === 'project' ? `project "${project}"` : 'all projects';
-
         confirm({
             title: 'Confirm Backup Export',
             icon: <ExclamationCircleOutlined style={{ color: '#1890ff' }} />,
             width: 500,
             content: (
                 <div>
-                    <p>You are about to create a backup of <Text strong>{typeLabel}</Text>.</p>
+                    <p>You are about to create a backup of <Text strong>project "{project}"</Text>.</p>
                     <ul style={{ paddingLeft: 20, marginTop: 8, marginBottom: 0 }}>
                         <li>Backup will include all selected resources</li>
                         <li>Backup contains sensitive data - store securely</li>
@@ -399,7 +402,7 @@ const Backup: React.FC = () => {
                     Backup & Restore
                 </Title>
                 <Text type="secondary">
-                    Export and import MongoDB collections for disaster recovery, migration, and backup purposes.
+                    Project base Export and import MongoDB collections for disaster recovery, migration, and backup purposes.
                 </Text>
             </div>
 
@@ -420,33 +423,6 @@ const Backup: React.FC = () => {
                 />
 
                 <Space direction="vertical" size="large" style={{ width: '100%' }}>
-                    {/* Backup Type */}
-                    <div>
-                        <Text strong style={{ display: 'block', marginBottom: 8 }}>
-                            Backup Type
-                        </Text>
-                        <Radio.Group value={backupType} onChange={(e) => setBackupType(e.target.value)}>
-                            <Space direction="vertical">
-                                <Radio value="project">
-                                    <Space>
-                                        <Text strong>Project Backup</Text>
-                                        <Text type="secondary" style={{ fontSize: 12 }}>
-                                            (Backup current project: {project})
-                                        </Text>
-                                    </Space>
-                                </Radio>
-                                <Radio value="global">
-                                    <Space>
-                                        <Text strong>Global Backup</Text>
-                                        <Text type="secondary" style={{ fontSize: 12 }}>
-                                            (Backup all projects and settings)
-                                        </Text>
-                                    </Space>
-                                </Radio>
-                            </Space>
-                        </Radio.Group>
-                    </div>
-
                     {/* Include Defaults */}
                     <div>
                         <Space>
@@ -520,41 +496,6 @@ const Backup: React.FC = () => {
                 />
 
                 <Space direction="vertical" size="large" style={{ width: '100%' }}>
-                    {/* Permission Strategy */}
-                    <div>
-                        <Text strong style={{ display: 'block', marginBottom: 8 }}>
-                            Permission Strategy
-                        </Text>
-                        <Radio.Group value={permissionStrategy} onChange={(e) => setPermissionStrategy(e.target.value)}>
-                            <Space direction="vertical">
-                                <Radio value="preserve">
-                                    <Space>
-                                        <Text strong>Preserve</Text>
-                                        <Text type="secondary" style={{ fontSize: 12 }}>
-                                            (Keep existing permissions from backup)
-                                        </Text>
-                                    </Space>
-                                </Radio>
-                                <Radio value="reassign">
-                                    <Space>
-                                        <Text strong>Reassign</Text>
-                                        <Text type="secondary" style={{ fontSize: 12 }}>
-                                            (Assign to current user)
-                                        </Text>
-                                    </Space>
-                                </Radio>
-                                <Radio value="clear">
-                                    <Space>
-                                        <Text strong>Clear</Text>
-                                        <Text type="secondary" style={{ fontSize: 12 }}>
-                                            (Remove all permissions)
-                                        </Text>
-                                    </Space>
-                                </Radio>
-                            </Space>
-                        </Radio.Group>
-                    </div>
-
                     {/* File Upload */}
                     <div>
                         <Text strong style={{ display: 'block', marginBottom: 8 }}>

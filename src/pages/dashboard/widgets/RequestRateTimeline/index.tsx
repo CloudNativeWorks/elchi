@@ -120,8 +120,7 @@ export const RequestRateTimeline: React.FC = () => {
       left: '3%',
       right: '4%',
       bottom: '60px',
-      top: '10px',
-      containLabel: true,
+      top: '10px'
     },
     xAxis: {
       type: 'time',

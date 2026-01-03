@@ -6,7 +6,6 @@ import useResourceForm from "@/hooks/useResourceForm";
 import { useTags } from "@/hooks/useTags";
 import { modtag_trigger } from "../_modtag_";
 import { generateFields } from "@/common/generate-fields";
-import { EForm } from "../../../common/e-components/EForm";
 import { EFields } from "../../../common/e-components/EFields";
 import ECard from "../../../common/ECard";
 import { HorizonTags } from "@/elchi/components/common/HorizonTags";
@@ -49,16 +48,14 @@ const ComponentScaledTrigger: React.FC<GeneralProps> = ({ veri }) => {
             <Divider style={{ marginTop: '8px', marginBottom: '8px' }} type="horizontal" />
             <Row>
                 <Col md={24}>
-                    <EForm>
-                        <EFields
-                            fieldConfigs={fieldConfigs}
-                            selectedTags={selectedTags}
-                            handleChangeRedux={handleChangeRedux}
-                            reduxStore={veri.reduxStore}
-                            keyPrefix={veri.keyPrefix}
-                            version={veri.version}
-                        />
-                    </EForm>
+                    <EFields
+                        fieldConfigs={fieldConfigs}
+                        selectedTags={selectedTags}
+                        handleChangeRedux={handleChangeRedux}
+                        reduxStore={veri.reduxStore}
+                        keyPrefix={veri.keyPrefix}
+                        version={veri.version}
+                    />
                 </Col>
             </Row>
         </ECard>

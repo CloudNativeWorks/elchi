@@ -6,7 +6,6 @@ import { matchesEndOrStartOf } from "@/utils/tools";
 import useResourceForm from "@/hooks/useResourceForm";
 import { useTags } from "@/hooks/useTags";
 import { modtag_overload_action } from "../_modtag_";
-import { EForm } from "../../../common/e-components/EForm";
 import { ConditionalComponent } from "@/elchi/components/common/ConditionalComponent";
 import ComponentTriggers from "./Triggers";
 import { FieldComponent } from "@/elchi/components/common/FormItems";
@@ -51,24 +50,22 @@ const ComponentOverloadAction: React.FC<GeneralProps> = ({ veri }) => {
             <Divider style={{ marginTop: '8px', marginBottom: '8px' }} type="horizontal" />
             <Row>
                 <Col md={24}>
-                    <EForm>
-                        <FieldComponent
-                            veri={{
-                                alwaysShow: true,
-                                selectedTags: [],
-                                handleChange: handleChangeRedux,
-                                tag: "name",
-                                value: veri.reduxStore?.name,
-                                type: FieldTypes.Select,
-                                placeholder: "(Overload Action Name)",
-                                values: overloadActionNames,
-                                keyPrefix: veri.keyPrefix,
-                                spanNum: 24,
-                                required: true,
-                                displayName: "Action Name",
-                            }}
-                        />
-                    </EForm>
+                    <FieldComponent
+                        veri={{
+                            alwaysShow: true,
+                            selectedTags: [],
+                            handleChange: handleChangeRedux,
+                            tag: "name",
+                            value: veri.reduxStore?.name,
+                            type: FieldTypes.Select,
+                            placeholder: "(Overload Action Name)",
+                            values: overloadActionNames,
+                            keyPrefix: veri.keyPrefix,
+                            spanNum: 24,
+                            required: true,
+                            displayName: "Action Name",
+                        }}
+                    />
 
                     <ConditionalComponent
                         shouldRender={matchesEndOrStartOf("triggers", selectedTags)}

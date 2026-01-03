@@ -47,17 +47,23 @@ const ClusterDetails: React.FC<ClusterDetailsProps> = ({ name, project, version,
 
     const calculateMetricChanges = (newData: any[]) => {
         if (!Array.isArray(newData)) return {};
+
         const changes: MetricChanges = {};
-        
+        const newMetrics: any = {};
+
+        // FIRST PASS: Collect all new metrics
         newData.forEach(data => {
             if (!data?.Result?.EnvoyAdmin?.body?.cluster_statuses) return;
             const clientName = data.identity.client_name;
-            changes[clientName] = {};
+
+            if (!newMetrics[clientName]) {
+                newMetrics[clientName] = {};
+            }
 
             data.Result.EnvoyAdmin.body.cluster_statuses.forEach((cluster: any) => {
                 cluster.host_statuses?.forEach((host: any) => {
-                    const address = host.address?.socket_address ? 
-                        `${host.address.socket_address.address}:${host.address.socket_address.port_value}` : 
+                    const address = host.address?.socket_address ?
+                        `${host.address.socket_address.address}:${host.address.socket_address.port_value}` :
                         'unknown';
 
                     host.stats?.forEach((stat: any) => {
@@ -65,23 +71,34 @@ const ClusterDetails: React.FC<ClusterDetailsProps> = ({ name, project, version,
 
                         const key = `${address}-${stat.name}`;
                         const newValue = parseInt(stat.value);
-                        const prevValue = previousMetrics.current[clientName]?.[key];
 
-                        if (prevValue !== undefined && newValue !== prevValue) {
-                            changes[clientName][key] = {
-                                value: newValue - prevValue,
-                                timestamp: Date.now()
-                            };
-                        }
-
-                        if (!previousMetrics.current[clientName]) {
-                            previousMetrics.current[clientName] = {};
-                        }
-                        previousMetrics.current[clientName][key] = newValue;
+                        // Store the new value
+                        newMetrics[clientName][key] = newValue;
                     });
                 });
             });
         });
+
+        // SECOND PASS: Calculate changes by comparing with previous metrics
+        Object.keys(newMetrics).forEach(clientName => {
+            changes[clientName] = {};
+
+            Object.keys(newMetrics[clientName]).forEach(key => {
+                const newValue = newMetrics[clientName][key];
+                const prevValue = previousMetrics.current[clientName]?.[key];
+
+                // Only record POSITIVE changes when previous value exists
+                if (prevValue !== undefined && newValue > prevValue) {
+                    changes[clientName][key] = {
+                        value: newValue - prevValue,
+                        timestamp: Date.now()
+                    };
+                }
+            });
+        });
+
+        // ATOMIC UPDATE: Replace previous metrics with new metrics
+        previousMetrics.current = newMetrics;
 
         return changes;
     };

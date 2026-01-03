@@ -3,7 +3,6 @@ import { compareVeri, memorizeComponent } from "@/hooks/useMemoComponent";
 import { ResourceAction } from "@/redux/reducers/slice";
 import TabComponent from "../../../common/TabComponent";
 import ComponentTrigger from './Trigger';
-import { EForm } from "../../../common/e-components/EForm";
 
 
 type GeneralProps = {
@@ -19,23 +18,21 @@ type GeneralProps = {
 
 const ComponentTriggers: React.FC<GeneralProps> = ({ veri }) => {
     return (
-        <EForm>
-            <TabComponent veri={{
+        <TabComponent veri={{
+            version: veri.version,
+            title: veri.title,
+            reduxStore: veri.reduxStore,
+            keyPrefix: `${veri.keyPrefix}`,
+            label: 'Trigger',
+            component: ComponentTrigger,
+            veri: {
                 version: veri.version,
-                title: veri.title,
                 reduxStore: veri.reduxStore,
-                keyPrefix: `${veri.keyPrefix}`,
-                label: 'Trigger',
-                component: ComponentTrigger,
-                veri: {
-                    version: veri.version,
-                    reduxStore: veri.reduxStore,
-                    reduxAction: ResourceAction,
-                    keyPrefix: veri.keyPrefix,
-                    tagMatchPrefix: veri.tagMatchPrefix,
-                }
-            }} />
-        </EForm>
+                reduxAction: ResourceAction,
+                keyPrefix: veri.keyPrefix,
+                tagMatchPrefix: veri.tagMatchPrefix,
+            }
+        }} />
     )
 };
 
