@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, Tabs, Typography, Space } from 'antd';
-import { UserOutlined, TeamOutlined, ProjectOutlined, SettingOutlined, AppstoreOutlined, KeyOutlined, RobotOutlined, CloudOutlined, SafetyOutlined, ToolOutlined } from '@ant-design/icons';
+import { UserOutlined, TeamOutlined, ProjectOutlined, SettingOutlined, AppstoreOutlined, KeyOutlined, RobotOutlined, CloudOutlined, SafetyOutlined, ToolOutlined, GlobalOutlined } from '@ant-design/icons';
 import { useSearchParams } from 'react-router-dom';
 import General from './General';
 import Users from './users';
@@ -10,6 +10,7 @@ import AI from './AI';
 import Tokens from './Tokens';
 import CloudsConfig from './CloudsConfig';
 import LdapConfig from './LdapConfig';
+import GSLBConfig from './GSLBConfig';
 import Maintenance from './Maintenance';
 
 const { Title, Text } = Typography;
@@ -111,6 +112,16 @@ const Settings: React.FC = () => {
                 </span>
             ),
             children: <LdapConfig />
+        },
+        {
+            key: 'gslb',
+            label: (
+                <span className="tabLabel">
+                    <GlobalOutlined style={{ fontSize: 18 }} />
+                    GSLB
+                </span>
+            ),
+            children: <GSLBConfig />
         },
         {
             key: 'maintenance',

@@ -788,20 +788,20 @@ com-1password-button {
 
 /* Modern Error Notification Styles - Glass Morphism */
 .modern-error-notification {
-    background: linear-gradient(135deg, 
+    background: linear-gradient(135deg,
         rgba(255, 240, 245, 0.9) 0%,
         rgba(255, 245, 248, 0.85) 100%) !important;
     backdrop-filter: blur(16px) saturate(150%) !important;
     border: 1px solid rgba(255, 182, 193, 0.3) !important;
     border-left: 4px solid #ff4757 !important;
     border-radius: 12px !important;
-    box-shadow: 
+    box-shadow:
         0 8px 32px rgba(255, 71, 87, 0.1),
         0 4px 16px rgba(0, 0, 0, 0.05),
         inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
     overflow: hidden !important;
     animation: slideInGlass 0.5s ease-out !important;
-    margin: 8px !important;
+    margin: 0 8px 0 8px !important;
     position: relative !important;
     min-width: 500px !important;
     max-width: 600px !important;
@@ -813,20 +813,36 @@ com-1password-button {
     box-shadow: none !important;
     border: none !important;
     padding: 0 !important;
-    margin: 0 !important;
+    margin-bottom: 0 !important;
 }
 
 /* Remove container backgrounds */
 .ant-notification {
     background: transparent !important;
+    gap: 16px !important;
+    display: flex !important;
+    flex-direction: column !important;
 }
 
 .ant-notification .ant-notification-notice {
-    margin-bottom: 16px !important;
+    margin-bottom: 0 !important;
 }
 
-.modern-error-notification.ant-notification-notice-wrapper {
+.ant-notification-stack {
+    gap: 16px !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.ant-notification-stack .ant-notification-notice {
+    margin-bottom: 0 !important;
+}
+
+.modern-error-notification.ant-notification-notice-wrapper,
+.modern-warning-notification.ant-notification-notice-wrapper,
+.modern-success-notification.ant-notification-notice-wrapper {
     background: transparent !important;
+    margin: 0 !important;
 }
 
 .modern-error-notification .ant-notification-notice-content {
@@ -959,20 +975,20 @@ com-1password-button {
 
 /* Modern Warning Notification Styles */
 .modern-warning-notification {
-    background: linear-gradient(135deg, 
+    background: linear-gradient(135deg,
         rgba(255, 248, 220, 0.9) 0%,
         rgba(255, 251, 235, 0.85) 100%) !important;
     backdrop-filter: blur(16px) saturate(150%) !important;
     border: 1px solid rgba(255, 193, 7, 0.3) !important;
     border-left: 4px solid #faad14 !important;
     border-radius: 12px !important;
-    box-shadow: 
+    box-shadow:
         0 8px 32px rgba(250, 173, 20, 0.1),
         0 4px 16px rgba(0, 0, 0, 0.05),
         inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
     overflow: hidden !important;
     animation: slideInGlass 0.5s ease-out !important;
-    margin: 8px !important;
+    margin: 0 8px 0 8px !important;
     position: relative !important;
     min-width: 500px !important;
     max-width: 600px !important;
@@ -1082,20 +1098,20 @@ com-1password-button {
 
 /* Modern Success Notification Styles */
 .modern-success-notification {
-    background: linear-gradient(135deg, 
+    background: linear-gradient(135deg,
         rgba(246, 255, 237, 0.9) 0%,
         rgba(251, 255, 248, 0.85) 100%) !important;
     backdrop-filter: blur(16px) saturate(150%) !important;
     border: 1px solid rgba(82, 196, 26, 0.3) !important;
     border-left: 4px solid #52c41a !important;
     border-radius: 12px !important;
-    box-shadow: 
+    box-shadow:
         0 8px 32px rgba(82, 196, 26, 0.1),
         0 4px 16px rgba(0, 0, 0, 0.05),
         inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
     overflow: hidden !important;
     animation: slideInGlass 0.5s ease-out !important;
-    margin: 8px !important;
+    margin: 0 8px 0 8px !important;
     position: relative !important;
     min-width: 500px !important;
     max-width: 600px !important;

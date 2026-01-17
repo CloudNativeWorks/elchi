@@ -22,6 +22,7 @@ export const ConnectionFlowSankey: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [dependencies, setDependencies] = useState<DependencyApiResponse | null>(null);
   const [listenerInfo, setListenerInfo] = useState<{ name: string; version: string } | null>(null);
+  const [selectedListenerName, setSelectedListenerName] = useState<string | null>(null);
 
   useEffect(() => {
     if (!project) return;
@@ -29,9 +30,6 @@ export const ConnectionFlowSankey: React.FC = () => {
     const fetchDependencies = async () => {
       try {
         setLoading(true);
-        // Clear previous data first
-        setDependencies(null);
-        setListenerInfo(null);
 
         // Get all listeners
         const listenersRes = await api.get(`/api/v3/xds/listeners?project=${project}`);
@@ -39,13 +37,28 @@ export const ConnectionFlowSankey: React.FC = () => {
 
         if (!Array.isArray(allListeners) || allListeners.length === 0) {
           setLoading(false);
+          setDependencies(null);
+          setListenerInfo(null);
+          setSelectedListenerName(null);
           return;
         }
 
-        // Pick a random listener
-        const randomListener = allListeners[Math.floor(Math.random() * allListeners.length)];
-        const listenerName = randomListener.name;
-        const version = randomListener.version || 'v1.33.5';
+        // Pick a listener: use selected one if exists, otherwise pick the first one (deterministic)
+        let listenerToUse = allListeners[0];
+
+        if (selectedListenerName) {
+          // Try to find the previously selected listener
+          const found = allListeners.find((l: any) => l.name === selectedListenerName);
+          if (found) {
+            listenerToUse = found;
+          }
+        } else {
+          // First time: pick the first listener and remember it
+          setSelectedListenerName(listenerToUse.name);
+        }
+
+        const listenerName = listenerToUse.name;
+        const version = listenerToUse.version || 'v1.33.5';
 
         // Save listener info for expand button
         setListenerInfo({ name: listenerName, version });
@@ -73,7 +86,7 @@ export const ConnectionFlowSankey: React.FC = () => {
 
     fetchDependencies();
     // No interval - only fetches on mount or when global refresh triggered
-  }, [project, refreshTrigger]);
+  }, [project, refreshTrigger, selectedListenerName]);
 
   const handleExpand = () => {
     if (listenerInfo) {

@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { Card, Typography, Space, Button } from 'antd';
-import { SaveOutlined, DeleteOutlined, SafetyOutlined } from '@ant-design/icons';
+import { SaveOutlined, DeleteOutlined, FireOutlined } from '@ant-design/icons';
 import ElchiButton from '@/elchi/components/common/ElchiButton';
 
 const { Title } = Typography;
@@ -35,7 +35,7 @@ const WafHeader: React.FC<WafHeaderProps> = ({
         >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Space size="middle">
-                    <SafetyOutlined style={{ color: '#52c41a', fontSize: 28 }} />
+                    <FireOutlined style={{ color: '#ff4d4f', fontSize: 28 }} />
                     <Title level={3} style={{ margin: 0 }}>
                         {title}
                     </Title>

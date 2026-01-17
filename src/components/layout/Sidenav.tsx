@@ -26,7 +26,8 @@ import {
     RobotOutlined,
     ScheduleOutlined,
     DatabaseOutlined,
-    AuditOutlined
+    AuditOutlined,
+    FireOutlined
 } from '@ant-design/icons';
 import { useProjectVariable } from "@/hooks/useProjectVariable";
 import { UserDetail } from "@/common/types";
@@ -150,8 +151,14 @@ const menuConfig = [
 	{
 		key: "/waf",
 		to: "/waf",
-		icon: "SafetyOutlined",
+		icon: "FireOutlined",
 		label: "WAF",
+	},
+	{
+		key: "/gslb",
+		to: "/gslb",
+		icon: "GlobalOutlined",
+		label: "GSLB",
 	},
 	{
 		key: "/acme",
@@ -229,6 +236,7 @@ const iconMap = {
 	ScheduleOutlined: ScheduleOutlined,
 	DatabaseOutlined: DatabaseOutlined,
 	AuditOutlined: AuditOutlined,
+	FireOutlined: FireOutlined,
 };
 
 function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
