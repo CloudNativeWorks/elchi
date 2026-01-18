@@ -57,7 +57,7 @@ function rehypeLinkifyCode() {
                                     href: url,
                                     target: '_blank',
                                     rel: 'noopener noreferrer',
-                                    style: 'color: #1890ff; text-decoration: underline;',
+                                    style: 'color: var(--color-primary); text-decoration: underline;',
                                 },
                                 children: [{ type: 'text', value: url }]
                             },
@@ -76,11 +76,12 @@ const components = {
         if (className === 'note') {
             return (
                 <div style={{
-                    backgroundColor: '#e0f7fa',
+                    backgroundColor: 'var(--note-bg, #e0f7fa)',
                     padding: '10px',
-                    borderLeft: '5px solid #00796b',
+                    borderLeft: '5px solid var(--note-border, #00796b)',
                     borderRadius: '4px',
                     margin: '10px 0',
+                    color: 'var(--text-primary)',
                 }}>
                     <strong>Note:</strong> {children}
                 </div>
@@ -88,10 +89,10 @@ const components = {
         } else if (className === 'warning') {
             return (
                 <div style={{
-                    backgroundColor: '#dc4d05',
+                    backgroundColor: 'var(--warning-bg, #dc4d05)',
                     padding: '10px',
-                    borderLeft: '5px solid #b94003',
-                    color: '#000000',
+                    borderLeft: '5px solid var(--warning-border, #b94003)',
+                    color: 'var(--warning-text, #000000)',
                     borderRadius: '4px',
                     margin: '10px 0',
                 }}>
@@ -101,10 +102,10 @@ const components = {
         } else if (className === 'attention') {
             return (
                 <div style={{
-                    backgroundColor: '#f2e700',
+                    backgroundColor: 'var(--attention-bg, #f2e700)',
                     padding: '10px',
-                    borderLeft: '5px solid #c2ba05',
-                    color: '#000000',
+                    borderLeft: '5px solid var(--attention-border, #c2ba05)',
+                    color: 'var(--attention-text, #000000)',
                     borderRadius: '4px',
                     margin: '10px 0',
                 }}>
@@ -120,11 +121,11 @@ const components = {
             return (
                 <code
                     style={{
-                        backgroundColor: '#f5f6f7',
+                        backgroundColor: 'var(--code-inline-bg, #f5f6f7)',
                         padding: '2px 4px',
                         borderRadius: '4px',
                         fontFamily: 'monospace',
-                        color: '#d6336c',
+                        color: 'var(--code-inline-color, #d6336c)',
                         fontWeight: 'bold',
                     }}
                 >
@@ -151,11 +152,11 @@ const components = {
         return (
             <code
                 style={{
-                    backgroundColor: '#185b9e',
+                    backgroundColor: 'var(--code-block-bg, #185b9e)',
                     padding: '2px 4px',
                     borderRadius: '4px',
                     fontFamily: 'monospace',
-                    color: '#ffffff',
+                    color: 'var(--code-block-color, #ffffff)',
                     fontWeight: 'bold',
                 }}
             >
@@ -191,8 +192,8 @@ const FieldInfo: React.FC<StringMatcherProps> = ({ data }) => {
 
                 return (
                     <div key={field.name} style={{ marginBottom: '0px' }}>
-                        <div style={{ backgroundColor: '#f5f6f7', padding: '8px', borderRadius: '4px' }}>
-                            <Text strong>
+                        <div style={{ backgroundColor: 'var(--bg-surface)', padding: '8px', borderRadius: '4px' }}>
+                            <Text strong style={{ color: 'var(--text-primary)' }}>
                                 {formatFieldName(field.name)}: ({field.fieldType})
                             </Text>
                             {field.isDeprecated && (
@@ -202,7 +203,7 @@ const FieldInfo: React.FC<StringMatcherProps> = ({ data }) => {
                             )}
                         </div>
                         <div style={{ marginTop: '1px', paddingBottom: '10px', display: 'block', textAlign: 'left', minHeight: '50px', justifyContent: 'center' }}>
-                            <div style={{ borderLeft: '2px solid #ccc', paddingLeft: '10px', width: '100%', backgroundColor: '#f9f9f9' }}>
+                            <div style={{ borderLeft: '2px solid var(--border-default)', paddingLeft: '10px', width: '100%', backgroundColor: 'var(--card-bg)' }}>
                                 <ReactMarkdown
                                     remarkPlugins={[remarkDirective, customNotesPlugin, remarkGfm]}
                                     rehypePlugins={[rehypeRaw, rehypeLinkifyCode]}

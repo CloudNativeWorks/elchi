@@ -31,15 +31,15 @@ const CurrentComponentCardRedux: React.FC<CurrentComponentCardReduxProps> = ({
     const managed = useSelector(selectManaged);
 
     return (
-        <Card 
-            style={{ 
-                border: '1px solid #1890ff',
-                boxShadow: '0 2px 8px rgba(24, 144, 255, 0.1)' 
+        <Card
+            style={{
+                border: '1px solid var(--border-default)',
+                boxShadow: '0 2px 8px var(--shadow-sm)'
             }}
             title={
-                <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
                     alignItems: 'center',
                     width: '100%'
                 }}>
@@ -62,7 +62,7 @@ const CurrentComponentCardRedux: React.FC<CurrentComponentCardReduxProps> = ({
                         {componentDef.description}
                     </Text>
                 </div>
-                
+
                 <div style={{ display: 'grid', gap: '16px' }}>
                     {currentComponent.selected_fields.map((selectedField, index) => {
                         const fieldDef = componentDef.available_fields.find(f => f.name === selectedField.field_name);

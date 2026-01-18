@@ -98,18 +98,18 @@ const SelectVersion = <T,>({ setState, currentState, GType }: RenderFormItemProp
         if (GType.module && multipleResource[GType.module]) {
             const config = multipleResource[GType.module];
             return (
-                <div style={{ 
-                    padding: '20px', 
-                    background: '#fafafa', 
+                <div style={{
+                    padding: '20px',
+                    background: 'var(--bg-surface)',
                     borderRadius: '8px',
-                    border: '1px solid #f0f0f0',
+                    border: '1px solid var(--border-default)',
                     marginBottom: '16px'
                 }}>
-                    <Text strong style={{ 
+                    <Text strong style={{
                         fontSize: '15px',
-                        color: '#262626',
-                        marginBottom: 12, 
-                        display: 'block' 
+                        color: 'var(--text-primary)',
+                        marginBottom: 12,
+                        display: 'block'
                     }}>
                         🔧 {config.name}
                     </Text>
@@ -146,12 +146,12 @@ const SelectVersion = <T,>({ setState, currentState, GType }: RenderFormItemProp
                 }
             }}
             footer={[
-                <div key={`footer_${GType.module}`} style={{ 
-                    display: 'flex', 
-                    justifyContent: 'flex-end', 
+                <div key={`footer_${GType.module}`} style={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
                     gap: 12,
                     paddingTop: 16,
-                    borderTop: '1px solid #f0f0f0',
+                    borderTop: '1px solid var(--border-default)',
                     marginTop: 24
                 }}>
                     <ElchiButton onlyText onClick={() => navigate(-1)}>Cancel</ElchiButton>
@@ -161,7 +161,7 @@ const SelectVersion = <T,>({ setState, currentState, GType }: RenderFormItemProp
         >
             <div style={{ padding: '8px 0' }}>
                 <div style={{ marginBottom: 32 }}>
-                    <Title level={4} style={{ marginBottom: 8, color: '#262626' }}>
+                    <Title level={4} style={{ marginBottom: 8, color: 'var(--text-primary)' }}>
                         Configure Resource Creation
                     </Title>
                     <Text type="secondary" style={{ fontSize: '14px' }}>
@@ -171,17 +171,17 @@ const SelectVersion = <T,>({ setState, currentState, GType }: RenderFormItemProp
 
                 <Space direction="vertical" size="large" style={{ width: '100%' }}>
                     {/* Version Selection */}
-                    <div style={{ 
-                        padding: '20px', 
-                        background: '#fafafa', 
+                    <div style={{
+                        padding: '20px',
+                        background: 'var(--bg-surface)',
                         borderRadius: '8px',
-                        border: '1px solid #f0f0f0'
+                        border: '1px solid var(--border-default)'
                     }}>
-                        <Text strong style={{ 
+                        <Text strong style={{
                             fontSize: '15px',
-                            color: '#262626',
-                            marginBottom: 12, 
-                            display: 'block' 
+                            color: 'var(--text-primary)',
+                            marginBottom: 12,
+                            display: 'block'
                         }}>
                             🚀 Version
                             {GType.availableVersions.length === 1 && selectedVersion && (

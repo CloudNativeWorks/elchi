@@ -39,9 +39,9 @@ const QuickStart: React.FC = () => {
     });
 
     return (
-        <div style={{ 
+        <div style={{
             padding: '20px',
-            background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+            background: 'var(--gradient-background)',
             minHeight: '100vh'
         }}>
 
@@ -68,7 +68,7 @@ const QuickStart: React.FC = () => {
                     </div>
                     <div>
                         <Title level={4} style={{ 
-                            color: '#2c3e50', 
+                            color: 'var(--text-primary)', 
                             margin: 0,
                             fontSize: 24,
                             fontWeight: 600
@@ -76,7 +76,7 @@ const QuickStart: React.FC = () => {
                             Scenarios
                         </Title>
                         <Text style={{ 
-                            color: '#64748b', 
+                            color: 'var(--text-secondary)', 
                             fontSize: 14 
                         }}>
                             Build custom proxy configurations with template-based approach
@@ -95,20 +95,20 @@ const QuickStart: React.FC = () => {
                         size="small"
                         style={{
                             borderRadius: 12,
-                            border: '2px dashed #d1d5db',
+                            border: '2px dashed var(--border-default)',
                             overflow: 'hidden',
                             transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-                            background: 'white',
+                            background: 'var(--card-bg)',
                             cursor: 'pointer'
                         }}
                         styles={{ body: { padding: '24px', textAlign: 'center' } }}
                         onMouseEnter={(e) => {
-                            e.currentTarget.style.borderColor = '#667eea';
+                            e.currentTarget.style.borderColor = 'var(--color-primary)';
                             e.currentTarget.style.transform = 'translateY(-2px)';
-                            e.currentTarget.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.15)';
+                            e.currentTarget.style.boxShadow = '0 8px 25px var(--shadow-primary)';
                         }}
                         onMouseLeave={(e) => {
-                            e.currentTarget.style.borderColor = '#d1d5db';
+                            e.currentTarget.style.borderColor = 'var(--border-default)';
                             e.currentTarget.style.transform = 'translateY(0)';
                             e.currentTarget.style.boxShadow = 'none';
                         }}
@@ -130,7 +130,7 @@ const QuickStart: React.FC = () => {
                                     <PlusOutlined />
                                 </div>
                                 <Title level={5} style={{ 
-                                    color: '#374151', 
+                                    color: 'var(--text-primary)', 
                                     margin: '0 0 8px 0',
                                     fontSize: 16,
                                     fontWeight: 600
@@ -138,7 +138,7 @@ const QuickStart: React.FC = () => {
                                     Create New Scenario
                                 </Title>
                                 <Text style={{ 
-                                    color: '#6b7280', 
+                                    color: 'var(--text-secondary)', 
                                     fontSize: 13,
                                     lineHeight: 1.4
                                 }}>
@@ -153,20 +153,20 @@ const QuickStart: React.FC = () => {
                         size="small"
                         style={{
                             borderRadius: 12,
-                            border: '1px solid #e5e7eb',
+                            border: '1px solid var(--border-default)',
                             overflow: 'hidden',
                             transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-                            background: 'white',
+                            background: 'var(--card-bg)',
                             cursor: 'pointer'
                         }}
                         styles={{ body: { padding: '24px', textAlign: 'center' } }}
                         onMouseEnter={(e) => {
-                            e.currentTarget.style.borderColor = '#667eea';
+                            e.currentTarget.style.borderColor = 'var(--color-primary)';
                             e.currentTarget.style.transform = 'translateY(-2px)';
-                            e.currentTarget.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.15)';
+                            e.currentTarget.style.boxShadow = '0 8px 25px var(--shadow-primary)';
                         }}
                         onMouseLeave={(e) => {
-                            e.currentTarget.style.borderColor = '#e5e7eb';
+                            e.currentTarget.style.borderColor = 'var(--border-default)';
                             e.currentTarget.style.transform = 'translateY(0)';
                             e.currentTarget.style.boxShadow = 'none';
                         }}
@@ -188,7 +188,7 @@ const QuickStart: React.FC = () => {
                                     <FileTextOutlined />
                                 </div>
                                 <Title level={5} style={{ 
-                                    color: '#374151', 
+                                    color: 'var(--text-primary)', 
                                     margin: '0 0 8px 0',
                                     fontSize: 16,
                                     fontWeight: 600
@@ -196,7 +196,7 @@ const QuickStart: React.FC = () => {
                                     Manage Scenarios
                                 </Title>
                                 <Text style={{ 
-                                    color: '#6b7280', 
+                                    color: 'var(--text-secondary)', 
                                     fontSize: 13,
                                     lineHeight: 1.4
                                 }}>
@@ -211,7 +211,7 @@ const QuickStart: React.FC = () => {
             {/* Templates Section Header */}
             <div style={{ marginBottom: 24 }}>
                 <Title level={4} style={{ 
-                    color: '#2c3e50', 
+                    color: 'var(--text-primary)', 
                     margin: '0 0 8px 0',
                     fontSize: 18,
                     fontWeight: 600
@@ -219,7 +219,7 @@ const QuickStart: React.FC = () => {
                     Ready-to-Use Templates
                 </Title>
                 <Text style={{ 
-                    color: '#64748b', 
+                    color: 'var(--text-secondary)', 
                     fontSize: 14 
                 }}>
                     Begin with ready-to-use templates for common proxy configuration patterns.
@@ -238,22 +238,22 @@ const QuickStart: React.FC = () => {
                         size="small"
                         style={{
                             borderRadius: 10,
-                            border: '1px solid #e8e8e8',
+                            border: '1px solid var(--border-default)',
                             overflow: 'hidden',
                             transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
                             boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
-                            background: 'white'
+                            background: 'var(--card-bg)'
                         }}
                         styles={{ body: { padding: '16px', height: '100%', display: 'flex', flexDirection: 'column' } }}
                         onMouseEnter={(e) => {
                             e.currentTarget.style.transform = 'translateY(-2px)';
-                            e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.1)';
-                            e.currentTarget.style.borderColor = '#056ccd';
+                            e.currentTarget.style.boxShadow = '0 6px 20px var(--shadow-card-hover)';
+                            e.currentTarget.style.borderColor = 'var(--color-primary)';
                         }}
                         onMouseLeave={(e) => {
                             e.currentTarget.style.transform = 'translateY(0)';
-                            e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.04)';
-                            e.currentTarget.style.borderColor = '#e8e8e8';
+                            e.currentTarget.style.boxShadow = '0 1px 4px var(--shadow-card)';
+                            e.currentTarget.style.borderColor = 'var(--border-default)';
                         }}
                     >
                         {/* Header */}
@@ -268,11 +268,11 @@ const QuickStart: React.FC = () => {
                                     width: 32,
                                     height: 32,
                                     borderRadius: 8,
-                                    background: '#056ccd15',
+                                    background: 'var(--color-primary-light)',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    color: '#056ccd',
+                                    color: 'var(--color-primary)',
                                     fontSize: 14
                                 }}>
                                     <RocketOutlined />
@@ -281,7 +281,7 @@ const QuickStart: React.FC = () => {
                                     <Title 
                                         level={5} 
                                         style={{ 
-                                            color: '#2c3e50', 
+                                            color: 'var(--text-primary)', 
                                             margin: 0,
                                             fontSize: 14,
                                             fontWeight: 600,
@@ -298,13 +298,13 @@ const QuickStart: React.FC = () => {
                                 display: 'inline-flex',
                                 alignItems: 'center',
                                 gap: 4,
-                                background: '#056ccd10',
+                                background: 'var(--color-primary-light)',
                                 padding: '2px 8px',
                                 borderRadius: 12,
                                 fontSize: 11,
                                 fontWeight: 500,
-                                color: '#056ccd',
-                                border: '1px solid #056ccd20'
+                                color: 'var(--color-primary)',
+                                border: '1px solid var(--color-primary-border)'
                             }}>
                                 <SettingOutlined style={{ fontSize: 10 }} />
                                 {template.components?.length || 0}
@@ -314,7 +314,7 @@ const QuickStart: React.FC = () => {
                         {/* Content */}
                         <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                             <Text style={{
-                                color: '#64748b',
+                                color: 'var(--text-secondary)',
                                 fontSize: 13,
                                 lineHeight: 1.5,
                                 display: 'block',
@@ -326,17 +326,17 @@ const QuickStart: React.FC = () => {
                             {/* Components Preview */}
                             {template.components && template.components.length > 0 && (
                                 <div style={{
-                                    background: '#f8f9fa',
+                                    background: 'var(--bg-hover)',
                                     borderRadius: 6,
                                     padding: '12px',
                                     marginBottom: 16,
-                                    border: '1px solid #e2e8f0',
+                                    border: '1px solid var(--border-default)',
                                     flex: 1
                                 }}>
                                     <div style={{
                                         fontSize: 11,
                                         fontWeight: 600,
-                                        color: '#475569',
+                                        color: 'var(--text-secondary)',
                                         marginBottom: 8,
                                         textTransform: 'uppercase',
                                         letterSpacing: '0.5px'
@@ -352,13 +352,13 @@ const QuickStart: React.FC = () => {
                                             <span
                                                 key={idx}
                                                 style={{
-                                                    background: '#e6f7ff',
-                                                    color: '#056ccd',
+                                                    background: 'var(--tag-info-bg)',
+                                                    color: 'var(--color-primary)',
                                                     padding: '2px 6px',
                                                     borderRadius: 4,
                                                     fontSize: 10,
                                                     fontWeight: 500,
-                                                    border: '1px solid #bae7ff'
+                                                    border: '1px solid var(--tag-info-border)'
                                                 }}
                                             >
                                                 {component.type}: {component.name}
@@ -366,7 +366,7 @@ const QuickStart: React.FC = () => {
                                         ))}
                                         {template.components.length > 4 && (
                                             <span style={{
-                                                color: '#64748b',
+                                                color: 'var(--text-secondary)',
                                                 fontSize: 10,
                                                 fontWeight: 500,
                                                 padding: '2px 4px'
@@ -415,10 +415,10 @@ const QuickStart: React.FC = () => {
                         size="small"
                         style={{
                             borderRadius: 12,
-                            border: '2px dashed #d1d5db',
+                            border: '2px dashed var(--border-default)',
                             overflow: 'hidden',
                             transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-                            background: 'white',
+                            background: 'var(--card-bg)',
                             cursor: 'pointer',
                             height: '100%'
                         }}
@@ -434,12 +434,12 @@ const QuickStart: React.FC = () => {
                             } 
                         }}
                         onMouseEnter={(e) => {
-                            e.currentTarget.style.borderColor = '#667eea';
+                            e.currentTarget.style.borderColor = 'var(--color-primary)';
                             e.currentTarget.style.transform = 'translateY(-2px)';
-                            e.currentTarget.style.boxShadow = '0 8px 25px rgba(102, 126, 234, 0.15)';
+                            e.currentTarget.style.boxShadow = '0 8px 25px var(--shadow-primary)';
                         }}
                         onMouseLeave={(e) => {
-                            e.currentTarget.style.borderColor = '#d1d5db';
+                            e.currentTarget.style.borderColor = 'var(--border-default)';
                             e.currentTarget.style.transform = 'translateY(0)';
                             e.currentTarget.style.boxShadow = 'none';
                         }}
@@ -461,7 +461,7 @@ const QuickStart: React.FC = () => {
                                     <ArrowRightOutlined />
                                 </div>
                                 <Title level={5} style={{ 
-                                    color: '#374151', 
+                                    color: 'var(--text-primary)', 
                                     margin: '0 0 8px 0',
                                     fontSize: 16,
                                     fontWeight: 600
@@ -469,7 +469,7 @@ const QuickStart: React.FC = () => {
                                     View More Scenarios
                                 </Title>
                                 <Text style={{ 
-                                    color: '#6b7280', 
+                                    color: 'var(--text-secondary)', 
                                     fontSize: 13,
                                     lineHeight: 1.4
                                 }}>

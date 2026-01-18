@@ -152,7 +152,7 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                 content: (
                     <div>
                         <p>Elchi does not support version <strong>{version}</strong>.</p>
-                        <p style={{ marginTop: 12, fontSize: 13, color: '#666' }}>
+                        <p style={{ marginTop: 12, fontSize: 13, color: 'var(--text-secondary)' }}>
                             Supported versions: {supportedVersions.join(', ')}
                         </p>
                     </div>
@@ -319,7 +319,7 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
         {
             title: (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <CodeOutlined style={{ color: '#1890ff' }} />
+                    <CodeOutlined style={{ color: 'var(--color-primary)' }} />
                     <span>Version</span>
                 </div>
             ),
@@ -337,7 +337,7 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                                 strong
                                 style={{
                                     fontSize: 15,
-                                    color: isSupported ? '#1890ff' : '#bfbfbf'
+                                    color: isSupported ? 'var(--color-primary)' : 'var(--border-default)'
                                 }}
                             >
                                 {version}
@@ -346,7 +346,7 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                                 {isDownloaded && (
                                     <Badge
                                         status="success"
-                                        text={<Text style={{ fontSize: 11, color: '#52c41a' }}>Downloaded</Text>}
+                                        text={<Text style={{ fontSize: 11, color: 'var(--color-success)' }}>Downloaded</Text>}
                                     />
                                 )}
                                 {!isSupported && (
@@ -364,7 +364,7 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
         {
             title: (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <CalendarOutlined style={{ color: '#722ed1' }} />
+                    <CalendarOutlined style={{ color: 'var(--color-purple)' }} />
                     <span>Release Date</span>
                 </div>
             ),
@@ -469,7 +469,7 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
         {
             title: (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <CodeOutlined style={{ color: '#722ed1' }} />
+                    <CodeOutlined style={{ color: 'var(--color-purple)' }} />
                     <span>Version</span>
                 </div>
             ),
@@ -485,7 +485,7 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                                 strong
                                 style={{
                                     fontSize: 15,
-                                    color: '#722ed1'
+                                    color: 'var(--color-purple)'
                                 }}
                             >
                                 {version}
@@ -494,7 +494,7 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                                 {isDownloaded && (
                                     <Badge
                                         status="success"
-                                        text={<Text style={{ fontSize: 11, color: '#52c41a' }}>Downloaded</Text>}
+                                        text={<Text style={{ fontSize: 11, color: 'var(--color-success)' }}>Downloaded</Text>}
                                     />
                                 )}
                             </div>
@@ -506,7 +506,7 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
         {
             title: (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <CalendarOutlined style={{ color: '#722ed1' }} />
+                    <CalendarOutlined style={{ color: 'var(--color-purple)' }} />
                     <span>Release Date</span>
                 </div>
             ),
@@ -611,26 +611,26 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
             {/* Envoy Downloaded Versions Section */}
             <div style={{ marginBottom: 24 }}>
                 <div style={{
-                    background: 'white',
+                    background: 'var(--card-bg)',
                     borderRadius: 12,
-                    border: '1px solid #e5e7eb',
+                    border: '1px solid var(--border-default)',
                     boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
                     overflow: 'hidden'
                 }}>
                     {/* Header */}
                     <div style={{
-                        background: '#f9fafb',
-                        borderBottom: '1px solid #e5e7eb',
+                        background: 'var(--bg-surface)',
+                        borderBottom: '1px solid var(--border-default)',
                         padding: '6px 10px',
                         display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'center'
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                            <CloudDownloadOutlined style={{ fontSize: 18, color: '#6b7280' }} />
+                            <CloudDownloadOutlined style={{ fontSize: 18, color: 'var(--text-secondary)' }} />
                             <div>
-                                <Text strong style={{ fontSize: 16, color: '#111827' }}>Downloaded Versions</Text>
-                                <div style={{ fontSize: 13, color: '#6b7280', marginTop: 2 }}>
+                                <Text strong style={{ fontSize: 16, color: 'var(--text-primary)' }}>Downloaded Versions</Text>
+                                <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>
                                     {loadingCurrent ? 'Loading...' : `${currentVersions?.envoy_version?.downloaded_versions?.length || 0} versions available in client`}
                                 </div>
                             </div>
@@ -641,8 +641,8 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                             loading={envoyMutation.isPending || loadingCurrent}
                             style={{
                                 borderRadius: 6,
-                                border: '1px solid #d1d5db',
-                                color: '#374151'
+                                border: '1px solid var(--border-default)',
+                                color: 'var(--text-primary)'
                             }}
                         >
                             Refresh
@@ -654,14 +654,14 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                                 {currentVersions.envoy_version.downloaded_versions.map(version => (
                                     <div key={version} style={{
-                                        background: '#f3f4f6',
+                                        background: 'var(--bg-surface)',
                                         borderRadius: 16,
                                         padding: '6px 12px',
-                                        border: '1px solid #e5e7eb'
+                                        border: '1px solid var(--border-default)'
                                     }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                                             <CheckCircleOutlined style={{ fontSize: 12, color: '#10b981' }} />
-                                            <Text style={{ color: '#374151', fontSize: 13, fontWeight: 500 }}>
+                                            <Text style={{ color: 'var(--text-primary)', fontSize: 13, fontWeight: 500 }}>
                                                 {version}
                                             </Text>
                                         </div>
@@ -669,7 +669,7 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                                 ))}
                             </div>
                         ) : (
-                            <Text style={{ color: '#9ca3af', fontStyle: 'italic' }}>
+                            <Text style={{ color: 'var(--text-tertiary)', fontStyle: 'italic' }}>
                                 No versions downloaded yet
                             </Text>
                         )}
@@ -678,26 +678,26 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
             </div>
 
             <div style={{
-                background: 'white',
+                background: 'var(--card-bg)',
                 borderRadius: 12,
-                border: '1px solid #e5e7eb',
+                border: '1px solid var(--border-default)',
                 boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
                 overflow: 'hidden'
             }}>
                 {/* Header */}
                 <div style={{
-                    background: '#f9fafb',
-                    borderBottom: '1px solid #e5e7eb',
+                    background: 'var(--bg-surface)',
+                    borderBottom: '1px solid var(--border-default)',
                     padding: '16px 20px',
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center'
                 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <DownloadOutlined style={{ fontSize: 18, color: '#6b7280' }} />
+                        <DownloadOutlined style={{ fontSize: 18, color: 'var(--text-secondary)' }} />
                         <div>
-                            <Text strong style={{ fontSize: 16, color: '#111827' }}>Available Versions</Text>
-                            <div style={{ fontSize: 13, color: '#6b7280', marginTop: 2 }}>
+                            <Text strong style={{ fontSize: 16, color: 'var(--text-primary)' }}>Available Versions</Text>
+                            <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>
                                 Choose and install Envoy versions for this client
                             </div>
                         </div>
@@ -754,26 +754,26 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
             {/* Coroza Downloaded Versions Section */}
             <div style={{ marginBottom: 24 }}>
                 <div style={{
-                    background: 'white',
+                    background: 'var(--card-bg)',
                     borderRadius: 12,
-                    border: '1px solid #e5e7eb',
+                    border: '1px solid var(--border-default)',
                     boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
                     overflow: 'hidden'
                 }}>
                     {/* Header */}
                     <div style={{
-                        background: '#faf5ff',
-                        borderBottom: '1px solid #e5e7eb',
+                        background: 'var(--bg-surface)',
+                        borderBottom: '1px solid var(--border-default)',
                         padding: '6px 10px',
                         display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'center'
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                            <CloudDownloadOutlined style={{ fontSize: 18, color: '#722ed1' }} />
+                            <CloudDownloadOutlined style={{ fontSize: 18, color: 'var(--color-purple)' }} />
                             <div>
-                                <Text strong style={{ fontSize: 16, color: '#111827' }}>Downloaded Waf Engine Versions</Text>
-                                <div style={{ fontSize: 13, color: '#6b7280', marginTop: 2 }}>
+                                <Text strong style={{ fontSize: 16, color: 'var(--text-primary)' }}>Downloaded Waf Engine Versions</Text>
+                                <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>
                                     {loadingCurrentCoroza ? 'Loading...' : `${currentCorozaVersions?.waf_version?.downloaded_versions?.length || 0} Waf engine versions available in client`}
                                 </div>
                             </div>
@@ -784,8 +784,8 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                             loading={corozaMutation.isPending || loadingCurrentCoroza}
                             style={{
                                 borderRadius: 6,
-                                border: '1px solid #d1d5db',
-                                color: '#374151'
+                                border: '1px solid var(--border-default)',
+                                color: 'var(--text-primary)'
                             }}
                         >
                             Refresh
@@ -799,28 +799,28 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                                     const wasmPath = `/var/lib/elchi/waf/${version}/coraza.wasm`;
                                     return (
                                         <div key={version} style={{
-                                            background: '#faf5ff',
+                                            background: 'var(--bg-surface)',
                                             borderRadius: 12,
                                             padding: '12px 16px',
-                                            border: '1px solid #e9d5ff',
+                                            border: '1px solid var(--border-default)',
                                             display: 'flex',
                                             justifyContent: 'space-between',
                                             alignItems: 'center'
                                         }}>
                                             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                                    <CheckCircleOutlined style={{ fontSize: 14, color: '#722ed1' }} />
-                                                    <Text strong style={{ color: '#722ed1', fontSize: 14 }}>
+                                                    <CheckCircleOutlined style={{ fontSize: 14, color: 'var(--color-purple)' }} />
+                                                    <Text strong style={{ color: 'var(--color-purple)', fontSize: 14 }}>
                                                         {version}
                                                     </Text>
                                                 </div>
                                                 <div style={{
-                                                    background: '#f3f4f6',
+                                                    background: 'var(--bg-surface)',
                                                     padding: '4px 10px',
                                                     borderRadius: 6,
                                                     fontFamily: 'monospace',
                                                     fontSize: 12,
-                                                    color: '#374151',
+                                                    color: 'var(--text-primary)',
                                                     display: 'inline-block',
                                                     width: 'fit-content'
                                                 }}>
@@ -836,7 +836,7 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                                                     }}
                                                     style={{
                                                         borderRadius: 6,
-                                                        color: '#722ed1',
+                                                        color: 'var(--color-purple)',
                                                         borderColor: '#722ed1'
                                                     }}
                                                 >
@@ -848,7 +848,7 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                                 })}
                             </div>
                         ) : (
-                            <Text style={{ color: '#9ca3af', fontStyle: 'italic' }}>
+                            <Text style={{ color: 'var(--text-tertiary)', fontStyle: 'italic' }}>
                                 No Coroza versions downloaded yet
                             </Text>
                         )}
@@ -858,26 +858,26 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
 
             {/* Available Coroza Versions Table */}
             <div style={{
-                background: 'white',
+                background: 'var(--card-bg)',
                 borderRadius: 12,
-                border: '1px solid #e5e7eb',
+                border: '1px solid var(--border-default)',
                 boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
                 overflow: 'hidden'
             }}>
                 {/* Header */}
                 <div style={{
-                    background: '#faf5ff',
-                    borderBottom: '1px solid #e5e7eb',
+                    background: 'var(--bg-surface)',
+                    borderBottom: '1px solid var(--border-default)',
                     padding: '16px 20px',
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center'
                 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <DownloadOutlined style={{ fontSize: 18, color: '#722ed1' }} />
+                        <DownloadOutlined style={{ fontSize: 18, color: 'var(--color-purple)' }} />
                         <div>
-                            <Text strong style={{ fontSize: 16, color: '#111827' }}>Available Waf Engine Versions</Text>
-                            <div style={{ fontSize: 13, color: '#6b7280', marginTop: 2 }}>
+                            <Text strong style={{ fontSize: 16, color: 'var(--text-primary)' }}>Available Waf Engine Versions</Text>
+                            <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>
                                 Choose and install WAF engine versions for this client
                             </div>
                         </div>
@@ -947,7 +947,7 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                     key: 'coroza',
                     label: (
                         <span style={{ fontSize: 12, fontWeight: 500 }}>
-                            <FileZipOutlined style={{ marginRight: 8, color: '#722ed1' }} />
+                            <FileZipOutlined style={{ marginRight: 8, color: 'var(--color-purple)' }} />
                             WAF Engine
                         </span>
                     ),

@@ -331,7 +331,7 @@ const JobList: React.FC = () => {
             width: 80,
             render: (_: any, job: BackgroundJob) => (
                 <Space>
-                    <UserOutlined style={{ color: '#1890ff' }} />
+                    <UserOutlined style={{ color: 'var(--color-primary)' }} />
                     <Space direction="vertical" size="small">
                         <Text strong style={{ fontSize: 12 }}>
                             {job.metadata.trigger_user.display_name || job.metadata.trigger_user.username}
@@ -357,7 +357,7 @@ const JobList: React.FC = () => {
                                 percent={job.progress.percentage}
                                 size="small"
                                 status={job.status === 'FAILED' ? 'exception' : job.status === 'COMPLETED' ? 'success' : 'active'}
-                                strokeColor={job.status === 'COMPLETED' ? '#52c41a' : undefined}
+                                strokeColor={job.status === 'COMPLETED' ? 'var(--color-success)' : undefined}
                             />
                             <Text style={{ fontSize: 11 }}>
                                 {job.status === 'COMPLETED' ? 'Verified' : job.status === 'FAILED' ? 'Failed' : 'Verifying...'}
@@ -372,7 +372,7 @@ const JobList: React.FC = () => {
                             percent={job.progress.percentage}
                             size="small"
                             status={job.status === 'FAILED' ? 'exception' : job.progress.percentage === 100 ? 'success' : 'active'}
-                            strokeColor={job.progress.percentage === 100 ? '#52c41a' : undefined}
+                            strokeColor={job.progress.percentage === 100 ? 'var(--color-success)' : undefined}
                         />
                         <Text style={{ fontSize: 11 }}>
                             {job.progress.percentage === 100 ? (
@@ -399,7 +399,7 @@ const JobList: React.FC = () => {
             <div style={{ marginBottom: 16 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <Space>
-                        <ScheduleOutlined style={{ color: '#1890ff', fontSize: 24 }} />
+                        <ScheduleOutlined style={{ color: 'var(--color-primary)', fontSize: 24 }} />
                         <Title level={4} style={{ margin: 0 }}>Background Jobs</Title>
                     </Space>
                     <Space>
@@ -438,10 +438,10 @@ const JobList: React.FC = () => {
                                     size="small"
                                     style={{ borderRadius: 8, textAlign: 'center', padding: '8px 0', height: '100%' }}
                                 >
-                                    <div style={{ fontSize: 20, fontWeight: 600, color: '#1890ff' }}>
+                                    <div style={{ fontSize: 20, fontWeight: 600, color: 'var(--color-primary)' }}>
                                         {stats.data?.total_jobs?.toLocaleString() || 0}
                                     </div>
-                                    <div style={{ fontSize: 11, color: '#8c8c8c', marginTop: 2 }}>
+                                    <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>
                                         <ScheduleOutlined style={{ marginRight: 3, fontSize: 10 }} />
                                         Total Jobs
                                     </div>
@@ -452,10 +452,10 @@ const JobList: React.FC = () => {
                                     size="small"
                                     style={{ borderRadius: 8, textAlign: 'center', padding: '8px 0', height: '100%' }}
                                 >
-                                    <div style={{ fontSize: 20, fontWeight: 600, color: '#52c41a' }}>
+                                    <div style={{ fontSize: 20, fontWeight: 600, color: 'var(--color-success)' }}>
                                         {stats.data?.active_workers || 0}
                                     </div>
-                                    <div style={{ fontSize: 11, color: '#8c8c8c', marginTop: 2 }}>
+                                    <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>
                                         <PlayCircleOutlined style={{ marginRight: 3, fontSize: 10 }} />
                                         Workers
                                     </div>
@@ -466,10 +466,10 @@ const JobList: React.FC = () => {
                                     size="small"
                                     style={{ borderRadius: 8, textAlign: 'center', padding: '8px 0', height: '100%' }}
                                 >
-                                    <div style={{ fontSize: 20, fontWeight: 600, color: '#faad14' }}>
+                                    <div style={{ fontSize: 20, fontWeight: 600, color: 'var(--color-warning)' }}>
                                         {stats.data?.queue_size || 0}
                                     </div>
-                                    <div style={{ fontSize: 11, color: '#8c8c8c', marginTop: 2 }}>
+                                    <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>
                                         <ClockCircleOutlined style={{ marginRight: 3, fontSize: 10 }} />
                                         Queue
                                     </div>
@@ -480,10 +480,10 @@ const JobList: React.FC = () => {
                                     size="small"
                                     style={{ borderRadius: 8, textAlign: 'center', padding: '8px 0', height: '100%' }}
                                 >
-                                    <div style={{ fontSize: 20, fontWeight: 600, color: '#722ed1' }}>
+                                    <div style={{ fontSize: 20, fontWeight: 600, color: 'var(--color-purple)' }}>
                                         {stats.data?.processing_jobs || 0}
                                     </div>
-                                    <div style={{ fontSize: 11, color: '#8c8c8c', marginTop: 2 }}>
+                                    <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>
                                         <ThunderboltOutlined style={{ marginRight: 3, fontSize: 10 }} />
                                         Processing
                                     </div>
@@ -500,7 +500,7 @@ const JobList: React.FC = () => {
                                     size="small"
                                     style={{ borderRadius: 8, height: '100%' }}
                                 >
-                                    <div style={{ fontSize: 12, color: '#8c8c8c', marginBottom: 8, fontWeight: 600 }}>
+                                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8, fontWeight: 600 }}>
                                         <UserOutlined style={{ marginRight: 4 }} />
                                         Jobs by User
                                     </div>
@@ -521,7 +521,7 @@ const JobList: React.FC = () => {
                                                         justifyContent: 'space-between',
                                                         alignItems: 'center',
                                                         padding: '2px 8px',
-                                                        background: '#f0f8ff',
+                                                        background: 'var(--color-primary-light)',
                                                         borderRadius: 4,
                                                         fontSize: 11
                                                     }}>
@@ -532,7 +532,7 @@ const JobList: React.FC = () => {
                                                     </div>
                                                 ))
                                         ) : (
-                                            <div style={{ textAlign: 'center', color: '#ccc', fontSize: 11, marginTop: 20 }}>
+                                            <div style={{ textAlign: 'center', color: 'var(--text-tertiary)', fontSize: 11, marginTop: 20 }}>
                                                 No data available
                                             </div>
                                         )}
@@ -544,7 +544,7 @@ const JobList: React.FC = () => {
                                     size="small"
                                     style={{ borderRadius: 8, height: '100%' }}
                                 >
-                                    <div style={{ fontSize: 12, color: '#8c8c8c', marginBottom: 8, fontWeight: 600 }}>
+                                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8, fontWeight: 600 }}>
                                         <BarChartOutlined style={{ marginRight: 4 }} />
                                         Jobs by Resource
                                     </div>
@@ -565,7 +565,7 @@ const JobList: React.FC = () => {
                                                         justifyContent: 'space-between',
                                                         alignItems: 'center',
                                                         padding: '2px 8px',
-                                                        background: '#f9f0ff',
+                                                        background: 'var(--bg-hover)',
                                                         borderRadius: 4,
                                                         fontSize: 11
                                                     }}>
@@ -576,7 +576,7 @@ const JobList: React.FC = () => {
                                                     </div>
                                                 ))
                                         ) : (
-                                            <div style={{ textAlign: 'center', color: '#ccc', fontSize: 11, marginTop: 20 }}>
+                                            <div style={{ textAlign: 'center', color: 'var(--text-tertiary)', fontSize: 11, marginTop: 20 }}>
                                                 No data available
                                             </div>
                                         )}
@@ -588,7 +588,7 @@ const JobList: React.FC = () => {
                                     size="small"
                                     style={{ borderRadius: 8, height: '100%' }}
                                 >
-                                    <div style={{ fontSize: 12, color: '#8c8c8c', marginBottom: 8, fontWeight: 600 }}>
+                                    <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8, fontWeight: 600 }}>
                                         <CheckCircleOutlined style={{ marginRight: 4 }} />
                                         Jobs by Status
                                     </div>
@@ -609,7 +609,7 @@ const JobList: React.FC = () => {
                                                         justifyContent: 'space-between',
                                                         alignItems: 'center',
                                                         padding: '2px 8px',
-                                                        background: status === 'COMPLETED' ? '#f6ffed' : status === 'FAILED' ? '#fff2f0' : '#f0f8ff',
+                                                        background: status === 'COMPLETED' ? 'var(--color-success-light)' : status === 'FAILED' ? 'var(--color-danger-light)' : 'var(--color-primary-light)',
                                                         borderRadius: 4,
                                                         fontSize: 11
                                                     }}>
@@ -620,7 +620,7 @@ const JobList: React.FC = () => {
                                                     </div>
                                                 ))
                                         ) : (
-                                            <div style={{ textAlign: 'center', color: '#ccc', fontSize: 11, marginTop: 20 }}>
+                                            <div style={{ textAlign: 'center', color: 'var(--text-tertiary)', fontSize: 11, marginTop: 20 }}>
                                                 No data available
                                             </div>
                                         )}
@@ -638,7 +638,7 @@ const JobList: React.FC = () => {
                 style={{
                     marginBottom: 16,
                     borderRadius: 12,
-                    boxShadow: '0 2px 8px rgba(5,117,230,0.06)'
+                    boxShadow: 'var(--shadow-sm)'
                 }}
             >
                 <Row gutter={[16, 16]} align="middle">
@@ -722,19 +722,20 @@ const JobList: React.FC = () => {
                                     onClick={applyFilters}
                                     style={{
                                         borderRadius: 6,
-                                        background: 'white',
-                                        border: '1px solid #d9d9d9',
+                                        background: 'var(--bg-surface)',
+                                        color: 'var(--text-primary)',
+                                        borderColor: 'var(--border-default)',
                                         transition: 'all 0.3s ease'
                                     }}
                                     onMouseEnter={(e) => {
-                                        e.currentTarget.style.background = 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)';
+                                        e.currentTarget.style.background = 'linear-gradient(90deg, var(--color-primary) 0%, var(--color-accent) 100%)';
                                         e.currentTarget.style.color = 'white';
-                                        e.currentTarget.style.borderColor = '#056ccd';
+                                        e.currentTarget.style.borderColor = 'transparent';
                                     }}
                                     onMouseLeave={(e) => {
-                                        e.currentTarget.style.background = 'white';
-                                        e.currentTarget.style.color = 'rgba(0, 0, 0, 0.88)';
-                                        e.currentTarget.style.borderColor = '#d9d9d9';
+                                        e.currentTarget.style.background = 'var(--bg-surface)';
+                                        e.currentTarget.style.color = 'var(--text-primary)';
+                                        e.currentTarget.style.borderColor = 'var(--border-default)';
                                     }}
                                 >
                                     Search
@@ -758,7 +759,7 @@ const JobList: React.FC = () => {
             <Card
                 style={{
                     borderRadius: 12,
-                    boxShadow: '0 2px 8px rgba(5,117,230,0.06)',
+                    boxShadow: 'var(--shadow-sm)',
                 }}
                 styles={{
                     body: { padding: 12 }

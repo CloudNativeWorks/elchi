@@ -13,14 +13,14 @@ interface ValidationErrorDisplayProps {
     style?: React.CSSProperties;
 }
 
-const ValidationErrorDisplay: React.FC<ValidationErrorDisplayProps> = ({ 
-    validationResult, 
+const ValidationErrorDisplay: React.FC<ValidationErrorDisplayProps> = ({
+    validationResult,
     errorMessage,
-    style 
+    style
 }) => {
     // If we have a formatted error message, parse it first
     let parsedValidation: ValidateScenarioResponse | undefined = validationResult;
-    
+
     if (errorMessage && isFormattedValidationMessage(errorMessage)) {
         const parsed = parseFormattedValidationMessage(errorMessage);
         if (parsed) {
@@ -58,11 +58,11 @@ const ValidationErrorDisplay: React.FC<ValidationErrorDisplayProps> = ({
                 }
                 description={
                     <div style={{ marginTop: '12px' }}>
-                        <Collapse 
-                            ghost 
+                        <Collapse
+                            ghost
                             size="small"
                             defaultActiveKey={Object.keys(grouped_errors)}
-                            style={{ 
+                            style={{
                                 background: 'transparent',
                                 border: 'none'
                             }}
@@ -75,8 +75,8 @@ const ValidationErrorDisplay: React.FC<ValidationErrorDisplayProps> = ({
                                             <Text strong style={{ color: '#ff4d4f', fontSize: '13px' }}>
                                                 {component === 'General' ? 'General Issues' : component}
                                             </Text>
-                                            <Tag 
-                                                color="red" 
+                                            <Tag
+                                                color="red"
                                                 style={{ fontSize: '10px', minWidth: 'auto' }}
                                                 className="auto-width-tag"
                                             >
@@ -104,10 +104,10 @@ const ValidationErrorDisplay: React.FC<ValidationErrorDisplayProps> = ({
                                                     lineHeight: '1.5'
                                                 }}
                                             >
-                                                <Text style={{ color: '#8c8c8c', fontSize: '11px' }}>
+                                                <Text style={{ color: 'var(--text-secondary)', fontSize: '11px' }}>
                                                     {index + 1}.
                                                 </Text>{' '}
-                                                <Text style={{ fontSize: '12px', color: '#595959' }}>
+                                                <Text style={{ fontSize: '12px', color: 'var(--text-primary)' }}>
                                                     {error}
                                                 </Text>
                                             </div>
@@ -154,10 +154,10 @@ const ValidationErrorDisplay: React.FC<ValidationErrorDisplayProps> = ({
                                     lineHeight: '1.5'
                                 }}
                             >
-                                <Text style={{ color: '#8c8c8c', fontSize: '11px' }}>
+                                <Text style={{ color: 'var(--text-secondary)', fontSize: '11px' }}>
                                     {index + 1}.
                                 </Text>{' '}
-                                <Text style={{ fontSize: '12px', color: '#595959' }}>
+                                <Text style={{ fontSize: '12px', color: 'var(--text-primary)' }}>
                                     {error}
                                 </Text>
                             </div>

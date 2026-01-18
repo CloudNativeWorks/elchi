@@ -434,8 +434,9 @@ const Metrics: React.FC<MetricsProps> = () => {
 
                     const cardElement = targetCard.querySelector('.ant-card') as HTMLElement;
                     if (cardElement) {
+                        const isDark = document.body.getAttribute('data-theme') === 'dark';
                         cardElement.style.transition = 'all 0.3s ease';
-                        cardElement.style.boxShadow = '0 8px 24px rgba(24, 144, 255, 0.3)';
+                        cardElement.style.boxShadow = isDark ? '0 8px 24px rgba(59, 158, 255, 0.4)' : '0 8px 24px rgba(24, 144, 255, 0.3)';
                         cardElement.style.transform = 'scale(1.02)';
 
                         setTimeout(() => {
@@ -577,7 +578,7 @@ const Metrics: React.FC<MetricsProps> = () => {
                                 label: <span style={{ fontSize: '16px', fontWeight: 'bold' }}>{section}</span>,
                                 extra: <span style={{
                                     fontSize: '12px',
-                                    color: !hasData && !hasLoading ? '#ff4d4f' : 'gray'
+                                    color: !hasData && !hasLoading ? 'var(--color-danger)' : 'var(--text-secondary)'
                                 }}>{extraLabel}</span>,
                                 children: (
                                     <div data-section={section}>

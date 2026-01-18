@@ -151,7 +151,7 @@ const WafList: React.FC = () => {
             <div style={{ marginBottom: 16 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <Space>
-                        <FireOutlined style={{ color: '#ff4d4f', fontSize: 24 }} />
+                        <FireOutlined style={{ color: 'var(--color-danger)', fontSize: 24 }} />
                         <Title level={4} style={{ margin: 0 }}>
                             WAF Configurations
                         </Title>

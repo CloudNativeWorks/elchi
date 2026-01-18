@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Collapse, Button, Drawer } from 'antd';
-import { DeleteTwoTone } from "@ant-design/icons";
+import { Collapse, Button, Drawer, Popconfirm } from 'antd';
+import { DeleteOutlined } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { ActionType, ResourceType } from "@/redux/reducer-helpers/common";
 import { handleChangeResources } from '@/redux/dispatcher';
@@ -71,13 +71,33 @@ const CommonComponentPayloadSlice: React.FC<GeneralProps> = ({ veri }) => {
                         {
                             label: `Payload ${index}`,
                             extra:
-                                <Button
-                                    key={"btn_ " + index.toString()}
-                                    icon={<DeleteTwoTone twoToneColor="#eb2f96" />}
-                                    size='small'
-                                    onClick={(e) => { onRemove(e, index) }}
-                                    iconPosition={"end"}
-                                />,
+                                <Popconfirm
+                                    title="Delete confirmation"
+                                    description="Are you sure you want to delete this item?"
+                                    onConfirm={(e) => { onRemove(e as React.MouseEvent<HTMLElement>, index) }}
+                                    okText="Yes"
+                                    cancelText="No"
+                                    placement="left"
+                                >
+                                    <Button
+                                        key={"btn_ " + index.toString()}
+                                        type="text"
+                                        danger
+                                        icon={<DeleteOutlined style={{ color: 'var(--color-danger)' }} />}
+                                        size='small'
+                                        className="elchi-delete-button"
+                                        onClick={(e) => e.stopPropagation()}
+                                        iconPosition={"end"}
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            backgroundColor: 'var(--color-danger-light)',
+                                            border: '1px solid var(--color-danger-border)',
+                                            borderRadius: '6px'
+                                        }}
+                                    />
+                                </Popconfirm>,
                             children:
                                 <CommonComponentPayload veri={{
                                     version: veri.version,

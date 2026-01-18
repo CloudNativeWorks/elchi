@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Col, Collapse, Divider, Row, Button, Drawer } from 'antd';
-import { DeleteTwoTone } from "@ant-design/icons";
+import { Col, Collapse, Divider, Row, Button, Drawer, Popconfirm } from 'antd';
+import { DeleteOutlined } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { ActionType, ResourceType } from "@/redux/reducer-helpers/common";
 import { handleChangeResources } from '@/redux/dispatcher';
@@ -83,21 +83,63 @@ const CommonComponentTWClusters: React.FC<GeneralProps> = ({ veri }) => {
                 defaultActiveKey={[stateActiveItem]}
                 onChange={onChange}
                 bordered={false}
+                style={{
+                    background: 'transparent',
+                    borderRadius: 12,
+                }}
                 items={
                     veri.reduxStore?.map((data: any, index: number) => (
                         {
-                            label: data.name,
+                            label: (
+                                <span style={{
+                                    fontWeight: 500,
+                                    color: 'var(--text-primary)',
+                                    fontSize: 14
+                                }}>
+                                    {data.name || `Cluster ${index}`}
+                                </span>
+                            ),
                             extra:
-                                <>
-                                    <label style={{ marginRight: 35 }}>Weight: {data.weight || 'auto'}</label>
-                                    <Button
-                                        key={"btn_ " + index.toString()}
-                                        icon={<DeleteTwoTone twoToneColor="#eb2f96" />}
-                                        size='small'
-                                        onClick={(e) => { onRemove(e, index) }}
-                                        iconPosition={"end"}
-                                    />
-                                </>,
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    <label style={{
+                                        color: 'var(--text-secondary)',
+                                        fontSize: 13,
+                                        fontWeight: 500
+                                    }}>
+                                        Weight: <span style={{ color: 'var(--text-primary)' }}>{data.weight || 'auto'}</span>
+                                    </label>
+                                    <Popconfirm
+                                        title="Delete confirmation"
+                                        description="Are you sure you want to delete this item?"
+                                        onConfirm={(e) => { onRemove(e as React.MouseEvent<HTMLElement>, index) }}
+                                        okText="Yes"
+                                        cancelText="No"
+                                        placement="left"
+                                    >
+                                        <Button
+                                            key={"btn_ " + index.toString()}
+                                            type="text"
+                                            danger
+                                            icon={<DeleteOutlined style={{ color: 'var(--color-danger)' }} />}
+                                            size='small'
+                                            className="elchi-delete-button"
+                                            onClick={(e) => e.stopPropagation()}
+                                            iconPosition={"end"}
+                                            style={{
+                                                borderRadius: 8,
+                                                border: '1px solid var(--color-danger-border)',
+                                                background: 'var(--color-danger-light)',
+                                            }}
+                                        />
+                                    </Popconfirm>
+                                </div>,
+                            style: {
+                                marginBottom: 8,
+                                borderRadius: 12,
+                                border: '1px solid var(--border-default)',
+                                background: 'var(--card-bg)',
+                                backdropFilter: 'blur(10px)',
+                            },
                             children:
                                 <Row>
                                     <HorizonTags veri={{

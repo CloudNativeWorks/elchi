@@ -87,19 +87,19 @@ const BGPConfigurationContent: React.FC<BGPConfigurationContentProps> = ({ clien
     return (
         <div>
             <Col span={24}>
-                <div style={{ borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+                <div style={{ borderRadius: 12, boxShadow: 'var(--shadow-sm)', border: '1px solid var(--border-default)' }}>
                     <div style={{
-                        background: 'linear-gradient(135deg, #f1f3f4 0%, #e8eaed 100%)',
+                        background: 'var(--bg-surface)',
                         borderRadius: '12px 12px 0 0',
                         padding: 16,
-                        borderBottom: '1px solid #e8eaed'
+                        borderBottom: '1px solid var(--border-default)'
                     }}>
-                        <Text strong style={{ color: '#212529', fontSize: 14 }}>
+                        <Text strong style={{ color: 'var(--text-primary)', fontSize: 14 }}>
                             BGP Configuration
                         </Text>
                     </div>
-                    <div style={{ 
-                        background: '#fff',
+                    <div style={{
+                        background: 'var(--card-bg)',
                         borderRadius: '0 0 12px 12px',
                         padding: 16
                     }}>
@@ -435,7 +435,7 @@ const BGPConfigurationContent: React.FC<BGPConfigurationContentProps> = ({ clien
                         disabled={clearing}
                     />
                 </div>
-                <div style={{ marginTop: 16, color: '#faad14' }}>
+                <div style={{ marginTop: 16, color: 'var(--color-warning)' }}>
                     <b>Warning:</b> This action clears all BGP routes for all neighbors (neighbor: <code>*</code>).
                 </div>
             </Modal>

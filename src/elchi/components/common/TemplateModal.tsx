@@ -35,12 +35,12 @@ const TemplateModal: React.FC<TemplateModalProps> = ({
   const [useTemplateConfirmVisible, setUseTemplateConfirmVisible] = useState(false);
   const [updateConfirmVisible, setUpdateConfirmVisible] = useState(false);
   const [shouldFetchTemplate, setShouldFetchTemplate] = useState(false);
-  
-  const { 
-    useCheckTemplate, 
-    useGetTemplate, 
-    useSaveTemplate, 
-    useDeleteTemplate 
+
+  const {
+    useCheckTemplate,
+    useGetTemplate,
+    useSaveTemplate,
+    useDeleteTemplate
   } = useResourceTemplate();
 
   // Template hooks
@@ -83,7 +83,7 @@ const TemplateModal: React.FC<TemplateModalProps> = ({
       version,
       template
     });
-    
+
     setShouldFetchTemplate(false);
     onClose();
   };
@@ -100,13 +100,13 @@ const TemplateModal: React.FC<TemplateModalProps> = ({
 
     try {
       // Load general fields into Redux - ensure data is properly structured
-      const configDiscoveryData = Array.isArray(templateData.general.config_discovery) ? 
+      const configDiscoveryData = Array.isArray(templateData.general.config_discovery) ?
         templateData.general.config_discovery : [];
-      
-      const elchiDiscoveryData = Array.isArray(templateData.general.elchi_discovery) ? 
+
+      const elchiDiscoveryData = Array.isArray(templateData.general.elchi_discovery) ?
         templateData.general.elchi_discovery : [];
-        
-      const customResourceData = Array.isArray(templateData.general.typed_config) ? 
+
+      const customResourceData = Array.isArray(templateData.general.typed_config) ?
         templateData.general.typed_config : [];
 
       dispatch(ResourceAction({
@@ -177,7 +177,7 @@ const TemplateModal: React.FC<TemplateModalProps> = ({
       <Modal
         title={
           <Space>
-            <FileOutlined style={{ color: '#1890ff' }} />
+            <FileOutlined style={{ color: 'var(--color-primary)' }} />
             Template Management
           </Space>
         }
@@ -210,7 +210,7 @@ const TemplateModal: React.FC<TemplateModalProps> = ({
           // No template exists
           <Card size="small" style={{ textAlign: 'center', marginBottom: 16 }}>
             <div style={{ padding: '20px 0' }}>
-              <FileOutlined style={{ fontSize: 32, color: '#d9d9d9', marginBottom: 12 }} />
+              <FileOutlined style={{ fontSize: 32, color: 'var(--text-disabled)', marginBottom: 12 }} />
               <div style={{ marginBottom: 16 }}>
                 <Text>No template exists for this resource type</Text>
               </div>
@@ -228,21 +228,21 @@ const TemplateModal: React.FC<TemplateModalProps> = ({
         ) : (
           // Template exists
           <div>
-            <Card size="small" style={{ marginBottom: 16, backgroundColor: '#f6ffed' }}>
+            <Card size="small" style={{ marginBottom: 16, backgroundColor: 'var(--color-success-light)', border: '1px solid var(--color-success-border)' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div>
                   <Text strong>Template Available</Text>
                   <br />
                   <Text type="secondary" style={{ fontSize: 12 }}>
-                    {isBootstrap 
+                    {isBootstrap
                       ? 'You can view, update, or delete the bootstrap template. Note: Use template is disabled for bootstrap configurations.'
-                      : isCreateMode 
+                      : isCreateMode
                         ? 'You can use, update, or delete the existing template'
                         : 'You can view, update, or delete the existing template. Note: Use template is only available in create mode.'
                     }
                   </Text>
                 </div>
-                <FileOutlined style={{ fontSize: 24, color: '#52c41a' }} />
+                <FileOutlined style={{ fontSize: 24, color: 'var(--color-success)' }} />
               </div>
             </Card>
 
@@ -306,7 +306,7 @@ const TemplateModal: React.FC<TemplateModalProps> = ({
         okButtonProps={{ danger: true, loading: deleteTemplateMutation.isPending }}
       >
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-          <ExclamationCircleOutlined style={{ color: '#ff4d4f', fontSize: 22, marginTop: 2 }} />
+          <ExclamationCircleOutlined style={{ color: 'var(--color-danger)', fontSize: 22, marginTop: 2 }} />
           <div>
             <Text>Are you sure you want to delete this template?</Text>
             <br />
@@ -328,7 +328,7 @@ const TemplateModal: React.FC<TemplateModalProps> = ({
         okButtonProps={{ loading: templateQuery.isLoading }}
       >
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-          <ExclamationCircleOutlined style={{ color: '#faad14', fontSize: 22, marginTop: 2 }} />
+          <ExclamationCircleOutlined style={{ color: 'var(--color-warning)', fontSize: 22, marginTop: 2 }} />
           <div>
             <Text>Are you sure you want to load this template?</Text>
             <br />
@@ -350,7 +350,7 @@ const TemplateModal: React.FC<TemplateModalProps> = ({
         okButtonProps={{ loading: saveTemplateMutation.isPending }}
       >
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-          <ExclamationCircleOutlined style={{ color: '#faad14', fontSize: 22, marginTop: 2 }} />
+          <ExclamationCircleOutlined style={{ color: 'var(--color-warning)', fontSize: 22, marginTop: 2 }} />
           <div>
             <Text>Are you sure you want to update this template?</Text>
             <br />
@@ -365,7 +365,7 @@ const TemplateModal: React.FC<TemplateModalProps> = ({
       <Drawer
         title={
           <Space>
-            <EyeOutlined style={{ color: '#1890ff' }} />
+            <EyeOutlined style={{ color: 'var(--color-primary)' }} />
             Template JSON Data
           </Space>
         }

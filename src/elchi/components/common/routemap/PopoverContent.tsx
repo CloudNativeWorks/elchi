@@ -145,7 +145,7 @@ const PopoverContent: React.FC<PopoverContentProps> = ({
                         style={{
                             fontSize: '14px',
                             fontWeight: 700,
-                            color: '#1e293b',
+                            color: 'var(--text-primary)',
                             marginBottom: '4px',
                             wordBreak: 'break-word',
                         }}
@@ -174,7 +174,7 @@ const PopoverContent: React.FC<PopoverContentProps> = ({
                     <div
                         style={{
                             padding: '10px 12px',
-                            background: 'rgba(241, 245, 249, 0.6)',
+                            background: 'var(--bg-surface)',
                             borderRadius: '8px',
                         }}
                     >
@@ -182,7 +182,7 @@ const PopoverContent: React.FC<PopoverContentProps> = ({
                             style={{
                                 fontSize: '10px',
                                 fontWeight: 600,
-                                color: '#94a3b8',
+                                color: 'var(--text-tertiary)',
                                 textTransform: 'uppercase',
                                 letterSpacing: '0.5px',
                                 marginBottom: '4px',
@@ -198,7 +198,7 @@ const PopoverContent: React.FC<PopoverContentProps> = ({
                             style={{
                                 fontSize: '11px',
                                 fontWeight: 500,
-                                color: '#475569',
+                                color: 'var(--text-secondary)',
                                 fontFamily: 'monospace',
                                 wordBreak: 'break-all',
                                 lineHeight: '1.4',
@@ -214,7 +214,7 @@ const PopoverContent: React.FC<PopoverContentProps> = ({
                     <div
                         style={{
                             padding: '10px 12px',
-                            background: 'rgba(241, 245, 249, 0.6)',
+                            background: 'var(--bg-surface)',
                             borderRadius: '8px',
                         }}
                     >
@@ -222,7 +222,7 @@ const PopoverContent: React.FC<PopoverContentProps> = ({
                             style={{
                                 fontSize: '10px',
                                 fontWeight: 600,
-                                color: '#94a3b8',
+                                color: 'var(--text-tertiary)',
                                 textTransform: 'uppercase',
                                 letterSpacing: '0.5px',
                                 marginBottom: '4px',
@@ -238,7 +238,7 @@ const PopoverContent: React.FC<PopoverContentProps> = ({
                             style={{
                                 fontSize: '11px',
                                 fontWeight: 500,
-                                color: '#475569',
+                                color: 'var(--text-secondary)',
                                 lineHeight: '1.5',
                             }}
                         >
@@ -252,7 +252,7 @@ const PopoverContent: React.FC<PopoverContentProps> = ({
                     <div
                         style={{
                             padding: '10px 12px',
-                            background: 'rgba(241, 245, 249, 0.6)',
+                            background: 'var(--bg-surface)',
                             borderRadius: '8px',
                         }}
                     >
@@ -260,7 +260,7 @@ const PopoverContent: React.FC<PopoverContentProps> = ({
                             style={{
                                 fontSize: '10px',
                                 fontWeight: 600,
-                                color: '#94a3b8',
+                                color: 'var(--text-tertiary)',
                                 textTransform: 'uppercase',
                                 letterSpacing: '0.5px',
                                 marginBottom: '4px',
@@ -295,7 +295,7 @@ const PopoverContent: React.FC<PopoverContentProps> = ({
                         <div
                             style={{
                                 padding: '10px 12px',
-                                background: 'rgba(241, 245, 249, 0.6)',
+                                background: 'var(--bg-surface)',
                                 borderRadius: '8px',
                             }}
                         >
@@ -303,7 +303,7 @@ const PopoverContent: React.FC<PopoverContentProps> = ({
                                 style={{
                                     fontSize: '10px',
                                     fontWeight: 600,
-                                    color: '#94a3b8',
+                                    color: 'var(--text-tertiary)',
                                     textTransform: 'uppercase',
                                     letterSpacing: '0.5px',
                                     marginBottom: '8px',
@@ -327,7 +327,7 @@ const PopoverContent: React.FC<PopoverContentProps> = ({
                                                 style={{
                                                     fontSize: '9px',
                                                     fontWeight: 600,
-                                                    color: '#64748b',
+                                                    color: 'var(--text-tertiary)',
                                                     textTransform: 'capitalize',
                                                 }}
                                             >
@@ -337,7 +337,7 @@ const PopoverContent: React.FC<PopoverContentProps> = ({
                                                 style={{
                                                     fontSize: '10px',
                                                     fontWeight: 500,
-                                                    color: '#475569',
+                                                    color: 'var(--text-secondary)',
                                                     fontFamily: 'monospace',
                                                     wordBreak: 'break-all',
                                                     lineHeight: '1.3',
@@ -359,7 +359,7 @@ const PopoverContent: React.FC<PopoverContentProps> = ({
                     <div
                         style={{
                             padding: '10px 12px',
-                            background: 'rgba(241, 245, 249, 0.6)',
+                            background: 'var(--bg-surface)',
                             borderRadius: '8px',
                         }}
                     >
@@ -367,7 +367,7 @@ const PopoverContent: React.FC<PopoverContentProps> = ({
                             style={{
                                 fontSize: '10px',
                                 fontWeight: 600,
-                                color: '#94a3b8',
+                                color: 'var(--text-tertiary)',
                                 textTransform: 'uppercase',
                                 letterSpacing: '0.5px',
                                 marginBottom: '2px',
@@ -379,7 +379,7 @@ const PopoverContent: React.FC<PopoverContentProps> = ({
                             style={{
                                 fontSize: '11px',
                                 fontWeight: 500,
-                                color: '#475569',
+                                color: 'var(--text-secondary)',
                                 fontFamily: 'monospace',
                             }}
                         >

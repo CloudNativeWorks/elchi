@@ -188,7 +188,7 @@ const LdapConfig: React.FC = () => {
             <div style={{ padding: '20px' }}>
                 <div style={{ marginBottom: '24px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-                        <SafetyOutlined style={{ color: '#1890ff', fontSize: 24 }} />
+                        <SafetyOutlined style={{ color: 'var(--color-primary)', fontSize: 24 }} />
                         <Title level={4} style={{ margin: 0 }}>LDAP Configuration</Title>
                     </div>
                     <Text type="secondary">

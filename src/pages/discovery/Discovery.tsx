@@ -24,7 +24,7 @@ const { Title, Text } = Typography;
 const inactiveClusterStyles = `
 .inactive-cluster-row {
     background-color: rgba(255, 77, 79, 0.08) !important;
-    border-left: 3px solid #ff4d4f !important;
+    border-left: 3px solid var(--color-danger) !important;
 }
 
 .inactive-cluster-row:hover {
@@ -206,7 +206,7 @@ kubectl get pods -n elchi-stack`;
             ...getColumnSearchProps('cluster_name', 'Cluster Name'),
             render: (text: string) => (
                 <Space>
-                    <ClusterOutlined style={{ color: '#1890ff' }} />
+                    <ClusterOutlined style={{ color: 'var(--color-primary)' }} />
                     <Text strong>{text}</Text>
                 </Space>
             ),
@@ -264,7 +264,7 @@ kubectl get pods -n elchi-stack`;
                             icon={<EyeOutlined style={{ fontSize: 16 }} />}
                             onClick={() => handleViewCluster(record)}
                             style={{
-                                color: '#1890ff',
+                                color: 'var(--color-primary)',
                                 borderRadius: 8,
                                 background: 'rgba(24, 144, 255, 0.05)',
                                 border: '1px solid rgba(24, 144, 255, 0.15)',
@@ -291,7 +291,7 @@ kubectl get pods -n elchi-stack`;
                             icon={<AppstoreOutlined style={{ fontSize: 16 }} />}
                             onClick={() => handleViewUsage(record)}
                             style={{
-                                color: '#52c41a',
+                                color: 'var(--color-success)',
                                 borderRadius: 8,
                                 background: 'rgba(82, 196, 26, 0.05)',
                                 border: '1px solid rgba(82, 196, 26, 0.15)',
@@ -329,7 +329,7 @@ kubectl get pods -n elchi-stack`;
                                 danger
                                 loading={deleteClusterMutation.isPending}
                                 style={{
-                                    color: '#ff4d4f',
+                                    color: 'var(--color-danger)',
                                     borderRadius: 8,
                                     background: 'rgba(255, 77, 79, 0.05)',
                                     border: '1px solid rgba(255, 77, 79, 0.15)',
@@ -374,7 +374,7 @@ kubectl get pods -n elchi-stack`;
             <div style={{ marginBottom: 16 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <Space>
-                        <RadarChartOutlined style={{ fontSize: 24, color: '#1890ff' }} />
+                        <RadarChartOutlined style={{ fontSize: 24, color: 'var(--color-primary)' }} />
                         <Title level={4} style={{ margin: 0 }}>Kubernetes Discovery</Title>
                     </Space>
                     <Space>
@@ -405,26 +405,27 @@ kubectl get pods -n elchi-stack`;
             {clustersData.length === 0 && !isLoading && !error ? (
                 <Card>
                     <div style={{ textAlign: 'center', padding: '40px 20px' }}>
-                        <RadarChartOutlined style={{ fontSize: 64, color: '#d9d9d9', marginBottom: 16 }} />
-                        <Title level={3} style={{ color: '#595959', marginBottom: 16 }}>No Clusters Discovered</Title>
+                        <RadarChartOutlined style={{ fontSize: 64, color: 'var(--border-default)', marginBottom: 16 }} />
+                        <Title level={3} style={{ color: 'var(--text-secondary)', marginBottom: 16 }}>No Clusters Discovered</Title>
                         <Text type="secondary" style={{ fontSize: 16, display: 'block', marginBottom: 24 }}>
                             Deploy the Elchi Discovery Agent to your Kubernetes clusters to start monitoring and managing your infrastructure.
                         </Text>
 
                         <div style={{
-                            background: '#f6ffed',
-                            border: '1px solid #b7eb8f',
+                            background: 'var(--color-success-light)',
+                            border: '1px solid var(--color-success-border)',
                             borderRadius: 8,
                             padding: '20px',
                             marginBottom: 24,
                             textAlign: 'left'
                         }}>
                             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
-                                <InfoCircleOutlined style={{ color: '#52c41a', marginRight: 8 }} />
-                                <Text strong style={{ color: '#52c41a' }}>Quick Setup</Text>
+                                <InfoCircleOutlined style={{ color: 'var(--color-success)', marginRight: 8 }} />
+                                <Text strong style={{ color: 'var(--color-success)' }}>Quick Setup</Text>
                             </div>
                             <pre style={{
-                                background: '#f5f5f5',
+                                background: 'var(--code-bg)',
+                                color: 'var(--code-text)',
                                 padding: 16,
                                 borderRadius: 6,
                                 margin: 0,
@@ -491,7 +492,7 @@ kubectl get pods -n elchi-stack`;
             <Drawer
                 title={
                     <Space>
-                        <ClusterOutlined style={{ color: '#1890ff' }} />
+                        <ClusterOutlined style={{ color: 'var(--color-primary)' }} />
                         <span>Cluster Details: {selectedCluster?.cluster_name}</span>
                     </Space>
                 }
@@ -505,10 +506,10 @@ kubectl get pods -n elchi-stack`;
                         <div style={{
                             borderRadius: 12,
                             marginBottom: 16,
-                            border: '1px solid #f0f0f0'
+                            border: '1px solid var(--border-default)'
                         }}>
                             <div style={{
-                                background: 'linear-gradient(135deg, #f1f3f4 0%, #e8eaed 100%)',
+                                background: 'var(--bg-elevated)',
                                 padding: 16,
                                 borderTopLeftRadius: 12,
                                 borderTopRightRadius: 12,
@@ -517,13 +518,13 @@ kubectl get pods -n elchi-stack`;
                                 alignItems: 'center'
                             }}>
                                 <Space>
-                                    <InfoCircleOutlined style={{ color: '#1890ff' }} />
+                                    <InfoCircleOutlined style={{ color: 'var(--color-primary)' }} />
                                     <Text strong style={{ fontSize: 16 }}>Cluster Information</Text>
                                 </Space>
                             </div>
                             <div style={{
                                 padding: 16,
-                                background: 'white',
+                                background: 'var(--bg-surface)',
                                 borderBottomLeftRadius: 12,
                                 borderBottomRightRadius: 12
                             }}>
@@ -569,10 +570,10 @@ kubectl get pods -n elchi-stack`;
                         <div style={{
                             borderRadius: 12,
                             marginBottom: 16,
-                            border: '1px solid #f0f0f0'
+                            border: '1px solid var(--border-default)'
                         }}>
                             <div style={{
-                                background: 'linear-gradient(135deg, #f1f3f4 0%, #e8eaed 100%)',
+                                background: 'var(--bg-elevated)',
                                 padding: 16,
                                 borderTopLeftRadius: 12,
                                 borderTopRightRadius: 12,
@@ -581,13 +582,13 @@ kubectl get pods -n elchi-stack`;
                                 alignItems: 'center'
                             }}>
                                 <Space>
-                                    <NodeIndexOutlined style={{ color: '#1890ff' }} />
+                                    <NodeIndexOutlined style={{ color: 'var(--color-primary)' }} />
                                     <Text strong style={{ fontSize: 16 }}>Nodes ({selectedCluster.nodes?.length || 0})</Text>
                                 </Space>
                             </div>
                             <div style={{
                                 padding: 0,
-                                background: 'white',
+                                background: 'var(--bg-surface)',
                                 borderBottomLeftRadius: 12,
                                 borderBottomRightRadius: 12
                             }}>
@@ -604,7 +605,7 @@ kubectl get pods -n elchi-stack`;
                                             key: 'name',
                                             render: (text: string) => (
                                                 <Space>
-                                                    <NodeIndexOutlined style={{ color: '#1890ff' }} />
+                                                    <NodeIndexOutlined style={{ color: 'var(--color-primary)' }} />
                                                     <Text strong>{text}</Text>
                                                 </Space>
                                             ),
@@ -617,7 +618,7 @@ kubectl get pods -n elchi-stack`;
                                             render: (status: string) => (
                                                 <Badge
                                                     status={status === 'Ready' ? 'success' : status === 'NotReady' ? 'error' : 'warning'}
-                                                    text={<Text strong style={{ color: status === 'Ready' ? '#52c41a' : status === 'NotReady' ? '#ff4d4f' : '#faad14' }}>{status}</Text>}
+                                                    text={<Text strong style={{ color: status === 'Ready' ? 'var(--color-success)' : status === 'NotReady' ? 'var(--color-danger)' : 'var(--color-warning)' }}>{status}</Text>}
                                                 />
                                             ),
                                             width: '10%'
@@ -679,7 +680,7 @@ kubectl get pods -n elchi-stack`;
             <Modal
                 title={
                     <Space>
-                        <CodeOutlined style={{ color: '#1890ff' }} />
+                        <CodeOutlined style={{ color: 'var(--color-primary)' }} />
                         <span>Deploy Discovery Agent</span>
                     </Space>
                 }
@@ -718,8 +719,8 @@ kubectl get pods -n elchi-stack`;
                     <div>
                         <Title level={5}>Installation Commands</Title>
                         <div style={{
-                            background: '#f5f5f5',
-                            border: '1px solid #d9d9d9',
+                            background: 'var(--code-bg)',
+                            border: '1px solid var(--border-default)',
                             borderRadius: 6,
                             padding: 16
                         }}>
@@ -727,7 +728,8 @@ kubectl get pods -n elchi-stack`;
                                 margin: 0,
                                 fontSize: 13,
                                 lineHeight: 1.6,
-                                whiteSpace: 'pre-wrap'
+                                whiteSpace: 'pre-wrap',
+                                color: 'var(--code-text)'
                             }}>
                                 {setupInstructions}
                             </pre>
@@ -755,13 +757,13 @@ kubectl get pods -n elchi-stack`;
                     </div>
 
                     <div style={{
-                        background: '#e6f7ff',
-                        border: '1px solid #91d5ff',
+                        background: 'var(--color-info-light)',
+                        border: '1px solid var(--color-info-border)',
                         borderRadius: 6,
                         padding: 12
                     }}>
                         <Space>
-                            <InfoCircleOutlined style={{ color: '#1890ff' }} />
+                            <InfoCircleOutlined style={{ color: 'var(--color-primary)' }} />
                             <Text style={{ fontSize: 13 }}>
                                 <strong>Note:</strong> After installation, it may take a few moments for your cluster to appear in the discovery list.
                                 The agent will automatically register your cluster and start reporting node information.
@@ -775,7 +777,7 @@ kubectl get pods -n elchi-stack`;
             <Drawer
                 title={
                     <Space>
-                        <AppstoreOutlined style={{ color: '#52c41a' }} />
+                        <AppstoreOutlined style={{ color: 'var(--color-success)' }} />
                         <span>Cluster Usage: {selectedClusterForUsage?.cluster_name}</span>
                     </Space>
                 }
@@ -794,8 +796,8 @@ kubectl get pods -n elchi-stack`;
                 ) : clusterUsage ? (
                     <Space direction="vertical" style={{ width: '100%' }} size="large">
                         <div style={{
-                            background: clusterUsage.usage_count > 0 ? '#f6ffed' : '#fff7e6',
-                            border: clusterUsage.usage_count > 0 ? '1px solid #b7eb8f' : '1px solid #ffd591',
+                            background: clusterUsage.usage_count > 0 ? 'var(--color-success-light)' : 'var(--color-warning-light)',
+                            border: clusterUsage.usage_count > 0 ? '1px solid var(--color-success-border)' : '1px solid var(--color-warning-border)',
                             borderRadius: 8,
                             padding: 16,
                             textAlign: 'center'
@@ -804,7 +806,7 @@ kubectl get pods -n elchi-stack`;
                                 <Text strong style={{ fontSize: 18 }}>
                                     Usage Summary
                                 </Text>
-                                <Text style={{ fontSize: 24, fontWeight: 'bold', color: clusterUsage.usage_count > 0 ? '#52c41a' : '#fa8c16' }}>
+                                <Text style={{ fontSize: 24, fontWeight: 'bold', color: clusterUsage.usage_count > 0 ? 'var(--color-success)' : 'var(--color-warning)' }}>
                                     {clusterUsage.usage_count} Endpoint{clusterUsage.usage_count !== 1 ? 's' : ''} Using This Discovery Cluster
                                 </Text>
                             </Space>
@@ -819,8 +821,8 @@ kubectl get pods -n elchi-stack`;
                                     renderItem={(endpoint, index) => (
                                         <List.Item
                                             style={{
-                                                background: '#fafafa',
-                                                border: '1px solid #d9d9d9',
+                                                background: 'var(--bg-elevated)',
+                                                border: '1px solid var(--border-default)',
                                                 borderRadius: 8,
                                                 padding: 16,
                                                 marginBottom: 8
@@ -829,7 +831,7 @@ kubectl get pods -n elchi-stack`;
                                             <List.Item.Meta
                                                 avatar={
                                                     <div style={{
-                                                        background: '#52c41a',
+                                                        background: 'var(--color-success)',
                                                         color: 'white',
                                                         width: 32,
                                                         height: 32,
@@ -855,7 +857,7 @@ kubectl get pods -n elchi-stack`;
                                                     <Space direction="vertical" size="small" style={{ width: '100%' }}>
                                                         <Space>
                                                             <Text type="secondary">IP Count:</Text>
-                                                            <Badge count={endpoint.ip_count} style={{ backgroundColor: '#52c41a' }} />
+                                                            <Badge count={endpoint.ip_count} style={{ backgroundColor: 'var(--color-success)' }} />
                                                         </Space>
                                                         <Space>
                                                             <Text type="secondary">Last Updated:</Text>
@@ -884,12 +886,12 @@ kubectl get pods -n elchi-stack`;
                             <div style={{
                                 textAlign: 'center',
                                 padding: '40px 20px',
-                                background: '#fafafa',
+                                background: 'var(--bg-elevated)',
                                 borderRadius: 8,
-                                border: '1px dashed #d9d9d9'
+                                border: '1px dashed var(--border-default)'
                             }}>
-                                <AppstoreOutlined style={{ fontSize: 48, color: '#d9d9d9', marginBottom: 16 }} />
-                                <Title level={4} style={{ color: '#8c8c8c' }}>No Endpoints Using This Discovery Cluster</Title>
+                                <AppstoreOutlined style={{ fontSize: 48, color: 'var(--text-tertiary)', marginBottom: 16 }} />
+                                <Title level={4} style={{ color: 'var(--text-secondary)' }}>No Endpoints Using This Discovery Cluster</Title>
                                 <Text type="secondary">
                                     This cluster is not currently being used by any endpoint resources.
                                     It can be safely deleted if no longer needed.

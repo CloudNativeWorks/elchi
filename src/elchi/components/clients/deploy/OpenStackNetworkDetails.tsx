@@ -47,7 +47,7 @@ const SubnetCard: React.FC<SubnetCardProps> = ({ subnet, index, clientId, osUuid
                 justifyContent: 'space-between',
                 marginBottom: 8
             }}>
-                <Text strong style={{ color: '#212529', fontSize: 13 }}>
+                <Text strong style={{ color: 'var(--text-primary)', fontSize: 13 }}>
                     {subnet.name || `Subnet ${index + 1}`}
                 </Text>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -68,25 +68,25 @@ const SubnetCard: React.FC<SubnetCardProps> = ({ subnet, index, clientId, osUuid
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(100px, 1fr))', gap: 6 }}>
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <Text style={{ fontSize: 10, color: '#64748b', marginBottom: 1 }}>Gateway</Text>
+                    <Text style={{ fontSize: 10, color: 'var(--text-tertiary)', marginBottom: 1 }}>Gateway</Text>
                     <Tag className='auto-width-tag' color='purple'>
                         {subnet.gateway_ip}
                     </Tag>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <Text style={{ fontSize: 10, color: '#64748b', marginBottom: 1 }}>CIDR</Text>
+                    <Text style={{ fontSize: 10, color: 'var(--text-tertiary)', marginBottom: 1 }}>CIDR</Text>
                     <Tag className='auto-width-tag' color="geekblue" style={{ fontFamily: 'monospace', fontSize: 10 }}>
                         {subnet.cidr}
                     </Tag>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <Text style={{ fontSize: 10, color: '#64748b', marginBottom: 1 }}>IP Version</Text>
+                    <Text style={{ fontSize: 10, color: 'var(--text-tertiary)', marginBottom: 1 }}>IP Version</Text>
                     <Tag className='auto-width-tag' color={subnet.ip_version === 4 ? 'blue' : 'purple'}>
                         IPv{subnet.ip_version}
                     </Tag>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <Text style={{ fontSize: 10, color: '#64748b', marginBottom: 1 }}>DHCP</Text>
+                    <Text style={{ fontSize: 10, color: 'var(--text-tertiary)', marginBottom: 1 }}>DHCP</Text>
                     <Tag className='auto-width-tag' color={subnet.enable_dhcp ? 'green' : 'red'}>
                         {subnet.enable_dhcp ? 'ON' : 'OFF'}
                     </Tag>
@@ -99,17 +99,17 @@ const SubnetCard: React.FC<SubnetCardProps> = ({ subnet, index, clientId, osUuid
                     {loadingIPs ? (
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                             <Spin size="small" />
-                            <Text style={{ fontSize: 11, color: '#64748b' }}>Loading IP information...</Text>
+                            <Text style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>Loading IP information...</Text>
                         </div>
                     ) : availableIPsData ? (
                         <div>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 8 }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                                    <Text style={{ fontSize: 10, color: '#64748b' }}>Available:</Text>
+                                    <Text style={{ fontSize: 10, color: 'var(--text-tertiary)' }}>Available:</Text>
                                     <Tag color="green">{availableIPsData.total_available}</Tag>
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                                    <Text style={{ fontSize: 10, color: '#64748b' }}>Used:</Text>
+                                    <Text style={{ fontSize: 10, color: 'var(--text-tertiary)' }}>Used:</Text>
                                     <Tag color="orange">{availableIPsData.total_used}</Tag>
                                 </div>
                             </div>
@@ -265,7 +265,7 @@ const SubnetCard: React.FC<SubnetCardProps> = ({ subnet, index, clientId, osUuid
                     <div>
                         {subnet.allocation_pools && subnet.allocation_pools.length > 0 && (
                             <>
-                                <Text style={{ fontSize: 10, color: '#64748b', marginBottom: 2, display: 'block' }}>Pools:</Text>
+                                <Text style={{ fontSize: 10, color: 'var(--text-tertiary)', marginBottom: 2, display: 'block' }}>Pools:</Text>
                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
                                     {subnet.allocation_pools.map((pool, idx) => (
                                         <Text key={idx} code style={{ fontSize: 13, marginRight: 2 }}>
@@ -280,7 +280,7 @@ const SubnetCard: React.FC<SubnetCardProps> = ({ subnet, index, clientId, osUuid
                     <div>
                         {subnet.dns_nameservers && subnet.dns_nameservers.length > 0 && (
                             <>
-                                <Text style={{ fontSize: 10, color: '#64748b', marginBottom: 2, display: 'block' }}>DNS:</Text>
+                                <Text style={{ fontSize: 10, color: 'var(--text-tertiary)', marginBottom: 2, display: 'block' }}>DNS:</Text>
                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
                                     {subnet.dns_nameservers.map((dns, idx) => (
                                         <Text key={idx} code style={{ fontSize: 13, marginRight: 2 }}>
@@ -294,7 +294,7 @@ const SubnetCard: React.FC<SubnetCardProps> = ({ subnet, index, clientId, osUuid
                 </div>
             )}
 
-            <div style={{ marginTop: 12, fontSize: 10, color: '#9ca3af', fontFamily: 'monospace' }}>
+            <div style={{ marginTop: 12, fontSize: 10, color: 'var(--text-tertiary)', fontFamily: 'monospace' }}>
                 ID: {subnet.id}
             </div>
         </div>
@@ -372,54 +372,54 @@ const OpenStackNetworkDetails: React.FC<OpenStackNetworkDetailsProps> = ({
                     alignItems: 'center',
                     marginBottom: 8
                 }}>
-                    <GlobalOutlined style={{ color: '#495057', marginRight: 6, fontSize: 16 }} />
-                    <Text strong style={{ fontSize: 14, color: '#212529' }}>
+                    <GlobalOutlined style={{ color: 'var(--text-secondary)', marginRight: 6, fontSize: 16 }} />
+                    <Text strong style={{ fontSize: 14, color: 'var(--text-primary)' }}>
                         {network.name || network.id.substring(0, 8)}
                     </Text>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: 6 }}>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <Text style={{ fontSize: 11, color: '#64748b', marginBottom: 2 }}>Status</Text>
+                        <Text style={{ fontSize: 11, color: 'var(--text-tertiary)', marginBottom: 2 }}>Status</Text>
                         <Tag className='auto-width-tag' color={network.status === 'ACTIVE' ? 'green' : 'orange'}>
                             {network.status}
                         </Tag>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <Text style={{ fontSize: 11, color: '#64748b', marginBottom: 2 }}>Admin State</Text>
+                        <Text style={{ fontSize: 11, color: 'var(--text-tertiary)', marginBottom: 2 }}>Admin State</Text>
                         <Tag className='auto-width-tag' color={network.admin_state_up ? 'green' : 'red'}>
                             {network.admin_state_up ? 'UP' : 'DOWN'}
                         </Tag>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <Text style={{ fontSize: 11, color: '#64748b', marginBottom: 2 }}>MTU</Text>
+                        <Text style={{ fontSize: 11, color: 'var(--text-tertiary)', marginBottom: 2 }}>MTU</Text>
                         <Tag className='auto-width-tag'>{network.mtu}</Tag>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <Text style={{ fontSize: 11, color: '#64748b', marginBottom: 2 }}>Security</Text>
+                        <Text style={{ fontSize: 11, color: 'var(--text-tertiary)', marginBottom: 2 }}>Security</Text>
                         <Tag className='auto-width-tag' color={network.port_security_enabled ? 'green' : 'red'}>
                             {network.port_security_enabled ? 'ON' : 'OFF'}
                         </Tag>
                     </div>
                     {network.shared && (
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <Text style={{ fontSize: 11, color: '#64748b', marginBottom: 2 }}>Shared</Text>
+                            <Text style={{ fontSize: 11, color: 'var(--text-tertiary)', marginBottom: 2 }}>Shared</Text>
                             <Tag className='auto-width-tag' color="blue">YES</Tag>
                         </div>
                     )}
                     {network.router_external && (
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
-                            <Text style={{ fontSize: 11, color: '#64748b', marginBottom: 2 }}>External</Text>
+                            <Text style={{ fontSize: 11, color: 'var(--text-tertiary)', marginBottom: 2 }}>External</Text>
                             <Tag className='auto-width-tag' color="purple">YES</Tag>
                         </div>
                     )}
                 </div>
                 {network.dns_domain && (
                     <div style={{ marginTop: 8, padding: '4px 8px', background: 'rgba(255,255,255,0.8)', borderRadius: 4 }}>
-                        <Text style={{ fontSize: 11, color: '#64748b' }}>DNS: </Text>
+                        <Text style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>DNS: </Text>
                         <Text code style={{ fontSize: 11 }}>{network.dns_domain}</Text>
                     </div>
                 )}
-                <div style={{ marginTop: 12, fontSize: 10, color: '#94a3b8', fontFamily: 'monospace' }}>
+                <div style={{ marginTop: 12, fontSize: 10, color: 'var(--text-tertiary)', fontFamily: 'monospace' }}>
                     ID: {network.id}
                 </div>
             </div>
@@ -432,10 +432,10 @@ const OpenStackNetworkDetails: React.FC<OpenStackNetworkDetailsProps> = ({
                         alignItems: 'center',
                         marginBottom: 8,
                         fontSize: 13,
-                        color: '#374151',
+                        color: 'var(--text-primary)',
                         fontWeight: 600
                     }}>
-                        <CloudOutlined style={{ color: '#495057', marginRight: 6, fontSize: 14 }} />
+                        <CloudOutlined style={{ color: 'var(--text-secondary)', marginRight: 6, fontSize: 14 }} />
                         Subnets ({network.subnets.length})
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>

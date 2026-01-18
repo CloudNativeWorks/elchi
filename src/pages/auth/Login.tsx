@@ -231,10 +231,10 @@ const Login = () => {
                             <KeyOutlined style={{ color: '#fff', fontSize: 20 }} />
                         </div>
                         <div>
-                            <div style={{ fontSize: 18, fontWeight: 600, color: '#262626' }}>
+                            <div style={{ fontSize: 18, fontWeight: 600, color: 'var(--text-primary)' }}>
                                 Two-Factor Authentication
                             </div>
-                            <div style={{ fontSize: 13, fontWeight: 400, color: '#8c8c8c', marginTop: 2 }}>
+                            <div style={{ fontSize: 13, fontWeight: 400, color: 'var(--text-secondary)', marginTop: 2 }}>
                                 Enter your 6-digit code
                             </div>
                         </div>
@@ -250,7 +250,7 @@ const Login = () => {
                 width={520}
                 centered
                 styles={{
-                    header: { paddingBottom: 20, borderBottom: '1px solid #f0f0f0' },
+                    header: { paddingBottom: 20, borderBottom: '1px solid var(--border-default)', background: 'transparent' },
                     body: { paddingTop: 24, paddingBottom: 24, paddingLeft: 32, paddingRight: 32 }
                 }}
             >

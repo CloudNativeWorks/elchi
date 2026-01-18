@@ -1,13 +1,14 @@
 // Header.tsx
 import { useEffect, useState } from "react";
 import { Row, Col, Avatar, Space, Dropdown, Button, Tooltip, Badge, Input } from "antd";
-import { RobotOutlined, ExclamationCircleOutlined, SearchOutlined } from "@ant-design/icons";
+import { RobotOutlined, ExclamationCircleOutlined, SearchOutlined, SunOutlined, MoonOutlined, UserOutlined, LogoutOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useLogout } from "../../pages/auth/Logout";
 import logoelchi from "../../assets/images/logo_white.png";
 import { UserDetail } from "@/common/types";
 import { useErrorSummary } from "@/hooks/useErrorSummary";
 import { useProjectVariable } from "@/hooks/useProjectVariable";
+import { useTheme } from "@/contexts/ThemeContext";
 
 
 interface HeaderProps {
@@ -19,6 +20,7 @@ function Header({ userDetail }: Readonly<HeaderProps>) {
 	const navigate = useNavigate();
 	const { project } = useProjectVariable();
 	const [searchExpanded, setSearchExpanded] = useState(false);
+	const { isDark, toggleTheme } = useTheme();
 
 	const { data: errorSummary } = useErrorSummary({
 		project,
@@ -29,6 +31,7 @@ function Header({ userDetail }: Readonly<HeaderProps>) {
 		{
 			key: 'profile',
 			label: 'My Profile',
+			icon: <UserOutlined />,
 			onClick: () => navigate('/profile'),
 		},
 		{
@@ -37,6 +40,7 @@ function Header({ userDetail }: Readonly<HeaderProps>) {
 		{
 			key: 'logout',
 			label: 'Log out',
+			icon: <LogoutOutlined />,
 			onClick: logout,
 		}
 	];
@@ -67,12 +71,12 @@ function Header({ userDetail }: Readonly<HeaderProps>) {
 						marginTop: 12,
 						marginBottom: 12,
 						padding: '12px 16px',
-						borderBottom: '1px solid #f0f0f0'
+						borderBottom: '1px solid var(--border-default)'
 					}}>
-						<ExclamationCircleOutlined style={{ color: '#ff4d4f', fontSize: 14 }} />
+						<ExclamationCircleOutlined style={{ color: 'var(--color-danger)', fontSize: 14 }} />
 						<span style={{ fontWeight: 600 }}>Configuration Errors</span>
 						<span style={{
-							background: '#ff4d4f',
+							background: 'var(--color-danger)',
 							color: 'white',
 							padding: '1px 6px',
 							borderRadius: 8,
@@ -92,14 +96,14 @@ function Header({ userDetail }: Readonly<HeaderProps>) {
 						padding: '0 16px 12px'
 					}}>
 						{errorSummary.services.map((service: any) => {
-							const statusColor = service.status === 'Critical' ? '#ff4d4f' :
-								service.status === 'Error' ? '#ff7875' : '#faad14';
+							const statusColor = service.status === 'Critical' ? 'var(--color-danger)' :
+								service.status === 'Error' ? 'var(--color-danger)' : 'var(--color-warning)';
 
 							return (
 								<div
 									key={service.name}
 									style={{
-										background: '#fafafa',
+										background: 'var(--bg-hover)',
 										borderRadius: 6,
 										padding: 8,
 										display: 'flex',
@@ -112,10 +116,10 @@ function Header({ userDetail }: Readonly<HeaderProps>) {
 										navigate(`/services/${service.id}`);
 									}}
 									onMouseEnter={e => {
-										e.currentTarget.style.background = '#f0f0f0';
+										e.currentTarget.style.background = 'var(--bg-active)';
 									}}
 									onMouseLeave={e => {
-										e.currentTarget.style.background = '#fafafa';
+										e.currentTarget.style.background = 'var(--bg-hover)';
 									}}
 								>
 									<div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -135,7 +139,7 @@ function Header({ userDetail }: Readonly<HeaderProps>) {
 										</div>
 										<span style={{
 											fontSize: 12,
-											color: '#262626'
+											color: 'var(--text-primary)'
 										}}>
 											{service.name}
 										</span>
@@ -199,12 +203,59 @@ function Header({ userDetail }: Readonly<HeaderProps>) {
 					background: rgba(255, 255, 255, 0.15) !important;
 					border: 1px solid rgba(255, 255, 255, 0.3) !important;
 					color: white !important;
+					width: 32px !important;
+					height: 32px !important;
+					padding: 0 !important;
+					display: flex !important;
+					alignItems: center !important;
+					justifyContent: center !important;
+					border-radius: 8px !important;
 					transition: all 0.3s ease !important;
 				}
 				.search-icon-button:hover {
 					background: rgba(255, 255, 255, 0.25) !important;
 					border-color: rgba(255, 255, 255, 0.5) !important;
-					transform: scale(1.05);
+					transform: translateY(-1px);
+				}
+				.search-icon-button .anticon {
+					font-size: 16px;
+				}
+				.ai-analyzer-button {
+					height: 32px !important;
+					border-radius: 8px !important;
+					background: linear-gradient(90deg, #722ed1 0%, #1890ff 100%) !important;
+					border: none !important;
+					box-shadow: 0 2px 4px rgba(114, 46, 209, 0.3) !important;
+					display: flex !important;
+					align-items: center !important;
+					padding: 0 12px !important;
+					transition: all 0.3s ease !important;
+				}
+				.ai-analyzer-button:hover {
+					transform: translateY(-1px);
+					box-shadow: 0 4px 8px rgba(114, 46, 209, 0.4) !important;
+					filter: brightness(1.1);
+				}
+				.theme-toggle-button {
+					background: rgba(255, 255, 255, 0.15) !important;
+					border: 1px solid rgba(255, 255, 255, 0.3) !important;
+					color: white !important;
+					width: 32px !important;
+					height: 32px !important;
+					padding: 0 !important;
+					display: flex !important;
+					align-items: center !important;
+					justifyContent: center !important;
+					border-radius: 8px !important;
+					transition: all 0.3s ease !important;
+				}
+				.theme-toggle-button:hover {
+					background: rgba(255, 255, 255, 0.25) !important;
+					border-color: rgba(255, 255, 255, 0.5) !important;
+					transform: translateY(-1px);
+				}
+				.theme-toggle-button .anticon {
+					font-size: 16px;
 				}
 			`}</style>
 			<div className="header" style={{ width: '100%', height: '100%', position: 'relative' }}>
@@ -242,16 +293,19 @@ function Header({ userDetail }: Readonly<HeaderProps>) {
 							<Tooltip title="AI Configuration Analyzer">
 								<Button
 									type="primary"
-									icon={<RobotOutlined />}
+									className="ai-analyzer-button"
+									icon={<RobotOutlined style={{ fontSize: 16 }} />}
 									onClick={handleAIClick}
-									style={{
-										background: 'linear-gradient(90deg, #722ed1 0%, #1890ff 100%)',
-										border: 'none',
-										boxShadow: '0 2px 4px rgba(114, 46, 209, 0.3)',
-									}}
 								>
 									AI Analyzer
 								</Button>
+							</Tooltip>
+							<Tooltip title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
+								<Button
+									className="theme-toggle-button"
+									icon={isDark ? <SunOutlined /> : <MoonOutlined />}
+									onClick={toggleTheme}
+								/>
 							</Tooltip>
 							{errorSummary && errorSummary.total_error > 0 && (
 								<Dropdown
@@ -262,7 +316,7 @@ function Header({ userDetail }: Readonly<HeaderProps>) {
 									trigger={['click']}
 									placement="bottomRight"
 									arrow={{ pointAtCenter: true }}
-														getPopupContainer={(triggerNode) => triggerNode.parentElement as HTMLElement}
+									getPopupContainer={(triggerNode) => triggerNode.parentElement as HTMLElement}
 								>
 									<Badge count={errorSummary.total_error > 99 ? '99+' : errorSummary.total_error} size="small">
 										<Button

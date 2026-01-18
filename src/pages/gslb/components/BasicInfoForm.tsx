@@ -31,15 +31,15 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({ isEditMode, zone, disable
     return (
         <div
             style={{
-                background: 'white',
+                background: 'var(--card-bg)',
                 borderRadius: 12,
-                border: '1px solid #e5e7eb',
-                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                border: '1px solid var(--border-default)',
+                boxShadow: 'var(--shadow-sm)',
                 padding: '24px',
                 marginBottom: 16,
             }}
         >
-            <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 24 }}>DNS Information</div>
+            <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 24, color: 'var(--text-primary)' }}>DNS Information</div>
             <div>
                 {/* FQDN */}
                 <Form.Item
@@ -69,7 +69,7 @@ const BasicInfoForm: React.FC<BasicInfoFormProps> = ({ isEditMode, zone, disable
                                 <Tooltip title="Copy CNAME">
                                     <CopyOutlined
                                         onClick={handleCopyFQDN}
-                                        style={{ cursor: 'pointer', color: '#1890ff' }}
+                                        style={{ cursor: 'pointer', color: 'var(--color-primary)' }}
                                     />
                                 </Tooltip>
                             )

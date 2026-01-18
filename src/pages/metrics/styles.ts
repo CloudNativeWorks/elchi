@@ -251,22 +251,22 @@ export const FloatingButton = styled(Button) <{ $isOpen: boolean }>`
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: -2px 0 8px rgba(0,0,0,0.1);
-    background: ${props => props.$isOpen ? '#1890ff' : 'white'};
-    border-color: ${props => props.$isOpen ? '#1890ff' : '#d9d9d9'};
-    color: ${props => props.$isOpen ? 'white' : '#1890ff'};
+    box-shadow: -2px 0 8px var(--shadow-color, rgba(0,0,0,0.1));
+    background: ${props => props.$isOpen ? 'var(--color-primary)' : 'var(--bg-surface)'};
+    border-color: ${props => props.$isOpen ? 'var(--color-primary)' : 'var(--border-default)'};
+    color: ${props => props.$isOpen ? 'white' : 'var(--color-primary)'};
     border-right: none;
     padding: 0;
-    
+
     &:hover {
-        background: ${props => props.$isOpen ? '#096dd9' : '#f0f7ff'};
-        border-color: ${props => props.$isOpen ? '#096dd9' : '#1890ff'};
-        color: ${props => props.$isOpen ? 'white' : '#1890ff'};
+        background: ${props => props.$isOpen ? 'var(--color-primary-hover)' : 'var(--bg-hover)'};
+        border-color: ${props => props.$isOpen ? 'var(--color-primary-hover)' : 'var(--color-primary)'};
+        color: ${props => props.$isOpen ? 'white' : 'var(--color-primary)'};
         width: 20px;
     }
-    
+
     transition: all 0.3s ease;
-    
+
     .anticon {
         transform: rotate(90deg);
         font-size: 12px;
@@ -275,21 +275,21 @@ export const FloatingButton = styled(Button) <{ $isOpen: boolean }>`
 
 export const SearchContainer = styled.div`
     padding: 16px;
-    border-bottom: 1px solid #f0f0f0;
-    background: #fafafa;
+    border-bottom: 1px solid var(--border-default);
+    background: var(--bg-elevated);
 `;
 
 export const SectionHeader = styled.div`
     padding: 12px 16px 8px;
-    background: #f8f9fa;
-    border-bottom: 1px solid #e8e8e8;
+    background: var(--bg-elevated);
+    border-bottom: 1px solid var(--border-default);
     display: flex;
     align-items: center;
     gap: 8px;
-    
+
     .ant-typography {
         margin: 0;
-        color: #1890ff;
+        color: var(--color-primary);
         font-weight: 600;
     }
 `;
@@ -299,37 +299,37 @@ export const MetricItem = styled.div<{ $isHighlighted: boolean }>`
     margin: 0;
     cursor: pointer;
     border-left: 3px solid transparent;
-    background: ${props => props.$isHighlighted ? 'rgba(24, 144, 255, 0.05)' : 'transparent'};
-    border-left-color: ${props => props.$isHighlighted ? '#1890ff' : 'transparent'};
+    background: ${props => props.$isHighlighted ? 'var(--color-primary-bg)' : 'transparent'};
+    border-left-color: ${props => props.$isHighlighted ? 'var(--color-primary)' : 'transparent'};
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    
+
     &:hover {
-        background: rgba(24, 144, 255, 0.08);
-        border-left-color: #1890ff;
+        background: var(--color-primary-bg);
+        border-left-color: var(--color-primary);
     }
-    
+
     transition: all 0.2s ease;
-    
+
     .metric-title {
         font-weight: 500;
-        color: #333;
+        color: var(--text-primary);
         margin-bottom: 4px;
         display: flex;
         align-items: center;
         gap: 6px;
     }
-    
+
     .metric-meta {
-        color: #666;
+        color: var(--text-secondary);
         font-size: 12px;
     }
 `;
 
 export const CountBadge = styled(Badge)`
     .ant-badge-count {
-        background: #1890ff;
+        background: var(--color-primary);
         font-size: 10px;
         min-width: 16px;
         height: 16px;

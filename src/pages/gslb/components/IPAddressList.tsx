@@ -210,7 +210,7 @@ const IPAddressList: React.FC<IPAddressListProps> = ({ ips, onChange, recordId, 
             render: (code?: number) => (
                 code !== undefined ? (
                     <Text strong style={{
-                        color: code >= 200 && code < 300 ? '#52c41a' : '#ff4d4f'
+                        color: code >= 200 && code < 300 ? 'var(--color-success)' : 'var(--color-danger)'
                     }}>
                         {code}
                     </Text>
@@ -368,7 +368,7 @@ const IPAddressList: React.FC<IPAddressListProps> = ({ ips, onChange, recordId, 
                                 onClick={() => handleToggleHealth(record.ip, record.health_state)}
                                 loading={togglingHealthIP === record.ip}
                                 style={{
-                                    color: record.health_state === 'critical' ? '#52c41a' : '#ff4d4f'
+                                    color: record.health_state === 'critical' ? 'var(--color-success)' : 'var(--color-danger)'
                                 }}
                             />
                         </Tooltip>
@@ -393,16 +393,16 @@ const IPAddressList: React.FC<IPAddressListProps> = ({ ips, onChange, recordId, 
         <>
             <div
                 style={{
-                    background: 'white',
+                    background: 'var(--card-bg)',
                     borderRadius: 12,
-                    border: '1px solid #e5e7eb',
-                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                    border: '1px solid var(--border-default)',
+                    boxShadow: 'var(--shadow-sm)',
                     padding: '24px',
                     marginBottom: 16,
                 }}
             >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-                    <div style={{ fontSize: 16, fontWeight: 600 }}>Records</div>
+                    <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)' }}>Records</div>
                     <ElchiButton
                         type="primary"
                         icon={<PlusOutlined />}
@@ -501,10 +501,10 @@ const IPAddressList: React.FC<IPAddressListProps> = ({ ips, onChange, recordId, 
             <Drawer
                 title={
                     <Space>
-                        <HistoryOutlined style={{ fontSize: 18, color: '#1890ff' }} />
+                        <HistoryOutlined style={{ fontSize: 18, color: 'var(--color-primary)' }} />
                         <div>
                             <div style={{ fontWeight: 600 }}>Status History</div>
-                            <div style={{ fontSize: 12, fontWeight: 400, color: '#8c8c8c' }}>{selectedIP}</div>
+                            <div style={{ fontSize: 12, fontWeight: 400, color: 'var(--text-secondary)' }}>{selectedIP}</div>
                         </div>
                     </Space>
                 }
@@ -543,10 +543,10 @@ const IPAddressList: React.FC<IPAddressListProps> = ({ ips, onChange, recordId, 
                     <div style={{
                         padding: 60,
                         textAlign: 'center',
-                        background: '#fafafa',
+                        background: 'var(--bg-surface)',
                         borderRadius: 8
                     }}>
-                        <HistoryOutlined style={{ fontSize: 48, color: '#d9d9d9', marginBottom: 16 }} />
+                        <HistoryOutlined style={{ fontSize: 48, color: 'var(--text-disabled)', marginBottom: 16 }} />
                         <div>
                             <Text type="secondary">No status history available</Text>
                         </div>

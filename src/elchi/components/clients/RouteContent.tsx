@@ -251,8 +251,8 @@ const RouteContent: React.FC<RouteContentProps> = ({ routes, loading, interfaces
                 if (SYSTEM_SOURCES.includes(text)) {
                     return (
                         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                            <LockOutlined style={{ color: '#8c8c8c', fontSize: 12 }} />
-                            <span style={{ color: '#8c8c8c' }}>{text}</span>
+                            <LockOutlined style={{ color: 'var(--text-tertiary)', fontSize: 12 }} />
+                            <span style={{ color: 'var(--text-tertiary)' }}>{text}</span>
                         </div>
                     );
                 }
@@ -260,8 +260,8 @@ const RouteContent: React.FC<RouteContentProps> = ({ routes, loading, interfaces
                     return (
                         <Tooltip title={PROTECTED_PROTOCOLS[record.protocol]} placement="topLeft">
                             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                                <LockOutlined style={{ color: '#8c8c8c', fontSize: 12 }} />
-                                <span style={{ color: '#8c8c8c' }}>{text || record.protocol}</span>
+                                <LockOutlined style={{ color: 'var(--text-tertiary)', fontSize: 12 }} />
+                                <span style={{ color: 'var(--text-tertiary)' }}>{text || record.protocol}</span>
                             </div>
                         </Tooltip>
                     );
@@ -317,11 +317,11 @@ const RouteContent: React.FC<RouteContentProps> = ({ routes, loading, interfaces
                     onClick={handleAddRoute}
                     loading={actionLoading}
                     style={{
-                        background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                        background: 'var(--gradient-primary)',
                         border: 'none',
                         borderRadius: 8,
                         fontWeight: 500,
-                        boxShadow: '0 2px 8px rgba(0,198,251,0.10)',
+                        boxShadow: '0 2px 8px var(--shadow-primary)',
                     }}
                     className="modern-add-btn"
                 >
@@ -337,9 +337,10 @@ const RouteContent: React.FC<RouteContentProps> = ({ routes, loading, interfaces
                 pagination={false}
                 size="middle"
                 style={{
-                    background: '#fff',
+                    background: 'var(--card-bg)',
                     borderRadius: 12,
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                    boxShadow: 'var(--shadow-sm)',
+                    border: '1px solid var(--border-default)'
                 }}
                 components={{
                     body: {
@@ -347,15 +348,15 @@ const RouteContent: React.FC<RouteContentProps> = ({ routes, loading, interfaces
                             if (props['data-row-key'] === 'divider') {
                                 return (
                                     <tr>
-                                        <td colSpan={8} style={{ padding: '8px 16px', background: '#fafafa' }}>
+                                        <td colSpan={8} style={{ padding: '8px 16px', background: 'var(--bg-surface)' }}>
                                             <div style={{
                                                 display: 'flex',
                                                 alignItems: 'center',
                                                 gap: 8,
-                                                color: '#8c8c8c',
+                                                color: 'var(--text-tertiary)',
                                                 fontSize: 13
                                             }}>
-                                                <Divider orientation='left' orientationMargin={0} style={{ marginLeft: -12, marginBottom: 0, marginTop: 0, fontSize: 12, color: '#8c8c8c' }} >System Routes </Divider>
+                                                <Divider orientation='left' orientationMargin={0} style={{ marginLeft: -12, marginBottom: 0, marginTop: 0, fontSize: 12, color: 'var(--text-tertiary)' }} >System Routes </Divider>
                                             </div>
                                         </td>
                                     </tr>

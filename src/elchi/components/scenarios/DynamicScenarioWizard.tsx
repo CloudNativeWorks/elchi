@@ -3,11 +3,11 @@ import { Steps, Card, Spin, Alert, Button } from 'antd';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import { showErrorNotification, showSuccessNotification } from '@/common/notificationHandler';
-import { 
-    useScenarioAPI, 
-    ComponentInstance, 
+import {
+    useScenarioAPI,
+    ComponentInstance,
     generateScenarioId,
-    ValidateScenarioResponse 
+    ValidateScenarioResponse
 } from './hooks/useScenarioAPI';
 
 // Import step components
@@ -27,16 +27,16 @@ const DynamicScenarioWizard: React.FC = () => {
     const navigate = useNavigate();
     const { scenarioId } = useParams<{ scenarioId?: string }>();
     const { project } = useProjectVariable();
-    const { 
-        useCreateScenario, 
+    const {
+        useCreateScenario,
         useUpdateScenario,
-        useGetScenario 
+        useGetScenario
     } = useScenarioAPI();
-    
+
     const createMutation = useCreateScenario();
     const updateMutation = useUpdateScenario();
     const { data: existingScenario, isLoading: scenarioLoading, error: scenarioError } = useGetScenario(scenarioId || '');
-    
+
     const isEditMode = Boolean(scenarioId);
 
     const [currentStep, setCurrentStep] = useState(0);
@@ -50,7 +50,7 @@ const DynamicScenarioWizard: React.FC = () => {
     const [apiValidationError, setApiValidationError] = useState<ValidateScenarioResponse | null>(null);
     const [formattedErrorMessage, setFormattedErrorMessage] = useState<string | null>(null);
     const [createError, setCreateError] = useState<string | null>(null);
-    
+
     // Load existing scenario data for edit mode
     useEffect(() => {
         if (existingScenario && isEditMode) {
@@ -69,9 +69,9 @@ const DynamicScenarioWizard: React.FC = () => {
         if (createError) {
             // Use setTimeout to ensure the error is rendered first
             setTimeout(() => {
-                window.scrollTo({ 
-                    top: 0, 
-                    behavior: 'smooth' 
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
                 });
                 // Alternative fallback
                 document.documentElement.scrollTop = 0;
@@ -125,7 +125,7 @@ const DynamicScenarioWizard: React.FC = () => {
                     description: basicInfo.description,
                     components: components
                 };
-                
+
                 await updateMutation.mutateAsync({
                     scenarioId,
                     data: updateData
@@ -144,13 +144,13 @@ const DynamicScenarioWizard: React.FC = () => {
                 await createMutation.mutateAsync(scenarioData);
                 showSuccessNotification('Scenario created successfully!');
             }
-            
+
             navigate('/scenarios');
-        } catch (error: any) {            
+        } catch (error: any) {
             // Check if this is a validation error with enhanced structure
             const responseData = error.response?.data;
-            if (responseData?.data && 
-                responseData.data.hasOwnProperty('valid') && 
+            if (responseData?.data &&
+                responseData.data.hasOwnProperty('valid') &&
                 responseData.data.hasOwnProperty('errors')) {
                 // Enhanced validation error from backend
                 setApiValidationError(responseData.data);
@@ -221,28 +221,28 @@ const DynamicScenarioWizard: React.FC = () => {
                                     <div>
                                         {(() => {
                                             const errorMessage = createError || 'Unknown error';
-                                            
+
                                             // Always show modern error display for any error
                                             const cleanMessage = errorMessage
                                                 .replace(/failed to save component .+ to database: failed to save resource via XDS SetResource: Validation error: /, '')
                                                 .replace(/Validation error: /, '')
                                                 .trim();
-                                            
+
                                             // Split by newlines and filter out empty lines
                                             const validationErrors = cleanMessage
                                                 .split(/\n/)
                                                 .map(line => line.trim())
                                                 .filter(line => line.length > 0)
                                                 .map(line => line.startsWith(':') ? line.substring(1).trim() : line);
-                                            
+
                                             // Always show modern card-based display
                                             return (
                                                 <div style={{ marginTop: '12px' }}>
                                                     <p style={{ marginBottom: '16px', color: '#ff4d4f', fontWeight: 500 }}>
                                                         Please fix the following configuration issue{validationErrors.length > 1 ? 's' : ''}:
                                                     </p>
-                                                    <ul style={{ 
-                                                        margin: 0, 
+                                                    <ul style={{
+                                                        margin: 0,
                                                         paddingLeft: '0',
                                                         listStyle: 'none'
                                                     }}>
@@ -250,8 +250,8 @@ const DynamicScenarioWizard: React.FC = () => {
                                                             <li key={index} style={{
                                                                 marginBottom: '12px',
                                                                 padding: '12px 16px',
-                                                                backgroundColor: '#fff2f0',
-                                                                border: '1px solid #ffccc7',
+                                                                backgroundColor: 'rgba(255, 77, 79, 0.1)',
+                                                                border: '1px solid rgba(255, 77, 79, 0.2)',
                                                                 borderRadius: '6px',
                                                                 borderLeft: '4px solid #ff4d4f'
                                                             }}>
@@ -271,8 +271,8 @@ const DynamicScenarioWizard: React.FC = () => {
                                                                     }}>
                                                                         {index + 1}
                                                                     </span>
-                                                                    <span style={{ 
-                                                                        color: '#595959',
+                                                                    <span style={{
+                                                                        color: 'var(--text-primary)',
                                                                         lineHeight: '1.5',
                                                                         fontSize: '14px'
                                                                     }}>
@@ -343,13 +343,13 @@ const DynamicScenarioWizard: React.FC = () => {
                     <h2 style={{ marginBottom: '8px' }}>
                         {isEditMode ? 'Edit Scenario' : 'Create Scenario'}
                     </h2>
-                    <p style={{ color: '#666', marginBottom: '24px' }}>
-                        {isEditMode 
+                    <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>
+                        {isEditMode
                             ? 'Modify your dynamic scenario configuration. You can update components, fields, and basic information.'
                             : 'Create a fully customizable proxy configuration scenario by selecting resources and their specific fields. Build exactly what you need.'
                         }
                     </p>
-                    
+
                     <Steps
                         current={currentStep}
                         items={steps.map(step => ({

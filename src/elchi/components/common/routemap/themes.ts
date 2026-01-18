@@ -3,16 +3,16 @@
  */
 
 export const ThemeColors = {
-    // Background colors
-    background: '#f8fafc',
-    backgroundSolid: '#f8fafc',
+    // Background colors - use CSS variables for dark mode
+    background: 'var(--bg-body)',
+    backgroundSolid: 'var(--bg-body)',
 
-    // Glass morphism effect
+    // Glass morphism effect - use CSS variables
     glass: {
-        background: 'rgba(255, 255, 255, 0.85)',
+        background: 'var(--glass-bg)',
         backdrop: 'blur(12px)',
-        border: 'rgba(226, 232, 240, 0.8)',
-        shadow: '0 8px 32px rgba(0, 0, 0, 0.08)',
+        border: 'var(--border-default)',
+        shadow: 'var(--glass-shadow)',
     },
 
     // Node styles by route map type

@@ -451,24 +451,24 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({
                         {enabled ? (
                             <span style={{
                                 display: 'inline-block',
-                                background: '#f6ffed',
-                                color: '#52c41a',
+                                background: 'var(--color-success-light)',
+                                color: 'var(--color-success)',
                                 borderRadius: 4,
-                                border: '1px solid #52c41a',
+                                border: '1px solid var(--color-success)',
                                 padding: '2px 12px',
                                 fontWeight: 'bold',
                                 fontSize: 10,
-                                boxShadow: '0 1px 4px rgba(82,196,26,0.08)'
+                                boxShadow: 'var(--color-success-shadow)'
                             }}>
                                 Managed
                             </span>
                         ) : (
                             <span style={{
                                 display: 'inline-block',
-                                background: '#f5f5f5',
-                                color: '#8c8c8c',
+                                background: 'var(--bg-disabled)',
+                                color: 'var(--text-tertiary)',
                                 borderRadius: 4,
-                                border: '1px solid #8c8c8c',
+                                border: '1px solid var(--text-tertiary)',
                                 padding: '2px 12px',
                                 fontWeight: 'bold',
                                 fontSize: 10,

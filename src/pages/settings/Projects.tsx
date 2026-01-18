@@ -104,7 +104,7 @@ const Projects: React.FC = () => {
                                 padding: 0,
                                 cursor: 'pointer',
                                 textDecoration: 'underline',
-                                color: 'blue',
+                                color: 'var(--color-primary)',
                                 display: 'flex',
                                 alignItems: 'center',
                             }}
@@ -126,7 +126,7 @@ const Projects: React.FC = () => {
                 <Dropdown menu={{ items: listenerActions, onClick: (e) => onClick(record, e.key) }} trigger={['contextMenu']}>
                     <div>
                         <Link to={`projects/${record.projectname}?project_id=${record._id}`}>
-                            <Text strong>{`${record.projectname}`}</Text>
+                            <Text strong style={{ color: 'var(--color-primary)' }}>{`${record.projectname}`}</Text>
                         </Link>
                     </div>
                 </Dropdown>
@@ -141,7 +141,7 @@ const Projects: React.FC = () => {
             sortDirections: ['descend', 'ascend'],
             render: (record) => (
                 <Dropdown menu={{ items: listenerActions }} trigger={['contextMenu']}>
-                    <div>
+                    <div style={{ color: 'var(--text-primary)' }}>
                         {DateTimeTool(record)}
                     </div>
                 </Dropdown>
@@ -156,7 +156,7 @@ const Projects: React.FC = () => {
             sortDirections: ['descend', 'ascend'],
             render: (record) => (
                 <Dropdown menu={{ items: listenerActions }} trigger={['contextMenu']}>
-                    <div>
+                    <div style={{ color: 'var(--text-primary)' }}>
                         {DateTimeTool(record)}
                     </div>
                 </Dropdown>
@@ -168,11 +168,12 @@ const Projects: React.FC = () => {
         <>
             {contextHolder}
             <div style={{
-                background: '#fff',
+                background: 'var(--card-bg)',
                 padding: '12px 12px 24px 12px',
                 borderRadius: 12,
-                boxShadow: '0 2px 8px rgba(5,117,230,0.06)',
-                margin: '4px 0'
+                boxShadow: 'var(--shadow-sm)',
+                margin: '4px 0',
+                border: '1px solid var(--border-default)'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16, justifyContent: 'space-between' }}>
                     <NavLink style={{ display: 'inline-block' }} to={"/settings/create/project"}>
@@ -209,7 +210,7 @@ const Projects: React.FC = () => {
                     <div style={{
                         display: 'inline-flex',
                         alignItems: 'center',
-                        color: '#8c8c8c',
+                        color: 'var(--text-tertiary)',
                         fontSize: 12,
                         padding: '4px 0',
                         gap: 6
@@ -227,7 +228,7 @@ const Projects: React.FC = () => {
                 <Modal
                     title={
                         <span>
-                            <ExclamationCircleFilled style={{ color: '#faad14', marginRight: '8px' }} />
+                            <ExclamationCircleFilled style={{ color: 'var(--color-warning)', marginRight: '8px' }} />
                             Are you sure you want to delete this project?
                         </span>
                     }

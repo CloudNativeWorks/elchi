@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Divider, Button, Table, Modal, Input, Select } from "antd";
+import { Divider, Button, Table, Modal, Input, Select, Popconfirm } from "antd";
 import { ActionType, ResourceType } from "@/redux/reducer-helpers/common";
 import { handleChangeResources } from "@/redux/dispatcher";
 import { compareVeriReduxStoreOnly, memorizeComponent } from "@/hooks/useMemoComponent";
 import type { ColumnsType } from 'antd/es/table';
 import { ResourceAction } from "@/redux/reducers/slice";
 import { AddSVG, AddIpSVG } from "@/assets/svg/icons";
-import { DeleteTwoTone, InboxOutlined } from '@ant-design/icons';
+import { DeleteOutlined, InboxOutlined } from '@ant-design/icons';
 import ECard from "@/elchi/components/common/ECard";
 import ComponentPrincipal from "./principal";
 import { useModels } from "@/hooks/useModels";
@@ -82,7 +82,7 @@ const ComponentPrincipals: React.FC<GeneralProps> = ({ veri }) => {
             .split(/[\n,]+/)
             .map(ip => ip.trim())
             .filter(ip => ip);
-    
+
         const ipObjects = ipList.map(ip => {
             const [address, prefix] = ip.includes("/") ? ip.split("/") : [ip, "32"];
             return {
@@ -92,7 +92,7 @@ const ComponentPrincipals: React.FC<GeneralProps> = ({ veri }) => {
                 }
             };
         });
-    
+
         ipObjects.forEach(ipObject => {
             handleChangeResources({
                 version: veri.version,
@@ -102,7 +102,7 @@ const ComponentPrincipals: React.FC<GeneralProps> = ({ veri }) => {
                 resourceType: ResourceType.Resource
             }, dispatch, ResourceAction);
         });
-    
+
         setIsModalVisible(false);
         setIpInput("");
         setIpType("direct_remote_ip");
@@ -125,18 +125,36 @@ const ComponentPrincipals: React.FC<GeneralProps> = ({ veri }) => {
             width: "10%",
             key: 'x',
             render: (_, __, index) =>
-                <Button
-                    icon={<DeleteTwoTone twoToneColor="#eb2f96" />}
-                    size='small'
-                    onClick={(e) => handleDeleteRedux({ event: e, index: index })}
-                    style={{ marginRight: 8 }}
-                    iconPosition={"end"}
-                />,
+                <Popconfirm
+                    title="Delete confirmation"
+                    description="Are you sure you want to delete this item?"
+                    onConfirm={(e) => handleDeleteRedux({ event: e as React.MouseEvent<HTMLElement>, index: index })}
+                    okText="Yes"
+                    cancelText="No"
+                    placement="left"
+                >
+                    <Button
+                        type="text"
+                        danger
+                        icon={<DeleteOutlined style={{ color: 'var(--color-danger)' }} />}
+                        size='small'
+                        className="elchi-delete-button"
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: 'var(--color-danger-light)',
+                            border: '1px solid var(--color-danger-border)',
+                            borderRadius: '6px'
+                        }}
+                    />
+                </Popconfirm>,
         },
     ];
 
     return (
-        <ECard 
+        <ECard
             title={"Principals"}
             reduxStore={veri.reduxStore}
             ctype="rbac_principals"

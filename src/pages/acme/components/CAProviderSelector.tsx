@@ -75,7 +75,7 @@ const CAProviderSelector: React.FC<CAProviderSelectorProps> = ({
       </Select>
 
       {selectedProvider && (
-        <Card size="small" style={{ backgroundColor: '#f6f8fa' }}>
+        <Card size="small" style={{ backgroundColor: 'var(--bg-elevated)' }}>
           <Space direction="vertical" size="small" style={{ width: '100%' }}>
             <Text type="secondary">{selectedProvider.description}</Text>
 

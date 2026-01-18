@@ -6,6 +6,7 @@ import { useCustomGetQuery, api } from '@/common/api';
 import { useMutation } from '@tanstack/react-query';
 import ElchiButton from '@/elchi/components/common/ElchiButton';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const { Text, Title } = Typography;
 
@@ -98,6 +99,7 @@ const safeNumberCompare = (a: number | null | undefined, b: number | null | unde
 const RegistryInfo: React.FC = () => {
     const { project } = useProjectVariable();
     const { modal } = AntdApp.useApp();
+    const { isDark } = useTheme();
     const [controlPlaneSearchTerm, setControlPlaneSearchTerm] = useState('');
     const [controllerSearchTerm, setControllerSearchTerm] = useState('');
     const [controlPlanePage, setControlPlanePage] = useState(1);
@@ -144,7 +146,7 @@ const RegistryInfo: React.FC = () => {
             }
         });
     };
-    
+
     // Original delete mutation for snapshot functionality
     const useOriginalDeleteMutation = () => {
         return useMutation({
@@ -154,7 +156,7 @@ const RegistryInfo: React.FC = () => {
             }
         });
     };
-    
+
     const clearSnapshotMutation = useOriginalDeleteMutation();
     const deleteControlPlaneMutation = useRegistryDeleteMutation();
     const deleteControllerMutation = useRegistryDeleteMutation();
@@ -187,7 +189,7 @@ const RegistryInfo: React.FC = () => {
                 width="100%"
                 language="json"
                 value={JSON.stringify(data, null, 2)}
-                theme="vs-light"
+                theme={isDark ? 'vs-dark' : 'vs-light'}
                 options={{
                     minimap: { enabled: false },
                     automaticLayout: true,
@@ -228,12 +230,11 @@ const RegistryInfo: React.FC = () => {
             cancelText: 'Cancel',
             onOk() {
                 clearSnapshotMutation.mutate(
-                    { 
-                        path: `bridge/nodes/${selectedNodeId}/snapshot${
-                            selectedControlPlaneVersion 
-                                ? `?version=${selectedControlPlaneVersion}&project=${project}` 
-                                : `?project=${project}`
-                        }` 
+                    {
+                        path: `bridge/nodes/${selectedNodeId}/snapshot${selectedControlPlaneVersion
+                            ? `?version=${selectedControlPlaneVersion}&project=${project}`
+                            : `?project=${project}`
+                            }`
                     },
                     {
                         onSuccess: () => {
@@ -412,7 +413,7 @@ const RegistryInfo: React.FC = () => {
                 justifyContent: 'center',
                 alignItems: 'center',
                 minHeight: '400px',
-                background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+                background: 'var(--bg-surface)',
                 borderRadius: '12px'
             }}>
                 <Space direction="vertical" align="center">
@@ -451,9 +452,9 @@ const RegistryInfo: React.FC = () => {
         const timestamp = (lastSeen?.seconds || 0) * 1000;
         const diff = initialLoadTime - timestamp;
 
-        if (diff < 60000) return '#52c41a'; // Green - Active (< 1 min)
-        if (diff < 300000) return '#faad14'; // Orange - Warning (< 5 min)
-        return '#ff4d4f'; // Red - Inactive (> 5 min)
+        if (diff < 60000) return 'var(--color-success)'; // Green - Active (< 1 min)
+        if (diff < 300000) return 'var(--color-warning)'; // Orange - Warning (< 5 min)
+        return 'var(--color-danger)'; // Red - Inactive (> 5 min)
     };
 
     // Prepare collapse items for detailed view
@@ -478,10 +479,10 @@ const RegistryInfo: React.FC = () => {
                         }} />
                         <Text code style={{
                             fontSize: '11px',
-                            background: '#f0f2f5',
+                            background: 'var(--code-bg)',
                             padding: '2px 6px',
                             borderRadius: '4px',
-                            color: '#1890ff'
+                            color: 'var(--color-primary)'
                         }}>
                             {text || 'N/A'}
                         </Text>
@@ -502,7 +503,7 @@ const RegistryInfo: React.FC = () => {
                 dataIndex: 'last_seen',
                 key: 'last_seen',
                 render: (lastSeen: any) => (
-                    <Text style={{ fontSize: '11px', color: '#666' }}>
+                    <Text style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
                         {formatTimestamp(lastSeen?.seconds, lastSeen?.nanos)}
                     </Text>
                 ),
@@ -560,7 +561,7 @@ const RegistryInfo: React.FC = () => {
                         <Badge
                             count={nodes.length}
                             style={{
-                                backgroundColor: '#52c41a',
+                                backgroundColor: 'var(--color-success)',
                                 boxShadow: '0 2px 4px rgba(82, 196, 26, 0.3)',
                                 fontSize: '11px',
                                 height: '20px',
@@ -598,7 +599,7 @@ const RegistryInfo: React.FC = () => {
                     scroll={{ x: true }}
                     style={{
                         marginTop: '8px',
-                        backgroundColor: '#fafafa',
+                        backgroundColor: 'var(--bg-elevated)',
                         borderRadius: '6px',
                         overflow: 'hidden'
                     }}
@@ -628,10 +629,10 @@ const RegistryInfo: React.FC = () => {
                         }} />
                         <Text code style={{
                             fontSize: '11px',
-                            background: '#f0f2f5',
+                            background: 'var(--code-bg)',
                             padding: '2px 6px',
                             borderRadius: '4px',
-                            color: '#722ed1'
+                            color: 'var(--color-purple)'
                         }}>
                             {text || 'N/A'}
                         </Text>
@@ -655,7 +656,7 @@ const RegistryInfo: React.FC = () => {
                 dataIndex: 'last_seen',
                 key: 'last_seen',
                 render: (lastSeen: any) => (
-                    <Text style={{ fontSize: '11px', color: '#666' }}>
+                    <Text style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
                         {formatTimestamp(lastSeen?.seconds, lastSeen?.nanos)}
                     </Text>
                 ),
@@ -696,7 +697,7 @@ const RegistryInfo: React.FC = () => {
                         <Badge
                             count={clients.length}
                             style={{
-                                backgroundColor: '#1890ff',
+                                backgroundColor: 'var(--color-primary)',
                                 boxShadow: '0 2px 4px rgba(24, 144, 255, 0.3)',
                                 fontSize: '11px',
                                 height: '20px',
@@ -726,13 +727,13 @@ const RegistryInfo: React.FC = () => {
                 <div style={{ marginTop: '8px' }}>
                     <div style={{
                         padding: '8px 12px',
-                        background: 'linear-gradient(90deg, #f0f9ff 0%, #e0f2fe 100%)',
+                        background: 'var(--color-info-light)',
                         borderRadius: '6px',
                         marginBottom: '8px',
-                        border: '1px solid #e6f7ff'
+                        border: '1px solid var(--color-info-border)'
                     }}>
                         <Space>
-                            <GlobalOutlined style={{ color: '#1890ff' }} />
+                            <GlobalOutlined style={{ color: 'var(--color-primary)' }} />
                             <Text strong style={{ fontSize: '12px' }}>HTTP Address:</Text>
                             <Text code style={{ fontSize: '11px' }}>{controller.http_address || 'N/A'}</Text>
                         </Space>
@@ -747,7 +748,7 @@ const RegistryInfo: React.FC = () => {
                         pagination={false}
                         scroll={{ x: true }}
                         style={{
-                            backgroundColor: '#fafafa',
+                            backgroundColor: 'var(--bg-elevated)',
                             borderRadius: '6px',
                             overflow: 'hidden'
                         }}
@@ -764,8 +765,8 @@ const RegistryInfo: React.FC = () => {
                 <div style={{ marginBottom: '24px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <div>
-                            <Title level={3} style={{ margin: '0 0 8px 0', color: '#1f2937', display: 'flex', alignItems: 'center', gap: 12 }}>
-                                <ApiOutlined style={{ color: '#1890ff' }} />
+                            <Title level={3} style={{ margin: '0 0 8px 0', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                                <ApiOutlined style={{ color: 'var(--color-primary)' }} />
                                 Registry Information
                             </Title>
                             <Text type="secondary">Monitor and manage system components, control planes, and controllers</Text>
@@ -782,15 +783,15 @@ const RegistryInfo: React.FC = () => {
                             </ElchiButton>
                             <Divider type="vertical" />
                             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                                <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#52c41a' }} />
+                                <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: 'var(--color-success)' }} />
                                 <Text type="secondary" style={{ fontSize: 12 }}>Active</Text>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                                <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#faad14' }} />
+                                <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: 'var(--color-warning)' }} />
                                 <Text type="secondary" style={{ fontSize: 12 }}>Warning</Text>
                             </div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                                <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: '#ff4d4f' }} />
+                                <div style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: 'var(--color-danger)' }} />
                                 <Text type="secondary" style={{ fontSize: 12 }}>Inactive</Text>
                             </div>
                         </div>
@@ -923,8 +924,8 @@ const RegistryInfo: React.FC = () => {
                     {/* Control Planes & Controllers Tabs */}
                     <Card
                         style={{
-                            background: '#fafafa',
-                            border: '1px solid #e8f4ff',
+                            background: 'var(--bg-surface)',
+                            border: '1px solid var(--border-default)',
                             borderRadius: 8,
                             margin: 0
                         }}
@@ -944,7 +945,7 @@ const RegistryInfo: React.FC = () => {
                                             <Badge
                                                 count={`${filteredControlPlanes.length}/${registryData?.data?.control_plane_data?.control_planes?.length || 0}`}
                                                 style={{
-                                                    backgroundColor: filteredControlPlanes.length > 0 ? '#52c41a' : '#d9d9d9',
+                                                    backgroundColor: filteredControlPlanes.length > 0 ? 'var(--color-success)' : 'var(--border-default)',
                                                     color: filteredControlPlanes.length > 0 ? '#fff' : '#666',
                                                     fontSize: '11px',
                                                     height: '20px',
@@ -963,14 +964,14 @@ const RegistryInfo: React.FC = () => {
                                                     </Text>
                                                     <Input
                                                         placeholder="Search control planes and nodes..."
-                                                        prefix={<SearchOutlined style={{ color: '#ccc' }} />}
+                                                        prefix={<SearchOutlined style={{ color: 'var(--text-tertiary)' }} />}
                                                         value={controlPlaneSearchTerm}
                                                         onChange={(e) => setControlPlaneSearchTerm(e.target.value)}
                                                         style={{
                                                             width: 320,
                                                             borderRadius: '8px',
                                                             boxShadow: 'none',
-                                                            border: '1px solid #e1e5e9'
+                                                            border: '1px solid var(--border-default)'
                                                         }}
                                                         allowClear
                                                     />
@@ -1023,7 +1024,7 @@ const RegistryInfo: React.FC = () => {
                                             <Badge
                                                 count={`${filteredControllers.length}/${registryData?.data?.controller_data?.controllers?.length || 0}`}
                                                 style={{
-                                                    backgroundColor: filteredControllers.length > 0 ? '#52c41a' : '#d9d9d9',
+                                                    backgroundColor: filteredControllers.length > 0 ? 'var(--color-success)' : 'var(--border-default)',
                                                     color: filteredControllers.length > 0 ? '#fff' : '#666',
                                                     fontSize: '11px',
                                                     height: '20px',
@@ -1042,14 +1043,14 @@ const RegistryInfo: React.FC = () => {
                                                     </Text>
                                                     <Input
                                                         placeholder="Search controllers and clients..."
-                                                        prefix={<SearchOutlined style={{ color: '#ccc' }} />}
+                                                        prefix={<SearchOutlined style={{ color: 'var(--text-tertiary)' }} />}
                                                         value={controllerSearchTerm}
                                                         onChange={(e) => setControllerSearchTerm(e.target.value)}
                                                         style={{
                                                             width: 320,
                                                             borderRadius: '8px',
                                                             boxShadow: 'none',
-                                                            border: '1px solid #e1e5e9'
+                                                            border: '1px solid var(--border-default)'
                                                         }}
                                                         allowClear
                                                     />
@@ -1146,36 +1147,36 @@ const RegistryInfo: React.FC = () => {
                     ) : localSnapshotData?.data ? (
                         <div>
                             {/* Overview Statistics */}
-                            <Card size="small" style={{ marginBottom: 16, background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)', border: '1px solid #e6f7ff' }}>
+                            <Card size="small" style={{ marginBottom: 16, background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}>
                                 <Row gutter={16}>
                                     <Col span={6}>
                                         <Statistic
                                             title="Total Resources"
                                             value={localSnapshotData.data.resources.length}
-                                            prefix={<DatabaseOutlined style={{ color: '#1890ff' }} />}
-                                            valueStyle={{ color: '#1890ff', fontSize: '16px' }}
+                                            prefix={<DatabaseOutlined style={{ color: 'var(--color-primary)' }} />}
+                                            valueStyle={{ color: 'var(--color-primary)', fontSize: '16px' }}
                                         />
                                     </Col>
                                     <Col span={6}>
                                         <Statistic
                                             title="Active Watches"
                                             value={localSnapshotData.data.num_watches}
-                                            prefix={<EyeOutlined style={{ color: '#52c41a' }} />}
-                                            valueStyle={{ color: '#52c41a', fontSize: '16px' }}
+                                            prefix={<EyeOutlined style={{ color: 'var(--color-success)' }} />}
+                                            valueStyle={{ color: 'var(--color-success)', fontSize: '16px' }}
                                         />
                                     </Col>
                                     <Col span={6}>
                                         <Statistic
                                             title="Active Types"
                                             value={localSnapshotData.data.resources.filter((r: any) => Object.keys(r.data).length > 0).length}
-                                            prefix={<SettingOutlined style={{ color: '#722ed1' }} />}
-                                            valueStyle={{ color: '#722ed1', fontSize: '16px' }}
+                                            prefix={<SettingOutlined style={{ color: 'var(--color-purple)' }} />}
+                                            valueStyle={{ color: 'var(--color-purple)', fontSize: '16px' }}
                                         />
                                     </Col>
                                     <Col span={6}>
                                         <div style={{ textAlign: 'center' }}>
-                                            <div style={{ fontSize: '12px', color: '#666', marginBottom: 4 }}>Last Watch</div>
-                                            <div style={{ fontSize: '13px', fontWeight: 600, color: '#1890ff' }}>
+                                            <div style={{ fontSize: '12px', color: 'var(--text-tertiary)', marginBottom: 4 }}>Last Watch</div>
+                                            <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-primary)' }}>
                                                 {new Date(localSnapshotData.data.last_watch).toLocaleString()}
                                             </div>
                                         </div>
@@ -1186,20 +1187,20 @@ const RegistryInfo: React.FC = () => {
                             {/* Node Information */}
                             <div style={{ marginBottom: 16 }}>
                                 <div style={{
-                                    background: 'linear-gradient(135deg, #fafbfc 0%, #f5f6fa 100%)',
+                                    background: 'var(--bg-elevated)',
                                     borderRadius: '8px 8px 0 0',
                                     padding: '12px 16px',
-                                    border: '1px solid #e8eaed',
+                                    border: '1px solid var(--border-default)',
                                     borderBottom: 'none'
                                 }}>
                                     <Space>
-                                        <NodeIndexOutlined style={{ fontSize: '16px', color: '#1890ff' }} />
-                                        <span style={{ fontWeight: 600, fontSize: '14px', color: '#2c3e50' }}>Node Information</span>
+                                        <NodeIndexOutlined style={{ fontSize: '16px', color: 'var(--color-primary)' }} />
+                                        <span style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)' }}>Node Information</span>
                                     </Space>
                                 </div>
                                 <div style={{
-                                    background: '#fff',
-                                    border: '1px solid #e8eaed',
+                                    background: 'var(--bg-surface)',
+                                    border: '1px solid var(--border-default)',
                                     borderTop: 'none',
                                     borderRadius: '0 0 8px 8px',
                                     padding: '16px'
@@ -1230,20 +1231,20 @@ const RegistryInfo: React.FC = () => {
                             {/* Resources Tabs */}
                             <div style={{ marginBottom: 16 }}>
                                 <div style={{
-                                    background: 'linear-gradient(135deg, #fafbfc 0%, #f5f6fa 100%)',
+                                    background: 'var(--bg-elevated)',
                                     borderRadius: '8px 8px 0 0',
                                     padding: '12px 16px',
-                                    border: '1px solid #e8eaed',
+                                    border: '1px solid var(--border-default)',
                                     borderBottom: 'none'
                                 }}>
                                     <Space>
-                                        <ClusterOutlined style={{ fontSize: '16px', color: '#52c41a' }} />
-                                        <span style={{ fontWeight: 600, fontSize: '14px', color: '#2c3e50' }}>Resources by Type</span>
+                                        <ClusterOutlined style={{ fontSize: '16px', color: 'var(--color-success)' }} />
+                                        <span style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)' }}>Resources by Type</span>
                                     </Space>
                                 </div>
                                 <div style={{
-                                    background: '#fff',
-                                    border: '1px solid #e8eaed',
+                                    background: 'var(--bg-surface)',
+                                    border: '1px solid var(--border-default)',
                                     borderTop: 'none',
                                     borderRadius: '0 0 8px 8px',
                                     padding: '16px'
@@ -1256,28 +1257,28 @@ const RegistryInfo: React.FC = () => {
                                             const getResourceConfig = (type: string) => {
                                                 switch (type.toLowerCase()) {
                                                     case 'cluster':
-                                                        return { icon: <ClusterOutlined />, color: '#1890ff', bgColor: '#e6f7ff' };
+                                                        return { icon: <ClusterOutlined />, color: 'var(--color-primary)', bgColor: 'var(--color-primary-light)' };
                                                     case 'listener':
-                                                        return { icon: <GlobalOutlined />, color: '#52c41a', bgColor: '#f6ffed' };
+                                                        return { icon: <GlobalOutlined />, color: 'var(--color-success)', bgColor: 'var(--color-success-light)' };
                                                     case 'route':
-                                                        return { icon: <ShareAltOutlined />, color: '#722ed1', bgColor: '#f9f0ff' };
+                                                        return { icon: <ShareAltOutlined />, color: 'var(--color-purple)', bgColor: 'var(--color-purple-light)' };
                                                     case 'endpoint':
-                                                        return { icon: <AimOutlined />, color: '#fa8c16', bgColor: '#fff7e6' };
+                                                        return { icon: <AimOutlined />, color: 'var(--color-warning)', bgColor: 'var(--color-warning-light)' };
                                                     case 'extension':
-                                                        return { icon: <AppstoreOutlined />, color: '#13c2c2', bgColor: '#e6fffb' };
+                                                        return { icon: <AppstoreOutlined />, color: 'var(--color-cyan)', bgColor: 'var(--color-cyan-light)' };
                                                     case 'secret':
-                                                        return { icon: <KeyOutlined />, color: '#eb2f96', bgColor: '#fff0f6' };
+                                                        return { icon: <KeyOutlined />, color: 'var(--color-magenta)', bgColor: 'var(--color-magenta-light)' };
                                                     case 'virtual host':
                                                     case 'virtual_host':
-                                                        return { icon: <CloudOutlined />, color: '#fa541c', bgColor: '#fff2e8' };
+                                                        return { icon: <CloudOutlined />, color: 'var(--color-volcano)', bgColor: 'var(--color-volcano-light)' };
                                                     case 'runtime':
-                                                        return { icon: <SettingOutlined />, color: '#1890ff', bgColor: '#e6f7ff' };
+                                                        return { icon: <SettingOutlined />, color: 'var(--color-primary)', bgColor: 'var(--color-primary-light)' };
                                                     case 'scoped route':
-                                                        return { icon: <ShareAltOutlined />, color: '#722ed1', bgColor: '#f9f0ff' };
+                                                        return { icon: <ShareAltOutlined />, color: 'var(--color-purple)', bgColor: 'var(--color-purple-light)' };
                                                     case 'thrift router':
-                                                        return { icon: <ShareAltOutlined />, color: '#597ef7', bgColor: '#f0f5ff' };
+                                                        return { icon: <ShareAltOutlined />, color: 'var(--color-geekblue)', bgColor: 'var(--color-geekblue-light)' };
                                                     default:
-                                                        return { icon: <DatabaseOutlined />, color: '#8c8c8c', bgColor: '#f5f5f5' };
+                                                        return { icon: <DatabaseOutlined />, color: 'var(--text-tertiary)', bgColor: 'var(--bg-disabled)' };
                                                 }
                                             };
 
@@ -1300,7 +1301,7 @@ const RegistryInfo: React.FC = () => {
                                                                 count={resourceCount}
                                                                 size="small"
                                                                 style={{
-                                                                    backgroundColor: hasData ? config.color : '#d9d9d9',
+                                                                    backgroundColor: hasData ? config.color : 'var(--text-disabled)',
                                                                     fontSize: '10px',
                                                                     minWidth: '16px',
                                                                     height: '16px',
@@ -1343,15 +1344,15 @@ const RegistryInfo: React.FC = () => {
                                                                     <div
                                                                         key={key}
                                                                         style={{
-                                                                            background: '#fff',
-                                                                            border: '1px solid #e8eaed',
+                                                                            background: 'var(--card-bg)',
+                                                                            border: '1px solid var(--border-default)',
                                                                             borderRadius: '8px'
                                                                         }}
                                                                     >
                                                                         {/* Header */}
                                                                         <div style={{
-                                                                            background: 'linear-gradient(135deg, #fafbfc 0%, #f5f6fa 100%)',
-                                                                            borderBottom: '1px solid #e8eaed',
+                                                                            background: 'var(--bg-elevated)',
+                                                                            borderBottom: '1px solid var(--border-default)',
                                                                             borderRadius: '8px 8px 0 0',
                                                                             padding: '12px 16px',
                                                                             display: 'flex',
@@ -1369,7 +1370,7 @@ const RegistryInfo: React.FC = () => {
                                                                                 />
                                                                                 <Text strong style={{
                                                                                     fontSize: '14px',
-                                                                                    color: '#2c3e50',
+                                                                                    color: 'var(--text-primary)',
                                                                                     fontWeight: 600
                                                                                 }}>
                                                                                     {key}
@@ -1382,8 +1383,8 @@ const RegistryInfo: React.FC = () => {
                                                                         {/* Body */}
                                                                         <div style={{ padding: '16px' }}>
                                                                             <div style={{
-                                                                                background: '#fafafa',
-                                                                                border: '1px solid #f0f0f0',
+                                                                                background: 'var(--bg-body)',
+                                                                                border: '1px solid var(--border-default)',
                                                                                 borderRadius: '6px',
                                                                                 overflow: 'hidden'
                                                                             }}>
@@ -1432,14 +1433,14 @@ const RegistryInfo: React.FC = () => {
                                                 key: 'summary',
                                                 label: (
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                                        <ApiOutlined style={{ color: '#1890ff' }} />
+                                                        <ApiOutlined style={{ color: 'var(--color-primary)' }} />
                                                         <span>Full JSON</span>
                                                     </div>
                                                 ),
                                                 children: (
-                                                    <div style={{ padding: '16px', background: '#f6f8fa', borderRadius: '8px' }}>
+                                                    <div style={{ padding: '16px', background: 'var(--bg-elevated)', borderRadius: '8px' }}>
                                                         <div style={{ marginBottom: 16 }}>
-                                                            <Text strong style={{ fontSize: '16px', color: '#1890ff' }}>
+                                                            <Text strong style={{ fontSize: '16px', color: 'var(--color-primary)' }}>
                                                                 Complete Snapshot Data
                                                             </Text>
                                                             <div style={{ marginTop: 8 }}>
@@ -1449,8 +1450,8 @@ const RegistryInfo: React.FC = () => {
                                                             </div>
                                                         </div>
                                                         <div style={{
-                                                            background: '#fff',
-                                                            border: '1px solid #e1e4e8',
+                                                            background: 'var(--bg-surface)',
+                                                            border: '1px solid var(--border-default)',
                                                             borderRadius: '6px',
                                                             overflow: 'hidden'
                                                         }}>

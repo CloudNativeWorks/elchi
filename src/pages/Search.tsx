@@ -284,7 +284,7 @@ function Search() {
                                         style={{
                                             background: selectedCollection === summary.collection
                                                 ? `linear-gradient(135deg, ${summary.gradient.start} 0%, ${summary.gradient.end} 100%)`
-                                                : '#fafafa',
+                                                : 'var(--bg-elevated)',
                                             borderRadius: 12,
                                             padding: '16px',
                                             cursor: 'pointer',
@@ -297,14 +297,14 @@ function Search() {
                                         }}
                                         onMouseEnter={(e) => {
                                             if (selectedCollection !== summary.collection) {
-                                                e.currentTarget.style.background = '#f0f0f0';
+                                                e.currentTarget.style.background = 'var(--bg-hover)';
                                                 e.currentTarget.style.transform = 'translateY(-2px)';
                                                 e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.08)';
                                             }
                                         }}
                                         onMouseLeave={(e) => {
                                             if (selectedCollection !== summary.collection) {
-                                                e.currentTarget.style.background = '#fafafa';
+                                                e.currentTarget.style.background = 'var(--bg-elevated)';
                                                 e.currentTarget.style.transform = 'translateY(0)';
                                                 e.currentTarget.style.boxShadow = 'none';
                                             }
@@ -331,7 +331,7 @@ function Search() {
                                                 <div style={{
                                                     fontWeight: 600,
                                                     fontSize: 14,
-                                                    color: selectedCollection === summary.collection ? 'white' : '#262626',
+                                                    color: selectedCollection === summary.collection ? 'white' : 'var(--text-primary)',
                                                     marginBottom: 4
                                                 }}>
                                                     {summary.name}
@@ -403,8 +403,8 @@ function Search() {
                                         onClick={() => setSelectedCollection(null)}
                                         style={{
                                             background: 'rgba(24, 144, 255, 0.1)',
-                                            border: '1px solid #1890ff',
-                                            color: '#1890ff'
+                                            border: '1px solid var(--color-primary)',
+                                            color: 'var(--color-primary)'
                                         }}
                                     >
                                         ← Show All Results
@@ -421,21 +421,21 @@ function Search() {
                                 <List.Item
                                     key={result.resource_id}
                                     style={{
-                                        background: "#fafafa",
+                                        background: "var(--bg-elevated)",
                                         borderRadius: 8,
                                         marginBottom: 12,
                                         padding: 16,
                                         cursor: "pointer",
                                         transition: "all 0.3s",
-                                        border: "1px solid #f0f0f0"
+                                        border: "1px solid var(--border-default)"
                                     }}
                                     onClick={() => handleResourceClick(result)}
                                     onMouseEnter={(e) => {
-                                        e.currentTarget.style.background = "#f0f0f0";
+                                        e.currentTarget.style.background = "var(--bg-hover)";
                                         e.currentTarget.style.boxShadow = "0 2px 8px rgba(0, 0, 0, 0.1)";
                                     }}
                                     onMouseLeave={(e) => {
-                                        e.currentTarget.style.background = "#fafafa";
+                                        e.currentTarget.style.background = "var(--bg-elevated)";
                                         e.currentTarget.style.boxShadow = "none";
                                     }}
                                 >
@@ -491,14 +491,14 @@ function Search() {
                                                         <div
                                                             key={idx}
                                                             style={{
-                                                                background: "white",
+                                                                background: "var(--bg-surface)",
                                                                 padding: "8px 12px",
                                                                 borderRadius: 6,
-                                                                border: "1px solid #e8e8e8"
+                                                                border: "1px solid var(--border-default)"
                                                             }}
                                                         >
                                                             <div style={{ marginBottom: 6 }}>
-                                                                <Text strong style={{ fontSize: 13, color: "#1890ff" }}>
+                                                                <Text strong style={{ fontSize: 13, color: "var(--color-primary)" }}>
                                                                     {match.value}
                                                                 </Text>
                                                             </div>

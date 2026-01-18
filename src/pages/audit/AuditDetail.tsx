@@ -13,7 +13,8 @@ import {
 import { formatDistanceToNow } from 'date-fns';
 import MonacoEditor from '@monaco-editor/react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vs } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { vs, vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { useTheme } from '@/contexts/ThemeContext';
 
 const { Text } = Typography;
 
@@ -21,7 +22,8 @@ const { Text } = Typography;
 const JsonValue: React.FC<{
     value: any;
     style?: React.CSSProperties;
-}> = ({ value, style = {} }) => {
+    isDark?: boolean;
+}> = ({ value, style = {}, isDark = false }) => {
     // Check if value is JSON object/array
     const isJson = typeof value === 'object' && value !== null;
 
@@ -50,14 +52,14 @@ const JsonValue: React.FC<{
             }}>
                 <SyntaxHighlighter
                     language="json"
-                    style={vs}
+                    style={isDark ? vscDarkPlus : vs}
                     customStyle={{
                         margin: 0,
                         padding: '6px',
                         fontSize: '11px',
                         lineHeight: 1.3,
-                        background: style.background || '#fff',
-                        border: style.border || '1px solid #d9d9d9',
+                        background: style.background || 'var(--card-bg)',
+                        border: style.border || '1px solid var(--border-default)',
                         borderRadius: 4
                     }}
                     wrapLongLines={true}
@@ -79,8 +81,8 @@ const JsonValue: React.FC<{
             fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
             whiteSpace: 'pre-wrap',
             wordBreak: 'break-all',
-            background: style.background || '#fff',
-            border: style.border || '1px solid #d9d9d9',
+            background: style.background || 'var(--card-bg)',
+            border: style.border || '1px solid var(--border-default)',
             borderRadius: 4,
             overflow: 'auto'
         }}>
@@ -93,6 +95,7 @@ const AuditDetail: React.FC = () => {
     const { auditId } = useParams<{ auditId: string }>();
     const navigate = useNavigate();
     const location = useLocation();
+    const { isDark } = useTheme();
 
     // Get audit log from state if available, otherwise fetch from API
     const auditLogFromState = location.state?.auditLog as AuditLog | undefined;
@@ -166,14 +169,14 @@ const AuditDetail: React.FC = () => {
     };
 
     return (
-        <div style={{ padding: '0px', background: '#f5f7fa', minHeight: '100vh' }}>
+        <div style={{ padding: '0px', background: 'var(--bg-body)', minHeight: '100vh' }}>
             {/* Modern Header */}
             <div style={{
-                background: 'white',
+                background: 'var(--card-bg)',
                 borderRadius: 16,
                 padding: '20px 24px',
                 marginBottom: 24,
-                boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                boxShadow: 'var(--shadow-sm)'
             }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', minHeight: 48 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -187,7 +190,7 @@ const AuditDetail: React.FC = () => {
                         <div style={{
                             width: 1,
                             height: 24,
-                            background: '#e8e8e8'
+                            background: 'var(--border-default)'
                         }} />
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                             <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -218,8 +221,10 @@ const AuditDetail: React.FC = () => {
                         style={{
                             borderRadius: 16,
                             marginBottom: 24,
-                            border: 'none',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                            border: '1px solid var(--border-default)',
+                            background: 'var(--card-bg)',
+                            boxShadow: 'var(--shadow-sm)',
+                            overflow: 'hidden'
                         }}
                     >
                         <div style={{ marginBottom: 20 }}>
@@ -232,11 +237,11 @@ const AuditDetail: React.FC = () => {
                                 <div style={{ marginBottom: 8 }}>
                                     <Text type="secondary" style={{ fontSize: 12 }}>User</Text>
                                     <div style={{ marginTop: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
-                                        <UserOutlined style={{ color: '#8c8c8c' }} />
+                                        <UserOutlined style={{ color: 'var(--text-secondary)' }} />
                                         <div>
                                             <Text strong style={{ fontSize: 14 }}>{auditLog.username}</Text>
                                             <div>
-                                                <Text style={{ fontSize: 12, color: '#8c8c8c' }}>
+                                                <Text style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
                                                     {auditLog.user_role}
                                                 </Text>
                                             </div>
@@ -250,7 +255,7 @@ const AuditDetail: React.FC = () => {
                                     <div style={{ marginTop: 4 }}>
                                         <Text strong style={{ fontSize: 14 }}>{new Date(auditLog.timestamp).toLocaleString()}</Text>
                                         <div>
-                                            <Text style={{ fontSize: 12, color: '#8c8c8c' }}>
+                                            <Text style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
                                                 {formatDistanceToNow(new Date(auditLog.timestamp), { addSuffix: true })}
                                             </Text>
                                         </div>
@@ -300,8 +305,10 @@ const AuditDetail: React.FC = () => {
                         <Card
                             style={{
                                 borderRadius: 16,
-                                border: 'none',
-                                boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                                border: '1px solid var(--border-default)',
+                                background: 'var(--card-bg)',
+                                boxShadow: 'var(--shadow-sm)',
+                                overflow: 'hidden'
                             }}
                         >
                             <div style={{ marginBottom: 20 }}>
@@ -318,28 +325,28 @@ const AuditDetail: React.FC = () => {
                                         return (
                                             <div>
                                                 <div style={{
-                                                    background: '#f9f0ff',
+                                                    background: 'var(--color-purple-bg)',
                                                     padding: '8px 12px',
                                                     borderRadius: '6px 6px 0 0',
-                                                    borderLeft: '3px solid #722ed1',
+                                                    borderLeft: '3px solid var(--color-purple)',
                                                     display: 'flex',
                                                     justifyContent: 'space-between',
                                                     alignItems: 'center'
                                                 }}>
-                                                    <Text strong style={{ color: '#722ed1', fontSize: 13 }}>RESOURCE UPGRADE</Text>
+                                                    <Text strong style={{ color: 'var(--color-purple)', fontSize: 13 }}>RESOURCE UPGRADE</Text>
                                                     {job_id && (
                                                         <Tag className='auto-width-tag' color="purple" style={{ margin: 0 }}>
                                                             Job: {job_id}
                                                         </Tag>
                                                     )}
                                                 </div>
-                                                <div style={{ background: '#fafafa', padding: 16 }}>
+                                                <div style={{ background: 'var(--bg-surface)', padding: 16 }}>
                                                     {/* Version Upgrade */}
                                                     <Row gutter={16} style={{ marginBottom: 16 }}>
                                                         <Col span={24}>
                                                             <div style={{
-                                                                background: 'white',
-                                                                border: '1px solid #d3adf7',
+                                                                background: 'var(--card-bg)',
+                                                                border: '1px solid var(--color-purple-border)',
                                                                 borderRadius: 8,
                                                                 padding: 12
                                                             }}>
@@ -348,7 +355,7 @@ const AuditDetail: React.FC = () => {
                                                                     <Tag className='auto-width-tag' color="blue" style={{ fontSize: 12 }}>
                                                                         {from_version}
                                                                     </Tag>
-                                                                    <span style={{ color: '#8c8c8c' }}>→</span>
+                                                                    <span style={{ color: 'var(--text-secondary)' }}>→</span>
                                                                     <Tag className='auto-width-tag' color="green" style={{ fontSize: 12 }}>
                                                                         {to_version}
                                                                     </Tag>
@@ -369,8 +376,8 @@ const AuditDetail: React.FC = () => {
                                                                         AFFECTED LISTENERS ({listener_names.length})
                                                                     </Text>
                                                                     <div style={{
-                                                                        background: 'white',
-                                                                        border: '1px solid #d3adf7',
+                                                                        background: 'var(--card-bg)',
+                                                                        border: '1px solid var(--color-purple-border)',
                                                                         borderRadius: 8,
                                                                         padding: 12,
                                                                         marginTop: 8,
@@ -380,7 +387,7 @@ const AuditDetail: React.FC = () => {
                                                                         {listener_names.map((name: string, idx: number) => (
                                                                             <div key={idx} style={{
                                                                                 padding: '4px 0',
-                                                                                borderBottom: idx < listener_names.length - 1 ? '1px solid #f0f0f0' : 'none'
+                                                                                borderBottom: idx < listener_names.length - 1 ? '1px solid var(--border-default)' : 'none'
                                                                             }}>
                                                                                 <Text code style={{ fontSize: 12 }}>{name}</Text>
                                                                             </div>
@@ -400,8 +407,8 @@ const AuditDetail: React.FC = () => {
                                                                         UPGRADE OPTIONS
                                                                     </Text>
                                                                     <div style={{
-                                                                        background: 'white',
-                                                                        border: '1px solid #d3adf7',
+                                                                        background: 'var(--card-bg)',
+                                                                        border: '1px solid var(--color-purple-border)',
                                                                         borderRadius: 8,
                                                                         padding: 12,
                                                                         marginTop: 8
@@ -465,27 +472,27 @@ const AuditDetail: React.FC = () => {
                                         return (
                                             <div>
                                                 <div style={{
-                                                    background: '#e6f7ff',
+                                                    background: 'var(--color-primary-bg)',
                                                     padding: '8px 12px',
                                                     borderRadius: '6px 6px 0 0',
-                                                    borderLeft: '3px solid #1890ff',
+                                                    borderLeft: '3px solid var(--color-primary)',
                                                     display: 'flex',
                                                     justifyContent: 'space-between',
                                                     alignItems: 'center'
                                                 }}>
-                                                    <Text strong style={{ color: '#1890ff', fontSize: 13 }}>BACKUP EXPORT</Text>
+                                                    <Text strong style={{ color: 'var(--color-primary)', fontSize: 13 }}>BACKUP EXPORT</Text>
                                                     {backup_id && (
                                                         <Tag className='auto-width-tag' color="blue" style={{ margin: 0, fontFamily: 'monospace', fontSize: 11 }}>
                                                             {backup_id}
                                                         </Tag>
                                                     )}
                                                 </div>
-                                                <div style={{ background: '#fafafa', padding: 16 }}>
+                                                <div style={{ background: 'var(--bg-surface)', padding: 16 }}>
                                                     <Row gutter={16}>
                                                         <Col span={12}>
                                                             <div style={{
-                                                                background: 'white',
-                                                                border: '1px solid #91d5ff',
+                                                                background: 'var(--card-bg)',
+                                                                border: '1px solid var(--color-primary-border)',
                                                                 borderRadius: 8,
                                                                 padding: 12
                                                             }}>
@@ -517,15 +524,15 @@ const AuditDetail: React.FC = () => {
                                         return (
                                             <div>
                                                 <div style={{
-                                                    background: '#f6ffed',
+                                                    background: 'var(--color-success-bg)',
                                                     padding: '8px 12px',
                                                     borderRadius: '6px 6px 0 0',
-                                                    borderLeft: '3px solid #52c41a',
+                                                    borderLeft: '3px solid var(--color-success)',
                                                     display: 'flex',
                                                     justifyContent: 'space-between',
                                                     alignItems: 'center'
                                                 }}>
-                                                    <Text strong style={{ color: '#52c41a', fontSize: 13 }}>BACKUP IMPORT</Text>
+                                                    <Text strong style={{ color: 'var(--color-success)', fontSize: 13 }}>BACKUP IMPORT</Text>
                                                     <div style={{ display: 'flex', gap: 8 }}>
                                                         {dry_run && (
                                                             <Tag className='auto-width-tag' color="warning" style={{ margin: 0 }}>
@@ -544,12 +551,12 @@ const AuditDetail: React.FC = () => {
                                                         )}
                                                     </div>
                                                 </div>
-                                                <div style={{ background: '#fafafa', padding: 16 }}>
+                                                <div style={{ background: 'var(--bg-surface)', padding: 16 }}>
                                                     <Row gutter={16}>
                                                         <Col span={hasStats ? 12 : 24}>
                                                             <div style={{
-                                                                background: 'white',
-                                                                border: '1px solid #b7eb8f',
+                                                                background: 'var(--card-bg)',
+                                                                border: '1px solid var(--color-success-border)',
                                                                 borderRadius: 8,
                                                                 padding: 12
                                                             }}>
@@ -576,8 +583,8 @@ const AuditDetail: React.FC = () => {
                                                                         IMPORT STATISTICS
                                                                     </Text>
                                                                     <div style={{
-                                                                        background: 'white',
-                                                                        border: '1px solid #b7eb8f',
+                                                                        background: 'var(--card-bg)',
+                                                                        border: '1px solid var(--color-success-border)',
                                                                         borderRadius: 8,
                                                                         padding: 12,
                                                                         marginTop: 8,
@@ -611,7 +618,7 @@ const AuditDetail: React.FC = () => {
                                                                         )}
                                                                         {(total_created !== undefined || total_updated !== undefined) && (
                                                                             <div style={{
-                                                                                borderTop: '1px solid #f0f0f0',
+                                                                                borderTop: '1px solid var(--border-default)',
                                                                                 paddingTop: 8,
                                                                                 marginTop: 4,
                                                                                 display: 'flex',
@@ -643,29 +650,29 @@ const AuditDetail: React.FC = () => {
                                         return (
                                             <div>
                                                 <div style={{
-                                                    background: '#e6f7ff',
+                                                    background: 'var(--color-primary-bg)',
                                                     padding: '8px 12px',
                                                     borderRadius: '6px 6px 0 0',
-                                                    borderLeft: '3px solid #1890ff',
+                                                    borderLeft: '3px solid var(--color-primary)',
                                                     display: 'flex',
                                                     justifyContent: 'space-between',
                                                     alignItems: 'center'
                                                 }}>
-                                                    <Text strong style={{ color: '#1890ff', fontSize: 13 }}>ENDPOINT DISCOVERY UPDATE</Text>
+                                                    <Text strong style={{ color: 'var(--color-primary)', fontSize: 13 }}>ENDPOINT DISCOVERY UPDATE</Text>
                                                     <div style={{ display: 'flex', gap: 8 }}>
                                                         {hasAddedIPs && (
-                                                            <Badge count={diff.added_count || diff.added_ips.length} style={{ backgroundColor: '#52c41a' }}>
+                                                            <Badge count={diff.added_count || diff.added_ips.length} style={{ backgroundColor: 'var(--color-success)' }}>
                                                                 <Tag color="green" style={{ margin: 0 }}>Added</Tag>
                                                             </Badge>
                                                         )}
                                                         {hasRemovedIPs && (
-                                                            <Badge count={diff.removed_count || diff.removed_ips.length} style={{ backgroundColor: '#ff4d4f' }}>
+                                                            <Badge count={diff.removed_count || diff.removed_ips.length} style={{ backgroundColor: 'var(--color-error)' }}>
                                                                 <Tag color="red" style={{ margin: 0 }}>Removed</Tag>
                                                             </Badge>
                                                         )}
                                                     </div>
                                                 </div>
-                                                <div style={{ background: '#fafafa', padding: 16 }}>
+                                                <div style={{ background: 'var(--bg-surface)', padding: 16 }}>
                                                     {/* BEFORE and AFTER in same row */}
                                                     <Row gutter={16} style={{ marginBottom: 16 }}>
                                                         <Col span={12}>
@@ -674,8 +681,8 @@ const AuditDetail: React.FC = () => {
                                                                     BEFORE
                                                                 </Text>
                                                                 <div style={{
-                                                                    background: '#fff2f0',
-                                                                    border: '1px solid #ffccc7',
+                                                                    background: 'var(--color-danger-light)',
+                                                                    border: '1px solid var(--color-danger-border)',
                                                                     borderRadius: 8,
                                                                     padding: 12,
                                                                     marginTop: 8
@@ -695,8 +702,8 @@ const AuditDetail: React.FC = () => {
                                                                     AFTER
                                                                 </Text>
                                                                 <div style={{
-                                                                    background: '#f6ffed',
-                                                                    border: '1px solid #b7eb8f',
+                                                                    background: 'var(--color-success-light)',
+                                                                    border: '1px solid var(--color-success-border)',
                                                                     borderRadius: 8,
                                                                     padding: 12,
                                                                     marginTop: 8
@@ -720,18 +727,18 @@ const AuditDetail: React.FC = () => {
                                                                     CHANGES
                                                                 </Text>
                                                                 <div style={{
-                                                                    background: '#fff7e6',
-                                                                    border: '1px solid #ffd591',
+                                                                    background: 'var(--color-warning-light)',
+                                                                    border: '1px solid var(--color-warning-border)',
                                                                     borderRadius: 8,
                                                                     padding: 12,
                                                                     marginTop: 8
                                                                 }}>
                                                                     {hasAddedIPs && (
                                                                         <div style={{ marginBottom: hasRemovedIPs ? 12 : 0 }}>
-                                                                            <Text strong style={{ color: '#52c41a' }}>Added IPs ({diff.added_count || diff.added_ips.length}):</Text>
+                                                                            <Text strong style={{ color: 'var(--color-success)' }}>Added IPs ({diff.added_count || diff.added_ips.length}):</Text>
                                                                             <div style={{
-                                                                                background: '#f6ffed',
-                                                                                border: '1px solid #b7eb8f',
+                                                                                background: 'var(--color-success-light)',
+                                                                                border: '1px solid var(--color-success-border)',
                                                                                 borderRadius: 4,
                                                                                 padding: 6,
                                                                                 marginTop: 4,
@@ -743,7 +750,7 @@ const AuditDetail: React.FC = () => {
                                                                                         fontSize: 11,
                                                                                         fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
                                                                                         padding: 1,
-                                                                                        color: '#52c41a'
+                                                                                        color: 'var(--color-success)'
                                                                                     }}>
                                                                                         + {ip}
                                                                                     </div>
@@ -753,10 +760,10 @@ const AuditDetail: React.FC = () => {
                                                                     )}
                                                                     {hasRemovedIPs && (
                                                                         <div>
-                                                                            <Text strong style={{ color: '#ff4d4f' }}>Removed IPs ({diff.removed_count || diff.removed_ips.length}):</Text>
+                                                                            <Text strong style={{ color: 'var(--color-error)' }}>Removed IPs ({diff.removed_count || diff.removed_ips.length}):</Text>
                                                                             <div style={{
-                                                                                background: '#fff2f0',
-                                                                                border: '1px solid #ffccc7',
+                                                                                background: 'var(--color-danger-light)',
+                                                                                border: '1px solid var(--color-danger-border)',
                                                                                 borderRadius: 4,
                                                                                 padding: 6,
                                                                                 marginTop: 4,
@@ -768,7 +775,7 @@ const AuditDetail: React.FC = () => {
                                                                                         fontSize: 11,
                                                                                         fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
                                                                                         padding: 1,
-                                                                                        color: '#ff4d4f'
+                                                                                        color: 'var(--color-error)'
                                                                                     }}>
                                                                                         - {ip}
                                                                                     </div>
@@ -810,19 +817,19 @@ const AuditDetail: React.FC = () => {
                                         return (
                                             <div>
                                                 <div style={{
-                                                    background: '#e6f7ff',
+                                                    background: 'var(--color-primary-bg)',
                                                     padding: '8px 12px',
                                                     borderRadius: '6px 6px 0 0',
-                                                    borderLeft: '3px solid #1890ff',
+                                                    borderLeft: '3px solid var(--color-primary)',
                                                     display: 'flex',
                                                     justifyContent: 'space-between',
                                                     alignItems: 'center'
                                                 }}>
-                                                    <Text strong style={{ color: '#1890ff', fontSize: 13 }}>CHANGES DIFF</Text>
+                                                    <Text strong style={{ color: 'var(--color-primary)', fontSize: 13 }}>CHANGES DIFF</Text>
                                                 </div>
                                                 <pre style={{
-                                                    background: '#fff',
-                                                    border: '1px solid #91d5ff',
+                                                    background: 'var(--card-bg)',
+                                                    border: '1px solid var(--color-info-border)',
                                                     borderRadius: '0 0 6px 6px',
                                                     padding: 16,
                                                     fontSize: 12,
@@ -834,15 +841,15 @@ const AuditDetail: React.FC = () => {
                                                     whiteSpace: 'pre-wrap'
                                                 }}>
                                                     {changes.split('\n').map((line: string, index: number) => {
-                                                        let color = '#262626';
+                                                        let color = 'var(--text-primary)';
                                                         let background = 'transparent';
 
                                                         if (line.startsWith('+')) {
-                                                            color = '#237804';
-                                                            background = '#f6ffed';
+                                                            color = 'var(--color-success)';
+                                                            background = 'var(--color-success-light)';
                                                         } else if (line.startsWith('-')) {
-                                                            color = '#cf1322';
-                                                            background = '#fff2f0';
+                                                            color = 'var(--color-danger)';
+                                                            background = 'var(--color-danger-light)';
                                                         }
 
                                                         return (
@@ -882,23 +889,23 @@ const AuditDetail: React.FC = () => {
                                             {changesByType.create.length > 0 && (
                                                 <div>
                                                     <div style={{
-                                                        background: '#f6ffed',
+                                                        background: 'var(--color-success-bg)',
                                                         padding: '8px 12px',
                                                         borderRadius: '6px 6px 0 0',
-                                                        borderLeft: '3px solid #52c41a',
+                                                        borderLeft: '3px solid var(--color-success)',
                                                         display: 'flex',
                                                         justifyContent: 'space-between',
                                                         alignItems: 'center'
                                                     }}>
-                                                        <Text strong style={{ color: '#52c41a', fontSize: 13 }}>ADDED</Text>
-                                                        <Badge count={changesByType.create.length} style={{ backgroundColor: '#52c41a' }} />
+                                                        <Text strong style={{ color: 'var(--color-success)', fontSize: 13 }}>ADDED</Text>
+                                                        <Badge count={changesByType.create.length} style={{ backgroundColor: 'var(--color-success)' }} />
                                                     </div>
-                                                    <div style={{ background: '#fafafa', padding: 8 }}>
+                                                    <div style={{ background: 'var(--bg-surface)', padding: 8 }}>
                                                         {changesByType.create.map((change, index) => (
                                                             <div key={index} style={{ marginBottom: index < changesByType.create.length - 1 ? 8 : 0 }}>
                                                                 <div style={{ marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
                                                                     <div style={{
-                                                                        background: '#52c41a',
+                                                                        background: 'var(--color-success)',
                                                                         color: 'white',
                                                                         width: 16,
                                                                         height: 16,
@@ -918,8 +925,8 @@ const AuditDetail: React.FC = () => {
                                                                 <JsonValue
                                                                     value={change.value}
                                                                     style={{
-                                                                        background: '#fff',
-                                                                        border: '1px solid #d9f7be'
+                                                                        background: 'var(--card-bg)',
+                                                                        border: '1px solid var(--color-success-border)'
                                                                     }}
                                                                 />
                                                             </div>
@@ -931,23 +938,23 @@ const AuditDetail: React.FC = () => {
                                             {changesByType.update.length > 0 && (
                                                 <div>
                                                     <div style={{
-                                                        background: '#e6f7ff',
+                                                        background: 'var(--color-primary-bg)',
                                                         padding: '8px 12px',
                                                         borderRadius: '6px 6px 0 0',
-                                                        borderLeft: '3px solid #1890ff',
+                                                        borderLeft: '3px solid var(--color-primary)',
                                                         display: 'flex',
                                                         justifyContent: 'space-between',
                                                         alignItems: 'center'
                                                     }}>
-                                                        <Text strong style={{ color: '#1890ff', fontSize: 13 }}>UPDATED</Text>
-                                                        <Badge count={changesByType.update.length} style={{ backgroundColor: '#1890ff' }} />
+                                                        <Text strong style={{ color: 'var(--color-primary)', fontSize: 13 }}>UPDATED</Text>
+                                                        <Badge count={changesByType.update.length} style={{ backgroundColor: 'var(--color-primary)' }} />
                                                     </div>
-                                                    <div style={{ background: '#fafafa', padding: 8 }}>
+                                                    <div style={{ background: 'var(--bg-surface)', padding: 8 }}>
                                                         {changesByType.update.map((change, index) => (
                                                             <div key={index} style={{ marginBottom: index < changesByType.update.length - 1 ? 8 : 0 }}>
                                                                 <div style={{ marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
                                                                     <div style={{
-                                                                        background: '#1890ff',
+                                                                        background: 'var(--color-primary)',
                                                                         color: 'white',
                                                                         width: 16,
                                                                         height: 16,
@@ -966,8 +973,8 @@ const AuditDetail: React.FC = () => {
                                                                 </div>
                                                                 {change.from !== undefined && change.to !== undefined ? (
                                                                     <div style={{
-                                                                        background: '#fff',
-                                                                        border: '1px solid #91d5ff',
+                                                                        background: 'var(--card-bg)',
+                                                                        border: '1px solid var(--color-info-border)',
                                                                         borderRadius: 4,
                                                                         padding: 6,
                                                                         fontSize: 11,
@@ -979,8 +986,8 @@ const AuditDetail: React.FC = () => {
                                                                                 <JsonValue
                                                                                     value={change.from}
                                                                                     style={{
-                                                                                        background: '#fff5f5',
-                                                                                        border: '1px solid #ffccc7',
+                                                                                        background: 'var(--color-danger-light)',
+                                                                                        border: '1px solid var(--color-danger-border)',
                                                                                         marginTop: 2
                                                                                     }}
                                                                                 />
@@ -990,8 +997,8 @@ const AuditDetail: React.FC = () => {
                                                                                 <JsonValue
                                                                                     value={change.to}
                                                                                     style={{
-                                                                                        background: '#f6ffed',
-                                                                                        border: '1px solid #b7eb8f',
+                                                                                        background: 'var(--color-success-light)',
+                                                                                        border: '1px solid var(--color-success-border)',
                                                                                         marginTop: 2
                                                                                     }}
                                                                                 />
@@ -1002,8 +1009,8 @@ const AuditDetail: React.FC = () => {
                                                                     <JsonValue
                                                                         value={change.value}
                                                                         style={{
-                                                                            background: '#fff',
-                                                                            border: '1px solid #91d5ff'
+                                                                            background: 'var(--card-bg)',
+                                                                            border: '1px solid var(--color-info-border)'
                                                                         }}
                                                                     />
                                                                 )}
@@ -1016,23 +1023,23 @@ const AuditDetail: React.FC = () => {
                                             {changesByType.delete.length > 0 && (
                                                 <div>
                                                     <div style={{
-                                                        background: '#fff2f0',
+                                                        background: 'var(--color-error-bg)',
                                                         padding: '8px 12px',
                                                         borderRadius: '6px 6px 0 0',
-                                                        borderLeft: '3px solid #ff4d4f',
+                                                        borderLeft: '3px solid var(--color-error)',
                                                         display: 'flex',
                                                         justifyContent: 'space-between',
                                                         alignItems: 'center'
                                                     }}>
-                                                        <Text strong style={{ color: '#ff4d4f', fontSize: 13 }}>DELETED</Text>
-                                                        <Badge count={changesByType.delete.length} style={{ backgroundColor: '#ff4d4f' }} />
+                                                        <Text strong style={{ color: 'var(--color-error)', fontSize: 13 }}>DELETED</Text>
+                                                        <Badge count={changesByType.delete.length} style={{ backgroundColor: 'var(--color-error)' }} />
                                                     </div>
-                                                    <div style={{ background: '#fafafa', padding: 8 }}>
+                                                    <div style={{ background: 'var(--bg-surface)', padding: 8 }}>
                                                         {changesByType.delete.map((change, index) => (
                                                             <div key={index} style={{ marginBottom: index < changesByType.delete.length - 1 ? 8 : 0 }}>
                                                                 <div style={{ marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
                                                                     <div style={{
-                                                                        background: '#ff4d4f',
+                                                                        background: 'var(--color-danger)',
                                                                         color: 'white',
                                                                         width: 16,
                                                                         height: 16,
@@ -1052,8 +1059,8 @@ const AuditDetail: React.FC = () => {
                                                                 <JsonValue
                                                                     value={change.value}
                                                                     style={{
-                                                                        background: '#fff',
-                                                                        border: '1px solid #ffccc7'
+                                                                        background: 'var(--card-bg)',
+                                                                        border: '1px solid var(--color-danger-border)'
                                                                     }}
                                                                 />
                                                             </div>
@@ -1066,7 +1073,7 @@ const AuditDetail: React.FC = () => {
                                                 <div style={{
                                                     textAlign: 'center',
                                                     padding: 32,
-                                                    color: '#8c8c8c',
+                                                    color: 'var(--text-secondary)',
                                                     fontSize: 14
                                                 }}>
                                                     No changes detected
@@ -1084,8 +1091,10 @@ const AuditDetail: React.FC = () => {
                             style={{
                                 borderRadius: 16,
                                 marginBottom: 24,
-                                border: 'none',
-                                boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                                border: '1px solid var(--border-default)',
+                                background: 'var(--card-bg)',
+                                boxShadow: 'var(--shadow-sm)',
+                                overflow: 'hidden'
                             }}
                         >
                             <div style={{ marginBottom: 20 }}>
@@ -1093,33 +1102,35 @@ const AuditDetail: React.FC = () => {
                                     COMMAND DETAILS
                                 </Text>
                             </div>
-                            <MonacoEditor
-                                height="400px"
-                                width="100%"
-                                language="json"
-                                value={JSON.stringify(auditLog.command, null, 2)}
-                                theme="vs-light"
-                                options={{
-                                    readOnly: true,
-                                    minimap: { enabled: false },
-                                    automaticLayout: true,
-                                    scrollBeyondLastLine: false,
-                                    padding: { top: 10 },
-                                    bracketPairColorization: { enabled: true },
-                                    renderWhitespace: "all",
-                                    renderLineHighlight: "all",
-                                    folding: true,
-                                    foldingHighlight: true,
-                                    foldingImportsByDefault: false,
-                                    showUnused: false,
-                                    wordWrap: "on",
-                                    contextmenu: false,
-                                    scrollbar: {
-                                        vertical: 'auto',
-                                        horizontal: 'auto'
-                                    }
-                                }}
-                            />
+                            <div style={{ borderRadius: 8, overflow: 'hidden', border: '1px solid var(--border-default)' }}>
+                                <MonacoEditor
+                                    height="400px"
+                                    width="100%"
+                                    language="json"
+                                    value={JSON.stringify(auditLog.command, null, 2)}
+                                    theme={isDark ? 'vs-dark' : 'vs-light'}
+                                    options={{
+                                        readOnly: true,
+                                        minimap: { enabled: false },
+                                        automaticLayout: true,
+                                        scrollBeyondLastLine: false,
+                                        padding: { top: 10 },
+                                        bracketPairColorization: { enabled: true },
+                                        renderWhitespace: "all",
+                                        renderLineHighlight: "all",
+                                        folding: true,
+                                        foldingHighlight: true,
+                                        foldingImportsByDefault: false,
+                                        showUnused: false,
+                                        wordWrap: "on",
+                                        contextmenu: false,
+                                        scrollbar: {
+                                            vertical: 'auto',
+                                            horizontal: 'auto'
+                                        }
+                                    }}
+                                />
+                            </div>
                         </Card>
                     )}
                 </Col>
@@ -1130,8 +1141,10 @@ const AuditDetail: React.FC = () => {
                         style={{
                             borderRadius: 16,
                             marginBottom: 24,
-                            border: 'none',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                            border: '1px solid var(--border-default)',
+                            background: 'var(--card-bg)',
+                            boxShadow: 'var(--shadow-sm)',
+                            overflow: 'hidden'
                         }}
                     >
                         <div style={{ marginBottom: 20 }}>
@@ -1197,8 +1210,10 @@ const AuditDetail: React.FC = () => {
                         style={{
                             borderRadius: 16,
                             marginBottom: 24,
-                            border: 'none',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                            border: '1px solid var(--border-default)',
+                            background: 'var(--card-bg)',
+                            boxShadow: 'var(--shadow-sm)',
+                            overflow: 'hidden'
                         }}
                     >
                         <div style={{ marginBottom: 20 }}>
@@ -1212,17 +1227,17 @@ const AuditDetail: React.FC = () => {
                                 justifyContent: 'space-between',
                                 alignItems: 'center',
                                 padding: '12px 16px',
-                                background: auditLog.success ? '#f6ffed' : '#fff2f0',
+                                background: auditLog.success ? 'var(--color-success-light)' : 'var(--color-danger-light)',
                                 borderRadius: 12
                             }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                     {auditLog.success ?
-                                        <CheckCircleOutlined style={{ color: '#52c41a' }} /> :
-                                        <CloseCircleOutlined style={{ color: '#ff4d4f' }} />
+                                        <CheckCircleOutlined style={{ color: 'var(--color-success)' }} /> :
+                                        <CloseCircleOutlined style={{ color: 'var(--color-error)' }} />
                                     }
                                     <Text style={{ fontSize: 13 }}>Status</Text>
                                 </div>
-                                <Text strong style={{ fontSize: 16, color: auditLog.success ? '#52c41a' : '#ff4d4f' }}>
+                                <Text strong style={{ fontSize: 16, color: auditLog.success ? 'var(--color-success)' : 'var(--color-danger)' }}>
                                     {auditLog.success ? 'Success' : 'Failed'}
                                 </Text>
                             </div>
@@ -1231,14 +1246,14 @@ const AuditDetail: React.FC = () => {
                                 justifyContent: 'space-between',
                                 alignItems: 'center',
                                 padding: '12px 16px',
-                                background: '#e6f7ff',
+                                background: 'var(--color-info-light)',
                                 borderRadius: 12
                             }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                    <ApiOutlined style={{ color: '#1890ff' }} />
+                                    <ApiOutlined style={{ color: 'var(--color-info)' }} />
                                     <Text style={{ fontSize: 13 }}>HTTP Status</Text>
                                 </div>
-                                <Text strong style={{ fontSize: 16, color: auditLog.response_status >= 400 ? '#ff4d4f' : '#52c41a' }}>
+                                <Text strong style={{ fontSize: 16, color: auditLog.response_status >= 400 ? 'var(--color-danger)' : 'var(--color-success)' }}>
                                     {auditLog.response_status}
                                 </Text>
                             </div>
@@ -1247,14 +1262,14 @@ const AuditDetail: React.FC = () => {
                                 justifyContent: 'space-between',
                                 alignItems: 'center',
                                 padding: '12px 16px',
-                                background: '#fffbe6',
+                                background: 'var(--color-warning-light)',
                                 borderRadius: 12
                             }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                    <ClockCircleOutlined style={{ color: '#faad14' }} />
+                                    <ClockCircleOutlined style={{ color: 'var(--color-warning)' }} />
                                     <Text style={{ fontSize: 13 }}>Duration</Text>
                                 </div>
-                                <Text strong style={{ fontSize: 16, color: '#faad14' }}>{auditLog.duration_ms}ms</Text>
+                                <Text strong style={{ fontSize: 16, color: 'var(--color-warning)' }}>{auditLog.duration_ms}ms</Text>
                             </div>
                         </div>
                     </Card>

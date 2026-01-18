@@ -87,10 +87,10 @@ const Profile: React.FC = () => {
     return (
         <div style={{ width: '100%', padding: '12px' }}>
             <div style={{ marginBottom: '24px' }}>
-                <Title level={3} style={{ margin: '0 0 8px 0', color: '#1f2937' }}>
+                <Title level={3} style={{ margin: '0 0 8px 0', color: 'var(--text-primary)' }}>
                     My Profile
                 </Title>
-                <Text type="secondary">Manage your account settings and security</Text>
+                <Text style={{ color: 'var(--text-secondary)' }}>Manage your account settings and security</Text>
             </div>
 
             <Row gutter={[24, 24]}>
@@ -98,10 +98,11 @@ const Profile: React.FC = () => {
                 <Col xs={24} lg={12}>
                     <div style={{
                         borderRadius: '12px',
-                        background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                        background: 'var(--gradient-primary)',
                         color: 'white',
                         padding: '24px',
-                        height: '100%'
+                        height: '100%',
+                        boxShadow: 'var(--shadow-md)'
                     }}>
                         <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                             <Space>
@@ -185,10 +186,10 @@ const Profile: React.FC = () => {
                 {/* Security Status Box */}
                 <Col xs={24} lg={12}>
                     <div style={{
-                        background: '#fff',
+                        background: 'var(--card-bg)',
                         padding: '24px',
                         borderRadius: '12px',
-                        border: '1px solid #e1e5e9',
+                        border: '1px solid var(--border-default)',
                         height: '100%'
                     }}>
                         <Space direction="vertical" style={{ width: '100%' }} size="middle">
@@ -205,11 +206,11 @@ const Profile: React.FC = () => {
                                     <SafetyOutlined style={{ color: 'white', fontSize: '18px' }} />
                                 </div>
                                 <div>
-                                    <Text style={{ fontSize: '15px', fontWeight: 'bold', color: '#1f2937' }}>
+                                    <Text style={{ fontSize: '15px', fontWeight: 'bold', color: 'var(--text-primary)' }}>
                                         Two-Factor Authentication
                                     </Text>
                                     <br />
-                                    <Text type="secondary" style={{ fontSize: '13px' }}>
+                                    <Text style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
                                         Enhanced account security
                                     </Text>
                                 </div>
@@ -221,21 +222,21 @@ const Profile: React.FC = () => {
                                 <Space direction="vertical" style={{ width: '100%' }} size="middle">
                                     <div style={{
                                         padding: '12px 14px',
-                                        background: '#f6ffed',
+                                        background: 'var(--color-success-light)',
                                         borderRadius: '8px',
-                                        border: '1px solid #b7eb8f'
+                                        border: '1px solid var(--color-success-border)'
                                     }}>
                                         <Space size={8}>
-                                            <CheckCircleOutlined style={{ color: '#52c41a', fontSize: 16 }} />
-                                            <Text strong style={{ color: '#52c41a' }}>2FA is Active</Text>
+                                            <CheckCircleOutlined style={{ color: 'var(--color-success)', fontSize: 16 }} />
+                                            <Text strong style={{ color: 'var(--color-success)' }}>2FA is Active</Text>
                                         </Space>
                                     </div>
                                     <Statistic
-                                        title={<span style={{ fontSize: 13 }}>Backup Codes Remaining</span>}
+                                        title={<span style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Backup Codes Remaining</span>}
                                         value={otpStatus.backup_codes_count}
                                         suffix="/ 10"
                                         valueStyle={{
-                                            color: otpStatus.backup_codes_count < 5 ? '#faad14' : '#52c41a',
+                                            color: otpStatus.backup_codes_count < 5 ? 'var(--color-warning)' : 'var(--color-success)',
                                             fontSize: 24
                                         }}
                                     />
@@ -270,13 +271,13 @@ const Profile: React.FC = () => {
                                 <Space direction="vertical" style={{ width: '100%' }} size="middle">
                                     <div style={{
                                         padding: '12px 14px',
-                                        background: '#fff7e6',
+                                        background: 'var(--color-warning-light)',
                                         borderRadius: '8px',
-                                        border: '1px solid #ffd591'
+                                        border: '1px solid var(--color-warning-border)'
                                     }}>
                                         <Space size={8}>
-                                            <WarningOutlined style={{ color: '#faad14', fontSize: 16 }} />
-                                            <Text strong style={{ color: '#faad14' }}>2FA is Not Active</Text>
+                                            <WarningOutlined style={{ color: 'var(--color-warning)', fontSize: 16 }} />
+                                            <Text strong style={{ color: 'var(--color-warning)' }}>2FA is Not Active</Text>
                                         </Space>
                                     </div>
                                     <Text type="secondary" style={{ fontSize: 13 }}>
@@ -291,7 +292,7 @@ const Profile: React.FC = () => {
                                         size="large"
                                         block
                                         style={{
-                                            background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                                            background: 'var(--gradient-primary)',
                                             border: 'none',
                                             marginTop: 8
                                         }}
@@ -307,10 +308,10 @@ const Profile: React.FC = () => {
                 {/* Update Email Box */}
                 <Col xs={24} lg={12}>
                     <div style={{
-                        background: '#fff',
+                        background: 'var(--card-bg)',
                         padding: '24px',
                         borderRadius: '12px',
-                        border: '1px solid #e1e5e9'
+                        border: '1px solid var(--border-default)'
                     }}>
                         <Space direction="vertical" style={{ width: '100%' }} size="middle">
                             <Space>
@@ -326,11 +327,11 @@ const Profile: React.FC = () => {
                                     <MailOutlined style={{ color: 'white', fontSize: '18px' }} />
                                 </div>
                                 <div>
-                                    <Text style={{ fontSize: '15px', fontWeight: 'bold', color: '#1f2937' }}>
+                                    <Text style={{ fontSize: '15px', fontWeight: 'bold', color: 'var(--text-primary)' }}>
                                         Update Email
                                     </Text>
                                     <br />
-                                    <Text type="secondary" style={{ fontSize: '13px' }}>
+                                    <Text style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
                                         Change your email address
                                     </Text>
                                 </div>
@@ -386,7 +387,7 @@ const Profile: React.FC = () => {
                                             loading={mutate.isPending}
                                             block
                                             style={{
-                                                background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                                                background: 'var(--gradient-primary)',
                                                 border: 'none'
                                             }}
                                         >
@@ -402,10 +403,10 @@ const Profile: React.FC = () => {
                 {/* Change Password Box */}
                 <Col xs={24} lg={12}>
                     <div style={{
-                        background: '#fff',
+                        background: 'var(--card-bg)',
                         padding: '24px',
                         borderRadius: '12px',
-                        border: '1px solid #e1e5e9'
+                        border: '1px solid var(--border-default)'
                     }}>
                         <Space direction="vertical" style={{ width: '100%' }} size="middle">
                             <Space>
@@ -421,11 +422,11 @@ const Profile: React.FC = () => {
                                     <LockOutlined style={{ color: 'white', fontSize: '18px' }} />
                                 </div>
                                 <div>
-                                    <Text style={{ fontSize: '15px', fontWeight: 'bold', color: '#1f2937' }}>
+                                    <Text style={{ fontSize: '15px', fontWeight: 'bold', color: 'var(--text-primary)' }}>
                                         Change Password
                                     </Text>
                                     <br />
-                                    <Text type="secondary" style={{ fontSize: '13px' }}>
+                                    <Text style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
                                         Update your password
                                     </Text>
                                 </div>
@@ -518,7 +519,7 @@ const Profile: React.FC = () => {
                                             loading={mutate.isPending}
                                             block
                                             style={{
-                                                background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                                                background: 'var(--gradient-primary)',
                                                 border: 'none'
                                             }}
                                         >
@@ -653,7 +654,7 @@ const Profile: React.FC = () => {
                                         htmlType="submit"
                                         loading={otpLoading}
                                         style={{
-                                            background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                                            background: 'var(--gradient-primary)',
                                             border: 'none'
                                         }}
                                     >
@@ -675,7 +676,7 @@ const Profile: React.FC = () => {
                                     refetchOTPStatus();
                                 }}
                                 style={{
-                                    background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                                    background: 'var(--gradient-primary)',
                                     border: 'none'
                                 }}
                             >

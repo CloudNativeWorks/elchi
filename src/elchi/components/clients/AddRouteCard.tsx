@@ -29,7 +29,7 @@ const AddRouteCard: React.FC<AddRouteCardProps> = ({ interfaces, routingTables, 
                 protocol: values[`protocol_${index}`],
                 onlink: values[`onlink_${index}`],
             })).filter(route => route.to && route.via && route.interface);
-            
+
             onSave({ routes: routeList });
         } else {
             onSave(values);
@@ -59,16 +59,16 @@ const AddRouteCard: React.FC<AddRouteCardProps> = ({ interfaces, routingTables, 
     };
 
     const renderRouteForm = (index: number) => (
-        <Card 
+        <Card
             key={routes[index].id}
-            size="small" 
-            style={{ marginBottom: 16 }}
-            title={multipleMode ? `Route ${index + 1}` : undefined}
+            size="small"
+            style={{ marginBottom: 16, background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}
+            title={multipleMode ? <span style={{ color: 'var(--text-primary)' }}>Route {index + 1}</span> : undefined}
             extra={multipleMode && routes.length > 1 ? (
-                <Button 
-                    type="text" 
-                    danger 
-                    icon={<DeleteOutlined />} 
+                <Button
+                    type="text"
+                    danger
+                    icon={<DeleteOutlined />}
                     onClick={() => removeRoute(index)}
                 />
             ) : null}
@@ -185,12 +185,12 @@ const AddRouteCard: React.FC<AddRouteCardProps> = ({ interfaces, routingTables, 
     );
 
     return (
-        <div style={{ width: '100%', background: '#fff', borderRadius: 14, padding: '2px 2px 2px 2px', marginTop: 0, marginLeft: 0, minWidth: 0 }}>
+        <div style={{ width: '100%', background: 'var(--card-bg)', borderRadius: 14, padding: '2px 2px 2px 2px', marginTop: 0, marginLeft: 0, minWidth: 0, border: 'none' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
-                <Title level={5} style={{ margin: 0 }}>Add New Route(s)</Title>
+                <Title level={5} style={{ margin: 0, color: 'var(--text-primary)' }}>Add New Route(s)</Title>
                 <Space>
-                    <span style={{ fontSize: 14, color: '#666' }}>Multiple Routes:</span>
-                    <Switch 
+                    <span style={{ fontSize: 14, color: 'var(--text-secondary)' }}>Multiple Routes:</span>
+                    <Switch
                         checked={multipleMode}
                         onChange={setMultipleMode}
                         size="small"
@@ -204,14 +204,14 @@ const AddRouteCard: React.FC<AddRouteCardProps> = ({ interfaces, routingTables, 
                 onFinish={handleFinish}
             >
                 {routes.map((_, index) => renderRouteForm(index))}
-                
+
                 {multipleMode && (
                     <Button
                         type="dashed"
                         icon={<PlusOutlined />}
                         onClick={addRoute}
-                        style={{ 
-                            width: '100%', 
+                        style={{
+                            width: '100%',
                             marginBottom: 24,
                             borderRadius: 8
                         }}
@@ -226,11 +226,11 @@ const AddRouteCard: React.FC<AddRouteCardProps> = ({ interfaces, routingTables, 
                         type="primary"
                         icon={<CheckOutlined />}
                         style={{
-                            background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                            background: 'var(--gradient-primary)',
                             color: '#fff',
                             border: 'none',
                             fontWeight: 500,
-                            boxShadow: '0 2px 8px rgba(0,198,251,0.10)',
+                            boxShadow: '0 2px 8px var(--shadow-primary)',
                             transition: 'all 0.2s',
                         }}
                         className="modern-add-btn"

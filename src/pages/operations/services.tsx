@@ -145,8 +145,8 @@ const Services: React.FC = () => {
                         <Tag className='auto-width-tag'
                             style={{
                                 display: 'inline-block',
-                                background: '#f5f5f5',
-                                color: '#bfbfbf',
+                                background: 'var(--bg-surface)',
+                                color: 'var(--text-tertiary)',
                                 borderRadius: 4,
                                 padding: '2px 14px',
                                 border: '0px',
@@ -154,7 +154,7 @@ const Services: React.FC = () => {
                                 fontSize: 12,
                                 minWidth: 60,
                                 textAlign: 'center',
-                                boxShadow: '0 1px 4px #bfbfbf22'
+                                boxShadow: '0 1px 4px rgba(0,0,0,0.08)'
                             }}
                         >
                             <span style={{
@@ -162,20 +162,20 @@ const Services: React.FC = () => {
                                 width: 8,
                                 height: 8,
                                 borderRadius: '50%',
-                                background: '#bfbfbf',
+                                background: 'var(--text-tertiary)',
                                 marginRight: 8
                             }} />
                             Not Deployed
                         </Tag>
                     );
                 }
-                let color = '#bfbfbf', bg = '#bfbfbf22', text = 'Not Deployed';
+                let color = 'var(--text-tertiary)', bg = 'var(--bg-surface)', text = 'Not Deployed';
                 if (status === 'Live') {
-                    color = '#52c41a'; bg = '#f6ffed'; text = 'Live';
+                    color = 'var(--color-success)'; bg = 'var(--color-success-light)'; text = 'Live';
                 } else if (status === 'Partial') {
-                    color = '#faad14'; bg = '#fffbe6'; text = 'Partial';
+                    color = 'var(--color-warning)'; bg = 'var(--color-warning-light)'; text = 'Partial';
                 } else if (status === 'Offline') {
-                    color = '#ff4d4f'; bg = '#fff1f0'; text = 'Offline';
+                    color = 'var(--color-danger)'; bg = 'var(--color-danger-light)'; text = 'Offline';
                 }
                 return (
                     <Tag className='auto-width-tag' color={color}
@@ -210,7 +210,7 @@ const Services: React.FC = () => {
             dataIndex: 'version',
             key: 'version',
             render: (version: string) => {
-                if (!version) return <span style={{ color: '#bfbfbf' }}>-</span>;
+                if (!version) return <span style={{ color: 'var(--border-default)' }}>-</span>;
                 return (
                     <Tag
                         className='auto-width-tag'
@@ -228,8 +228,8 @@ const Services: React.FC = () => {
             render: (clients: { downstream_address: string; client_id: string }[]) => (
                 <span style={{
                     display: 'inline-flex',
-                    background: 'linear-gradient(90deg, #e6f7ff 0%, #bae7ff 100%)',
-                    color: '#1890ff',
+                    background: 'linear-gradient(90deg, var(--color-primary-light) 0%, var(--color-primary-light) 100%)',
+                    color: 'var(--color-primary)',
                     alignItems: 'center',
                     borderRadius: 4,
                     padding: '2px 12px',
@@ -280,7 +280,7 @@ const Services: React.FC = () => {
             <div style={{ marginBottom: 16 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <Space>
-                        <ApiOutlined style={{ color: '#1890ff', fontSize: 24 }} />
+                        <ApiOutlined style={{ color: 'var(--color-primary)', fontSize: 24 }} />
                         <Title level={4} style={{ margin: 0 }}>Services</Title>
                     </Space>
                 </div>
@@ -351,13 +351,13 @@ const Services: React.FC = () => {
                     <Col span={6}>
                         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                             <Space>
-                                <Button 
+                                <Button
                                     icon={<SearchOutlined />}
                                     onClick={applyFilters}
-                                    style={{ 
+                                    style={{
                                         borderRadius: 6,
-                                        background: 'white',
-                                        border: '1px solid #d9d9d9',
+                                        background: 'var(--card-bg)',
+                                        border: '1px solid var(--border-default)',
                                         transition: 'all 0.3s ease'
                                     }}
                                     onMouseEnter={(e) => {
@@ -366,9 +366,9 @@ const Services: React.FC = () => {
                                         e.currentTarget.style.borderColor = '#056ccd';
                                     }}
                                     onMouseLeave={(e) => {
-                                        e.currentTarget.style.background = 'white';
-                                        e.currentTarget.style.color = 'rgba(0, 0, 0, 0.88)';
-                                        e.currentTarget.style.borderColor = '#d9d9d9';
+                                        e.currentTarget.style.background = 'var(--card-bg)';
+                                        e.currentTarget.style.color = 'var(--text-primary)';
+                                        e.currentTarget.style.borderColor = 'var(--border-default)';
                                     }}
                                 >
                                     Search
@@ -417,7 +417,7 @@ const Services: React.FC = () => {
                         onClick: () => navigate(`/services/${record.id}?version=${record.version}`),
                         style: {
                             cursor: 'pointer',
-                            background: (record.clients?.length === 0) ? '#fafafa' : undefined
+                            background: (record.clients?.length === 0) ? 'var(--bg-surface)' : undefined
                         }
                     })}
                 />
@@ -425,7 +425,7 @@ const Services: React.FC = () => {
                     <div style={{
                         display: 'inline-flex',
                         alignItems: 'center',
-                        color: '#8c8c8c',
+                        color: 'var(--text-secondary)',
                         fontSize: 12,
                         padding: '4px 0',
                         gap: 6

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { 
-    Table, Button, Form, Input, InputNumber, Modal, Space, 
-    Popconfirm, Typography, Tag 
+import {
+    Table, Button, Form, Input, InputNumber, Modal, Space,
+    Popconfirm, Typography, Tag
 } from 'antd';
 import { PlusOutlined, DeleteOutlined, EditOutlined } from '@ant-design/icons';
 import { useNetworkOperations, TableOperation } from '@/hooks/useNetworkOperations';
@@ -89,11 +89,11 @@ const RoutingTableManager: React.FC<RoutingTableManagerProps> = ({
                 const keyStr = key.toString();
                 const tableId = parseInt(keyStr.replace('table-', ''));
                 const table = allTables.find(t => t.id === tableId);
-                
+
                 if (!table) {
                     throw new Error(`Table not found for key: ${key}`);
                 }
-                
+
                 return {
                     action: 'DELETE',
                     table: {
@@ -102,9 +102,9 @@ const RoutingTableManager: React.FC<RoutingTableManagerProps> = ({
                     }
                 };
             });
-            
+
             await manageTables(clientId, operations);
-            
+
             setSelectedRowKeys([]);
             onRefresh?.();
         } catch (error: any) {
@@ -133,7 +133,7 @@ const RoutingTableManager: React.FC<RoutingTableManagerProps> = ({
             };
 
             await manageTables(clientId, [operation]);
-            
+
             if (editingTable) {
                 if (onTableUpdate) {
                     onTableUpdate(table);
@@ -192,11 +192,11 @@ const RoutingTableManager: React.FC<RoutingTableManagerProps> = ({
             render: (record: any) => {
                 const { routes: routeCount, policies: policyCount } = record.usage || { routes: 0, policies: 0 };
                 const total = routeCount + policyCount;
-                
+
                 if (total === 0) {
                     return <Text type="secondary">Not in use</Text>;
                 }
-                
+
                 return (
                     <Space size="small">
                         {routeCount > 0 && (
@@ -219,8 +219,8 @@ const RoutingTableManager: React.FC<RoutingTableManagerProps> = ({
                 }
 
                 return (
-                    <Button 
-                        type="text" 
+                    <Button
+                        type="text"
                         size="small"
                         icon={<EditOutlined />}
                         onClick={() => handleEdit(record)}
@@ -279,11 +279,11 @@ const RoutingTableManager: React.FC<RoutingTableManagerProps> = ({
                         icon={<PlusOutlined />}
                         onClick={handleAdd}
                         style={{
-                            background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                            background: 'var(--gradient-primary)',
                             border: 'none',
                             borderRadius: 8,
                             fontWeight: 500,
-                            boxShadow: '0 2px 8px rgba(0,198,251,0.10)',
+                            boxShadow: '0 2px 8px var(--shadow-primary)',
                         }}
                         className="modern-add-btn"
                         loading={actionLoading}
@@ -301,9 +301,10 @@ const RoutingTableManager: React.FC<RoutingTableManagerProps> = ({
                 pagination={false}
                 loading={loading || actionLoading}
                 style={{
-                    background: '#fff',
+                    background: 'var(--card-bg)',
                     borderRadius: 12,
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                    boxShadow: 'var(--shadow-sm)',
+                    border: '1px solid var(--border-default)'
                 }}
             />
 
@@ -354,15 +355,15 @@ const RoutingTableManager: React.FC<RoutingTableManagerProps> = ({
                     </Form.Item>
                 </Form>
 
-                <div style={{ 
-                    marginTop: 16, 
-                    padding: 12, 
-                    backgroundColor: '#f6ffed', 
+                <div style={{
+                    marginTop: 16,
+                    padding: 12,
+                    backgroundColor: 'var(--color-success-light)',
                     borderRadius: 6,
-                    border: '1px solid #b7eb8f'
+                    border: '1px solid var(--color-success)'
                 }}>
-                    <Text style={{ fontSize: 12, color: '#52c41a' }}>
-                        💡 <strong>Tip:</strong> Routing tables allow you to create separate routing domains. 
+                    <Text style={{ fontSize: 12, color: 'var(--color-success)' }}>
+                        💡 <strong>Tip:</strong> Routing tables allow you to create separate routing domains.
                         Use different tables for different network segments or policies.
                     </Text>
                 </div>

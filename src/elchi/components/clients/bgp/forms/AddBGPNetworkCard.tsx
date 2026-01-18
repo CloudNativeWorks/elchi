@@ -25,12 +25,13 @@ const AddBGPNetworkCard: React.FC<AddBGPNetworkCardProps> = ({ onCancel, onSubmi
     };
 
     return (
-        <div style={{ 
-            width: '100%', 
-            background: '#fff', 
-            borderRadius: 14, 
-            padding: '20px', 
-            boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+        <div style={{
+            width: '100%',
+            background: 'var(--card-bg)',
+            borderRadius: 14,
+            padding: '20px',
+            boxShadow: 'var(--shadow-sm)',
+            border: '1px solid var(--border-default)'
         }}>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 18 }}>
                 <Title level={5} style={{ margin: 0 }}>Add BGP Network</Title>

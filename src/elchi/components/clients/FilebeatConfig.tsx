@@ -449,9 +449,9 @@ const FilebeatConfig: React.FC<FilebeatConfigProps> = ({ clientId, downstreamAdd
             <div style={{
                 marginBottom: 16,
                 padding: '10px 14px',
-                background: '#fafafa',
+                background: 'var(--bg-surface)',
                 borderRadius: 6,
-                border: '1px solid #f0f0f0',
+                border: '1px solid var(--border-default)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between'
@@ -461,8 +461,8 @@ const FilebeatConfig: React.FC<FilebeatConfigProps> = ({ clientId, downstreamAdd
                         width: 7,
                         height: 7,
                         borderRadius: '50%',
-                        background: status?.is_running ? '#52c41a' : '#d9d9d9',
-                        boxShadow: status?.is_running ? '0 0 6px rgba(82, 196, 26, 0.6)' : 'none'
+                        background: status?.is_running ? 'var(--color-success)' : 'var(--text-tertiary)',
+                        boxShadow: status?.is_running ? '0 0 6px var(--color-success)' : 'none'
                     }} />
                     <span style={{ fontSize: 13, fontWeight: 500 }}>
                         {status?.is_running ? 'Running' : 'Stopped'}
@@ -517,10 +517,10 @@ const FilebeatConfig: React.FC<FilebeatConfigProps> = ({ clientId, downstreamAdd
             ) : (
                 <div
                     style={{
-                        background: 'white',
+                        background: 'var(--card-bg)',
                         borderRadius: 8,
                         padding: 16,
-                        border: '1px solid #f0f0f0'
+                        border: '1px solid var(--border-default)'
                     }}
                 >
                     {/* Header */}
@@ -530,7 +530,7 @@ const FilebeatConfig: React.FC<FilebeatConfigProps> = ({ clientId, downstreamAdd
                         alignItems: 'center',
                         marginBottom: 16,
                         paddingBottom: 12,
-                        borderBottom: '1px solid #f0f0f0'
+                        borderBottom: '1px solid var(--border-default)'
                     }}>
                         <span style={{ fontSize: 14, fontWeight: 600 }}>Configuration</span>
                         {!editMode ? (
@@ -567,9 +567,9 @@ const FilebeatConfig: React.FC<FilebeatConfigProps> = ({ clientId, downstreamAdd
                     <div
                         style={{
                             padding: 12,
-                            background: '#fafafa',
+                            background: 'var(--bg-surface)',
                             borderRadius: 6,
-                            border: '1px solid #f0f0f0'
+                            border: '1px solid var(--border-default)'
                         }}
                     >
                         <Row gutter={[12, 12]} align="middle">
@@ -582,7 +582,7 @@ const FilebeatConfig: React.FC<FilebeatConfigProps> = ({ clientId, downstreamAdd
                                         disabled={!editMode}
                                         size="small"
                                     />
-                                    <span style={{ fontSize: 12, color: '#595959', fontWeight: 500 }}>
+                                    <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 500 }}>
                                         {displayConfig?.inputs?.[0]?.enabled ? 'Enabled' : 'Disabled'}
                                     </span>
                                 </Space>
@@ -591,7 +591,7 @@ const FilebeatConfig: React.FC<FilebeatConfigProps> = ({ clientId, downstreamAdd
                             {/* Output Type */}
                             <Col flex="0 0 auto">
                                 <Space align="center" size="small">
-                                    <span style={{ fontSize: 12, color: '#8c8c8c' }}>Output:</span>
+                                    <span style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Output:</span>
                                     {editMode ? (
                                         <Select
                                             value={currentOutputType}
@@ -620,7 +620,7 @@ const FilebeatConfig: React.FC<FilebeatConfigProps> = ({ clientId, downstreamAdd
                             </Col>
                         </Row>
 
-                        <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid #e8e8e8' }}>
+                        <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--border-default)' }}>
                             <Space direction="vertical" style={{ width: '100%' }} size={8}>
 
                                 {/* Elasticsearch Output */}
@@ -629,7 +629,7 @@ const FilebeatConfig: React.FC<FilebeatConfigProps> = ({ clientId, downstreamAdd
                                         {/* Hosts */}
                                         <Row gutter={12} align="middle">
                                             <Col flex="0 0 100px">
-                                                <span style={{ fontSize: 12, color: '#595959', fontWeight: 500 }}>Hosts:</span>
+                                                <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 500 }}>Hosts:</span>
                                             </Col>
                                             <Col flex="1">
                                                 {editMode ? (
@@ -658,7 +658,7 @@ const FilebeatConfig: React.FC<FilebeatConfigProps> = ({ clientId, downstreamAdd
                                             <>
                                                 <Row gutter={12} align="middle">
                                                     <Col flex="0 0 100px">
-                                                        <span style={{ fontSize: 12, color: '#595959', fontWeight: 500 }}>Options:</span>
+                                                        <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 500 }}>Options:</span>
                                                     </Col>
                                                     <Col flex="1">
                                                         <Space size={16}>
@@ -681,7 +681,7 @@ const FilebeatConfig: React.FC<FilebeatConfigProps> = ({ clientId, downstreamAdd
                                                 </Row>
                                                 <Row gutter={12} align="middle">
                                                     <Col flex="0 0 100px">
-                                                        <span style={{ fontSize: 12, color: '#595959', fontWeight: 500 }}>Auth:</span>
+                                                        <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 500 }}>Auth:</span>
                                                     </Col>
                                                     <Col flex="1">
                                                         <Space direction="vertical" style={{ width: '100%' }} size={6}>
@@ -755,7 +755,7 @@ const FilebeatConfig: React.FC<FilebeatConfigProps> = ({ clientId, downstreamAdd
                                             <>
                                                 <Row gutter={12} align="middle">
                                                     <Col flex="0 0 100px">
-                                                        <span style={{ fontSize: 12, color: '#595959', fontWeight: 500 }}>Options:</span>
+                                                        <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 500 }}>Options:</span>
                                                     </Col>
                                                     <Col flex="1">
                                                         <Space size={4} wrap>
@@ -767,27 +767,27 @@ const FilebeatConfig: React.FC<FilebeatConfigProps> = ({ clientId, downstreamAdd
                                                             )}
                                                             {!displayConfig.filebeat_output.elasticsearch.loadbalance &&
                                                                 !displayConfig.filebeat_output.elasticsearch.skip_ssl_verify && (
-                                                                    <span style={{ fontSize: 11, color: '#999' }}>-</span>
+                                                                    <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>-</span>
                                                                 )}
                                                         </Space>
                                                     </Col>
                                                 </Row>
                                                 <Row gutter={12} align="middle">
                                                     <Col flex="0 0 100px">
-                                                        <span style={{ fontSize: 12, color: '#595959', fontWeight: 500 }}>Auth:</span>
+                                                        <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 500 }}>Auth:</span>
                                                     </Col>
                                                     <Col flex="1">
                                                         {(displayConfig.filebeat_output.elasticsearch.api_key_configured ||
                                                             displayConfig.filebeat_output.elasticsearch.auth_type === 'api_key') ? (
                                                             <Space size={4}>
                                                                 <Tag className='auto-width-tag' color="green" style={{ margin: 0, fontSize: 11 }}>API Key</Tag>
-                                                                <span style={{ fontSize: 11, color: '#8c8c8c', fontFamily: 'monospace' }}></span>
+                                                                <span style={{ fontSize: 11, color: 'var(--text-secondary)', fontFamily: 'monospace' }}></span>
                                                             </Space>
                                                         ) : (displayConfig.filebeat_output.elasticsearch.basic_auth ||
                                                             displayConfig.filebeat_output.elasticsearch.auth_type === 'basic_auth') ? (
                                                             <Space size={4}>
                                                                 <Tag className='auto-width-tag' color="purple" style={{ margin: 0, fontSize: 11 }}>Basic Auth</Tag>
-                                                                <span style={{ fontSize: 11, color: '#8c8c8c', fontFamily: 'monospace' }}></span>
+                                                                <span style={{ fontSize: 11, color: 'var(--text-secondary)', fontFamily: 'monospace' }}></span>
                                                             </Space>
                                                         ) : (
                                                             <Tag className='auto-width-tag' color="default" style={{ margin: 0, fontSize: 11 }}>None</Tag>
@@ -805,7 +805,7 @@ const FilebeatConfig: React.FC<FilebeatConfigProps> = ({ clientId, downstreamAdd
                                         {/* Hosts */}
                                         <Row gutter={12} align="middle">
                                             <Col flex="0 0 100px">
-                                                <span style={{ fontSize: 12, color: '#595959', fontWeight: 500 }}>Hosts:</span>
+                                                <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 500 }}>Hosts:</span>
                                             </Col>
                                             <Col flex="1">
                                                 {editMode ? (
@@ -832,7 +832,7 @@ const FilebeatConfig: React.FC<FilebeatConfigProps> = ({ clientId, downstreamAdd
                                         {/* Load Balance */}
                                         <Row gutter={12} align="middle">
                                             <Col flex="0 0 100px">
-                                                <span style={{ fontSize: 12, color: '#595959', fontWeight: 500 }}>Options:</span>
+                                                <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 500 }}>Options:</span>
                                             </Col>
                                             <Col flex="1">
                                                 {editMode ? (
@@ -847,7 +847,7 @@ const FilebeatConfig: React.FC<FilebeatConfigProps> = ({ clientId, downstreamAdd
                                                     displayConfig.filebeat_output.logstash.loadbalance ? (
                                                         <Tag className='auto-width-tag' color="blue" style={{ margin: 0, fontSize: 11 }}>Load Balance</Tag>
                                                     ) : (
-                                                        <span style={{ fontSize: 11, color: '#999' }}>-</span>
+                                                        <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>-</span>
                                                     )
                                                 )}
                                             </Col>
@@ -891,8 +891,8 @@ const FilebeatConfig: React.FC<FilebeatConfigProps> = ({ clientId, downstreamAdd
                                     ) : logs.length > 0 ? (
                                         <div
                                             style={{
-                                                background: '#1e1e1e',
-                                                color: '#d4d4d4',
+                                                background: 'var(--terminal-bg)',
+                                                color: 'var(--terminal-text)',
                                                 padding: 12,
                                                 borderRadius: 6,
                                                 fontFamily: 'monospace',
@@ -925,7 +925,7 @@ const FilebeatConfig: React.FC<FilebeatConfigProps> = ({ clientId, downstreamAdd
             <Modal
                 title={
                     <Space>
-                        <InfoCircleOutlined style={{ color: '#1890ff' }} />
+                        <InfoCircleOutlined style={{ color: 'var(--color-primary)' }} />
                         <span>Logstash Configuration Example</span>
                     </Space>
                 }

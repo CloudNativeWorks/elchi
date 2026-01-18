@@ -86,7 +86,8 @@ const EABCredentialsForm: React.FC<EABCredentialsFormProps> = ({
                   code
                   style={{
                     marginBottom: 8,
-                    backgroundColor: '#f6f8fa',
+                    backgroundColor: 'var(--code-bg)',
+                    color: 'var(--code-text)',
                     padding: '8px 12px',
                     borderRadius: 6,
                     fontSize: 13

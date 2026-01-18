@@ -14,8 +14,8 @@ import {
   Form,
   App as AntdApp
 } from 'antd';
-import { 
-  SaveOutlined, 
+import {
+  SaveOutlined,
   ThunderboltOutlined,
   DeleteOutlined,
   CloseOutlined,
@@ -32,47 +32,48 @@ const { Search } = Input;
 // Modern style constants
 const MODERN_STYLES = {
   card: {
-    background: 'linear-gradient(135deg, #f5f5f5 0%, #eeeeee 100%)',
-    border: '1px solid rgba(0, 0, 0, 0.08)',
+    background: 'var(--bg-surface)',
+    border: '1px solid var(--border-default)',
     borderRadius: 12,
-    boxShadow: '0 2px 12px rgba(0, 0, 0, 0.04)',
+    boxShadow: 'var(--shadow-sm)',
   },
   primaryCard: {
-    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    background: 'var(--gradient-primary)',
     border: 'none',
     borderRadius: 12,
     color: 'white',
   },
   successCard: {
-    background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+    background: 'var(--gradient-success)',
     border: 'none',
     borderRadius: 12,
     color: 'white',
   },
   warningCard: {
-    background: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
+    background: 'var(--gradient-warning)',
     border: 'none',
     borderRadius: 12,
     color: 'white',
   },
   codeBlock: {
-    background: 'rgba(0, 0, 0, 0.02)',
-    border: '1px solid rgba(0, 0, 0, 0.06)',
+    background: 'var(--code-bg)',
+    border: '1px solid var(--border-default)',
     borderRadius: 8,
     fontFamily: 'JetBrains Mono, Monaco, Consolas, "Courier New", monospace',
+    color: 'var(--text-primary)',
   },
   actionButton: {
     border: 'none',
     borderRadius: 8,
-    background: 'rgba(255, 255, 255, 0.7)',
+    background: 'var(--bg-active)',
     backdropFilter: 'blur(10px)',
     transition: 'all 0.2s ease',
-    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+    boxShadow: 'var(--shadow-sm)',
   },
   glassmorphism: {
-    background: 'rgba(255, 255, 255, 0.25)',
+    background: 'var(--bg-elevated)',
     backdropFilter: 'blur(10px)',
-    border: '1px solid rgba(255, 255, 255, 0.18)',
+    border: '1px solid var(--border-default)',
     borderRadius: 16,
   }
 };
@@ -80,7 +81,7 @@ const MODERN_STYLES = {
 interface SnippetDrawerProps {
   open: boolean;
   onClose: () => void;
-  
+
   // Component context
   ctype: string;
   keys?: string;
@@ -114,8 +115,8 @@ export const SnippetDrawer: React.FC<SnippetDrawerProps> = ({
   const pathData = discoverPath({ ctype, keys, title, reduxStore, gtype });
 
   // Fetch snippets for this component
-  const { 
-    data: snippets, 
+  const {
+    data: snippets,
     isLoading: snippetsLoading,
     error: snippetsError
   } = useComponentSnippets(ctype, pathData.gtype, version, { enabled: open });
@@ -157,7 +158,7 @@ export const SnippetDrawer: React.FC<SnippetDrawerProps> = ({
    */
   const handleUpdateSnippet = async (values: { name: string }) => {
     if (!selectedSnippet) return;
-    
+
     try {
       // Convert current redux data to JSON for update
       let snippetData: any;
@@ -207,7 +208,7 @@ export const SnippetDrawer: React.FC<SnippetDrawerProps> = ({
    */
   const handleFinalApply = () => {
     if (!selectedSnippet) return;
-    
+
     // Use current component's keys for apply
     const currentKeys = keys || selectedSnippet.field_path || selectedSnippet.component_type;
     onApply(currentKeys, selectedSnippet.snippet_data);
@@ -260,9 +261,9 @@ export const SnippetDrawer: React.FC<SnippetDrawerProps> = ({
    */
   const renderTitle = () => {
     const backButton = (
-      <Button 
-        type="text" 
-        icon={<CloseOutlined />} 
+      <Button
+        type="text"
+        icon={<CloseOutlined />}
         onClick={() => setMode('list')}
         style={{
           ...MODERN_STYLES.actionButton,
@@ -281,8 +282,8 @@ export const SnippetDrawer: React.FC<SnippetDrawerProps> = ({
           <Space align="center" size={12}>
             {backButton}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <SaveOutlined style={{ color: '#52c41a', fontSize: 16 }} />
-              <Title level={5} style={{ margin: 0, color: '#52c41a' }}>Save Snippet</Title>
+              <SaveOutlined style={{ color: 'var(--color-success)', fontSize: 16 }} />
+              <Title level={5} style={{ margin: 0, color: 'var(--color-success)' }}>Save Snippet</Title>
             </div>
             <div style={{
               ...MODERN_STYLES.glassmorphism,
@@ -317,8 +318,8 @@ export const SnippetDrawer: React.FC<SnippetDrawerProps> = ({
           <Space align="center" size={12}>
             {backButton}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <EditOutlined style={{ color: '#722ed1', fontSize: 16 }} />
-              <Title level={5} style={{ margin: 0, color: '#722ed1' }}>Update Snippet</Title>
+              <EditOutlined style={{ color: 'var(--color-purple)', fontSize: 16 }} />
+              <Title level={5} style={{ margin: 0, color: 'var(--color-purple)' }}>Update Snippet</Title>
             </div>
             <div style={{
               ...MODERN_STYLES.glassmorphism,
@@ -334,8 +335,8 @@ export const SnippetDrawer: React.FC<SnippetDrawerProps> = ({
         return (
           <Space align="center" size={12}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <SaveOutlined style={{ color: '#1890ff', fontSize: 18 }} />
-              <Title level={4} style={{ margin: 0, color: '#1890ff' }}>Snippets</Title>
+              <SaveOutlined style={{ color: 'var(--color-primary)', fontSize: 18 }} />
+              <Title level={4} style={{ margin: 0, color: 'var(--color-primary)' }}>Snippets</Title>
             </div>
             <div style={{
               ...MODERN_STYLES.glassmorphism,
@@ -367,8 +368,8 @@ export const SnippetDrawer: React.FC<SnippetDrawerProps> = ({
     switch (mode) {
       case 'save':
         return (
-          <Button 
-            icon={<SaveOutlined />} 
+          <Button
+            icon={<SaveOutlined />}
             onClick={() => saveForm.submit()}
             loading={isSaving}
             style={{
@@ -383,14 +384,14 @@ export const SnippetDrawer: React.FC<SnippetDrawerProps> = ({
         );
       case 'apply':
         return (
-          <Button 
-            icon={<ThunderboltOutlined />} 
+          <Button
+            icon={<ThunderboltOutlined />}
             onClick={handleFinalApply}
             disabled={!selectedSnippet}
             style={{
               ...baseButtonStyle,
-              background: selectedSnippet 
-                ? 'linear-gradient(135deg, #fa8c16, #d4380d)' 
+              background: selectedSnippet
+                ? 'linear-gradient(135deg, #fa8c16, #d4380d)'
                 : 'rgba(0, 0, 0, 0.1)',
               color: 'white',
               border: 'none',
@@ -401,8 +402,8 @@ export const SnippetDrawer: React.FC<SnippetDrawerProps> = ({
         );
       case 'update':
         return (
-          <Button 
-            icon={<EditOutlined />} 
+          <Button
+            icon={<EditOutlined />}
             onClick={() => saveForm.submit()}
             loading={isUpdating}
             style={{
@@ -417,14 +418,14 @@ export const SnippetDrawer: React.FC<SnippetDrawerProps> = ({
         );
       default:
         return (
-          <Button 
-            icon={<SaveOutlined />} 
+          <Button
+            icon={<SaveOutlined />}
             onClick={() => setMode('save')}
             disabled={!reduxStore}
             style={{
               ...baseButtonStyle,
-              background: reduxStore 
-                ? 'linear-gradient(135deg, #1890ff, #096dd9)' 
+              background: reduxStore
+                ? 'linear-gradient(135deg, #1890ff, #096dd9)'
                 : 'rgba(0, 0, 0, 0.1)',
               color: 'white',
               border: 'none',
@@ -457,42 +458,42 @@ export const SnippetDrawer: React.FC<SnippetDrawerProps> = ({
       </Form>
 
       {/* Modern Component Info */}
-      <Card 
-        size="small" 
-        style={{ 
+      <Card
+        size="small"
+        style={{
           ...MODERN_STYLES.card,
           marginBottom: 16,
           overflow: 'hidden',
         }}
       >
-        <div style={{ 
-          background: 'linear-gradient(135deg, rgba(114, 46, 209, 0.1), rgba(114, 46, 209, 0.05))',
+        <div style={{
+          background: 'var(--color-purple-light)',
           margin: '-12px -16px 12px -16px',
           padding: '12px 16px',
-          borderBottom: '1px solid rgba(114, 46, 209, 0.1)',
+          borderBottom: '1px solid var(--border-default)',
         }}>
-          <Text strong style={{ color: '#722ed1', fontSize: 14 }}>
+          <Text strong style={{ color: 'var(--color-purple)', fontSize: 14 }}>
             📦 Component Information
           </Text>
         </div>
         <Space direction="vertical" size={6} style={{ width: '100%' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={{ fontSize: 13, fontWeight: 500 }}>Component:</Text>
-            <Text style={{ fontSize: 13, color: '#722ed1', textAlign: 'right' }}>{title || ctype}</Text>
+            <Text style={{ fontSize: 13, color: 'var(--color-purple)', textAlign: 'right' }}>{title || ctype}</Text>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={{ fontSize: 13, fontWeight: 500 }}>Field:</Text>
-            <Text style={{ fontSize: 13, color: '#52c41a', textAlign: 'right' }}>{pathData.field_path}</Text>
+            <Text style={{ fontSize: 13, color: 'var(--color-success)', textAlign: 'right' }}>{pathData.field_path}</Text>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={{ fontSize: 13, fontWeight: 500 }}>Type:</Text>
-            <Text style={{ fontSize: 13, color: '#fa8c16', textAlign: 'right' }}>
+            <Text style={{ fontSize: 13, color: 'var(--color-warning)', textAlign: 'right' }}>
               {pathData.is_array ? '📝 Array' : '📄 Object'}
             </Text>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={{ fontSize: 13, fontWeight: 500 }}>Version:</Text>
-            <Text style={{ fontSize: 13, color: '#722ed1', textAlign: 'right' }}>{version}</Text>
+            <Text style={{ fontSize: 13, color: 'var(--color-purple)', textAlign: 'right' }}>{version}</Text>
           </div>
         </Space>
       </Card>
@@ -505,14 +506,13 @@ export const SnippetDrawer: React.FC<SnippetDrawerProps> = ({
           </div>
           <pre
             style={{
-              background: '#fff7e6',
-              border: '1px solid #ffd591',
-              borderRadius: 4,
+              ...MODERN_STYLES.codeBlock,
+              background: 'var(--color-warning-light)',
+              borderColor: 'var(--color-warning-border)',
               padding: 12,
               maxHeight: 200,
               overflow: 'auto',
               fontSize: 12,
-              fontFamily: 'Monaco, Consolas, "Courier New", monospace',
               margin: 0,
             }}
           >
@@ -528,21 +528,20 @@ export const SnippetDrawer: React.FC<SnippetDrawerProps> = ({
         </div>
         <pre
           style={{
-            background: '#f6ffed',
-            border: '1px solid #b7eb8f',
-            borderRadius: 4,
+            ...MODERN_STYLES.codeBlock,
+            background: 'var(--color-success-light)',
+            borderColor: 'var(--color-success-border)',
             padding: 12,
             maxHeight: 300,
             overflow: 'auto',
             fontSize: 12,
-            fontFamily: 'Monaco, Consolas, "Courier New", monospace',
             margin: 0,
           }}
         >
           {JSON.stringify(
-            Array.isArray(reduxStore) 
+            Array.isArray(reduxStore)
               ? reduxStore.map(item => typeof toJSON === 'function' ? toJSON(item) : item)
-              : typeof toJSON === 'function' ? toJSON(reduxStore) : reduxStore, 
+              : typeof toJSON === 'function' ? toJSON(reduxStore) : reduxStore,
             null, 2
           )}
         </pre>
@@ -571,62 +570,62 @@ export const SnippetDrawer: React.FC<SnippetDrawerProps> = ({
       </Form>
 
       {/* Modern Component Info */}
-      <Card 
-        size="small" 
-        style={{ 
+      <Card
+        size="small"
+        style={{
           ...MODERN_STYLES.card,
           marginBottom: 16,
           overflow: 'hidden',
         }}
       >
-        <div style={{ 
-          background: 'linear-gradient(135deg, rgba(82, 196, 26, 0.1), rgba(82, 196, 26, 0.05))',
+        <div style={{
+          background: 'var(--color-success-light)',
           margin: '-12px -16px 12px -16px',
           padding: '12px 16px',
-          borderBottom: '1px solid rgba(82, 196, 26, 0.1)',
+          borderBottom: '1px solid var(--border-default)',
         }}>
-          <Text strong style={{ color: '#52c41a', fontSize: 14 }}>
+          <Text strong style={{ color: 'var(--color-success)', fontSize: 14 }}>
             📦 Component Information
           </Text>
         </div>
         <Space direction="vertical" size={6} style={{ width: '100%' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={{ fontSize: 13, fontWeight: 500 }}>Component:</Text>
-            <Text style={{ fontSize: 13, color: '#52c41a', textAlign: 'right' }}>{title || ctype}</Text>
+            <Text style={{ fontSize: 13, color: 'var(--color-success)', textAlign: 'right' }}>{title || ctype}</Text>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={{ fontSize: 13, fontWeight: 500 }}>Field:</Text>
-            <Text style={{ fontSize: 13, color: '#1890ff', textAlign: 'right' }}>{pathData.field_path}</Text>
+            <Text style={{ fontSize: 13, color: 'var(--color-primary)', textAlign: 'right' }}>{pathData.field_path}</Text>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={{ fontSize: 13, fontWeight: 500 }}>Type:</Text>
-            <Text style={{ fontSize: 13, color: '#fa8c16', textAlign: 'right' }}>
+            <Text style={{ fontSize: 13, color: 'var(--color-warning)', textAlign: 'right' }}>
               {pathData.is_array ? '📝 Array' : '📄 Object'}
             </Text>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={{ fontSize: 13, fontWeight: 500 }}>Version:</Text>
-            <Text style={{ fontSize: 13, color: '#722ed1', textAlign: 'right' }}>{version}</Text>
+            <Text style={{ fontSize: 13, color: 'var(--color-purple)', textAlign: 'right' }}>{version}</Text>
           </div>
         </Space>
       </Card>
 
       {/* Modern Preview Data */}
-      <Card 
-        size="small" 
-        style={{ 
+      <Card
+        size="small"
+        style={{
           ...MODERN_STYLES.card,
           marginBottom: 16,
           overflow: 'hidden',
         }}
       >
-        <div style={{ 
-          background: 'linear-gradient(135deg, rgba(24, 144, 255, 0.1), rgba(24, 144, 255, 0.05))',
+        <div style={{
+          background: 'var(--color-primary-light)',
           margin: '-12px -16px 12px -16px',
           padding: '12px 16px',
-          borderBottom: '1px solid rgba(24, 144, 255, 0.1)',
+          borderBottom: '1px solid var(--border-default)',
         }}>
-          <Text strong style={{ color: '#1890ff', fontSize: 14 }}>
+          <Text strong style={{ color: 'var(--color-primary)', fontSize: 14 }}>
             👁️ Preview Current Data
           </Text>
         </div>
@@ -641,9 +640,9 @@ export const SnippetDrawer: React.FC<SnippetDrawerProps> = ({
           }}
         >
           {JSON.stringify(
-            Array.isArray(reduxStore) 
+            Array.isArray(reduxStore)
               ? reduxStore.map(item => typeof toJSON === 'function' ? toJSON(item) : item)
-              : typeof toJSON === 'function' ? toJSON(reduxStore) : reduxStore, 
+              : typeof toJSON === 'function' ? toJSON(reduxStore) : reduxStore,
             null, 2
           )}
         </pre>
@@ -666,14 +665,11 @@ export const SnippetDrawer: React.FC<SnippetDrawerProps> = ({
           </div>
           <pre
             style={{
-              background: '#f5f5f5',
-              border: '1px solid #d9d9d9',
-              borderRadius: 4,
+              ...MODERN_STYLES.codeBlock,
               padding: 12,
               maxHeight: 300,
               overflow: 'auto',
               fontSize: 12,
-              fontFamily: 'Monaco, Consolas, "Courier New", monospace',
               margin: 0,
             }}
           >
@@ -689,21 +685,20 @@ export const SnippetDrawer: React.FC<SnippetDrawerProps> = ({
             </div>
             <pre
               style={{
-                background: '#fff7e6',
-                border: '1px solid #ffd591',
-                borderRadius: 4,
+                ...MODERN_STYLES.codeBlock,
+                background: 'var(--color-warning-light)',
+                borderColor: 'var(--color-warning-border)',
                 padding: 12,
                 maxHeight: 300,
                 overflow: 'auto',
                 fontSize: 12,
-                fontFamily: 'Monaco, Consolas, "Courier New", monospace',
                 margin: 0,
               }}
             >
               {JSON.stringify(
-                Array.isArray(reduxStore) 
+                Array.isArray(reduxStore)
                   ? reduxStore.map(item => typeof toJSON === 'function' ? toJSON(item) : item)
-                  : typeof toJSON === 'function' ? toJSON(reduxStore) : reduxStore, 
+                  : typeof toJSON === 'function' ? toJSON(reduxStore) : reduxStore,
                 null, 2
               )}
             </pre>
@@ -739,42 +734,42 @@ export const SnippetDrawer: React.FC<SnippetDrawerProps> = ({
       </div>
 
       {/* Modern Component Info */}
-      <Card 
-        size="small" 
-        style={{ 
+      <Card
+        size="small"
+        style={{
           ...MODERN_STYLES.card,
           marginBottom: 20,
           overflow: 'hidden',
         }}
       >
-        <div style={{ 
-          background: 'linear-gradient(135deg, rgba(24, 144, 255, 0.1), rgba(24, 144, 255, 0.05))',
+        <div style={{
+          background: 'var(--color-primary-light)',
           margin: '-12px -16px 12px -16px',
           padding: '12px 16px',
-          borderBottom: '1px solid rgba(24, 144, 255, 0.1)',
+          borderBottom: '1px solid var(--border-default)',
         }}>
-          <Text strong style={{ color: '#1890ff', fontSize: 14 }}>
+          <Text strong style={{ color: 'var(--color-primary)', fontSize: 14 }}>
             📦 Component Information
           </Text>
         </div>
         <Space direction="vertical" size={6} style={{ width: '100%' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={{ fontSize: 13, fontWeight: 500 }}>Component:</Text>
-            <Text style={{ fontSize: 13, color: '#1890ff', textAlign: 'right' }}>{title || ctype}</Text>
+            <Text style={{ fontSize: 13, color: 'var(--color-primary)', textAlign: 'right' }}>{title || ctype}</Text>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={{ fontSize: 13, fontWeight: 500 }}>Field:</Text>
-            <Text style={{ fontSize: 13, color: '#52c41a', textAlign: 'right' }}>{pathData.field_path}</Text>
+            <Text style={{ fontSize: 13, color: 'var(--color-success)', textAlign: 'right' }}>{pathData.field_path}</Text>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={{ fontSize: 13, fontWeight: 500 }}>Type:</Text>
-            <Text style={{ fontSize: 13, color: '#fa8c16', textAlign: 'right' }}>
+            <Text style={{ fontSize: 13, color: 'var(--color-warning)', textAlign: 'right' }}>
               {pathData.is_array ? '📝 Array' : '📄 Object'}
             </Text>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <Text style={{ fontSize: 13, fontWeight: 500 }}>Version:</Text>
-            <Text style={{ fontSize: 13, color: '#722ed1', textAlign: 'right' }}>{version}</Text>
+            <Text style={{ fontSize: 13, color: 'var(--color-purple)', textAlign: 'right' }}>{version}</Text>
           </div>
         </Space>
       </Card>
@@ -790,10 +785,10 @@ export const SnippetDrawer: React.FC<SnippetDrawerProps> = ({
         <div style={{
           width: 4,
           height: 20,
-          background: 'linear-gradient(135deg, #1890ff, #722ed1)',
+          background: 'var(--gradient-primary)',
           borderRadius: 2,
         }} />
-        <Title level={5} style={{ margin: 0, color: '#1890ff' }}>
+        <Title level={5} style={{ margin: 0, color: 'var(--color-primary)' }}>
           Available Snippets ({filteredSnippets.length})
         </Title>
       </div>
@@ -808,7 +803,7 @@ export const SnippetDrawer: React.FC<SnippetDrawerProps> = ({
           <Text type="danger">Error loading snippets</Text>
         </div>
       ) : filteredSnippets.length === 0 ? (
-        <Empty 
+        <Empty
           description={
             searchTerm ? "No snippets match your search" : "No snippets found for this component"
           }
@@ -829,11 +824,11 @@ export const SnippetDrawer: React.FC<SnippetDrawerProps> = ({
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 8px 25px rgba(0, 0, 0, 0.1)';
+                e.currentTarget.style.boxShadow = 'var(--shadow-md)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.02)';
+                e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
               }}
               onClick={() => handlePreviewSnippet(snippet)}
             >
@@ -849,13 +844,13 @@ export const SnippetDrawer: React.FC<SnippetDrawerProps> = ({
                     width: 8,
                     height: 8,
                     borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #52c41a, #389e0d)',
+                    background: 'var(--gradient-success)',
                   }} />
-                  <Text strong style={{ fontSize: 14, color: '#1890ff' }}>
+                  <Text strong style={{ fontSize: 14, color: 'var(--color-primary)' }}>
                     {snippet.name}
                   </Text>
                 </div>
-                <Text style={{ fontSize: 11, color: '#8c8c8c' }}>
+                <Text style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
                   {new Date(snippet.created_at || '').toLocaleDateString()}
                 </Text>
               </div>
@@ -879,8 +874,8 @@ export const SnippetDrawer: React.FC<SnippetDrawerProps> = ({
                     width: 28,
                     height: 28,
                     minWidth: 28,
-                    background: 'rgba(114, 46, 209, 0.1)',
-                    color: '#722ed1',
+                    background: 'var(--color-purple-light)',
+                    color: 'var(--color-purple)',
                   }}
                   title="Update"
                 />
@@ -897,8 +892,8 @@ export const SnippetDrawer: React.FC<SnippetDrawerProps> = ({
                     width: 28,
                     height: 28,
                     minWidth: 28,
-                    background: 'rgba(255, 77, 79, 0.1)',
-                    color: '#ff4d4f',
+                    background: 'var(--color-danger-light)',
+                    color: 'var(--color-danger)',
                   }}
                   title="Delete"
                 />
@@ -920,17 +915,17 @@ export const SnippetDrawer: React.FC<SnippetDrawerProps> = ({
       extra={renderExtra()}
       styles={{
         body: {
-          background: '#ffffff',
+          background: 'var(--modal-bg)',
           padding: '24px',
         },
         header: {
-          background: 'rgba(255, 255, 255, 0.9)',
+          background: 'var(--bg-glass)',
           backdropFilter: 'blur(10px)',
-          borderBottom: '1px solid rgba(0, 0, 0, 0.06)',
+          borderBottom: '1px solid var(--border-default)',
         }
       }}
     >
-      <div style={{ 
+      <div style={{
         minHeight: 'calc(100vh - 120px)',
         background: 'transparent',
       }}>

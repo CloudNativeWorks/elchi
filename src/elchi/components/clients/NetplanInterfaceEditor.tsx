@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { 
-    Button, Form, Input, Typography, Row, Col, Switch, 
+import {
+    Button, Form, Input, Typography, Row, Col, Switch,
     Card, Space, Divider, InputNumber, Select
 } from 'antd';
 import { CheckOutlined, CloseOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
@@ -20,13 +20,13 @@ interface NetplanInterfaceEditorProps {
     clientId: string;
 }
 
-const NetplanInterfaceEditor: React.FC<NetplanInterfaceEditorProps> = ({ 
-    interface: currentInterface, 
+const NetplanInterfaceEditor: React.FC<NetplanInterfaceEditorProps> = ({
+    interface: currentInterface,
     allInterfaces,
     routingTables,
-    onCancel, 
+    onCancel,
     onSuccess,
-    clientId 
+    clientId
 }) => {
     const [form] = Form.useForm();
     const { applyNetplanConfig } = useNetworkOperations();
@@ -44,7 +44,7 @@ const NetplanInterfaceEditor: React.FC<NetplanInterfaceEditorProps> = ({
         if (currentInterface) {
             // For now, set dhcp4 to false since we don't have that info in InterfaceState
             setDhcp4(false);
-            
+
             form.setFieldsValue({
                 dhcp4: false,
                 addresses: currentInterface.addresses?.join('\n') || '',
@@ -58,18 +58,18 @@ const NetplanInterfaceEditor: React.FC<NetplanInterfaceEditorProps> = ({
 
     const generateNetplanYAML = () => {
         const formValues = form.getFieldsValue();
-        
+
         let yaml = 'network:\n  version: 2\n  ethernets:\n';
-        
+
         // Add current interface configuration
         yaml += `    ${currentInterface.name}:\n`;
         yaml += `      dhcp4: ${formValues.dhcp4 || false}\n`;
-        
+
         if (!formValues.dhcp4 && formValues.addresses) {
             const addressList = formValues.addresses.split('\n')
                 .map((addr: string) => addr.trim())
                 .filter((addr: string) => addr);
-            
+
             if (addressList.length > 0) {
                 yaml += '      addresses:\n';
                 addressList.forEach((addr: string) => {
@@ -77,23 +77,23 @@ const NetplanInterfaceEditor: React.FC<NetplanInterfaceEditorProps> = ({
                 });
             }
         }
-        
+
         if (formValues.mtu && formValues.mtu !== 1500) {
             yaml += `      mtu: ${formValues.mtu}\n`;
         }
-        
+
         // Add gateway if specified
         if (formValues.gateway && !formValues.dhcp4) {
             yaml += '      routes:\n';
             yaml += '        - to: "0.0.0.0/0"\n';
             yaml += `          via: "${formValues.gateway}"\n`;
-            
+
             // Add table if not main table (254)
             if (formValues.routingTable && formValues.routingTable !== 254) {
                 yaml += `          table: ${formValues.routingTable}\n`;
             }
         }
-        
+
         // Add routing policy if using custom table
         if (formValues.routingTable && formValues.routingTable !== 254 && !formValues.dhcp4) {
             // Extract network from first address for routing policy
@@ -106,26 +106,26 @@ const NetplanInterfaceEditor: React.FC<NetplanInterfaceEditorProps> = ({
                 yaml += '          priority: 100\n';
             }
         }
-        
+
         // Add other interfaces to maintain their configuration
         allInterfaces.forEach(iface => {
             if (iface.name !== currentInterface.name) {
                 yaml += `    ${iface.name}:\n`;
                 yaml += `      dhcp4: ${iface.dhcp4 || false}\n`;
-                
+
                 if (iface.addresses && iface.addresses.length > 0) {
                     yaml += '      addresses:\n';
                     iface.addresses.forEach((addr: string) => {
                         yaml += `        - "${addr}"\n`;
                     });
                 }
-                
+
                 if (iface.mtu && iface.mtu !== 1500) {
                     yaml += `      mtu: ${iface.mtu}\n`;
                 }
             }
         });
-        
+
         return yaml;
     };
 
@@ -139,7 +139,7 @@ const NetplanInterfaceEditor: React.FC<NetplanInterfaceEditorProps> = ({
         setLoading(true);
         try {
             const yaml = generateNetplanYAML();
-            
+
             const response = await applyNetplanConfig(clientId, {
                 yaml_content: yaml,
                 test_mode: safetyMode,
@@ -148,7 +148,7 @@ const NetplanInterfaceEditor: React.FC<NetplanInterfaceEditorProps> = ({
             });
 
             // Global notification system will handle success notifications
-            
+
             if (response.success) {
                 onSuccess();
             }
@@ -163,18 +163,20 @@ const NetplanInterfaceEditor: React.FC<NetplanInterfaceEditorProps> = ({
         <Card
             title={
                 <Space>
-                    <SafetyCertificateOutlined style={{ color: safetyMode ? '#52c41a' : '#ff4d4f' }} />
-                    <span>Edit Interface: {currentInterface.name}</span>
+                    <SafetyCertificateOutlined style={{ color: safetyMode ? 'var(--color-success)' : 'var(--color-danger)' }} />
+                    <span style={{ color: 'var(--text-primary)' }}>Edit Interface: {currentInterface.name}</span>
                 </Space>
             }
-            style={{ 
+            style={{
                 width: '100%',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                boxShadow: 'var(--shadow-md)',
+                background: 'var(--card-bg)',
+                border: '1px solid var(--border-default)'
             }}
             extra={
                 <Space>
-                    <Text style={{ fontSize: 12 }}>Safety Mode</Text>
-                    <Switch 
+                    <Text style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Safety Mode</Text>
+                    <Switch
                         checked={safetyMode}
                         onChange={setSafetyMode}
                         size="small"
@@ -192,13 +194,13 @@ const NetplanInterfaceEditor: React.FC<NetplanInterfaceEditorProps> = ({
             >
                 <Row gutter={24}>
                     <Col span={24}>
-                        <Form.Item 
-                            name="dhcp4" 
+                        <Form.Item
+                            name="dhcp4"
                             valuePropName="checked"
                             label="DHCP4 Configuration"
                         >
-                            <Switch 
-                                checkedChildren="DHCP" 
+                            <Switch
+                                checkedChildren="DHCP"
                                 unCheckedChildren="Static"
                                 onChange={setDhcp4}
                             />
@@ -250,7 +252,7 @@ const NetplanInterfaceEditor: React.FC<NetplanInterfaceEditorProps> = ({
                                         placeholder="Select table"
                                     >
                                         {routingTables
-                                            .filter((table, index, arr) => 
+                                            .filter((table, index, arr) =>
                                                 arr.findIndex(t => t.id === table.id) === index
                                             )
                                             .map((table, index) => (
@@ -281,9 +283,9 @@ const NetplanInterfaceEditor: React.FC<NetplanInterfaceEditorProps> = ({
 
                 <Row gutter={24}>
                     <Col span={24}>
-                        <Form.Item label="Current Interface Status">
-                            <Card size="small" style={{ backgroundColor: '#fafafa' }}>
-                                <Space direction="vertical" style={{ width: '100%' }}>
+                        <Form.Item label={<span style={{ color: 'var(--text-primary)' }}>Current Interface Status</span>}>
+                            <Card size="small" style={{ backgroundColor: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}>
+                                <Space direction="vertical" style={{ width: '100%', color: 'var(--text-primary)' }}>
                                     <div><strong>Name:</strong> {currentInterface.name}</div>
                                     <div><strong>State:</strong> {currentInterface.state}</div>
                                     <div><strong>Carrier:</strong> {currentInterface.has_carrier ? 'Yes' : 'No'}</div>
@@ -310,9 +312,9 @@ const NetplanInterfaceEditor: React.FC<NetplanInterfaceEditorProps> = ({
                                     readOnly
                                     style={{ fontFamily: 'monospace', fontSize: 12 }}
                                 />
-                                <Button 
-                                    size="small" 
-                                    style={{ marginTop: 8 }} 
+                                <Button
+                                    size="small"
+                                    style={{ marginTop: 8 }}
                                     onClick={() => setShowPreview(false)}
                                 >
                                     Hide Preview
@@ -332,19 +334,19 @@ const NetplanInterfaceEditor: React.FC<NetplanInterfaceEditorProps> = ({
                     </Col>
                     <Col>
                         <Space>
-                            <Button 
+                            <Button
                                 onClick={onCancel}
                                 icon={<CloseOutlined />}
                             >
                                 Cancel
                             </Button>
-                            <Button 
-                                type="primary" 
+                            <Button
+                                type="primary"
                                 htmlType="submit"
                                 loading={loading}
                                 icon={<CheckOutlined />}
                                 style={{
-                                    background: safetyMode ? 'linear-gradient(90deg, #52c41a, #73d13d)' : undefined
+                                    background: safetyMode ? 'var(--gradient-success)' : undefined
                                 }}
                             >
                                 Apply Configuration
@@ -355,11 +357,11 @@ const NetplanInterfaceEditor: React.FC<NetplanInterfaceEditorProps> = ({
             </Form>
 
             {!safetyMode && (
-                <div style={{ 
-                    marginTop: 16, 
-                    padding: 12, 
-                    backgroundColor: '#fff2f0', 
-                    border: '1px solid #ffccc7',
+                <div style={{
+                    marginTop: 16,
+                    padding: 12,
+                    backgroundColor: 'var(--color-danger-light)',
+                    border: '1px solid var(--color-danger-border)',
                     borderRadius: 6
                 }}>
                     <Text type="danger" style={{ fontSize: 12 }}>

@@ -141,7 +141,7 @@ const Settings: React.FC = () => {
             <div style={{ marginBottom: 16 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <Space>
-                        <SettingOutlined style={{ color: '#1890ff', fontSize: 24 }} />
+                        <SettingOutlined style={{ color: 'var(--color-primary)', fontSize: 24 }} />
                         <Title level={4} style={{ margin: 0 }}>Settings</Title>
                     </Space>
                 </div>

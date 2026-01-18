@@ -1,0 +1,1760 @@
+/**
+ * Theme Variables - Elchi Dark Mode Support
+ * CSS Custom Properties for light and dark themes
+ */
+
+/* ============================================
+   LIGHT THEME (Default)
+   ============================================ */
+:root,
+[data-theme="light"] {
+  /* Primary Colors */
+  --color-primary: #0a7fda;
+  --color-primary-hover: #0969b8;
+  --color-primary-light: #e6f4ff;
+  --color-accent: #00c6fb;
+  --color-accent-hover: #00a8d6;
+
+  /* Status Colors */
+  --color-success: #10b981;
+  --color-success-light: #d1fae5;
+  --color-success-shadow: rgba(82, 196, 26, 0.08);
+  --color-warning: #f59e0b;
+  --color-warning-light: #fef3c7;
+  --color-warning-dark: #92400e;
+  --color-warning-shadow: rgba(245, 158, 11, 0.08);
+  --color-danger: #ef4444;
+  --color-danger-light: #fee2e2;
+  --color-danger-shadow: rgba(255, 77, 79, 0.08);
+  --color-danger-bg: #fff2f0;
+  --color-danger-border: #ffccc7;
+  --color-info: #06b6d4;
+  --color-info-light: #cffafe;
+  --color-info-border: #91d5ff;
+  --color-success-border: #b7eb8f;
+  --color-warning-border: #ffd591;
+
+  /* Semantic Colored Backgrounds */
+  --color-success-bg: #f6ffed;
+  --color-warning-bg: #fff2e8;
+  --color-error-bg: #fff2f0;
+  --color-purple-bg: #f9f0ff;
+  --color-purple-border: #d3adf7;
+
+  /* Additional Colors */
+  --color-purple: #8b5cf6;
+  --color-purple-light: rgba(114, 46, 209, 0.1);
+  --color-indigo: #6366f1;
+  --color-pink: #ec4899;
+  --color-cyan: #06b6d4;
+  --color-teal: #0891b2;
+  --color-sky: #0284c7;
+  --color-sky-light: #0ea5e9;
+  --color-primary-dark: #0369a1;
+  --color-danger-light-text: #ff7875;
+
+  /* Background Colors */
+  --bg-body: #fafafa;
+  --bg-surface: #ffffff;
+  --bg-elevated: #ffffff;
+  --bg-hover: rgba(0, 0, 0, 0.04);
+  --bg-active: rgba(0, 0, 0, 0.06);
+  --bg-glass: rgba(255, 255, 255, 0.95);
+  --bg-glass-hover: rgba(255, 255, 255, 0.98);
+  --bg-mask: rgba(0, 0, 0, 0.45);
+  --bg-loading: rgba(255, 255, 255, 0.6);
+  --bg-disabled: #f1f5f9;
+
+  /* Header & Navigation */
+  --header-bg: #056ccd;
+  --header-text: #ffffff;
+  --sidenav-bg: #ffffff;
+  --sidenav-text: #1f2937;
+  --sidenav-hover: #f3f4f6;
+  --sidenav-active: #e6f4ff;
+
+  /* Text Colors */
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --text-tertiary: #9ca3af;
+  --text-disabled: #d1d5db;
+  --text-inverse: #ffffff;
+  --text-link: #0a7fda;
+  --text-link-hover: #0969b8;
+
+  /* Border Colors */
+  --border-default: #e5e7eb;
+  --border-light: #f3f4f6;
+  --border-dark: #d1d5db;
+  --border-focus: #0a7fda;
+
+  /* Shadow Colors */
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+  /* Card Colors */
+  --card-bg: #ffffff;
+  --card-border: #e5e7eb;
+  --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+
+  /* Input Colors */
+  --input-bg: #ffffff;
+  --input-border: #d1d5db;
+  --input-border-hover: #9ca3af;
+  --input-border-focus: #0a7fda;
+  --input-placeholder: #9ca3af;
+
+  /* Table Colors */
+  --table-header-bg: #fafafa;
+  --table-row-hover: #f9fafb;
+  --table-border: #f0f0f0;
+
+  /* Modal Colors */
+  --modal-bg: #ffffff;
+  --modal-header-bg: #fafafa;
+
+  /* Tooltip Colors */
+  --tooltip-bg: rgba(0, 0, 0, 0.85);
+  --tooltip-text: #ffffff;
+
+  /* Button Colors */
+  --btn-secondary-bg: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+  --btn-secondary-hover-bg: linear-gradient(135deg, #e8e8e8 0%, #d9d9d9 100%);
+
+  /* Scrollbar Colors */
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: rgba(0, 0, 0, 0.2);
+  --scrollbar-thumb-hover: rgba(0, 0, 0, 0.3);
+
+  /* Code Block Colors */
+  --code-bg: #f5f5f5;
+  --code-text: #1f2937;
+  --code-border: #e5e7eb;
+
+  /* Terminal/Log Viewer Colors */
+  --terminal-bg: #1e1e1e;
+  --terminal-text: #d4d4d4;
+
+  /* Code Inline Colors (FieldInfo) */
+  --code-inline-bg: #f5f6f7;
+  --code-inline-color: #d6336c;
+  --code-block-bg: #185b9e;
+  --code-block-color: #ffffff;
+
+  /* Note/Warning/Attention Colors (FieldInfo) */
+  --note-bg: #e0f7fa;
+  --note-border: #00796b;
+  --warning-bg: #dc4d05;
+  --warning-border: #b94003;
+  --warning-text: #000000;
+  --attention-bg: #f2e700;
+  --attention-border: #c2ba05;
+  --attention-text: #000000;
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(90deg, #056ccd 0%, #00c6fb 100%);
+  --gradient-primary-reverse: linear-gradient(90deg, #00c6fb 0%, #056ccd 100%);
+  --gradient-success: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+  --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+  --gradient-danger: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+  --gradient-info: linear-gradient(135deg, #06b6d4 0%, #22d3ee 100%);
+  --gradient-background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  --btn-disabled-gradient: linear-gradient(90deg, #e0e0e0 0%, #bdbdbd 100%);
+
+  /* Shadow Variants */
+  --shadow-primary: rgba(102, 126, 234, 0.15);
+  --shadow-card: rgba(0, 0, 0, 0.04);
+  --shadow-card-hover: rgba(0, 0, 0, 0.1);
+
+  /* Primary Color Variants */
+  --color-primary-border: rgba(5, 108, 205, 0.2);
+  --color-primary-bg: rgba(10, 127, 218, 0.08);
+
+  /* Tag Colors */
+  --tag-info-bg: #e6f7ff;
+  --tag-info-border: #bae7ff;
+
+  /* Traffic Overview Card Colors */
+  --traffic-card-bg: rgba(255, 255, 255, 0.95);
+  --traffic-card-border: rgba(255, 255, 255, 0.3);
+
+  /* Dropdown Menu Colors */
+  --dropdown-bg: #ffffff;
+  --dropdown-item-hover: #f5f5f5;
+  --dropdown-item-active: #e6f4ff;
+}
+
+/* ============================================
+   DARK THEME
+   ============================================ */
+[data-theme="dark"] {
+  /* Primary Colors - Adjusted for dark mode visibility */
+  --color-primary: #3b9eff;
+  --color-primary-hover: #60b0ff;
+  --color-primary-light: #1e3a5f;
+  --color-accent: #22d3ee;
+  --color-accent-hover: #67e8f9;
+
+  /* Status Colors - Softer for dark backgrounds */
+  --color-success: #22c55e;
+  --color-success-light: rgba(34, 197, 94, 0.15);
+  --color-success-shadow: rgba(34, 197, 94, 0.15);
+  --color-warning: #fbbf24;
+  --color-warning-light: #78350f;
+  --color-warning-dark: #fcd34d;
+  --color-warning-shadow: rgba(251, 191, 36, 0.15);
+  --color-danger: #f87171;
+  --color-danger-light: #7f1d1d;
+  --color-danger-shadow: rgba(248, 113, 113, 0.15);
+  --color-danger-bg: rgba(127, 29, 29, 0.5);
+  --color-danger-border: rgba(248, 113, 113, 0.3);
+  --color-info: #22d3ee;
+  --color-info-light: #164e63;
+  --color-info-border: rgba(34, 211, 238, 0.3);
+  --color-success-border: rgba(34, 197, 94, 0.3);
+  --color-warning-border: rgba(251, 191, 36, 0.3);
+
+  /* Semantic Colored Backgrounds - Dark Mode */
+  --color-success-bg: rgba(34, 197, 94, 0.12);
+  --color-warning-bg: rgba(251, 191, 36, 0.12);
+  --color-error-bg: rgba(248, 113, 113, 0.12);
+  --color-purple-bg: rgba(196, 181, 253, 0.12);
+  --color-purple-border: rgba(196, 181, 253, 0.3);
+
+  /* Additional Colors */
+  --color-purple: #c4b5fd;
+  --color-purple-light: rgba(196, 181, 253, 0.15);
+  --color-indigo: #818cf8;
+  --color-pink: #f472b6;
+  --color-cyan: #22d3ee;
+  --color-teal: #2dd4bf;
+  --color-sky: #38bdf8;
+  --color-sky-light: #7dd3fc;
+  --color-primary-dark: #60a5fa;
+  --color-danger-light-text: #fca5a5;
+
+  /* Background Colors */
+  --bg-body: #0f172a;
+  --bg-surface: #1e293b;
+  --bg-elevated: #334155;
+  --bg-hover: rgba(255, 255, 255, 0.08);
+  --bg-active: rgba(255, 255, 255, 0.12);
+  --bg-glass: rgba(30, 41, 59, 0.95);
+  --bg-glass-hover: rgba(51, 65, 85, 0.98);
+  --bg-mask: rgba(0, 0, 0, 0.65);
+  --bg-loading: rgba(15, 23, 42, 0.6);
+  --bg-disabled: #334155;
+
+  /* Header & Navigation */
+  --header-bg: #1e293b;
+  --header-text: #f1f5f9;
+  --sidenav-bg: #1e293b;
+  --sidenav-text: #e2e8f0;
+  --sidenav-hover: #334155;
+  --sidenav-active: #1e3a5f;
+
+  /* Text Colors */
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+  --text-disabled: #475569;
+  --text-inverse: #0f172a;
+  --text-link: #3b9eff;
+  --text-link-hover: #60b0ff;
+
+  /* Border Colors */
+  --border-default: #334155;
+  --border-light: #475569;
+  --border-dark: #1e293b;
+  --border-focus: #3b9eff;
+
+  /* Shadow Colors - More subtle in dark mode */
+  --shadow-color: rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+
+  /* Card Colors */
+  --card-bg: #1e293b;
+  --card-border: #334155;
+  --card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+
+  /* Input Colors */
+  --input-bg: #334155;
+  --input-border: #475569;
+  --input-border-hover: #64748b;
+  --input-border-focus: #3b9eff;
+  --input-placeholder: #64748b;
+
+  /* Table Colors */
+  --table-header-bg: #1e293b;
+  --table-row-hover: #334155;
+  --table-border: #334155;
+
+  /* Modal Colors */
+  --modal-bg: #1e293b;
+  --modal-header-bg: #334155;
+
+  /* Tooltip Colors */
+  --tooltip-bg: rgba(51, 65, 85, 0.95);
+  --tooltip-text: #f1f5f9;
+
+  /* Button Colors */
+  --btn-secondary-bg: linear-gradient(135deg, #334155 0%, #475569 100%);
+  --btn-secondary-hover-bg: linear-gradient(135deg, #475569 0%, #64748b 100%);
+
+  /* Scrollbar Colors */
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: rgba(255, 255, 255, 0.2);
+  --scrollbar-thumb-hover: rgba(255, 255, 255, 0.3);
+
+  /* Code Block Colors */
+  --code-bg: #334155;
+  --code-text: #e2e8f0;
+  --code-border: #475569;
+
+  /* Terminal/Log Viewer Colors - slightly softer for dark mode */
+  --terminal-bg: #1a1a2e;
+  --terminal-text: #e2e8f0;
+
+  /* Code Inline Colors (FieldInfo) */
+  --code-inline-bg: #334155;
+  --code-inline-color: #f472b6;
+  --code-block-bg: #1e40af;
+  --code-block-color: #e2e8f0;
+
+  /* Note/Warning/Attention Colors (FieldInfo) */
+  --note-bg: #164e63;
+  --note-border: #22d3ee;
+  --warning-bg: #7c2d12;
+  --warning-border: #f97316;
+  --warning-text: #fef3c7;
+  --attention-bg: #713f12;
+  --attention-border: #fbbf24;
+  --attention-text: #fef3c7;
+
+  /* Gradients - Adjusted for dark mode */
+  --gradient-primary: linear-gradient(90deg, #1e40af 0%, #0891b2 100%);
+  --gradient-primary-reverse: linear-gradient(90deg, #0891b2 0%, #1e40af 100%);
+  --gradient-success: linear-gradient(135deg, #059669 0%, #34d399 100%);
+  --gradient-warning: linear-gradient(135deg, #d97706 0%, #fbbf24 100%);
+  --gradient-danger: linear-gradient(135deg, #dc2626 0%, #f87171 100%);
+  --gradient-info: linear-gradient(135deg, #0891b2 0%, #22d3ee 100%);
+  --gradient-background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  --btn-disabled-gradient: linear-gradient(90deg, #475569 0%, #64748b 100%);
+
+  /* Shadow Variants */
+  --shadow-primary: rgba(59, 158, 255, 0.25);
+  --shadow-card: rgba(0, 0, 0, 0.2);
+  --shadow-card-hover: rgba(0, 0, 0, 0.35);
+
+  /* Primary Color Variants */
+  --color-primary-border: rgba(59, 158, 255, 0.3);
+  --color-primary-bg: rgba(59, 158, 255, 0.12);
+
+  /* Tag Colors */
+  --tag-info-bg: rgba(59, 158, 255, 0.15);
+  --tag-info-border: rgba(59, 158, 255, 0.3);
+
+  /* Traffic Overview Card Colors */
+  --traffic-card-bg: rgba(30, 41, 59, 0.95);
+  --traffic-card-border: rgba(51, 65, 85, 0.5);
+
+  /* Dropdown Menu Colors */
+  --dropdown-bg: #1e293b;
+  --dropdown-item-hover: #334155;
+  --dropdown-item-active: rgba(59, 158, 255, 0.2);
+}
+
+/* ============================================
+   GLOBAL THEME TRANSITIONS
+   ============================================ */
+*,
+*::before,
+*::after {
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+/* Exclude color transition from text to prevent flickering */
+body,
+.ant-typography,
+.ant-btn,
+.ant-menu-item,
+.ant-tabs-tab {
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    color 0.2s ease;
+}
+
+/* ============================================
+   BASE STYLES USING VARIABLES
+   ============================================ */
+body {
+  background-color: var(--bg-body);
+  color: var(--text-primary);
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* Selection Colors */
+::selection {
+  background-color: var(--color-primary);
+  color: var(--text-inverse);
+}
+
+/* ============================================
+   DARK MODE OVERRIDES FOR ANT DESIGN & GLOBAL
+   ============================================ */
+
+/* Global layout and content backgrounds */
+[data-theme="dark"] .ant-layout {
+  background: var(--bg-body);
+}
+
+[data-theme="dark"] .ant-layout-content {
+  background: var(--bg-body);
+}
+
+[data-theme="dark"] .main-content {
+  background: var(--bg-body);
+}
+
+[data-theme="dark"] .content-wrapper {
+  background: var(--bg-body);
+}
+
+/* Card components - global fix */
+[data-theme="dark"] .ant-card {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+}
+
+[data-theme="dark"] .ant-card-head {
+  background: var(--card-bg);
+  border-bottom-color: var(--border-default);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .ant-card-body {
+  background: var(--card-bg);
+}
+
+/* Typography in dark mode */
+[data-theme="dark"] .ant-typography {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .ant-typography.ant-typography-secondary {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] h1.ant-typography,
+[data-theme="dark"] h2.ant-typography,
+[data-theme="dark"] h3.ant-typography,
+[data-theme="dark"] h4.ant-typography,
+[data-theme="dark"] h5.ant-typography {
+  color: var(--text-primary);
+}
+
+/* Tag components */
+[data-theme="dark"] .ant-tag {
+  background: var(--bg-elevated);
+  border-color: var(--border-default);
+  color: var(--text-primary);
+}
+
+/* Divider */
+[data-theme="dark"] .ant-divider {
+  border-color: var(--border-default);
+}
+
+/* Empty state */
+[data-theme="dark"] .ant-empty-description {
+  color: var(--text-secondary);
+}
+
+/* Input components */
+[data-theme="dark"] .ant-input,
+[data-theme="dark"] .ant-input-affix-wrapper {
+  background: var(--input-bg);
+  border-color: var(--input-border);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .ant-input::placeholder {
+  color: var(--input-placeholder);
+}
+
+/* Select components */
+[data-theme="dark"] .ant-select {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .ant-select-selector {
+  background: var(--input-bg) !important;
+  border-color: var(--input-border) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .ant-select:not(.ant-select-disabled):hover .ant-select-selector {
+  border-color: var(--input-border-hover) !important;
+}
+
+[data-theme="dark"] .ant-select-focused:not(.ant-select-disabled) .ant-select-selector {
+  border-color: var(--input-border-focus) !important;
+  box-shadow: 0 0 0 2px rgba(59, 158, 255, 0.2) !important;
+}
+
+[data-theme="dark"] .ant-select-selection-search-input {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .ant-select-selection-placeholder {
+  color: var(--input-placeholder) !important;
+}
+
+[data-theme="dark"] .ant-select-selection-item {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .ant-select-arrow {
+  color: var(--text-tertiary) !important;
+}
+
+[data-theme="dark"] .ant-select-clear {
+  background: var(--input-bg) !important;
+  color: var(--text-tertiary) !important;
+}
+
+[data-theme="dark"] .ant-select-clear:hover {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .ant-select-dropdown {
+  background: var(--bg-elevated) !important;
+  border-color: var(--border-default) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+[data-theme="dark"] .ant-select-item {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .ant-select-item-option-active,
+[data-theme="dark"] .ant-select-item-option-selected {
+  background: var(--bg-hover) !important;
+}
+
+/* Multiple select tags */
+[data-theme="dark"] .ant-select-multiple .ant-select-selection-item {
+  background: var(--bg-elevated) !important;
+  border-color: var(--border-default) !important;
+}
+
+[data-theme="dark"] .ant-select-multiple .ant-select-selection-item-remove {
+  color: var(--text-tertiary) !important;
+}
+
+[data-theme="dark"] .ant-select-multiple .ant-select-selection-item-remove:hover {
+  color: var(--text-primary) !important;
+}
+
+/* Disabled select */
+[data-theme="dark"] .ant-select-disabled .ant-select-selector {
+  background: var(--bg-surface) !important;
+  border-color: var(--border-default) !important;
+  color: var(--text-disabled) !important;
+}
+
+[data-theme="dark"] .ant-select-disabled .ant-select-selection-item,
+[data-theme="dark"] .ant-select-disabled .ant-select-selection-placeholder {
+  color: var(--text-disabled) !important;
+}
+
+[data-theme="dark"] .ant-select-disabled .ant-select-arrow {
+  color: var(--text-disabled) !important;
+}
+
+/* Table components */
+[data-theme="dark"] .ant-table {
+  background: var(--card-bg);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .ant-table-thead>tr>th {
+  background: var(--table-header-bg);
+  color: var(--text-primary);
+  border-bottom-color: var(--table-border);
+}
+
+[data-theme="dark"] .ant-table-tbody>tr>td {
+  border-bottom-color: var(--table-border);
+}
+
+[data-theme="dark"] .ant-table-tbody>tr>td {
+  background: var(--card-bg);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .ant-table-tbody>tr:hover>td {
+  background: rgba(59, 158, 255, 0.08) !important;
+}
+
+[data-theme="dark"] .ant-table-tbody>tr.ant-table-row-selected>td {
+  background: rgba(59, 158, 255, 0.12) !important;
+}
+
+[data-theme="dark"] .ant-table-cell-row-hover {
+  background: rgba(59, 158, 255, 0.08) !important;
+}
+
+[data-theme="dark"] .ant-table-expanded-row>td {
+  background: var(--bg-surface) !important;
+}
+
+/* Modal components */
+[data-theme="dark"] .ant-modal-content {
+  background: var(--modal-bg);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .ant-modal-header {
+  background: var(--modal-bg);
+  border-bottom-color: var(--border-default);
+}
+
+[data-theme="dark"] .ant-modal-title {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .ant-modal-close {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .ant-modal-close:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+
+[data-theme="dark"] .ant-modal-close-x {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .ant-modal-close-x:hover {
+  color: var(--text-primary);
+}
+
+/* Dropdown menu - Both themes */
+.ant-dropdown .ant-dropdown-menu {
+  background: var(--dropdown-bg, var(--bg-elevated)) !important;
+  border: 1px solid var(--border-default) !important;
+}
+
+.ant-dropdown .ant-dropdown-menu-item {
+  color: var(--text-primary) !important;
+  transition: all 0.2s ease !important;
+}
+
+.ant-dropdown .ant-dropdown-menu-item:hover {
+  background: var(--dropdown-item-hover, var(--bg-hover)) !important;
+  color: var(--color-primary) !important;
+}
+
+.ant-dropdown .ant-dropdown-menu-item-active,
+.ant-dropdown .ant-dropdown-menu-item-selected {
+  background: var(--dropdown-item-active, var(--bg-hover)) !important;
+  color: var(--color-primary) !important;
+}
+
+.ant-dropdown .ant-dropdown-menu-item-danger {
+  color: var(--color-danger) !important;
+}
+
+.ant-dropdown .ant-dropdown-menu-item-danger:hover {
+  background: var(--color-danger-light) !important;
+  color: var(--color-danger) !important;
+}
+
+.ant-dropdown .ant-dropdown-menu-item-divider {
+  background: var(--border-default) !important;
+}
+
+.ant-dropdown .ant-dropdown-menu-item .anticon {
+  color: inherit !important;
+}
+
+/* Dark mode specific overrides */
+[data-theme="dark"] .ant-dropdown-menu {
+  background: var(--bg-elevated) !important;
+  border-color: var(--border-default) !important;
+}
+
+[data-theme="dark"] .ant-dropdown-menu-item {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .ant-dropdown-menu-item:hover,
+[data-theme="dark"] .ant-dropdown-menu-item-active {
+  background: var(--dropdown-item-hover) !important;
+  color: var(--color-primary) !important;
+}
+
+[data-theme="dark"] .ant-dropdown-menu-item-selected {
+  background: var(--dropdown-item-active) !important;
+  color: var(--color-primary) !important;
+}
+
+[data-theme="dark"] .ant-dropdown-menu-item-danger {
+  color: var(--color-danger) !important;
+}
+
+[data-theme="dark"] .ant-dropdown-menu-item-danger:hover {
+  background: rgba(248, 113, 113, 0.2) !important;
+  color: var(--color-danger) !important;
+}
+
+[data-theme="dark"] .ant-dropdown-menu-item-divider {
+  background: var(--border-default) !important;
+}
+
+[data-theme="dark"] .ant-dropdown-menu-item .anticon {
+  color: inherit;
+}
+
+/* Tooltip */
+[data-theme="dark"] .ant-tooltip-inner {
+  background: var(--tooltip-bg);
+  color: var(--tooltip-text);
+}
+
+/* Button default style */
+[data-theme="dark"] .ant-btn-default {
+  background: var(--bg-surface);
+  border-color: var(--border-default);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .ant-btn-default:hover {
+  background: var(--bg-hover);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* Tabs */
+[data-theme="dark"] .ant-tabs-tab {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .ant-tabs-tab-active {
+  color: var(--color-primary);
+}
+
+[data-theme="dark"] .ant-tabs-ink-bar {
+  background: var(--color-primary);
+}
+
+/* Badge */
+[data-theme="dark"] .ant-badge-count {
+  box-shadow: 0 0 0 1px var(--bg-body);
+}
+
+/* Spin */
+[data-theme="dark"] .ant-spin-text {
+  color: var(--text-secondary);
+}
+
+/* Popover */
+[data-theme="dark"] .ant-popover-inner {
+  background: var(--bg-elevated);
+}
+
+[data-theme="dark"] .ant-popover-title {
+  color: var(--text-primary);
+  border-bottom-color: var(--border-default);
+}
+
+[data-theme="dark"] .ant-popover-inner-content {
+  color: var(--text-primary);
+}
+
+/* Steps */
+[data-theme="dark"] .ant-steps-item-title {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .ant-steps-item-description {
+  color: var(--text-secondary);
+}
+
+/* Collapse/Accordion - Light Mode */
+.ant-collapse .ant-collapse-expand-icon {
+  color: var(--text-secondary) !important;
+}
+
+.ant-collapse .ant-collapse-arrow {
+  color: var(--text-secondary) !important;
+}
+
+.ant-collapse-header .ant-collapse-expand-icon {
+  color: var(--text-secondary) !important;
+}
+
+.ant-collapse-header .ant-collapse-arrow {
+  color: var(--text-secondary) !important;
+}
+
+/* Ant Design v5 specific - svg icon color */
+.ant-collapse .ant-collapse-expand-icon svg,
+.ant-collapse-header .ant-collapse-expand-icon svg {
+  fill: var(--text-secondary) !important;
+  color: var(--text-secondary) !important;
+}
+
+.ant-collapse .ant-collapse-arrow svg,
+.ant-collapse-header .ant-collapse-arrow svg {
+  fill: var(--text-secondary) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* Collapse/Accordion - Dark Mode */
+[data-theme="dark"] .ant-collapse {
+  background: var(--card-bg);
+  border-color: var(--border-default);
+}
+
+[data-theme="dark"] .ant-collapse-header {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .ant-collapse-header .ant-collapse-expand-icon {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .ant-collapse-header .ant-collapse-arrow {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .ant-collapse-item {
+  border-color: var(--border-default) !important;
+}
+
+[data-theme="dark"] .ant-collapse-content {
+  background: var(--card-bg);
+  border-top-color: var(--border-default);
+}
+
+/* ============================================
+   ELCHI COMPONENT OVERRIDES
+   ============================================ */
+
+/* HorizonTags & CustomAnchor Tags */
+[data-theme="dark"] .ag-courses_item {
+  background: var(--card-bg);
+  border-color: var(--border-default);
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="dark"] .ag-courses_item:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 4px 16px var(--shadow-primary);
+}
+
+[data-theme="dark"] .tags-container .ant-tag-checkable,
+[data-theme="dark"] .ant-anchor .ant-tag-checkable {
+  background: var(--card-bg) !important;
+  border-color: var(--border-default) !important;
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .tags-container .ant-tag-checkable:hover,
+[data-theme="dark"] .ant-anchor .ant-tag-checkable:hover {
+  background: var(--color-primary-light) !important;
+  border-color: var(--color-primary) !important;
+  color: var(--color-primary) !important;
+}
+
+/* Anchor link items */
+[data-theme="dark"] .ant-anchor-link-title {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .ant-anchor-link-title:hover {
+  color: var(--color-primary);
+}
+
+/* Auto-hide scrollbar for anchor component and sidebar container */
+.ant-anchor,
+.custom-scrollbar-side {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  transition: scrollbar-color 0.3s ease;
+}
+
+.ant-anchor:hover,
+.custom-scrollbar-side:hover {
+  scrollbar-color: var(--text-disabled) transparent;
+}
+
+.ant-anchor::-webkit-scrollbar,
+.custom-scrollbar-side::-webkit-scrollbar {
+  width: 4px;
+}
+
+.ant-anchor::-webkit-scrollbar-track,
+.custom-scrollbar-side::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.ant-anchor::-webkit-scrollbar-thumb,
+.custom-scrollbar-side::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 10px;
+  transition: background 0.3s ease;
+}
+
+.ant-anchor:hover::-webkit-scrollbar-thumb,
+.custom-scrollbar-side:hover::-webkit-scrollbar-thumb {
+  background: var(--text-disabled);
+}
+
+.ant-anchor::-webkit-scrollbar-thumb:hover,
+.custom-scrollbar-side::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
+/* Info button in HorizonTags */
+[data-theme="dark"] .info-button .ant-btn {
+  color: var(--text-tertiary);
+}
+
+[data-theme="dark"] .info-button .ant-btn:hover {
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+/* Card header with gradient - ECard style */
+[data-theme="dark"] .ant-card-head-title {
+  color: var(--text-primary);
+}
+
+/* Checkable tags that are checked - keep gradient visible */
+[data-theme="dark"] .ant-tag-checkable-checked {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%) !important;
+  border-color: transparent !important;
+  color: #ffffff !important;
+}
+
+/* Result component (UnsupportedVersion page) */
+[data-theme="dark"] .ant-result {
+  background: var(--card-bg);
+}
+
+[data-theme="dark"] .ant-result-title {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .ant-result-subtitle {
+  color: var(--text-secondary);
+}
+
+/* List component */
+[data-theme="dark"] .ant-list {
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .ant-list-item {
+  border-bottom-color: var(--border-default);
+  color: var(--text-primary);
+}
+
+/* Alert component */
+[data-theme="dark"] .ant-alert {
+  background: var(--bg-elevated);
+  border-color: var(--border-default);
+}
+
+[data-theme="dark"] .ant-alert-message {
+  color: var(--text-primary);
+}
+
+/* Breadcrumb */
+[data-theme="dark"] .ant-breadcrumb {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .ant-breadcrumb a {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .ant-breadcrumb a:hover {
+  color: var(--color-primary);
+}
+
+[data-theme="dark"] .ant-breadcrumb-separator {
+  color: var(--text-tertiary);
+}
+
+/* ============================================
+   GLOBAL CHECKABLE TAG OVERRIDE FOR DARK MODE
+   These need high specificity to override Ant Design defaults
+   ============================================ */
+
+/* Base CheckableTag - unchecked state */
+[data-theme="dark"] .ant-tag-checkable:not(.ant-tag-checkable-checked) {
+  background: var(--card-bg) !important;
+  border-color: var(--border-default) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* CheckableTag hover - unchecked state */
+[data-theme="dark"] .ant-tag-checkable:not(.ant-tag-checkable-checked):hover {
+  background: var(--color-primary-light) !important;
+  border-color: var(--color-primary) !important;
+  color: var(--color-primary) !important;
+}
+
+/* CheckableTag - checked state (keep gradient) */
+[data-theme="dark"] .ant-tag-checkable.ant-tag-checkable-checked {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%) !important;
+  border-color: transparent !important;
+  color: #ffffff !important;
+}
+
+/* General Tag in dark mode */
+[data-theme="dark"] .ant-tag {
+  background: var(--bg-elevated) !important;
+  border-color: var(--border-default) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* Specific override for tags-container within ag-courses_item */
+[data-theme="dark"] .ag-courses_item .tags-container .ant-tag-checkable:not(.ant-tag-checkable-checked) {
+  background: var(--card-bg) !important;
+  border-color: var(--border-default) !important;
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .ag-courses_item .tags-container .ant-tag-checkable:not(.ant-tag-checkable-checked):hover {
+  background: var(--color-primary-light) !important;
+  border-color: var(--color-primary) !important;
+  color: var(--color-primary) !important;
+}
+
+/* Ellipsis tag specific overrides */
+[data-theme="dark"] .ant-tag.ant-tag-checkable.ellipsis-tag:not(.ant-tag-checkable-checked) {
+  background: var(--card-bg) !important;
+  border-color: var(--border-default) !important;
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .ant-tag.ant-tag-checkable.ellipsis-tag:not(.ant-tag-checkable-checked):hover {
+  background: var(--color-primary-light) !important;
+  border-color: var(--color-primary) !important;
+  color: var(--color-primary) !important;
+}
+
+/* Unsupported tags in dark mode */
+[data-theme="dark"] .unsopperted-tags,
+[data-theme="dark"] .unsupperted-tags-horizon {
+  background: var(--bg-hover) !important;
+  border-color: var(--border-default) !important;
+  color: var(--text-disabled) !important;
+}
+
+/* Popover in dark mode */
+[data-theme="dark"] .ant-popover-inner {
+  background: var(--bg-elevated);
+  box-shadow: var(--shadow-lg);
+}
+
+[data-theme="dark"] .ant-popover-title {
+  border-bottom-color: var(--border-default);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .ant-popover-inner-content {
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .ant-popover-arrow::before,
+[data-theme="dark"] .ant-popover-arrow::after {
+  background: var(--bg-elevated);
+}
+
+/* ============================================
+   ANT DESIGN TABLE - DARK MODE OVERRIDES
+   ============================================ */
+
+/* Table container */
+[data-theme="dark"] .ant-table {
+  background: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .ant-table-wrapper {
+  background: transparent;
+}
+
+/* Table header */
+[data-theme="dark"] .ant-table-thead>tr>th,
+[data-theme="dark"] .ant-table-thead>tr>td {
+  background: var(--bg-elevated) !important;
+  color: var(--text-primary) !important;
+  border-bottom: 1px solid var(--border-default) !important;
+}
+
+[data-theme="dark"] .ant-table-thead>tr>th::before {
+  background-color: var(--border-default) !important;
+}
+
+/* Table body rows */
+[data-theme="dark"] .ant-table-tbody>tr>td {
+  background: var(--card-bg) !important;
+  color: var(--text-primary) !important;
+  border-bottom: 1px solid var(--border-default) !important;
+}
+
+/* Table row hover */
+[data-theme="dark"] .ant-table-tbody>tr:hover>td,
+[data-theme="dark"] .ant-table-tbody>tr.ant-table-row:hover>td {
+  background: rgba(59, 158, 255, 0.08) !important;
+}
+
+/* Table row selected */
+[data-theme="dark"] .ant-table-tbody>tr.ant-table-row-selected>td {
+  background: rgba(59, 158, 255, 0.15) !important;
+}
+
+/* Table row selected + hover */
+[data-theme="dark"] .ant-table-tbody>tr.ant-table-row-selected:hover>td {
+  background: rgba(59, 158, 255, 0.2) !important;
+}
+
+/* Striped rows - keep consistent in dark mode */
+[data-theme="dark"] .ant-table-tbody>tr:nth-child(even)>td {
+  background: var(--card-bg) !important;
+}
+
+[data-theme="dark"] .ant-table-tbody>tr:nth-child(even):hover>td {
+  background: rgba(59, 158, 255, 0.08) !important;
+}
+
+/* Table cell content */
+[data-theme="dark"] .ant-table-cell {
+  color: var(--text-primary) !important;
+}
+
+/* Table empty state */
+[data-theme="dark"] .ant-table-placeholder {
+  background: var(--card-bg) !important;
+}
+
+[data-theme="dark"] .ant-empty-description {
+  color: var(--text-secondary) !important;
+}
+
+/* Table pagination */
+[data-theme="dark"] .ant-pagination-item {
+  background: var(--card-bg) !important;
+  border-color: var(--border-default) !important;
+}
+
+[data-theme="dark"] .ant-pagination-item a {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .ant-pagination-item-active {
+  background: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+}
+
+[data-theme="dark"] .ant-pagination-item-active a {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .ant-pagination-prev .ant-pagination-item-link,
+[data-theme="dark"] .ant-pagination-next .ant-pagination-item-link {
+  background: var(--card-bg) !important;
+  border-color: var(--border-default) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .ant-pagination-options .ant-select-selector {
+  background: var(--card-bg) !important;
+  border-color: var(--border-default) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Table sorter icons */
+[data-theme="dark"] .ant-table-column-sorter {
+  color: var(--text-tertiary) !important;
+}
+
+[data-theme="dark"] .ant-table-column-sorter-up.active,
+[data-theme="dark"] .ant-table-column-sorter-down.active {
+  color: var(--color-primary) !important;
+}
+
+/* Table filter dropdown */
+[data-theme="dark"] .ant-table-filter-dropdown {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border-default);
+}
+
+/* Table expanded row */
+[data-theme="dark"] .ant-table-expanded-row>td {
+  background: var(--bg-surface) !important;
+}
+
+/* Table fixed column shadow */
+[data-theme="dark"] .ant-table-cell-fix-left,
+[data-theme="dark"] .ant-table-cell-fix-right {
+  background: var(--card-bg) !important;
+}
+
+/* Table summary row */
+[data-theme="dark"] .ant-table-summary>tr>td {
+  background: var(--bg-elevated) !important;
+  border-bottom: 1px solid var(--border-default) !important;
+}
+
+/* Table bordered style */
+[data-theme="dark"] .ant-table-bordered .ant-table-container {
+  border: 1px solid var(--border-default) !important;
+}
+
+/* ============================================
+   ANT DESIGN SELECT - DARK MODE OVERRIDES
+   ============================================ */
+
+[data-theme="dark"] .ant-select-dropdown {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--border-default);
+  box-shadow: var(--shadow-lg);
+}
+
+[data-theme="dark"] .ant-select-item {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+  background: var(--bg-hover) !important;
+}
+
+[data-theme="dark"] .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  background: var(--color-primary-light) !important;
+  color: var(--color-primary) !important;
+}
+
+/* ============================================
+   ANT DESIGN INPUT - DARK MODE OVERRIDES
+   ============================================ */
+
+[data-theme="dark"] .ant-input,
+[data-theme="dark"] .ant-input-affix-wrapper {
+  background: var(--input-bg) !important;
+  border-color: var(--input-border) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .ant-input::placeholder {
+  color: var(--input-placeholder) !important;
+}
+
+[data-theme="dark"] .ant-input:hover,
+[data-theme="dark"] .ant-input-affix-wrapper:hover {
+  border-color: var(--input-border-hover) !important;
+}
+
+[data-theme="dark"] .ant-input:focus,
+[data-theme="dark"] .ant-input-affix-wrapper:focus,
+[data-theme="dark"] .ant-input-affix-wrapper-focused {
+  border-color: var(--input-border-focus) !important;
+  box-shadow: 0 0 0 2px rgba(59, 158, 255, 0.2) !important;
+}
+
+/* Search input */
+[data-theme="dark"] .ant-input-search .ant-input-group-addon {
+  background: var(--bg-elevated) !important;
+  border-color: var(--input-border) !important;
+}
+
+[data-theme="dark"] .ant-input-search-button {
+  background: var(--bg-elevated) !important;
+  border-color: var(--input-border) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* Input wrapper and search wrapper */
+[data-theme="dark"] .ant-input-wrapper,
+[data-theme="dark"] .ant-input-group {
+  background: transparent !important;
+}
+
+[data-theme="dark"] .ant-input-search .ant-input-wrapper .ant-input {
+  background: var(--input-bg) !important;
+  border-color: var(--input-border) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .ant-input-search .ant-input-wrapper .ant-input::placeholder {
+  color: var(--input-placeholder) !important;
+}
+
+/* InputNumber */
+[data-theme="dark"] .ant-input-number {
+  background: var(--input-bg) !important;
+  border-color: var(--input-border) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .ant-input-number-input {
+  background: transparent !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .ant-input-number-group-addon {
+  background: var(--bg-elevated) !important;
+  border-color: var(--input-border) !important;
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .ant-input-number-handler-wrap {
+  background: var(--bg-elevated) !important;
+}
+
+[data-theme="dark"] .ant-input-number-handler {
+  border-color: var(--border-default) !important;
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .ant-input-number-handler:hover {
+  background: var(--bg-hover) !important;
+  color: var(--color-primary) !important;
+}
+
+/* ============================================
+   ANT DESIGN DATE PICKER - DARK MODE
+   ============================================ */
+
+[data-theme="dark"] .ant-picker {
+  background: var(--input-bg) !important;
+  border-color: var(--input-border) !important;
+}
+
+[data-theme="dark"] .ant-picker-input>input {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .ant-picker-suffix,
+[data-theme="dark"] .ant-picker-separator {
+  color: var(--text-tertiary) !important;
+}
+
+[data-theme="dark"] .ant-picker-dropdown {
+  background: var(--bg-elevated) !important;
+}
+
+[data-theme="dark"] .ant-picker-panel {
+  background: var(--bg-elevated) !important;
+  border-color: var(--border-default) !important;
+}
+
+[data-theme="dark"] .ant-picker-header {
+  color: var(--text-primary) !important;
+  border-bottom-color: var(--border-default) !important;
+}
+
+[data-theme="dark"] .ant-picker-header button {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .ant-picker-content th {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .ant-picker-cell {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .ant-picker-cell:hover:not(.ant-picker-cell-selected) .ant-picker-cell-inner {
+  background: var(--bg-hover) !important;
+}
+
+[data-theme="dark"] .ant-picker-cell-in-view.ant-picker-cell-selected .ant-picker-cell-inner {
+  background: var(--color-primary) !important;
+}
+
+/* ============================================
+   ANT DESIGN CARD - GLOBAL & DARK MODE OVERRIDES
+   ============================================ */
+
+/* Global Card overflow fix for border-radius to work properly */
+.ant-card {
+  overflow: hidden !important;
+}
+
+.ant-card-body {
+  overflow: hidden !important;
+}
+
+[data-theme="dark"] .ant-card {
+  background: var(--card-bg) !important;
+  border-color: var(--border-default) !important;
+}
+
+[data-theme="dark"] .ant-card-head {
+  background: var(--bg-elevated) !important;
+  border-bottom-color: var(--border-default) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .ant-card-head-title {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .ant-card-body {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .ant-card-meta-title {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .ant-card-meta-description {
+  color: var(--text-secondary) !important;
+}
+
+/* ============================================
+   ANT DESIGN STATISTIC - DARK MODE
+   ============================================ */
+
+[data-theme="dark"] .ant-statistic-title {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .ant-statistic-content {
+  color: var(--text-primary) !important;
+}
+
+/* ============================================
+   ANT DESIGN PROGRESS BAR - DARK MODE
+   ============================================ */
+
+[data-theme="dark"] .ant-progress-text {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .ant-progress-inner {
+  background: var(--bg-hover) !important;
+}
+
+/* ============================================
+   ANT DESIGN TAG COLOR PRESETS - DARK MODE
+   Override Ant Design's built-in tag colors for dark mode
+   ============================================ */
+
+/* Success tag - softer green for dark mode */
+[data-theme="dark"] .ant-tag-success {
+  background: var(--color-success-light) !important;
+  border-color: var(--color-success) !important;
+  color: var(--color-success) !important;
+}
+
+/* Error tag - softer red for dark mode */
+[data-theme="dark"] .ant-tag-error {
+  background: var(--color-danger-light) !important;
+  border-color: var(--color-danger) !important;
+  color: var(--color-danger) !important;
+}
+
+/* Warning tag - softer orange for dark mode */
+[data-theme="dark"] .ant-tag-warning {
+  background: var(--color-warning-light) !important;
+  border-color: var(--color-warning) !important;
+  color: var(--color-warning) !important;
+}
+
+/* Processing tag - softer blue for dark mode */
+[data-theme="dark"] .ant-tag-processing {
+  background: var(--color-primary-light) !important;
+  border-color: var(--color-primary) !important;
+  color: var(--color-primary) !important;
+}
+
+/* Default tag in dark mode */
+[data-theme="dark"] .ant-tag-default {
+  background: var(--bg-elevated) !important;
+  border-color: var(--border-default) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* Blue tag - using primary color */
+[data-theme="dark"] .ant-tag-blue {
+  background: var(--color-primary-light) !important;
+  border-color: var(--color-primary) !important;
+  color: var(--color-primary) !important;
+}
+
+/* Green tag - same as success */
+[data-theme="dark"] .ant-tag-green {
+  background: var(--color-success-light) !important;
+  border-color: var(--color-success) !important;
+  color: var(--color-success) !important;
+}
+
+/* Red tag - same as error */
+[data-theme="dark"] .ant-tag-red {
+  background: var(--color-danger-light) !important;
+  border-color: var(--color-danger) !important;
+  color: var(--color-danger) !important;
+}
+
+/* Orange tag - same as warning */
+[data-theme="dark"] .ant-tag-orange {
+  background: var(--color-warning-light) !important;
+  border-color: var(--color-warning) !important;
+  color: var(--color-warning) !important;
+}
+
+/* Purple tag */
+[data-theme="dark"] .ant-tag-purple {
+  background: var(--color-purple-light) !important;
+  border-color: var(--color-purple) !important;
+  color: var(--color-purple) !important;
+}
+
+/* Cyan tag */
+[data-theme="dark"] .ant-tag-cyan {
+  background: var(--color-info-light) !important;
+  border-color: var(--color-info) !important;
+  color: var(--color-info) !important;
+}
+
+/* ============================================
+   ANT DESIGN DRAWER - DARK MODE OVERRIDES
+   ============================================ */
+
+[data-theme="dark"] .ant-drawer-content {
+  background: var(--bg-surface) !important;
+}
+
+[data-theme="dark"] .ant-drawer-header {
+  background: var(--bg-elevated) !important;
+  border-bottom-color: var(--border-default) !important;
+}
+
+[data-theme="dark"] .ant-drawer-title {
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .ant-drawer-close {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .ant-drawer-close:hover {
+  color: var(--text-primary) !important;
+  background: var(--bg-hover) !important;
+}
+
+[data-theme="dark"] .ant-drawer-body {
+  background: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .ant-drawer-footer {
+  background: var(--bg-elevated) !important;
+  border-top-color: var(--border-default) !important;
+}
+
+[data-theme="dark"] .ant-drawer-mask {
+  background: var(--bg-mask) !important;
+}
+
+/* ============================================
+   LOADING SKELETON - LIGHT MODE
+   ============================================ */
+:root,
+[data-theme="light"] {
+  /* Skeleton gradient for shimmer effect */
+  --skeleton-gradient: linear-gradient(90deg,
+      rgba(240, 242, 247, 0.8) 0%,
+      rgba(255, 255, 255, 0.9) 50%,
+      rgba(240, 242, 247, 0.8) 100%);
+  --skeleton-shimmer: linear-gradient(90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.6) 50%,
+      transparent 100%);
+
+  /* Loading card styles */
+  --loading-card-bg: rgba(255, 255, 255, 0.9);
+  --loading-card-border: rgba(240, 242, 247, 0.8);
+  --loading-card-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
+  --loading-card-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.08);
+
+  /* Dependency Graph - Light Mode */
+  --dependency-bg: #fafbfc;
+  --dependency-grid: #e2e8f0;
+  --dependency-edge: rgba(100, 116, 139, 0.5);
+  --glass-bg: rgba(255, 255, 255, 0.92);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+
+  /* Empty State Gradient */
+  --empty-state-gradient: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+
+  /* Log Table Colors */
+  --log-header-bg: #f8f9fa;
+  --log-header-border: #dee2e6;
+  --log-header-text: #495057;
+  --log-row-even: #fafafa;
+  --log-row-odd: #ffffff;
+  --log-row-hover: #e6f7ff;
+  --log-row-border: #f0f0f0;
+  --log-line-number: #bfbfbf;
+  --log-timestamp: #666666;
+  --log-component: #666666;
+  --log-client: #1890ff;
+  --log-message: #2c3e50;
+  --log-json-key: #1890ff;
+  --log-json-separator: #666666;
+  --log-json-divider: #cccccc;
+  --log-path-bg: #f0f0f0;
+}
+
+/* ============================================
+   LOADING SKELETON - DARK MODE
+   ============================================ */
+[data-theme="dark"] {
+  /* Skeleton gradient for shimmer effect - dark mode */
+  --skeleton-gradient: linear-gradient(90deg,
+      rgba(51, 65, 85, 0.8) 0%,
+      rgba(71, 85, 105, 0.9) 50%,
+      rgba(51, 65, 85, 0.8) 100%);
+  --skeleton-shimmer: linear-gradient(90deg,
+      transparent 0%,
+      rgba(100, 116, 139, 0.4) 50%,
+      transparent 100%);
+
+  /* Loading card styles - dark mode */
+  --loading-card-bg: rgba(30, 41, 59, 0.9);
+  --loading-card-border: rgba(51, 65, 85, 0.8);
+  --loading-card-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  --loading-card-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.3);
+
+  /* Dependency Graph - Dark Mode */
+  --dependency-bg: #1e293b;
+  --dependency-grid: #334155;
+  --dependency-edge: rgba(148, 163, 184, 0.5);
+  --glass-bg: rgba(30, 41, 59, 0.92);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+
+  /* Empty State Gradient */
+  --empty-state-gradient: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+
+  /* Log Table Colors */
+  --log-header-bg: #1e293b;
+  --log-header-border: #334155;
+  --log-header-text: #94a3b8;
+  --log-row-even: #1e293b;
+  --log-row-odd: #0f172a;
+  --log-row-hover: rgba(59, 158, 255, 0.15);
+  --log-row-border: #334155;
+  --log-line-number: #64748b;
+  --log-timestamp: #94a3b8;
+  --log-component: #94a3b8;
+  --log-client: #3b9eff;
+  --log-message: #e2e8f0;
+  --log-json-key: #3b9eff;
+  --log-json-separator: #94a3b8;
+  --log-json-divider: #475569;
+  --log-path-bg: #334155;
+}
+
+/* ============================================
+   REACT FLOW - DARK MODE OVERRIDES
+   ============================================ */
+
+/* React Flow Controls */
+[data-theme="dark"] .react-flow__controls {
+  background: var(--glass-bg) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 8px !important;
+  box-shadow: var(--glass-shadow) !important;
+}
+
+[data-theme="dark"] .react-flow__controls-button {
+  background: var(--bg-surface) !important;
+  border-bottom: 1px solid var(--border-default) !important;
+  fill: var(--text-secondary) !important;
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .react-flow__controls-button:hover {
+  background: var(--bg-hover) !important;
+  fill: var(--text-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .react-flow__controls-button svg {
+  fill: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .react-flow__controls-button:hover svg {
+  fill: var(--text-primary) !important;
+}
+
+/* React Flow MiniMap */
+[data-theme="dark"] .react-flow__minimap {
+  background: var(--glass-bg) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 8px !important;
+  box-shadow: var(--glass-shadow) !important;
+}
+
+[data-theme="dark"] .react-flow__minimap-mask {
+  fill: var(--bg-body) !important;
+  opacity: 0.8 !important;
+}
+
+/* React Flow Background */
+[data-theme="dark"] .react-flow__background {
+  background: var(--dependency-bg) !important;
+}
+
+/* React Flow Edges */
+[data-theme="dark"] .react-flow__edge-path {
+  stroke: var(--dependency-edge) !important;
+}
+
+/* React Flow Panel */
+[data-theme="dark"] .react-flow__panel {
+  background: transparent;
+}

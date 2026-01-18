@@ -8,19 +8,21 @@ const InterfaceCard: React.FC<{ entry: any; onEdit: () => void }> = ({ entry, on
     // New network state structure - interface data is directly in entry
     const state = entry.state?.toLowerCase();
     const hasCarrier = entry.has_carrier;
-    const stateColor = (state === 'up' && hasCarrier) ? '#52c41a' : 
-                       (state === 'up' && !hasCarrier) ? '#faad14' : 
-                       '#ff4d4f';
+    const stateColor = (state === 'up' && hasCarrier) ? 'var(--color-success)' :
+        (state === 'up' && !hasCarrier) ? 'var(--color-warning)' :
+            'var(--color-danger)';
 
     return (
         <Card
             size="small"
             style={{
                 borderRadius: 12,
-                boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                boxShadow: 'var(--shadow-sm)',
                 height: '100%',
                 position: 'relative',
-                overflow: 'visible'
+                overflow: 'visible',
+                background: 'var(--card-bg)',
+                border: '1px solid var(--border-default)'
             }}
             styles={{ body: { padding: '16px' } }}
         >
@@ -37,29 +39,30 @@ const InterfaceCard: React.FC<{ entry: any; onEdit: () => void }> = ({ entry, on
                     height: 10,
                     borderRadius: '50%',
                     background: stateColor,
-                    boxShadow: state === 'up' ? '0 0 6px #52c41a' : 'none',
+                    boxShadow: state === 'up' ? '0 0 6px var(--color-success)' : 'none',
                     animation: state === 'up' ? 'pulse 1.2s infinite' : 'none'
                 }} />
                 <Button
                     type="text"
-                    icon={<EditOutlined style={{ color: '#1677ff', fontSize: 16 }} />}
+                    icon={<EditOutlined style={{ color: 'var(--color-primary)', fontSize: 16 }} />}
                     onClick={onEdit}
                     style={{
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         padding: 4,
-                        border: '1px solid #e6e6e6',
-                        borderRadius: 6
+                        border: '1px solid var(--border-default)',
+                        borderRadius: 6,
+                        background: 'var(--bg-surface)'
                     }}
                 />
             </div>
 
             <div style={{ marginBottom: 16 }}>
-                <div style={{ 
-                    fontSize: 16, 
-                    fontWeight: 600, 
-                    color: '#1f1f1f', 
+                <div style={{
+                    fontSize: 16,
+                    fontWeight: 600,
+                    color: 'var(--text-primary)',
                     marginBottom: 4,
                     display: 'flex',
                     alignItems: 'center'
@@ -69,7 +72,7 @@ const InterfaceCard: React.FC<{ entry: any; onEdit: () => void }> = ({ entry, on
                     </span>
                     {entry.name}
                 </div>
-                <div style={{ fontSize: 14, color: '#595959' }}>
+                <div style={{ fontSize: 14, color: 'var(--text-secondary)' }}>
                     {entry.addresses?.[0] || '-'}
                 </div>
             </div>

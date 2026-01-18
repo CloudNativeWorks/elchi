@@ -97,8 +97,8 @@ const ListenerUpgradeModal: React.FC<ListenerUpgradeModalProps> = ({
                     <div style={{
                         maxHeight: 150,
                         overflow: 'auto',
-                        background: '#fafafa',
-                        border: '1px solid #f0f0f0',
+                        background: 'var(--bg-elevated)',
+                        border: '1px solid var(--border-default)',
                         borderRadius: 6,
                         padding: 8,
                         display: 'flex',
@@ -196,8 +196,8 @@ const ListenerUpgradeModal: React.FC<ListenerUpgradeModalProps> = ({
                         Selected Listeners ({selectedListeners.length})
                     </Text>
                     <div style={{
-                        background: '#fafafa',
-                        border: '1px solid #f0f0f0',
+                        background: 'var(--bg-elevated)',
+                        border: '1px solid var(--border-default)',
                         borderRadius: 6,
                         padding: 8,
                         maxHeight: 120,

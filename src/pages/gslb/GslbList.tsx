@@ -145,7 +145,7 @@ const GslbList: React.FC = () => {
             case HEALTH_STATUS.ALL_HEALTHY:
                 return (
                     <Badge status="success" text={
-                        <span style={{ color: '#52c41a' }}>
+                        <span style={{ color: 'var(--color-success)' }}>
                             <CheckCircleOutlined /> All Healthy ({totalCount}/{totalCount})
                         </span>
                     } />
@@ -153,7 +153,7 @@ const GslbList: React.FC = () => {
             case HEALTH_STATUS.SOME_UNHEALTHY:
                 return (
                     <Badge status="warning" text={
-                        <span style={{ color: '#faad14' }}>
+                        <span style={{ color: 'var(--color-warning)' }}>
                             <ExclamationCircleOutlined /> Partial ({healthyCount}/{totalCount})
                         </span>
                     } />
@@ -161,7 +161,7 @@ const GslbList: React.FC = () => {
             case HEALTH_STATUS.ALL_UNHEALTHY:
                 return (
                     <Badge status="error" text={
-                        <span style={{ color: '#ff4d4f' }}>
+                        <span style={{ color: 'var(--color-danger)' }}>
                             <CloseCircleOutlined /> All Unhealthy (0/{totalCount})
                         </span>
                     } />
@@ -169,7 +169,7 @@ const GslbList: React.FC = () => {
             case 'PROBE_CONFIGURED':
                 return (
                     <Badge status="processing" text={
-                        <span style={{ color: '#1890ff' }}>
+                        <span style={{ color: 'var(--color-primary)' }}>
                             <CheckCircleOutlined /> Health Check Enabled
                         </span>
                     } />
@@ -272,9 +272,9 @@ const GslbList: React.FC = () => {
             render: (text: string, record: GSLBRecord) => (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     {record.service_id && record.service_id !== '' ? (
-                        <MdAutorenew style={{ fontSize: 18, color: '#1890ff' }} title="Auto-created by system" />
+                        <MdAutorenew style={{ fontSize: 18, color: 'var(--color-primary)' }} title="Auto-created by system" />
                     ) : (
-                        <MdPerson style={{ fontSize: 18, color: '#52c41a' }} title="Manually created" />
+                        <MdPerson style={{ fontSize: 18, color: 'var(--color-success)' }} title="Manually created" />
                     )}
                     <Text strong>{text}</Text>
                 </div>
@@ -368,7 +368,7 @@ const GslbList: React.FC = () => {
             <div style={{ marginBottom: 16 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <Space>
-                        <GlobalOutlined style={{ color: '#1890ff', fontSize: 24 }} />
+                        <GlobalOutlined style={{ color: 'var(--color-primary)', fontSize: 24 }} />
                         <Title level={4} style={{ margin: 0 }}>
                             GSLB Records
                         </Title>
@@ -401,18 +401,18 @@ const GslbList: React.FC = () => {
             {/* Data Table */}
             <div
                 style={{
-                    background: 'white',
+                    background: 'var(--card-bg)',
                     borderRadius: 12,
-                    border: '1px solid #e5e7eb',
-                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                    border: '1px solid var(--border-default)',
+                    boxShadow: 'var(--shadow-sm)',
                     overflow: 'hidden',
                     marginBottom: 16
                 }}
             >
                 {/* Table Header */}
                 <div style={{
-                    background: '#f9fafb',
-                    borderBottom: '1px solid #e5e7eb',
+                    background: 'var(--bg-surface)',
+                    borderBottom: '1px solid var(--border-default)',
                     padding: '12px 16px'
                 }}>
                     {/* First Row: Title and Bulk Actions */}

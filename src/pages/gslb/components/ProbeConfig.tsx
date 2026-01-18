@@ -76,10 +76,10 @@ const ProbeConfig: React.FC<ProbeConfigProps> = ({ probe }) => {
     return (
         <div
             style={{
-                background: 'white',
+                background: 'var(--card-bg)',
                 borderRadius: 12,
-                border: '1px solid #e5e7eb',
-                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                border: '1px solid var(--border-default)',
+                boxShadow: 'var(--shadow-sm)',
                 padding: '24px',
                 marginBottom: 16,
             }}
@@ -130,7 +130,7 @@ const ProbeConfig: React.FC<ProbeConfigProps> = ({ probe }) => {
                         onChange={setActiveKey}
                         bordered={false}
                         expandIconPosition="end"
-                        style={{ background: '#fafafa' }}
+                        style={{ background: 'var(--bg-surface)' }}
                         items={[
                             {
                                 key: '1',

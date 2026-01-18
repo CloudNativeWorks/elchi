@@ -65,37 +65,45 @@ const GslbDetail: React.FC = () => {
     // Populate form in edit mode
     useEffect(() => {
         if (record && isEditMode) {
-            form.setFieldsValue({
-                fqdn: record.fqdn,
-                ttl: record.ttl,
-                enabled: record.enabled,
-                failover_zone: record.failover_zone,
-                probe_type: record.probe?.type,
-                probe_port: record.probe?.port,
-                probe_path: record.probe?.path,
-                probe_host_header: record.probe?.host_header,
-                probe_interval: record.probe?.interval,
-                probe_timeout: record.probe?.timeout,
-                probe_enabled: record.probe?.enabled !== undefined ? record.probe.enabled : true,
-                probe_warning_threshold: record.probe?.warning_threshold,
-                probe_critical_threshold: record.probe?.critical_threshold,
-                probe_passing_threshold: record.probe?.passing_threshold,
-                probe_expected_status_codes: record.probe?.expected_status_codes,
-                probe_follow_redirects: record.probe?.follow_redirects,
-                probe_skip_ssl_verify: record.probe?.skip_ssl_verify,
-            });
+            // Defer to ensure Form component is mounted
+            const timer = setTimeout(() => {
+                form.setFieldsValue({
+                    fqdn: record.fqdn,
+                    ttl: record.ttl,
+                    enabled: record.enabled,
+                    failover_zone: record.failover_zone,
+                    probe_type: record.probe?.type,
+                    probe_port: record.probe?.port,
+                    probe_path: record.probe?.path,
+                    probe_host_header: record.probe?.host_header,
+                    probe_interval: record.probe?.interval,
+                    probe_timeout: record.probe?.timeout,
+                    probe_enabled: record.probe?.enabled !== undefined ? record.probe.enabled : true,
+                    probe_warning_threshold: record.probe?.warning_threshold,
+                    probe_critical_threshold: record.probe?.critical_threshold,
+                    probe_passing_threshold: record.probe?.passing_threshold,
+                    probe_expected_status_codes: record.probe?.expected_status_codes,
+                    probe_follow_redirects: record.probe?.follow_redirects,
+                    probe_skip_ssl_verify: record.probe?.skip_ssl_verify,
+                });
+            }, 0);
+            return () => clearTimeout(timer);
         }
     }, [record, isEditMode, form]);
 
     // Set defaults for create mode
     useEffect(() => {
         if (isCreateMode) {
-            form.setFieldsValue({
-                enabled: true,
-                ttl: 60,
-                // Set first failover zone as default in create mode
-                failover_zone: failoverZones.length > 0 ? failoverZones[0] : undefined,
-            });
+            // Defer to ensure Form component is mounted
+            const timer = setTimeout(() => {
+                form.setFieldsValue({
+                    enabled: true,
+                    ttl: 60,
+                    // Set first failover zone as default in create mode
+                    failover_zone: failoverZones.length > 0 ? failoverZones[0] : undefined,
+                });
+            }, 0);
+            return () => clearTimeout(timer);
         }
     }, [isCreateMode, failoverZones, form]);
 
@@ -259,7 +267,7 @@ const GslbDetail: React.FC = () => {
         return (
             <div style={{ textAlign: 'center', padding: 100 }}>
                 <Spin size="large" />
-                <p style={{ marginTop: 16, color: '#999' }}>Loading GSLB record...</p>
+                <p style={{ marginTop: 16, color: 'var(--text-secondary)' }}>Loading GSLB record...</p>
             </div>
         );
     }

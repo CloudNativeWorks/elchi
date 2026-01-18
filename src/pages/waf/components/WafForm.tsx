@@ -42,7 +42,8 @@ const WafForm: React.FC<WafFormProps> = ({
             style={{
                 marginBottom: 16,
                 borderRadius: 12,
-                boxShadow: '0 2px 8px rgba(5,117,230,0.06)'
+                boxShadow: 'var(--shadow-sm)',
+                background: 'var(--card-bg)'
             }}
         >
             <Form
@@ -105,7 +106,7 @@ const WafForm: React.FC<WafFormProps> = ({
                                             <div style={{ marginBottom: 6 }}>
                                                 <Space>
                                                     <Text strong style={{ fontSize: 14 }}>Metric Labels</Text>
-                                                    <Badge count={Object.keys(metricLabels).length} style={{ backgroundColor: '#52c41a' }} />
+                                                    <Badge count={Object.keys(metricLabels).length} style={{ backgroundColor: 'var(--color-success)' }} />
                                                 </Space>
                                             </div>
                                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 6, minHeight: 32 }}>
@@ -153,7 +154,7 @@ const WafForm: React.FC<WafFormProps> = ({
                                                             valueInput.value = '';
                                                             message.success({
                                                                 content: 'Metric label added!',
-                                                                icon: <CheckOutlined style={{ color: '#52c41a' }} />
+                                                                icon: <CheckOutlined style={{ color: 'var(--color-success)' }} />
                                                             });
                                                         }
                                                     }}
@@ -166,7 +167,7 @@ const WafForm: React.FC<WafFormProps> = ({
                                             <div style={{ marginBottom: 6 }}>
                                                 <Space>
                                                     <Text strong style={{ fontSize: 14 }}>Per Authority Directives</Text>
-                                                    <Badge count={Object.keys(perAuthorityDirectives).length} style={{ backgroundColor: '#722ed1' }} />
+                                                    <Badge count={Object.keys(perAuthorityDirectives).length} style={{ backgroundColor: 'var(--color-purple)' }} />
                                                 </Space>
                                             </div>
                                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 6, minHeight: 32 }}>
@@ -220,7 +221,7 @@ const WafForm: React.FC<WafFormProps> = ({
                                                             setNewAuthorityDirectiveSet('');
                                                             message.success({
                                                                 content: 'Authority directive added!',
-                                                                icon: <CheckOutlined style={{ color: '#52c41a' }} />
+                                                                icon: <CheckOutlined style={{ color: 'var(--color-success)' }} />
                                                             });
                                                         }
                                                     }}

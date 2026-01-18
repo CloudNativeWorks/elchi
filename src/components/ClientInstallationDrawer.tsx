@@ -41,8 +41,8 @@ const ClientInstallationDrawer: React.FC<ClientInstallationDrawerProps> = ({ ope
 
     const CodeBlock = ({ children, onCopy }: { children: string; onCopy?: () => void }) => (
         <div style={{
-            background: '#f6f8fa',
-            border: '1px solid #d0d7de',
+            background: 'var(--code-bg)',
+            border: '1px solid var(--border-default)',
             borderRadius: 6,
             padding: '12px',
             fontFamily: 'monospace',
@@ -77,7 +77,7 @@ const ClientInstallationDrawer: React.FC<ClientInstallationDrawerProps> = ({ ope
             <Drawer
                 title={
                     <Space>
-                        <DownloadOutlined style={{ color: '#1890ff' }} />
+                        <DownloadOutlined style={{ color: 'var(--color-primary)' }} />
                         <span>Elchi Client Installation</span>
                     </Space>
                 }
@@ -96,7 +96,7 @@ const ClientInstallationDrawer: React.FC<ClientInstallationDrawerProps> = ({ ope
                     {/* Download and Install Section */}
                     <div style={{ marginBottom: 32 }}>
                         <Title level={4}>
-                            <DownloadOutlined style={{ color: '#52c41a', marginRight: 8 }} />
+                            <DownloadOutlined style={{ color: 'var(--color-success)', marginRight: 8 }} />
                             Download and Install
                         </Title>
 
@@ -219,7 +219,7 @@ const ClientInstallationDrawer: React.FC<ClientInstallationDrawerProps> = ({ ope
                     {/* Service Management */}
                     <div style={{ marginBottom: 32 }}>
                         <Title level={4}>
-                            <SettingOutlined style={{ color: '#faad14', marginRight: 8 }} />
+                            <SettingOutlined style={{ color: 'var(--color-warning)', marginRight: 8 }} />
                             Service Management
                         </Title>
 
@@ -259,7 +259,7 @@ const ClientInstallationDrawer: React.FC<ClientInstallationDrawerProps> = ({ ope
                     {/* Important Notes */}
                     <div style={{ marginBottom: 32 }}>
                         <Title level={4}>
-                            <CheckCircleOutlined style={{ color: '#1890ff', marginRight: 8 }} />
+                            <CheckCircleOutlined style={{ color: 'var(--color-primary)', marginRight: 8 }} />
                             Important Notes
                         </Title>
 
@@ -285,7 +285,7 @@ const ClientInstallationDrawer: React.FC<ClientInstallationDrawerProps> = ({ ope
                     {/* Supported Operating Systems */}
                     <div style={{ marginBottom: 24 }}>
                         <Title level={4}>
-                            <CheckCircleOutlined style={{ color: '#52c41a', marginRight: 8 }} />
+                            <CheckCircleOutlined style={{ color: 'var(--color-success)', marginRight: 8 }} />
                             System Requirements
                         </Title>
 

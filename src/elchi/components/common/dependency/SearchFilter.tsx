@@ -40,7 +40,7 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
             {/* Search Input */}
             <Input
                 placeholder="Search nodes..."
-                prefix={<SearchOutlined style={{ color: '#94a3b8' }} />}
+                prefix={<SearchOutlined style={{ color: 'var(--text-tertiary)' }} />}
                 value={searchValue}
                 onChange={handleSearchChange}
                 allowClear
@@ -59,7 +59,7 @@ const SearchFilter: React.FC<SearchFilterProps> = ({
                     width: '100%',
                     borderRadius: '8px',
                 }}
-                suffixIcon={<FilterOutlined style={{ color: '#94a3b8' }} />}
+                suffixIcon={<FilterOutlined style={{ color: 'var(--text-tertiary)' }} />}
             >
                 <Option value="all">All Categories</Option>
                 {nodeTypes.map((type) => (

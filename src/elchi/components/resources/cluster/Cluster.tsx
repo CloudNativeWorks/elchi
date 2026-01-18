@@ -94,8 +94,8 @@ const ClusterComponent: React.FC<GeneralProps> = ({ veri }) => {
                     }}
                 />
                 <Divider type="horizontal" orientation="left" orientationMargin="0">Cluster Configuration</Divider>
-                <Row>
-                    <Col md={4} style={{ display: "block", maxHeight: "auto", overflowY: "auto" }}>
+                <Row gutter={[2, 0]}>
+                    <Col md={4} style={{ display: "block", maxHeight: "100vh", overflowY: "auto" }} className="custom-scrollbar-side">
                         <CustomAnchor
                             resourceConfKeys={vTags.c?.Cluster}
                             unsuportedTags={modtag_us_cluster["Cluster"]}

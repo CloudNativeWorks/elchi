@@ -32,23 +32,24 @@ const ElchiButton: React.FC<ElchiButtonProps> = ({ children = 'Add New', onlyTex
             }
             style={{
                 background: isDisabled
-                    ? 'linear-gradient(90deg, #e0e0e0 0%, #bdbdbd 100%)'
-                    : 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                    ? 'var(--btn-disabled-gradient, linear-gradient(90deg, #e0e0e0 0%, #bdbdbd 100%))'
+                    : 'var(--gradient-primary)',
                 border: 'none',
-                color: isDisabled ? '#eee' : '#fff',
+                color: isDisabled ? 'var(--text-disabled)' : '#fff',
                 fontWeight: 600,
                 fontSize: 12,
                 borderRadius: 8,
                 padding: '0 12px',
                 height: 32,
                 boxShadow: isDisabled
-                    ? '0 4px 16px 0 rgba(180,180,180,0.10)'
+                    ? 'var(--shadow-sm)'
                     : '0 4px 16px 0 rgba(5,117,230,0.10)',
                 display: 'flex',
                 alignItems: 'center',
                 transition: 'all 0.18s',
                 pointerEvents: isDisabled ? 'none' : undefined,
                 cursor: isDisabled ? 'not-allowed' : undefined,
+                opacity: isDisabled ? 0.6 : 1,
                 ...style
             }}
             className={'modern-add-btn'}

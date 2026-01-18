@@ -13,6 +13,7 @@ import { BaseWidget } from '../shared/BaseWidget';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import { useDashboardRefresh } from '../../context/DashboardRefreshContext';
 import { api } from '@/common/api';
+import { useChartTheme } from '@/utils/chartTheme';
 
 echarts.use([PieChart, TooltipComponent, LegendComponent, CanvasRenderer]);
 
@@ -20,6 +21,7 @@ export const ClusterHealthDonut: React.FC = () => {
   const projectContext = useProjectVariable();
   const project = typeof projectContext === 'string' ? projectContext : projectContext.project;
   const { refreshTrigger } = useDashboardRefresh();
+  const { theme: chartTheme } = useChartTheme();
   const [data, setData] = useState({ healthy: 0, unhealthy: 0 });
   const [loading, setLoading] = useState(true);
 
@@ -70,20 +72,26 @@ export const ClusterHealthDonut: React.FC = () => {
   }, [fetchData, refreshTrigger]);
 
   const chartOptions = {
-    tooltip: { trigger: 'item', formatter: '{b}: {c}% ({d}%)' },
+    tooltip: {
+      trigger: 'item',
+      formatter: '{b}: {c}% ({d}%)',
+      backgroundColor: chartTheme.tooltipBg,
+      borderColor: chartTheme.tooltipBorder,
+      textStyle: { color: chartTheme.tooltipTextColor }
+    },
     legend: {
       bottom: 0,
       left: 'center',
-      textStyle: { fontSize: 11 }
+      textStyle: { fontSize: 11, color: chartTheme.legendTextColor }
     },
     series: [{
       type: 'pie',
       radius: ['40%', '70%'],
       center: ['50%', '40%'],
-      label: { show: true, formatter: '{c}%', fontSize: 12 },
+      label: { show: true, formatter: '{c}%', fontSize: 12, color: chartTheme.textColor },
       data: [
-        { value: data.healthy, name: 'Healthy', itemStyle: { color: '#10b981' } },
-        { value: data.unhealthy, name: 'Unhealthy', itemStyle: { color: '#ef4444' } },
+        { value: data.healthy, name: 'Healthy', itemStyle: { color: chartTheme.successColor } },
+        { value: data.unhealthy, name: 'Unhealthy', itemStyle: { color: chartTheme.dangerColor } },
       ],
     }],
   };

@@ -40,8 +40,8 @@ const TIME_RANGES = [
 
 // Card header style
 const cardHeaderStyle: React.CSSProperties = {
-  background: '#f9fafb',
-  borderBottom: '1px solid #e5e7eb',
+  background: 'var(--bg-surface)',
+  borderBottom: '1px solid var(--border-default)',
   padding: '12px 16px',
   display: 'flex',
   justifyContent: 'space-between',
@@ -50,9 +50,9 @@ const cardHeaderStyle: React.CSSProperties = {
 
 // Card container style
 const cardStyle: React.CSSProperties = {
-  background: '#fff',
+  background: 'var(--card-bg)',
   borderRadius: '8px',
-  border: '1px solid #e5e7eb',
+  border: '1px solid var(--border-default)',
   overflow: 'hidden',
 };
 
@@ -63,9 +63,9 @@ const cardBodyStyle: React.CSSProperties = {
 
 // Stat card style
 const statCardStyle = (borderColor: string): React.CSSProperties => ({
-  background: '#fff',
+  background: 'var(--card-bg)',
   borderRadius: '8px',
-  border: '1px solid #e5e7eb',
+  border: '1px solid var(--border-default)',
   borderTop: `3px solid ${borderColor}`,
   padding: '16px',
 });
@@ -94,9 +94,9 @@ const GslbStatistics: React.FC = () => {
       avoidLabelOverlap: true,
       label: { show: true, formatter: '{c}', fontSize: 12 },
       data: [
-        { value: metrics.healthyIps, name: 'Healthy', itemStyle: { color: '#52c41a' } },
-        { value: metrics.warningIps, name: 'Warning', itemStyle: { color: '#faad14' } },
-        { value: metrics.criticalIps, name: 'Critical', itemStyle: { color: '#ff4d4f' } },
+        { value: metrics.healthyIps, name: 'Healthy', itemStyle: { color: 'var(--color-success)' } },
+        { value: metrics.warningIps, name: 'Warning', itemStyle: { color: 'var(--color-warning)' } },
+        { value: metrics.criticalIps, name: 'Critical', itemStyle: { color: 'var(--color-danger)' } },
       ].filter(d => d.value > 0),
     }],
   };
@@ -153,7 +153,7 @@ const GslbStatistics: React.FC = () => {
       data: metrics.successRateTrend,
       smooth: true,
       symbol: 'none',
-      lineStyle: { color: '#52c41a', width: 2 },
+      lineStyle: { color: 'var(--color-success)', width: 2 },
       areaStyle: {
         color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
           { offset: 0, color: 'rgba(82, 196, 26, 0.4)' },
@@ -187,7 +187,7 @@ const GslbStatistics: React.FC = () => {
       data: metrics.latencyTrend,
       smooth: true,
       symbol: 'none',
-      lineStyle: { color: '#1890ff', width: 2 },
+      lineStyle: { color: 'var(--color-primary)', width: 2 },
       areaStyle: {
         color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
           { offset: 0, color: 'rgba(24, 144, 255, 0.4)' },
@@ -238,7 +238,7 @@ const GslbStatistics: React.FC = () => {
     return (
       <div style={{ textAlign: 'center', padding: 100 }}>
         <Spin size="large" />
-        <p style={{ marginTop: 16, color: '#999' }}>Loading GSLB Statistics...</p>
+        <p style={{ marginTop: 16, color: 'var(--text-secondary)' }}>Loading GSLB Statistics...</p>
       </div>
     );
   }
@@ -248,7 +248,7 @@ const GslbStatistics: React.FC = () => {
       {/* Header */}
       <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Space>
-          <GlobalOutlined style={{ fontSize: 28, color: '#1890ff' }} />
+          <GlobalOutlined style={{ fontSize: 28, color: 'var(--color-primary)' }} />
           <div>
             <Title level={3} style={{ margin: 0 }}>GSLB Statistics</Title>
             <Text type="secondary">Health check metrics and probe statistics</Text>
@@ -280,11 +280,11 @@ const GslbStatistics: React.FC = () => {
           <div style={statCardStyle('#1890ff')}>
             <div style={{ marginBottom: 8 }}>
               <Space>
-                <CloudServerOutlined style={{ color: '#1890ff' }} />
+                <CloudServerOutlined style={{ color: 'var(--color-primary)' }} />
                 <Text type="secondary">Total IPs</Text>
               </Space>
             </div>
-            <div style={{ fontSize: 28, fontWeight: 600, color: '#1890ff' }}>
+            <div style={{ fontSize: 28, fontWeight: 600, color: 'var(--color-primary)' }}>
               {metrics.totalIps}
             </div>
           </div>
@@ -293,11 +293,11 @@ const GslbStatistics: React.FC = () => {
           <div style={statCardStyle('#52c41a')}>
             <div style={{ marginBottom: 8 }}>
               <Space>
-                <CheckCircleOutlined style={{ color: '#52c41a' }} />
+                <CheckCircleOutlined style={{ color: 'var(--color-success)' }} />
                 <Text type="secondary">Healthy IPs</Text>
               </Space>
             </div>
-            <div style={{ fontSize: 28, fontWeight: 600, color: '#52c41a' }}>
+            <div style={{ fontSize: 28, fontWeight: 600, color: 'var(--color-success)' }}>
               {metrics.healthyIps}
               <Text type="secondary" style={{ fontSize: 14, marginLeft: 8 }}>/ {metrics.totalIps}</Text>
             </div>
@@ -307,11 +307,11 @@ const GslbStatistics: React.FC = () => {
           <div style={statCardStyle('#ff4d4f')}>
             <div style={{ marginBottom: 8 }}>
               <Space>
-                <CloseCircleOutlined style={{ color: '#ff4d4f' }} />
+                <CloseCircleOutlined style={{ color: 'var(--color-danger)' }} />
                 <Text type="secondary">Critical IPs</Text>
               </Space>
             </div>
-            <div style={{ fontSize: 28, fontWeight: 600, color: '#ff4d4f' }}>
+            <div style={{ fontSize: 28, fontWeight: 600, color: 'var(--color-danger)' }}>
               {metrics.criticalIps}
             </div>
           </div>
@@ -320,11 +320,11 @@ const GslbStatistics: React.FC = () => {
           <div style={statCardStyle('#faad14')}>
             <div style={{ marginBottom: 8 }}>
               <Space>
-                <SyncOutlined style={{ color: '#faad14' }} />
+                <SyncOutlined style={{ color: 'var(--color-warning)' }} />
                 <Text type="secondary">Backoff Active</Text>
               </Space>
             </div>
-            <div style={{ fontSize: 28, fontWeight: 600, color: '#faad14' }}>
+            <div style={{ fontSize: 28, fontWeight: 600, color: 'var(--color-warning)' }}>
               {metrics.backoffActiveIps}
             </div>
           </div>
@@ -338,7 +338,7 @@ const GslbStatistics: React.FC = () => {
           <div style={{ ...cardStyle, height: '320px' }}>
             <div style={cardHeaderStyle}>
               <Space>
-                <ThunderboltOutlined style={{ color: '#52c41a' }} />
+                <ThunderboltOutlined style={{ color: 'var(--color-success)' }} />
                 <Text strong>Probe Success Rate</Text>
               </Space>
             </div>
@@ -349,9 +349,9 @@ const GslbStatistics: React.FC = () => {
                 style={{ height: '180px' }}
               />
               <div style={{ textAlign: 'center', marginTop: 8 }}>
-                <Space split={<span style={{ color: '#d9d9d9' }}>|</span>}>
-                  <Text type="secondary">Success: <Text strong style={{ color: '#52c41a' }}>{formatNumber(metrics.probesSuccess)}</Text></Text>
-                  <Text type="secondary">Failure: <Text strong style={{ color: '#ff4d4f' }}>{formatNumber(metrics.probesFailure)}</Text></Text>
+                <Space split={<span style={{ color: 'var(--border-default)' }}>|</span>}>
+                  <Text type="secondary">Success: <Text strong style={{ color: 'var(--color-success)' }}>{formatNumber(metrics.probesSuccess)}</Text></Text>
+                  <Text type="secondary">Failure: <Text strong style={{ color: 'var(--color-danger)' }}>{formatNumber(metrics.probesFailure)}</Text></Text>
                 </Space>
               </div>
             </div>
@@ -363,7 +363,7 @@ const GslbStatistics: React.FC = () => {
           <div style={{ ...cardStyle, height: '320px' }}>
             <div style={cardHeaderStyle}>
               <Space>
-                <CloudServerOutlined style={{ color: '#1890ff' }} />
+                <CloudServerOutlined style={{ color: 'var(--color-primary)' }} />
                 <Text strong>IP Health Distribution</Text>
               </Space>
             </div>
@@ -382,7 +382,7 @@ const GslbStatistics: React.FC = () => {
           <div style={{ ...cardStyle, height: '320px' }}>
             <div style={cardHeaderStyle}>
               <Space>
-                <WarningOutlined style={{ color: '#ff4d4f' }} />
+                <WarningOutlined style={{ color: 'var(--color-danger)' }} />
                 <Text strong>Error Breakdown</Text>
               </Space>
               <Tag color="red">{formatNumber(totalErrors)} total</Tag>
@@ -404,7 +404,7 @@ const GslbStatistics: React.FC = () => {
           <div style={{ ...cardStyle, height: '320px' }}>
             <div style={cardHeaderStyle}>
               <Space>
-                <ThunderboltOutlined style={{ color: '#52c41a' }} />
+                <ThunderboltOutlined style={{ color: 'var(--color-success)' }} />
                 <Text strong>Success Rate Timeline</Text>
               </Space>
             </div>
@@ -421,7 +421,7 @@ const GslbStatistics: React.FC = () => {
           <div style={{ ...cardStyle, height: '320px' }}>
             <div style={cardHeaderStyle}>
               <Space>
-                <ClockCircleOutlined style={{ color: '#1890ff' }} />
+                <ClockCircleOutlined style={{ color: 'var(--color-primary)' }} />
                 <Text strong>Probe Latency Timeline</Text>
               </Space>
               <Space>
@@ -448,7 +448,7 @@ const GslbStatistics: React.FC = () => {
           <div style={{ ...cardStyle, height: '240px' }}>
             <div style={cardHeaderStyle}>
               <Space>
-                <ApiOutlined style={{ color: '#722ed1' }} />
+                <ApiOutlined style={{ color: 'var(--color-purple)' }} />
                 <Text strong>Worker Pool</Text>
               </Space>
             </div>
@@ -484,7 +484,7 @@ const GslbStatistics: React.FC = () => {
           <div style={{ ...cardStyle, height: '240px' }}>
             <div style={cardHeaderStyle}>
               <Space>
-                <FieldTimeOutlined style={{ color: '#13c2c2' }} />
+                <FieldTimeOutlined style={{ color: 'var(--color-cyan)' }} />
                 <Text strong>Timewheel Scheduler</Text>
               </Space>
             </div>
@@ -516,7 +516,7 @@ const GslbStatistics: React.FC = () => {
           <div style={{ ...cardStyle, height: '240px' }}>
             <div style={cardHeaderStyle}>
               <Space>
-                <DatabaseOutlined style={{ color: '#eb2f96' }} />
+                <DatabaseOutlined style={{ color: 'var(--color-pink)' }} />
                 <Text strong>Write Buffer</Text>
               </Space>
             </div>
@@ -559,7 +559,7 @@ const GslbStatistics: React.FC = () => {
         <Col span={24}>
           <div style={cardStyle}>
             <div style={{ ...cardBodyStyle, padding: '12px 16px' }}>
-              <Space split={<span style={{ color: '#d9d9d9', margin: '0 16px' }}>|</span>} wrap>
+              <Space split={<span style={{ color: 'var(--border-default)', margin: '0 16px' }}>|</span>} wrap>
                 <Text type="secondary">
                   Owned Shards: <Text strong>{metrics.ownedShards}</Text>
                 </Text>
@@ -567,7 +567,7 @@ const GslbStatistics: React.FC = () => {
                   Write Buffer Updates: <Text strong>{formatNumber(metrics.writeBufferUpdatesTotal)}</Text>
                 </Text>
                 <Text type="secondary">
-                  Warning IPs: <Text strong style={{ color: '#faad14' }}>{metrics.warningIps}</Text>
+                  Warning IPs: <Text strong style={{ color: 'var(--color-warning)' }}>{metrics.warningIps}</Text>
                 </Text>
               </Space>
             </div>

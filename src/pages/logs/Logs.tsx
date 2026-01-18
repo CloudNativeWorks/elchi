@@ -405,7 +405,7 @@ const Logs: React.FC = () => {
                         icon={<RobotOutlined />}
                         onClick={() => setShowAnalysis(true)}
                         disabled={showAnalysis}
-                        style={showAnalysis ? { backgroundColor: '#722ed1', borderColor: '#722ed1', color: 'white' } : {}}
+                        style={showAnalysis ? { backgroundColor: 'var(--color-purple)', borderColor: 'var(--color-purple)', color: 'white' } : {}}
                         size="middle"
                     >
                         Show Analysis
@@ -413,7 +413,7 @@ const Logs: React.FC = () => {
                 </div>
             )}
 
-            <Card style={{ borderRadius: 12, boxShadow: '0 2px 8px rgba(5,117,230,0.06)', margin: '0 auto' }}>
+            <Card style={{ borderRadius: 12, boxShadow: 'var(--shadow-sm)', margin: '0 auto' }}>
 
                 {/* Sticky Toolbar */}
                 <div
@@ -421,9 +421,9 @@ const Logs: React.FC = () => {
                         position: 'sticky',
                         top: 0,
                         zIndex: 10,
-                        background: '#fff',
+                        background: 'var(--card-bg)',
                         padding: '16px 0 8px 0',
-                        borderBottom: '1px solid #f0f0f0',
+                        borderBottom: '1px solid var(--border-default)',
                         marginBottom: 16
                     }}
                 >
@@ -464,20 +464,20 @@ const Logs: React.FC = () => {
                 <div
                     ref={logListRef}
                     style={{
-                        background: '#fff',
+                        background: 'var(--card-bg)',
                         borderRadius: 8,
                         minHeight: 700,
                         maxHeight: 750,
                         overflowY: 'auto',
                         textAlign: 'left',
                         position: 'relative',
-                        border: '1px solid #e8e8e8'
+                        border: '1px solid var(--border-default)'
                     }}
                 >
                     {showAnalysis && aiAnalysisResult ? (
                         /* AI Analysis Results Display */
                         <div style={{ padding: 24 }}>
-                            <div style={{ marginBottom: 16, padding: 12, background: '#f6f8fa', borderRadius: 6 }}>
+                            <div style={{ marginBottom: 16, padding: 12, background: 'var(--bg-elevated)', borderRadius: 6, border: '1px solid var(--border-default)' }}>
                                 <Typography.Text strong>Service: </Typography.Text>
                                 <Typography.Text>{aiAnalysisResult.service_name}</Typography.Text>
                                 <br />
@@ -513,7 +513,7 @@ const Logs: React.FC = () => {
                                             <div>
                                                 <Typography.Text type="secondary">Input Tokens:</Typography.Text>
                                                 <br />
-                                                <Typography.Text strong style={{ color: '#1890ff' }}>
+                                                <Typography.Text strong style={{ color: 'var(--color-primary)' }}>
                                                     {aiAnalysisResult.token_usage.input_tokens.toLocaleString()}
                                                 </Typography.Text>
                                             </div>
@@ -522,7 +522,7 @@ const Logs: React.FC = () => {
                                             <div>
                                                 <Typography.Text type="secondary">Output Tokens:</Typography.Text>
                                                 <br />
-                                                <Typography.Text strong style={{ color: '#52c41a' }}>
+                                                <Typography.Text strong style={{ color: 'var(--color-success)' }}>
                                                     {aiAnalysisResult.token_usage.output_tokens.toLocaleString()}
                                                 </Typography.Text>
                                             </div>
@@ -531,7 +531,7 @@ const Logs: React.FC = () => {
                                             <div>
                                                 <Typography.Text type="secondary">Total Tokens:</Typography.Text>
                                                 <br />
-                                                <Typography.Text strong style={{ color: '#722ed1' }}>
+                                                <Typography.Text strong style={{ color: 'var(--color-purple)' }}>
                                                     {aiAnalysisResult.token_usage.total_tokens.toLocaleString()}
                                                 </Typography.Text>
                                             </div>
@@ -549,11 +549,11 @@ const Logs: React.FC = () => {
                                     <div style={{
                                         marginTop: 12,
                                         padding: '6px 12px',
-                                        background: '#f6ffed',
-                                        border: '1px solid #b7eb8f',
+                                        background: 'var(--color-success-light)',
+                                        border: '1px solid var(--color-success-border)',
                                         borderRadius: 4,
                                         fontSize: 12,
-                                        color: '#52c41a'
+                                        color: 'var(--color-success)'
                                     }}>
                                         ✓ Log analysis completed • {aiAnalysisResult.log_count} logs processed
                                     </div>
@@ -570,7 +570,7 @@ const Logs: React.FC = () => {
                             minHeight: 700,
                             padding: '40px 10px',
                             textAlign: 'center',
-                            background: 'linear-gradient(135deg, rgb(240, 242, 245) 0%, rgb(230, 247, 255) 100%)'
+                            background: 'var(--empty-state-gradient)'
                         }}>
                             <div style={{
                                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
@@ -589,19 +589,16 @@ const Logs: React.FC = () => {
                             <h1 style={{
                                 fontSize: 32,
                                 fontWeight: 700,
-                                color: '#2c3e50',
+                                color: 'var(--text-primary)',
                                 margin: 0,
-                                marginBottom: 16,
-                                background: 'linear-gradient(135deg,rgb(5, 26, 119) 0%,rgb(0, 0, 0) 100%)',
-                                WebkitBackgroundClip: 'text',
-                                WebkitTextFillColor: 'transparent'
+                                marginBottom: 16
                             }}>
                                 Service Logs
                             </h1>
 
                             <p style={{
                                 fontSize: 18,
-                                color: '#6c757d',
+                                color: 'var(--text-secondary)',
                                 margin: 0,
                                 marginBottom: 8,
                                 maxWidth: 500,
@@ -612,7 +609,7 @@ const Logs: React.FC = () => {
 
                             <p style={{
                                 fontSize: 14,
-                                color: '#adb5bd',
+                                color: 'var(--text-tertiary)',
                                 margin: 0,
                                 marginBottom: 40
                             }}>
@@ -625,52 +622,52 @@ const Logs: React.FC = () => {
                                 marginTop: 20
                             }}>
                                 <div style={{
-                                    background: '#fff',
+                                    background: 'var(--card-bg)',
                                     padding: '20px 24px',
                                     borderRadius: 12,
-                                    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                                    border: '1px solid #e9ecef',
+                                    boxShadow: 'var(--shadow-md)',
+                                    border: '1px solid var(--border-default)',
                                     minWidth: 140
                                 }}>
                                     <div style={{ fontSize: 24, marginBottom: 8 }}>🔍</div>
-                                    <div style={{ fontSize: 14, fontWeight: 600, color: '#495057' }}>Advanced Search</div>
-                                    <div style={{ fontSize: 12, color: '#868e96' }}>Filter & find logs</div>
+                                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>Advanced Search</div>
+                                    <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>Filter & find logs</div>
                                 </div>
 
                                 <div style={{
-                                    background: '#fff',
+                                    background: 'var(--card-bg)',
                                     padding: '20px 24px',
                                     borderRadius: 12,
-                                    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                                    border: '1px solid #e9ecef',
+                                    boxShadow: 'var(--shadow-md)',
+                                    border: '1px solid var(--border-default)',
                                     minWidth: 140
                                 }}>
                                     <div style={{ fontSize: 24, marginBottom: 8 }}>⚡</div>
-                                    <div style={{ fontSize: 14, fontWeight: 600, color: '#495057' }}>Real-time</div>
-                                    <div style={{ fontSize: 12, color: '#868e96' }}>Live log updates</div>
+                                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>Real-time</div>
+                                    <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>Live log updates</div>
                                 </div>
 
                                 <div style={{
-                                    background: '#fff',
+                                    background: 'var(--card-bg)',
                                     padding: '20px 24px',
                                     borderRadius: 12,
-                                    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-                                    border: '1px solid #e9ecef',
+                                    boxShadow: 'var(--shadow-md)',
+                                    border: '1px solid var(--border-default)',
                                     minWidth: 140
                                 }}>
                                     <div style={{ fontSize: 24, marginBottom: 8 }}>📋</div>
-                                    <div style={{ fontSize: 14, fontWeight: 600, color: '#495057' }}>Level Filtering</div>
-                                    <div style={{ fontSize: 12, color: '#868e96' }}>Error, info, debug</div>
+                                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>Level Filtering</div>
+                                    <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>Error, info, debug</div>
                                 </div>
                             </div>
                         </div>
                     ) : error ? (
                         <Alert type="error" message={error} style={{ margin: 24 }} />
                     ) : filteredLogs.length === 0 && !loading ? (
-                        <div style={{ textAlign: 'center', color: '#888', padding: 48 }}>
+                        <div style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: 48 }}>
                             <div style={{ fontSize: 40, marginBottom: 12 }}>🗒️</div>
-                            <div style={{ fontSize: 18, fontWeight: 500 }}>No logs found in current logs!</div>
-                            <div style={{ fontSize: 14, marginTop: 4 }}>Check your search and filter criteria and refetch logs.</div>
+                            <div style={{ fontSize: 18, fontWeight: 500, color: 'var(--text-primary)' }}>No logs found in current logs!</div>
+                            <div style={{ fontSize: 14, marginTop: 4, color: 'var(--text-tertiary)' }}>Check your search and filter criteria and refetch logs.</div>
                         </div>
                     ) : (
                         /* Kibana-style Log Display */
@@ -680,14 +677,14 @@ const Logs: React.FC = () => {
                                 position: 'sticky',
                                 top: 0,
                                 zIndex: 10,
-                                background: '#f8f9fa',
-                                borderBottom: '2px solid #dee2e6',
+                                background: 'var(--log-header-bg)',
+                                borderBottom: '2px solid var(--log-header-border)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 padding: '12px 16px',
                                 fontSize: 12,
                                 fontWeight: 600,
-                                color: '#495057',
+                                color: 'var(--log-header-text)',
                                 textTransform: 'uppercase',
                                 letterSpacing: '0.5px'
                             }}>
@@ -696,7 +693,7 @@ const Logs: React.FC = () => {
                                     minWidth: 40,
                                     textAlign: 'right',
                                     marginRight: 12,
-                                    color: '#6c757d'
+                                    color: 'var(--text-tertiary)'
                                 }}>
                                     #
                                 </div>
@@ -705,7 +702,7 @@ const Logs: React.FC = () => {
                                 <div style={{
                                     minWidth: 140,
                                     marginRight: 12,
-                                    color: '#495057'
+                                    color: 'var(--log-header-text)'
                                 }}>
                                     Timestamp
                                 </div>
@@ -714,7 +711,7 @@ const Logs: React.FC = () => {
                                 <div style={{
                                     minWidth: 60,
                                     marginRight: 12,
-                                    color: '#495057'
+                                    color: 'var(--log-header-text)'
                                 }}>
                                     Level
                                 </div>
@@ -723,7 +720,7 @@ const Logs: React.FC = () => {
                                 <div style={{
                                     minWidth: 80,
                                     marginRight: 12,
-                                    color: '#495057'
+                                    color: 'var(--log-header-text)'
                                 }}>
                                     Component
                                 </div>
@@ -732,7 +729,7 @@ const Logs: React.FC = () => {
                                 <div style={{
                                     minWidth: 100,
                                     marginRight: 12,
-                                    color: '#495057'
+                                    color: 'var(--log-header-text)'
                                 }}>
                                     Client
                                 </div>
@@ -741,7 +738,7 @@ const Logs: React.FC = () => {
                                 <div style={{
                                     flex: 1,
                                     paddingLeft: 8,
-                                    color: '#495057'
+                                    color: 'var(--log-header-text)'
                                 }}>
                                     Message
                                 </div>
@@ -751,21 +748,24 @@ const Logs: React.FC = () => {
                             {filteredLogs.map((log, idx) => (
                                 <div
                                     key={idx}
+                                    className="log-row"
+                                    data-even={idx % 2 === 0}
                                     style={{
                                         display: 'flex',
                                         alignItems: 'flex-start',
                                         padding: '8px 16px',
-                                        borderBottom: '1px solid #f0f0f0',
-                                        background: idx % 2 === 0 ? '#fafafa' : '#fff',
+                                        borderBottom: '1px solid var(--log-row-border)',
+                                        background: idx % 2 === 0 ? 'var(--log-row-even)' : 'var(--log-row-odd)',
                                         transition: 'background-color 0.15s ease',
                                         cursor: 'pointer',
                                         fontSize: 13
                                     }}
                                     onMouseEnter={(e) => {
-                                        e.currentTarget.style.backgroundColor = '#e6f7ff';
+                                        e.currentTarget.style.backgroundColor = 'var(--log-row-hover)';
                                     }}
                                     onMouseLeave={(e) => {
-                                        e.currentTarget.style.backgroundColor = idx % 2 === 0 ? '#fafafa' : '#fff';
+                                        const isEven = e.currentTarget.getAttribute('data-even') === 'true';
+                                        e.currentTarget.style.backgroundColor = isEven ? 'var(--log-row-even)' : 'var(--log-row-odd)';
                                     }}
                                 >
                                     {/* Line Number */}
@@ -773,7 +773,7 @@ const Logs: React.FC = () => {
                                         minWidth: 40,
                                         textAlign: 'right',
                                         marginRight: 12,
-                                        color: '#bfbfbf',
+                                        color: 'var(--log-line-number)',
                                         fontSize: 12,
                                         lineHeight: '20px'
                                     }}>
@@ -783,7 +783,7 @@ const Logs: React.FC = () => {
                                     {/* Timestamp */}
                                     <div style={{
                                         minWidth: 140,
-                                        color: '#666',
+                                        color: 'var(--log-timestamp)',
                                         fontSize: 12,
                                         marginRight: 12,
                                         lineHeight: '20px'
@@ -814,7 +814,7 @@ const Logs: React.FC = () => {
                                     {log.component && (
                                         <div style={{
                                             minWidth: 80,
-                                            color: '#666',
+                                            color: 'var(--log-component)',
                                             fontSize: 11,
                                             marginRight: 12,
                                             lineHeight: '20px'
@@ -827,7 +827,7 @@ const Logs: React.FC = () => {
                                     {log.client_name && (
                                         <div style={{
                                             minWidth: 100,
-                                            color: '#1890ff',
+                                            color: 'var(--log-client)',
                                             fontSize: 11,
                                             marginRight: 12,
                                             fontWeight: 500,
@@ -843,7 +843,7 @@ const Logs: React.FC = () => {
                                         fontFamily: "'Fira Code', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace",
                                         fontSize: 12,
                                         lineHeight: '20px',
-                                        color: '#2c3e50',
+                                        color: 'var(--log-message)',
                                         paddingLeft: 8
                                     }}>
                                         {(() => {
@@ -862,12 +862,12 @@ const Logs: React.FC = () => {
                                                         {Object.entries(formatted.jsonData).map(([key, value], idx) => (
                                                             <span key={idx}>
                                                                 <span style={{
-                                                                    color: '#1890ff',
+                                                                    color: 'var(--log-json-key)',
                                                                     fontWeight: 600
                                                                 }}>{key}</span>
-                                                                <span style={{ color: '#666' }}>: </span>
+                                                                <span style={{ color: 'var(--log-json-separator)' }}>: </span>
                                                                 <span style={{
-                                                                    color: '#2c3e50',
+                                                                    color: 'var(--log-message)',
                                                                     wordBreak: 'break-all',
                                                                     display: 'inline-block',
                                                                     maxWidth: '100%'
@@ -875,7 +875,7 @@ const Logs: React.FC = () => {
                                                                     {String(value)}
                                                                 </span>
                                                                 {idx < Object.entries(formatted.jsonData).length - 1 &&
-                                                                    <span style={{ color: '#ccc' }}> | </span>
+                                                                    <span style={{ color: 'var(--log-json-divider)' }}> | </span>
                                                                 }
                                                             </span>
                                                         ))}
@@ -888,7 +888,7 @@ const Logs: React.FC = () => {
                                                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                                                             {formatted.httpMethod && (
                                                                 <span style={{
-                                                                    background: '#1890ff',
+                                                                    background: 'var(--color-primary)',
                                                                     color: 'white',
                                                                     padding: '2px 6px',
                                                                     borderRadius: 3,
@@ -900,18 +900,19 @@ const Logs: React.FC = () => {
                                                             )}
                                                             {formatted.path && (
                                                                 <span style={{
-                                                                    background: '#f0f0f0',
+                                                                    background: 'var(--log-path-bg)',
                                                                     padding: '2px 6px',
                                                                     borderRadius: 3,
                                                                     fontSize: 11,
-                                                                    fontFamily: 'monospace'
+                                                                    fontFamily: 'monospace',
+                                                                    color: 'var(--log-message)'
                                                                 }}>
                                                                     {formatted.path}
                                                                 </span>
                                                             )}
                                                             {formatted.statusCode && (
                                                                 <span style={{
-                                                                    background: formatted.isError ? '#ff4d4f' : '#52c41a',
+                                                                    background: formatted.isError ? 'var(--color-danger)' : 'var(--color-success)',
                                                                     color: 'white',
                                                                     padding: '2px 6px',
                                                                     borderRadius: 3,
@@ -923,10 +924,10 @@ const Logs: React.FC = () => {
                                                             )}
                                                         </div>
                                                         {/* Full log message - always visible */}
-                                                        <div style={{ 
-                                                            marginTop: 4, 
+                                                        <div style={{
+                                                            marginTop: 4,
                                                             fontSize: 12,
-                                                            color: '#666',
+                                                            color: 'var(--log-timestamp)',
                                                             fontFamily: "'Fira Code', 'SF Mono', Monaco, monospace"
                                                         }}>
                                                             {formatted.message}
@@ -984,11 +985,12 @@ const Logs: React.FC = () => {
                             top: '50%',
                             left: '50%',
                             transform: 'translate(-50%, -50%)',
-                            background: 'rgba(255, 255, 255, 0.9)',
+                            background: 'var(--bg-loading)',
                             padding: '20px',
                             borderRadius: '8px',
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                            backdropFilter: 'blur(2px)'
+                            boxShadow: 'var(--shadow-lg)',
+                            backdropFilter: 'blur(4px)',
+                            border: '1px solid var(--border-default)'
                         }}>
                             <Spin size="large" />
                         </div>
@@ -1007,7 +1009,7 @@ const Logs: React.FC = () => {
                 <Modal
                     title={
                         <Space>
-                            <RobotOutlined style={{ color: '#722ed1' }} />
+                            <RobotOutlined style={{ color: 'var(--color-purple)' }} />
                             AI Log Analysis Setup
                         </Space>
                     }

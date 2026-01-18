@@ -118,9 +118,10 @@ const AddBGPRouteMapCard: React.FC<AddBGPRouteMapCardProps> = ({
     return (
         <div style={{
             width: '100%',
-            background: '#fff',
+            background: 'var(--card-bg)',
             borderRadius: 14,
-            padding: '20px'
+            padding: '20px',
+            border: '1px solid var(--border-default)'
         }}>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 18 }}>
                 <Title level={5} style={{ margin: 0 }}>

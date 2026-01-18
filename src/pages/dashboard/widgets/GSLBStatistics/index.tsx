@@ -22,6 +22,7 @@ import { useDashboardRefresh } from '../../context/DashboardRefreshContext';
 import { api } from '@/common/api';
 import { useNavigate } from 'react-router-dom';
 import styles from './styles.module.scss';
+import { useChartTheme } from '@/utils/chartTheme';
 
 echarts.use([
   LineChart,
@@ -100,6 +101,7 @@ const buildCounterQueryWithLabels = (metric: string, labels: string, controller:
 export const GSLBStatistics: React.FC = () => {
   const navigate = useNavigate();
   const { refreshTrigger } = useDashboardRefresh();
+  const { theme: chartTheme, isDark } = useChartTheme();
   const [timeRange, setTimeRange] = useState<number>(3600);
   const [controller, setController] = useState<string>('all');
   const [controllers, setControllers] = useState<string[]>([]);
@@ -260,6 +262,9 @@ export const GSLBStatistics: React.FC = () => {
     animation: false,
     tooltip: {
       trigger: 'axis',
+      backgroundColor: chartTheme.tooltipBg,
+      borderColor: chartTheme.tooltipBorder,
+      textStyle: { color: chartTheme.tooltipTextColor },
       formatter: (params: any) => {
         const time = new Date(params[0].value[0]).toLocaleTimeString();
         let tooltip = `<strong>${time}</strong><br/>`;
@@ -276,6 +281,7 @@ export const GSLBStatistics: React.FC = () => {
     legend: {
       show: true,
       bottom: 0,
+      textStyle: { color: chartTheme.legendTextColor },
     },
     grid: {
       left: '3%',
@@ -287,9 +293,12 @@ export const GSLBStatistics: React.FC = () => {
     xAxis: {
       type: 'time',
       boundaryGap: false,
+      axisLine: { lineStyle: { color: chartTheme.axisLineColor } },
       axisLabel: {
+        color: chartTheme.axisLabelColor,
         formatter: (value: number) => new Date(value).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
       },
+      splitLine: { lineStyle: { color: chartTheme.axisSplitLineColor } },
     },
     yAxis: [
       {
@@ -298,13 +307,17 @@ export const GSLBStatistics: React.FC = () => {
         min: 0,
         max: 100,
         position: 'left',
-        axisLabel: { formatter: '{value}%' },
+        axisLine: { lineStyle: { color: chartTheme.axisLineColor } },
+        axisLabel: { color: chartTheme.axisLabelColor, formatter: '{value}%' },
+        splitLine: { lineStyle: { color: chartTheme.axisSplitLineColor } },
       },
       {
         type: 'value',
         name: 'ms',
         position: 'right',
-        axisLabel: { formatter: (value: number) => `${(value * 1000).toFixed(0)}ms` },
+        axisLine: { lineStyle: { color: chartTheme.axisLineColor } },
+        axisLabel: { color: chartTheme.axisLabelColor, formatter: (value: number) => `${(value * 1000).toFixed(0)}ms` },
+        splitLine: { show: false },
       },
     ],
     series: [
@@ -315,11 +328,11 @@ export const GSLBStatistics: React.FC = () => {
         data: stats.successRateTrend,
         smooth: true,
         showSymbol: false,
-        lineStyle: { color: '#52c41a', width: 2 },
+        lineStyle: { color: chartTheme.successColor, width: 2 },
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(82, 196, 26, 0.3)' },
-            { offset: 1, color: 'rgba(82, 196, 26, 0.05)' },
+            { offset: 0, color: isDark ? 'rgba(52, 211, 153, 0.3)' : 'rgba(82, 196, 26, 0.3)' },
+            { offset: 1, color: isDark ? 'rgba(52, 211, 153, 0.05)' : 'rgba(82, 196, 26, 0.05)' },
           ]),
         },
       },
@@ -330,11 +343,11 @@ export const GSLBStatistics: React.FC = () => {
         data: stats.latencyTrend,
         smooth: true,
         showSymbol: false,
-        lineStyle: { color: '#1890ff', width: 2 },
+        lineStyle: { color: chartTheme.seriesColors[0], width: 2 },
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(24, 144, 255, 0.3)' },
-            { offset: 1, color: 'rgba(24, 144, 255, 0.05)' },
+            { offset: 0, color: isDark ? 'rgba(59, 158, 255, 0.3)' : 'rgba(24, 144, 255, 0.3)' },
+            { offset: 1, color: isDark ? 'rgba(59, 158, 255, 0.05)' : 'rgba(24, 144, 255, 0.05)' },
           ]),
         },
       },
@@ -419,13 +432,13 @@ export const GSLBStatistics: React.FC = () => {
           <div className={styles.statLabel}>Warning</div>
         </div>
         <div className={styles.statCard}>
-          <div className={styles.statValue} style={{ color: stats.successRate >= 70 ? '#52c41a' : stats.successRate >= 30 ? '#faad14' : '#ff4d4f' }}>
+          <div className={styles.statValue} style={{ color: stats.successRate >= 70 ? chartTheme.successColor : stats.successRate >= 30 ? chartTheme.warningColor : chartTheme.dangerColor }}>
             {stats.successRate.toFixed(1)}%
           </div>
           <div className={styles.statLabel}>Success Rate</div>
         </div>
         <div className={styles.statCard}>
-          <div className={styles.statValue} style={{ color: '#1890ff' }}>
+          <div className={styles.statValue} style={{ color: chartTheme.seriesColors[0] }}>
             {(stats.latencyAvg * 1000).toFixed(0)}ms
           </div>
           <div className={styles.statLabel}>Avg Latency</div>

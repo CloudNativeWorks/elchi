@@ -1,5 +1,5 @@
 import React, { ReactNode, useState } from 'react';
-import { Card } from 'antd';
+import { Card, Button } from 'antd';
 import { FullscreenOutlined } from '@ant-design/icons';
 import { CollapseSVG, ExpandSVG, SnippetSVG } from '@/assets/svg/icons';
 import { SnippetDrawer } from '@/elchi/snippets/components/SnippetDrawer';
@@ -55,35 +55,17 @@ const ECard: React.FC<CustomCardProps> = ({
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                         {/* Snippet Button */}
                         {version && ctype && toJSON && onApply && (
-                            <div style={{ display: 'inline-block', marginTop: 5 }}>
-                                <SnippetSVG onClick={() => setSnippetDrawerOpen(true)} />
-                            </div>
+                            <SnippetSVG onClick={() => setSnippetDrawerOpen(true)} />
                         )}
 
                         {/* Fullscreen Button */}
-                        <div
-                            style={{
-                                display: 'inline-block',
-                                marginTop: 5,
-                                cursor: 'pointer',
-                                transition: 'all 0.3s ease'
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.transform = 'scale(1.2)';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.transform = 'scale(1)';
-                            }}
+                        <Button
+                            className="ADDSVGContainer"
+                            onClick={toggleFullscreen}
+                            title="Toggle Fullscreen"
                         >
-                            <FullscreenOutlined
-                                onClick={toggleFullscreen}
-                                style={{
-                                    fontSize: 14,
-                                    color: '#fff',
-                                    filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
-                                }}
-                            />
-                        </div>
+                            <FullscreenOutlined style={{ fontSize: 13 }} />
+                        </Button>
 
                         {/* Collapse/Expand */}
                         {expanded
@@ -97,7 +79,7 @@ const ECard: React.FC<CustomCardProps> = ({
                 {expanded && (children)
                 }
             </Card>
-            
+
             {/* Snippet Drawer */}
             {version && ctype && toJSON && onApply && (
                 <SnippetDrawer

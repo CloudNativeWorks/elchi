@@ -125,7 +125,7 @@ const LoggerSettingsDrawer: React.FC<LoggerSettingsDrawerProps> = ({
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     {/* Global Level Control */}
                     <div>
-                        <h4 style={{ marginBottom: 16 }}>Global Log Level</h4>
+                        <h4 style={{ marginBottom: 16, color: 'var(--text-primary)' }}>Global Log Level</h4>
                         <Space>
                             <Select
                                 style={{ width: 150 }}
@@ -150,7 +150,7 @@ const LoggerSettingsDrawer: React.FC<LoggerSettingsDrawerProps> = ({
 
                     {/* Component Level Control */}
                     <div>
-                        <h4 style={{ marginBottom: 16, textAlign: 'right' }}>Component-Specific Log Level</h4>
+                        <h4 style={{ marginBottom: 16, textAlign: 'right', color: 'var(--text-primary)' }}>Component-Specific Log Level</h4>
                         <Space>
                             <Select
                                 style={{ width: 200 }}
@@ -190,34 +190,35 @@ const LoggerSettingsDrawer: React.FC<LoggerSettingsDrawerProps> = ({
                 <Divider style={{ margin: '0px 0' }} />
 
                 <div>
-                    <h4 style={{ marginBottom: 16 }}>Current Log Levels</h4>
-                    <div style={{ 
-                        border: '1px solid #f0f0f0',
+                    <h4 style={{ marginBottom: 16, color: 'var(--text-primary)' }}>Current Log Levels</h4>
+                    <div style={{
+                        border: '1px solid var(--border-default)',
                         borderRadius: '4px',
-                        padding: '16px 8px'
+                        padding: '16px 8px',
+                        background: 'var(--bg-surface)'
                     }}>
                         <Row gutter={16}>
                             {componentGroups.map((group, groupIndex) => (
                                 <Col span={8} key={groupIndex}>
-                                    <ul style={{ 
-                                        listStyle: 'none', 
-                                        padding: 0, 
+                                    <ul style={{
+                                        listStyle: 'none',
+                                        padding: 0,
                                         margin: 0
                                     }}>
                                         {group.map(([component, level]) => (
-                                            <li 
-                                                key={component} 
-                                                style={{ 
+                                            <li
+                                                key={component}
+                                                style={{
                                                     padding: '8px',
-                                                    borderBottom: '1px solid #f0f0f0',
+                                                    borderBottom: '1px solid var(--border-default)',
                                                     display: 'flex',
                                                     justifyContent: 'space-between',
                                                     alignItems: 'center',
-                                                    backgroundColor: 'white'
+                                                    backgroundColor: 'var(--bg-elevated)'
                                                 }}
                                             >
-                                                <span style={{ 
-                                                    color: '#666',
+                                                <span style={{
+                                                    color: 'var(--text-secondary)',
                                                     fontSize: '13px',
                                                     fontFamily: 'monospace',
                                                     marginRight: 8,

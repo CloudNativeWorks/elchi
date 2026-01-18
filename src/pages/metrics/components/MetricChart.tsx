@@ -11,6 +11,7 @@ import cloneDeep from 'lodash/cloneDeep';
 import { formatDuration } from '../utils';
 import { formatBytes } from '../utils';
 import { marked } from 'marked';
+import { useTheme } from '@/contexts/ThemeContext';
 
 
 interface ExtendedChartProps extends ChartProps {
@@ -19,6 +20,7 @@ interface ExtendedChartProps extends ChartProps {
 }
 
 const MetricChart: React.FC<ExtendedChartProps> = ({ data, title, metricConfig, height, onVisibilityChange, isUpdated }) => {
+    const { isDark } = useTheme();
     const chartRef = useRef<HTMLDivElement>(null);
     const echartsRef = useRef<ReactEChartsCore>(null);
     const isVisible = useIntersectionObserver(chartRef);
@@ -174,6 +176,18 @@ const MetricChart: React.FC<ExtendedChartProps> = ({ data, title, metricConfig, 
 
     const options = useMemo(() => {
         const series = prepareChartSeries(data.metricsData);
+
+        // Theme-aware colors
+        const colors = {
+            primary: isDark ? '#3b9eff' : '#1890ff',
+            textPrimary: isDark ? '#f1f5f9' : '#333',
+            textSecondary: isDark ? '#94a3b8' : '#666',
+            border: isDark ? '#334155' : '#f0f0f0',
+            tooltipBg: isDark ? 'rgba(30, 41, 59, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+            splitLine: isDark ? '#334155' : '#e0e0e0',
+            axisLine: isDark ? '#475569' : '#ccc',
+        };
+
         const baseOptions = {
             animation: false,
             animationDuration: 0,
@@ -183,30 +197,33 @@ const MetricChart: React.FC<ExtendedChartProps> = ({ data, title, metricConfig, 
             title: {
                 text: title,
                 left: 'center',
+                textStyle: {
+                    color: colors.textPrimary
+                }
             },
             tooltip: {
                 trigger: 'axis',
-                backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                borderColor: '#1890ff',
+                backgroundColor: colors.tooltipBg,
+                borderColor: colors.primary,
                 borderWidth: 1,
                 textStyle: {
-                    color: '#333'
+                    color: colors.textPrimary
                 },
-                extraCssText: 'box-shadow: 0 4px 12px rgba(0,0,0,0.1); border-radius: 6px;',
+                extraCssText: `box-shadow: 0 4px 12px rgba(0,0,0,${isDark ? '0.3' : '0.1'}); border-radius: 6px;`,
                 axisPointer: {
                     type: 'cross',
                     crossStyle: {
-                        color: '#1890ff'
+                        color: colors.primary
                     },
                     lineStyle: {
-                        color: '#1890ff',
+                        color: colors.primary,
                         width: 1,
                         type: 'dashed'
                     }
                 },
                 formatter: (params: any) => {
                     const time = dayjs(params[0].value[0]).format('YYYY-MM-DD HH:mm:ss');
-                    let result = `<div style="font-weight: 600; color: #1890ff; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid #f0f0f0;">${time}</div>`;
+                    let result = `<div style="font-weight: 600; color: ${colors.primary}; margin-bottom: 8px; padding-bottom: 6px; border-bottom: 1px solid ${colors.border};">${time}</div>`;
 
                     const sortedParams = [...params].sort((a, b) => {
                         const valueA = Number(a.value[1]) || 0;
@@ -229,14 +246,17 @@ const MetricChart: React.FC<ExtendedChartProps> = ({ data, title, metricConfig, 
                         }
 
                         const isHighlighted = param.seriesName === hoveredSeries;
+                        const highlightBg = isDark
+                            ? 'background: linear-gradient(90deg, rgba(59, 158, 255, 0.15) 0%, rgba(59, 158, 255, 0.08) 100%);'
+                            : 'background: linear-gradient(90deg, rgba(24, 144, 255, 0.1) 0%, rgba(24, 144, 255, 0.05) 100%);';
                         const style = isHighlighted
-                            ? 'background: linear-gradient(90deg, rgba(24, 144, 255, 0.1) 0%, rgba(24, 144, 255, 0.05) 100%); border-left: 3px solid #1890ff; padding: 4px 8px; margin: 2px 0; border-radius: 4px; font-weight: 600;'
+                            ? `${highlightBg} border-left: 3px solid ${colors.primary}; padding: 4px 8px; margin: 2px 0; border-radius: 4px; font-weight: 600;`
                             : 'padding: 4px 8px; margin: 2px 0; border-radius: 4px; transition: all 0.2s ease;';
 
                         result += `<div style="${style}">
                             <span style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: ${param.color}; margin-right: 8px;"></span>
-                            <span style="color: #333; font-weight: ${isHighlighted ? '600' : '400'};">${param.seriesName}:</span> 
-                            <span style="color: ${isHighlighted ? '#1890ff' : '#666'}; font-weight: 600; margin-left: 8px;">${value}</span>
+                            <span style="color: ${colors.textPrimary}; font-weight: ${isHighlighted ? '600' : '400'};">${param.seriesName}:</span>
+                            <span style="color: ${isHighlighted ? colors.primary : colors.textSecondary}; font-weight: 600; margin-left: 8px;">${value}</span>
                         </div>`;
                     });
                     return result;
@@ -254,16 +274,31 @@ const MetricChart: React.FC<ExtendedChartProps> = ({ data, title, metricConfig, 
                 max: data.timeRange.to.valueOf(),
                 splitLine: {
                     show: false
+                },
+                axisLine: {
+                    lineStyle: {
+                        color: colors.axisLine
+                    }
+                },
+                axisLabel: {
+                    color: colors.textSecondary
                 }
             },
             yAxis: {
                 type: 'value',
                 splitLine: {
                     lineStyle: {
-                        type: 'dashed'
+                        type: 'dashed',
+                        color: colors.splitLine
+                    }
+                },
+                axisLine: {
+                    lineStyle: {
+                        color: colors.axisLine
                     }
                 },
                 axisLabel: {
+                    color: colors.textSecondary,
                     formatter: (value: number) => {
                         if (metricConfig.formatType === 'bytes') {
                             return formatBytes(value);
@@ -282,17 +317,29 @@ const MetricChart: React.FC<ExtendedChartProps> = ({ data, title, metricConfig, 
             toolbox: {
                 show: true,
                 itemSize: 10,
+                iconStyle: {
+                    borderColor: colors.textSecondary
+                },
+                emphasis: {
+                    iconStyle: {
+                        borderColor: colors.primary
+                    }
+                },
                 feature: {
                     dataZoom: {
                         yAxisIndex: "none"
                     },
                     dataView: {
                         readOnly: false,
+                        backgroundColor: isDark ? '#1e293b' : '#fff',
+                        textColor: colors.textPrimary,
+                        textareaColor: isDark ? '#334155' : '#fff',
+                        textareaBorderColor: colors.border
                     },
                     saveAsImage: {
                         name: 'metric-chart',
                         type: 'png',
-                        backgroundColor: '#fff',
+                        backgroundColor: isDark ? '#1e293b' : '#fff',
                         imageWidth: 1200,
                         imageHeight: 600
                     },
@@ -303,6 +350,7 @@ const MetricChart: React.FC<ExtendedChartProps> = ({ data, title, metricConfig, 
                         onclick: async () => {
                             const description = metricConfig.description || 'No description available';
                             const htmlDescription = await marked(description);
+                            const currentIsDark = document.body.getAttribute('data-theme') === 'dark';
 
                             const infoDiv = document.createElement('div');
                             infoDiv.style.cssText = `
@@ -310,15 +358,16 @@ const MetricChart: React.FC<ExtendedChartProps> = ({ data, title, metricConfig, 
                                 top: 50%;
                                 left: 50%;
                                 transform: translate(-50%, -50%);
-                                background: white;
+                                background: ${currentIsDark ? '#1e293b' : 'white'};
                                 padding: 20px;
                                 border-radius: 8px;
-                                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                                box-shadow: 0 4px 12px rgba(0,0,0,${currentIsDark ? '0.4' : '0.15'});
                                 z-index: 1000;
                                 max-width: 900px;
                                 width: 90%;
                                 overflow-y: auto;
                                 max-height: 80vh;
+                                border: 1px solid ${currentIsDark ? '#334155' : 'transparent'};
                             `;
 
                             const closeButton = document.createElement('button');
@@ -331,7 +380,7 @@ const MetricChart: React.FC<ExtendedChartProps> = ({ data, title, metricConfig, 
                                 background: none;
                                 font-size: 20px;
                                 cursor: pointer;
-                                color: #666;
+                                color: ${currentIsDark ? '#94a3b8' : '#666'};
                             `;
                             closeButton.onclick = () => {
                                 document.body.removeChild(infoDiv);
@@ -343,7 +392,7 @@ const MetricChart: React.FC<ExtendedChartProps> = ({ data, title, metricConfig, 
                             descriptionElement.style.cssText = `
                                 margin: 0;
                                 line-height: 1.5;
-                                color: #444;
+                                color: ${currentIsDark ? '#e2e8f0' : '#444'};
                                 font-size: 14px;
                             `;
 
@@ -354,7 +403,7 @@ const MetricChart: React.FC<ExtendedChartProps> = ({ data, title, metricConfig, 
                                 left: 0;
                                 right: 0;
                                 bottom: 0;
-                                background: rgba(0,0,0,0.4);
+                                background: rgba(0,0,0,${currentIsDark ? '0.6' : '0.4'});
                                 z-index: 999;
                             `;
                             overlay.onclick = () => {
@@ -382,6 +431,14 @@ const MetricChart: React.FC<ExtendedChartProps> = ({ data, title, metricConfig, 
                 padding: [0, 0, 0, 0],
                 pageButtonPosition: 'end',
                 selected: chartStateRef.current.legendSelected,
+                textStyle: {
+                    color: colors.textSecondary
+                },
+                pageTextStyle: {
+                    color: colors.textSecondary
+                },
+                pageIconColor: colors.primary,
+                pageIconInactiveColor: colors.textSecondary,
                 formatter: (name: string) => {
                     const maxLength = 30;
                     if (name.length > maxLength) {
@@ -402,9 +459,10 @@ const MetricChart: React.FC<ExtendedChartProps> = ({ data, title, metricConfig, 
         }
 
         return baseOptions;
-    }, [data.metricsData, title, metricConfig, prepareChartSeries, hoveredSeries]);
+    }, [data.metricsData, title, metricConfig, prepareChartSeries, hoveredSeries, isDark]);
 
     const modalOptions = useMemo(() => {
+        const textColor = isDark ? '#f1f5f9' : '#333';
         return {
             ...options,
             title: {
@@ -413,7 +471,8 @@ const MetricChart: React.FC<ExtendedChartProps> = ({ data, title, metricConfig, 
                 top: 5,
                 textStyle: {
                     fontSize: 16,
-                    fontWeight: 'bold'
+                    fontWeight: 'bold',
+                    color: textColor
                 }
             },
             toolbox: {
@@ -434,7 +493,8 @@ const MetricChart: React.FC<ExtendedChartProps> = ({ data, title, metricConfig, 
                 height: 30,
                 itemHeight: 12,
                 textStyle: {
-                    fontSize: 12
+                    fontSize: 12,
+                    color: isDark ? '#94a3b8' : '#666'
                 },
                 selected: chartStateRef.current?.legendSelected || {}
             },
@@ -449,7 +509,7 @@ const MetricChart: React.FC<ExtendedChartProps> = ({ data, title, metricConfig, 
                 end: chartStateRef.current.dataZoom?.[0]?.end || 100
             }]
         };
-    }, [options, data.timeRange]);
+    }, [options, data.timeRange, isDark]);
 
     const handleModalAfterOpen = useCallback(() => {
         setIsModalReady(true);
@@ -466,6 +526,9 @@ const MetricChart: React.FC<ExtendedChartProps> = ({ data, title, metricConfig, 
         setIsModalReady(false);
     }, []);
 
+    const buttonBg = isDark ? 'rgba(30, 41, 59, 0.9)' : 'rgba(255, 255, 255, 0.9)';
+    const buttonHoverBg = isDark ? 'rgba(59, 158, 255, 0.2)' : 'rgba(24, 144, 255, 0.1)';
+
     return (
         <>
             <Card style={{ position: 'relative' }}>
@@ -481,15 +544,16 @@ const MetricChart: React.FC<ExtendedChartProps> = ({ data, title, metricConfig, 
                             zIndex: 10,
                             border: 'none',
                             borderRadius: '4px',
-                            background: 'rgba(255, 255, 255, 0.9)',
-                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                            transition: 'all 0.2s ease'
+                            background: buttonBg,
+                            boxShadow: `0 2px 4px rgba(0, 0, 0, ${isDark ? '0.3' : '0.1'})`,
+                            transition: 'all 0.2s ease',
+                            color: isDark ? '#94a3b8' : undefined
                         }}
                         onMouseEnter={(e) => {
-                            e.currentTarget.style.background = 'rgba(24, 144, 255, 0.1)';
+                            e.currentTarget.style.background = buttonHoverBg;
                         }}
                         onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.9)';
+                            e.currentTarget.style.background = buttonBg;
                         }}
                     />
                 </Tooltip>
@@ -501,9 +565,9 @@ const MetricChart: React.FC<ExtendedChartProps> = ({ data, title, metricConfig, 
                             top: '8px',
                             left: '38px',
                             zIndex: 10,
-                            background: 'rgba(255, 255, 255, 0.9)',
-                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                            color: '#333',
+                            background: buttonBg,
+                            boxShadow: `0 2px 4px rgba(0, 0, 0, ${isDark ? '0.3' : '0.1'})`,
+                            color: isDark ? '#e2e8f0' : '#333',
                             padding: '4px 8px',
                             borderRadius: '4px',
                             fontSize: '10px',
@@ -527,7 +591,7 @@ const MetricChart: React.FC<ExtendedChartProps> = ({ data, title, metricConfig, 
                             display: 'flex',
                             justifyContent: 'center',
                             alignItems: 'center',
-                            background: '#fff'
+                            background: 'var(--card-bg)'
                         }}>
                             <Spin />
                         </div>
@@ -585,7 +649,7 @@ const MetricChart: React.FC<ExtendedChartProps> = ({ data, title, metricConfig, 
                                     left: 0,
                                     right: 0,
                                     bottom: 0,
-                                    background: 'rgba(255, 255, 255, 0.7)',
+                                    background: isDark ? 'rgba(15, 23, 42, 0.7)' : 'rgba(255, 255, 255, 0.7)',
                                     display: 'flex',
                                     justifyContent: 'center',
                                     alignItems: 'center',

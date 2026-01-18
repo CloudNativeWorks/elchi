@@ -40,8 +40,8 @@ const GslbHeader: React.FC<GslbHeaderProps> = ({
                 }}
             >
                 <Space size="middle">
-                    <GlobalOutlined style={{ fontSize: 24, color: '#056ccd' }} />
-                    <h2 style={{ margin: 0, fontSize: 20, fontWeight: 600 }}>{title}</h2>
+                    <GlobalOutlined style={{ fontSize: 24, color: 'var(--color-primary)' }} />
+                    <h2 style={{ margin: 0, fontSize: 20, fontWeight: 600, color: 'var(--text-primary)' }}>{title}</h2>
                 </Space>
 
                 <Space>

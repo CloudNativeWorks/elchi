@@ -25,10 +25,21 @@ const CodeBlock: React.FC<CodeBlockProps> = ({ code }) => {
                     position: 'absolute',
                     right: 10,
                     top: 10,
-                    background: 'rgba(255, 255, 255, 0.8)',
+                    background: 'var(--bg-hover)',
+                    color: 'var(--text-secondary)',
                 }}
             />
-            <pre style={{ background: '#f5f5f5', padding: '12px', borderRadius: '8px', overflowX: 'auto' }}>
+            <pre style={{
+                background: 'var(--code-bg)',
+                color: 'var(--code-text)',
+                border: '1px solid var(--border-default)',
+                padding: '12px',
+                borderRadius: '8px',
+                overflowX: 'auto',
+                fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+                fontSize: '13px',
+                lineHeight: 1.5
+            }}>
                 {code}
             </pre>
         </div>
@@ -57,7 +68,20 @@ const HowToStart: React.FC<HowToStartProps> = ({ open, onClose }) => {
                 <Divider />
                 <Title level={3}>RUN Methods</Title>
                 <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                    <Card title="Method 1: Managed Service" variant={'borderless'}>
+                    <Card
+                        title="Method 1: Managed Service"
+                        variant={'borderless'}
+                        styles={{
+                            header: {
+                                background: 'var(--bg-elevated)',
+                                borderBottom: '1px solid var(--border-default)',
+                                color: 'var(--text-primary)'
+                            },
+                            body: {
+                                background: 'var(--bg-surface)'
+                            }
+                        }}
+                    >
                         <Paragraph>
                             If your listener is managed, you can deploy it directly through the <Text strong>Services</Text> menu.
                         </Paragraph>
@@ -75,7 +99,20 @@ const HowToStart: React.FC<HowToStartProps> = ({ open, onClose }) => {
                         </Paragraph>
                     </Card>
 
-                    <Card title="Method 2: Running with func-e" variant={'borderless'}>
+                    <Card
+                        title="Method 2: Running with func-e"
+                        variant={'borderless'}
+                        styles={{
+                            header: {
+                                background: 'var(--bg-elevated)',
+                                borderBottom: '1px solid var(--border-default)',
+                                color: 'var(--text-primary)'
+                            },
+                            body: {
+                                background: 'var(--bg-surface)'
+                            }
+                        }}
+                    >
                         <Paragraph>
                             You can use the <Text code>func-e</Text> tool to run Envoy.
                             First, run the following command to install <Text code>func-e</Text>:
@@ -87,7 +124,20 @@ const HowToStart: React.FC<HowToStartProps> = ({ open, onClose }) => {
                         <CodeBlock code="func-e run -c bootstrap.yaml" />
                     </Card>
 
-                    <Card title="Method 3: Running with Envoy Binary" variant={'borderless'}>
+                    <Card
+                        title="Method 3: Running with Envoy Binary"
+                        variant={'borderless'}
+                        styles={{
+                            header: {
+                                background: 'var(--bg-elevated)',
+                                borderBottom: '1px solid var(--border-default)',
+                                color: 'var(--text-primary)'
+                            },
+                            body: {
+                                background: 'var(--bg-surface)'
+                            }
+                        }}
+                    >
                         <Paragraph>
                             Alternatively, you can download and directly use the pre-built binary files from the <Text code>releases</Text> section of Envoy's official GitHub repository. This method doesn't require any additional tool installation.
                         </Paragraph>
@@ -101,7 +151,20 @@ const HowToStart: React.FC<HowToStartProps> = ({ open, onClose }) => {
                         <CodeBlock code="envoy -c bootstrap.yaml" />
                     </Card>
 
-                    <Card title="Method 4: Running as an Envoy Pod on Kubernetes" variant={'borderless'}>
+                    <Card
+                        title="Method 4: Running as an Envoy Pod on Kubernetes"
+                        variant={'borderless'}
+                        styles={{
+                            header: {
+                                background: 'var(--bg-elevated)',
+                                borderBottom: '1px solid var(--border-default)',
+                                color: 'var(--text-primary)'
+                            },
+                            body: {
+                                background: 'var(--bg-surface)'
+                            }
+                        }}
+                    >
                         <Paragraph>
                             To run Envoy on Kubernetes, you can use the following <Text code>Deployment</Text> manifest. This configuration provides the bootstrap file as a <Text code>ConfigMap</Text> and mounts it to the Envoy pod.
                         </Paragraph>

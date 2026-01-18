@@ -92,8 +92,8 @@ const ClientNetwork: React.FC<{ clientId: string; bgpEnabled?: boolean }> = ({ c
                         width: 200,
                         minWidth: 180,
                         maxWidth: 260,
-                        borderRight: '1px solid #e6e6e6',
-                        background: '#fafdff',
+                        borderRight: '1px solid var(--border-default)',
+                        background: 'var(--bg-surface)',
                         padding: '4px 10px 0 0',
                         display: 'flex',
                         flexDirection: 'column',
@@ -117,13 +117,13 @@ const ClientNetwork: React.FC<{ clientId: string; bgpEnabled?: boolean }> = ({ c
                                         height: 36,
                                         padding: selected ? '6px 14px 6px 16px' : '6px 14px',
                                         fontWeight: selected ? 600 : 500,
-                                        color: selected ? '#0284c7' : '#64748b',
+                                        color: selected ? 'var(--color-primary)' : 'var(--text-secondary)',
                                         background: selected
-                                            ? 'linear-gradient(to right, #f0f9ff, #e0f2fe)'
+                                            ? 'var(--color-primary-light)'
                                             : 'transparent',
-                                        borderLeft: selected ? '3px solid #0284c7' : 'none',
+                                        borderLeft: selected ? '3px solid var(--color-primary)' : 'none',
                                         boxShadow: selected
-                                            ? '0 3px 10px rgba(14, 165, 233, 0.1)'
+                                            ? '0 3px 10px var(--shadow-primary)'
                                             : 'none',
                                         marginLeft: selected ? 2 : 0,
                                         fontSize: 13,
@@ -135,14 +135,14 @@ const ClientNetwork: React.FC<{ clientId: string; bgpEnabled?: boolean }> = ({ c
                                     }}
                                     onMouseEnter={e => {
                                         if (!selected) {
-                                            e.currentTarget.style.background = '#f8fafc';
-                                            e.currentTarget.style.color = '#0ea5e9';
+                                            e.currentTarget.style.background = 'var(--bg-hover)';
+                                            e.currentTarget.style.color = 'var(--color-primary)';
                                         }
                                     }}
                                     onMouseLeave={e => {
                                         if (!selected) {
                                             e.currentTarget.style.background = 'transparent';
-                                            e.currentTarget.style.color = '#64748b';
+                                            e.currentTarget.style.color = 'var(--text-secondary)';
                                         }
                                     }}
                                 >

@@ -222,14 +222,14 @@ const Clients: React.FC = () => {
             render: (service_ips: string[]) => (
                 <span style={{
                     display: 'inline-flex',
-                    background: 'linear-gradient(90deg, #e6f7ff 0%, #bae7ff 100%)',
-                    color: '#1890ff',
+                    background: 'var(--color-info-light)',
+                    color: 'var(--color-primary)',
                     alignItems: 'center',
                     borderRadius: 4,
                     padding: '2px 12px',
                     fontWeight: 600,
                     fontSize: 12,
-                    boxShadow: '0 1px 4px rgba(82,196,26,0.08)'
+                    border: '1px solid var(--color-info-border)'
                 }}>
                     {service_ips?.length || 0}
                 </span>
@@ -252,20 +252,20 @@ const Clients: React.FC = () => {
                     <span style={{
                         display: 'inline-flex',
                         alignItems: 'center',
-                        background: '#e6fffb',
-                        color: '#52c41a',
+                        background: 'var(--color-success-light)',
+                        color: 'var(--color-success)',
                         borderRadius: 4,
                         padding: '2px 12px',
                         fontWeight: 600,
                         fontSize: 12,
-                        boxShadow: '0 1px 4px rgba(82,196,26,0.08)'
+                        border: '1px solid var(--color-success-border)'
                     }}>
                         <span style={{
                             display: 'inline-block',
                             width: 8,
                             height: 8,
                             borderRadius: '50%',
-                            background: '#52c41a',
+                            background: 'var(--color-success)',
                             marginRight: 8
                         }} />
                         Live
@@ -274,20 +274,20 @@ const Clients: React.FC = () => {
                     <span style={{
                         display: 'inline-flex',
                         alignItems: 'center',
-                        background: '#fff1f0',
-                        color: '#ff4d4f',
+                        background: 'var(--color-danger-light)',
+                        color: 'var(--color-danger)',
                         borderRadius: 4,
                         padding: '2px 12px',
                         fontWeight: 600,
                         fontSize: 12,
-                        boxShadow: '0 1px 4px rgba(255,77,79,0.08)'
+                        border: '1px solid var(--color-danger-border)'
                     }}>
                         <span style={{
                             display: 'inline-block',
                             width: 8,
                             height: 8,
                             borderRadius: '50%',
-                            background: '#ff4d4f',
+                            background: 'var(--color-danger)',
                             marginRight: 8
                         }} />
                         Offline
@@ -301,7 +301,7 @@ const Clients: React.FC = () => {
             width: '10%',
             render: (_, record) => {
                 if (!record.connected) {
-                    return <span style={{ color: '#bfbfbf' }}>-</span>;
+                    return <span style={{ color: 'var(--text-tertiary)' }}>-</span>;
                 }
                 
                 const stats = clientStats[record.client_id];
@@ -312,7 +312,7 @@ const Clients: React.FC = () => {
                 }
                 
                 if (!stats?.cpu) {
-                    return <span style={{ color: '#bfbfbf' }}>-</span>;
+                    return <span style={{ color: 'var(--text-tertiary)' }}>-</span>;
                 }
                 
                 const loadAvg5 = stats.cpu.load_avg_5 || 0;
@@ -330,7 +330,7 @@ const Clients: React.FC = () => {
                                 style={{ width: 80 }}
                             />
                         </Tooltip>
-                        <div style={{ fontSize: 11, color: '#8c8c8c', marginTop: 2 }}>
+                        <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>
                             {coreCount} cores
                         </div>
                     </div>
@@ -343,7 +343,7 @@ const Clients: React.FC = () => {
             width: '10%',
             render: (_, record) => {
                 if (!record.connected) {
-                    return <span style={{ color: '#bfbfbf' }}>-</span>;
+                    return <span style={{ color: 'var(--text-tertiary)' }}>-</span>;
                 }
                 
                 const stats = clientStats[record.client_id];
@@ -354,7 +354,7 @@ const Clients: React.FC = () => {
                 }
                 
                 if (!stats?.memory) {
-                    return <span style={{ color: '#bfbfbf' }}>-</span>;
+                    return <span style={{ color: 'var(--text-tertiary)' }}>-</span>;
                 }
                 
                 const memoryUsage = stats.memory.usage_percent || 0;
@@ -371,7 +371,7 @@ const Clients: React.FC = () => {
                                 style={{ width: 80 }}
                             />
                         </Tooltip>
-                        <div style={{ fontSize: 11, color: '#8c8c8c', marginTop: 2 }}>
+                        <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>
                             {totalGB} GB
                         </div>
                     </div>
@@ -397,7 +397,7 @@ const Clients: React.FC = () => {
             <div style={{ marginBottom: 16 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <Space>
-                        <CloudServerOutlined style={{ color: '#1890ff', fontSize: 24 }} />
+                        <CloudServerOutlined style={{ color: 'var(--color-primary)', fontSize: 24 }} />
                         <Title level={4} style={{ margin: 0 }}>Clients</Title>
                     </Space>
                     <Space>
@@ -431,10 +431,12 @@ const Clients: React.FC = () => {
             </div>
 
             {/* Data Table Card */}
-            <Card 
+            <Card
                 style={{
                     borderRadius: 12,
-                    boxShadow: '0 2px 8px rgba(5,117,230,0.06)',
+                    boxShadow: 'var(--shadow-sm)',
+                    background: 'var(--card-bg)',
+                    border: '1px solid var(--border-default)'
                 }}
                 styles={{
                     body: { padding: 12 }
@@ -452,7 +454,7 @@ const Clients: React.FC = () => {
                         expandedRowRender: (record) => {
                             if (!record.service_ips || record.service_ips.length === 0) {
                                 return (
-                                    <div style={{ padding: '12px 0', paddingLeft: '72px', color: '#bfbfbf' }}>
+                                    <div style={{ padding: '12px 0', paddingLeft: '72px', color: 'var(--text-tertiary)' }}>
                                         No service IPs available
                                     </div>
                                 );
@@ -509,7 +511,7 @@ const Clients: React.FC = () => {
                     <div style={{
                         display: 'inline-flex',
                         alignItems: 'center',
-                        color: '#8c8c8c',
+                        color: 'var(--text-secondary)',
                         fontSize: 12,
                         padding: '4px 0',
                         gap: 6
@@ -545,7 +547,7 @@ const Clients: React.FC = () => {
                 <p>
                     Are you sure you want to delete the client <strong>"{deleteModal.client?.name}"</strong>?
                 </p>
-                <p style={{ color: '#ff4d4f', fontSize: 12 }}>
+                <p style={{ color: 'var(--color-danger)', fontSize: 12 }}>
                     <strong>Warning:</strong> This action cannot be undone. The client will be permanently removed from the system.
                 </p>
             </Modal>

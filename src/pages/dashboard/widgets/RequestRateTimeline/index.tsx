@@ -21,6 +21,7 @@ import { useProjectVariable } from '@/hooks/useProjectVariable';
 import { useDashboardRefresh } from '../../context/DashboardRefreshContext';
 import { api } from '@/common/api';
 import { formatNumber } from '../../utils/formatters';
+import { useChartTheme } from '@/utils/chartTheme';
 import styles from './styles.module.scss';
 
 echarts.use([
@@ -48,6 +49,7 @@ const TIME_RANGES: TimeRange[] = [
 export const RequestRateTimeline: React.FC = () => {
   const projectContext = useProjectVariable();
   const { refreshTrigger } = useDashboardRefresh();
+  const { options: themeOptions } = useChartTheme();
   const project = typeof projectContext === 'string' ? projectContext : projectContext.project;
 
   const [timeRange, setTimeRange] = useState<number>(3600); // Default: 1 hour
@@ -98,8 +100,10 @@ export const RequestRateTimeline: React.FC = () => {
   }, [fetchData, refreshTrigger]);
 
   const chartOptions = {
+    ...themeOptions,
     animation: false,
     tooltip: {
+      ...themeOptions.tooltip,
       trigger: 'axis',
       formatter: (params: any) => {
         const time = new Date(params[0].value[0] * 1000).toLocaleString();
@@ -112,24 +116,29 @@ export const RequestRateTimeline: React.FC = () => {
       },
     },
     legend: {
+      ...themeOptions.legend,
       show: true,
       bottom: 0,
       type: 'scroll',
     },
     grid: {
+      ...themeOptions.grid,
       left: '3%',
       right: '4%',
       bottom: '60px',
       top: '10px'
     },
     xAxis: {
+      ...themeOptions.xAxis,
       type: 'time',
       boundaryGap: false,
     },
     yAxis: {
+      ...themeOptions.yAxis,
       type: 'value',
       name: 'req/s',
       axisLabel: {
+        ...themeOptions.yAxis?.axisLabel,
         formatter: (value: number) => formatNumber(value, 1),
       },
     },

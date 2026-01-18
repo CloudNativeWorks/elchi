@@ -318,7 +318,7 @@ const Backup: React.FC = () => {
     const handleExport = () => {
         confirm({
             title: 'Confirm Backup Export',
-            icon: <ExclamationCircleOutlined style={{ color: '#1890ff' }} />,
+            icon: <ExclamationCircleOutlined style={{ color: 'var(--color-primary)' }} />,
             width: 500,
             content: (
                 <div>
@@ -372,7 +372,7 @@ const Backup: React.FC = () => {
 
         confirm({
             title: 'Confirm Import',
-            icon: <ExclamationCircleOutlined style={{ color: '#ff4d4f' }} />,
+            icon: <ExclamationCircleOutlined style={{ color: 'var(--color-danger)' }} />,
             width: 500,
             content: (
                 <div>
@@ -398,7 +398,7 @@ const Backup: React.FC = () => {
     return (
         <div style={{ width: '100%', padding: '12px' }}>
             <div style={{ marginBottom: '32px' }}>
-                <Title level={3} style={{ margin: '0 0 8px 0', color: '#1f2937' }}>
+                <Title level={3} style={{ margin: '0 0 8px 0', color: 'var(--text-primary)' }}>
                     Backup & Restore
                 </Title>
                 <Text type="secondary">

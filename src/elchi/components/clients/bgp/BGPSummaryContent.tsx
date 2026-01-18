@@ -110,7 +110,7 @@ const BGPSummaryContent: React.FC<BGPSummaryContentProps> = ({ clientId }) => {
                                     type="text"
                                     icon={<SoftReloadOutlined />}
                                     loading={clearingNeighbor === text}
-                                    style={{ fontSize: '10px', padding: '2px 4px', height: '20px', color: '#1890ff' }}
+                                    style={{ fontSize: '10px', padding: '2px 4px', height: '20px', color: 'var(--color-primary)' }}
                                 />
                             </Tooltip>
                         </Popconfirm>
@@ -198,10 +198,11 @@ const BGPSummaryContent: React.FC<BGPSummaryContentProps> = ({ clientId }) => {
     if (!summaryData) {
         return (
             <div style={{
-                background: 'linear-gradient(135deg, #f1f3f4 0%, #e8eaed 100%)',
+                background: 'var(--bg-surface)',
                 borderRadius: 12,
                 padding: 16,
-                marginBottom: 16
+                marginBottom: 16,
+                border: '1px solid var(--border-default)'
             }}>
                 <div style={{
                     display: 'flex',
@@ -209,7 +210,7 @@ const BGPSummaryContent: React.FC<BGPSummaryContentProps> = ({ clientId }) => {
                     alignItems: 'center',
                     marginBottom: 12
                 }}>
-                    <Text strong style={{ color: '#212529', fontSize: 14 }}>
+                    <Text strong style={{ color: 'var(--text-primary)', fontSize: 14 }}>
                         BGP Summary
                     </Text>
                 </div>
@@ -226,12 +227,12 @@ const BGPSummaryContent: React.FC<BGPSummaryContentProps> = ({ clientId }) => {
     })) : [];
 
     return (
-        <div style={{ borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.06)', marginBottom: 16 }}>
+        <div style={{ borderRadius: 12, boxShadow: 'var(--shadow-sm)', marginBottom: 16, border: '1px solid var(--border-default)' }}>
             <div style={{
-                background: 'linear-gradient(135deg, #f1f3f4 0%, #e8eaed 100%)',
+                background: 'var(--bg-surface)',
                 borderRadius: '12px 12px 0 0',
                 padding: 16,
-                borderBottom: '1px solid #e8eaed'
+                borderBottom: '1px solid var(--border-default)'
             }}>
                 <div style={{
                     display: 'flex',
@@ -239,8 +240,8 @@ const BGPSummaryContent: React.FC<BGPSummaryContentProps> = ({ clientId }) => {
                     alignItems: 'center'
                 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <GlobalOutlined style={{ color: '#495057' }} />
-                        <Text strong style={{ color: '#212529', fontSize: 14 }}>
+                        <GlobalOutlined style={{ color: 'var(--text-secondary)' }} />
+                        <Text strong style={{ color: 'var(--text-primary)', fontSize: 14 }}>
                             BGP Summary
                         </Text>
                     </div>
@@ -255,8 +256,8 @@ const BGPSummaryContent: React.FC<BGPSummaryContentProps> = ({ clientId }) => {
                     </Button>
                 </div>
             </div>
-            <div style={{ 
-                background: '#fff',
+            <div style={{
+                background: 'var(--card-bg)',
                 borderRadius: '0 0 12px 12px',
                 padding: 16
             }}>
@@ -267,7 +268,7 @@ const BGPSummaryContent: React.FC<BGPSummaryContentProps> = ({ clientId }) => {
                             <Statistic
                                 title="Router ID"
                                 value={summaryData.routerId}
-                                prefix={<UserOutlined style={{ color: '#1890ff' }} />}
+                                prefix={<UserOutlined style={{ color: 'var(--color-primary)' }} />}
                                 valueStyle={{ fontSize: '16px', fontWeight: 'bold' }}
                             />
                         </Card>
@@ -277,7 +278,7 @@ const BGPSummaryContent: React.FC<BGPSummaryContentProps> = ({ clientId }) => {
                             <Statistic
                                 title="AS Number"
                                 value={summaryData.asNumber}
-                                prefix={<GlobalOutlined style={{ color: '#52c41a' }} />}
+                                prefix={<GlobalOutlined style={{ color: 'var(--color-success)' }} />}
                                 valueStyle={{ fontSize: '16px', fontWeight: 'bold' }}
                                 formatter={(value) => value?.toString()}
                             />
@@ -289,7 +290,7 @@ const BGPSummaryContent: React.FC<BGPSummaryContentProps> = ({ clientId }) => {
                                 title="RIB Entries"
                                 value={summaryData.ribCount}
                                 suffix={`(${(summaryData.ribMemory / 1024).toFixed(1)}KB)`}
-                                prefix={<DatabaseOutlined style={{ color: '#fa8c16' }} />}
+                                prefix={<DatabaseOutlined style={{ color: 'var(--color-warning)' }} />}
                                 valueStyle={{ fontSize: '16px', fontWeight: 'bold' }}
                             />
                         </Card>
@@ -342,9 +343,9 @@ const BGPSummaryContent: React.FC<BGPSummaryContentProps> = ({ clientId }) => {
                             size="small"
                             scroll={{ x: 800 }}
                             style={{
-                                background: '#fafafa',
+                                background: 'var(--bg-surface)',
                                 borderRadius: 8,
-                                border: '1px solid #f0f0f0'
+                                border: '1px solid var(--border-default)'
                             }}
                         />
                     </>

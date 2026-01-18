@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Input, Form, Button, List, Drawer, Select } from 'antd';
-import { PlusOutlined, DeleteTwoTone } from "@ant-design/icons";
+import { Input, Form, Button, List, Drawer, Select, Popconfirm } from 'antd';
+import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { ActionType, ResourceType } from "@/redux/reducer-helpers/common";
 import { handleChangeResources } from "@/redux/dispatcher";
@@ -92,13 +92,33 @@ const ResetHeaders: React.FC<GeneralProps> = ({ veri }) => {
                 renderItem={(item: any, index) => (
                     <List.Item
                         actions={[
-                            <Button
-                                key={"btn_ " + index.toString()}
-                                icon={<DeleteTwoTone twoToneColor="#eb2f96" />}
-                                size='small'
-                                onClick={() => { removeHeader(index) }}
-                                iconPosition={"end"}
-                            />
+                            <Popconfirm
+                                title="Delete confirmation"
+                                description="Are you sure you want to delete this item?"
+                                onConfirm={() => { removeHeader(index) }}
+                                okText="Yes"
+                                cancelText="No"
+                                placement="left"
+                            >
+                                <Button
+                                    key={"btn_ " + index.toString()}
+                                    type="text"
+                                    danger
+                                    icon={<DeleteOutlined style={{ color: 'var(--color-danger)' }} />}
+                                    size='small'
+                                    className="elchi-delete-button"
+                                    onClick={(e) => e.stopPropagation()}
+                                    iconPosition={"end"}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        backgroundColor: 'var(--color-danger-light)',
+                                        border: '1px solid var(--color-danger-border)',
+                                        borderRadius: '6px'
+                                    }}
+                                />
+                            </Popconfirm>
                         ]}
                     >
                         <List.Item.Meta

@@ -70,7 +70,7 @@ const Err403: React.FC = () => {
 
                 {/* Main Message */}
                 <Title level={2} style={{
-                    color: '#2c3e50',
+                    color: 'var(--text-primary)',
                     marginBottom: '16px',
                     fontSize: '32px',
                     fontWeight: '600'
@@ -80,7 +80,7 @@ const Err403: React.FC = () => {
 
                 {/* Description */}
                 <Text style={{
-                    color: '#7f8c8d',
+                    color: 'var(--text-secondary)',
                     fontSize: '16px',
                     lineHeight: '1.6',
                     display: 'block',
@@ -120,7 +120,7 @@ const Err403: React.FC = () => {
                             height: '48px',
                             padding: '0 24px',
                             borderRadius: '8px',
-                            border: '2px solid #e9ecef',
+                            border: '2px solid var(--border-default)',
                             fontSize: '16px',
                             fontWeight: '500'
                         }}
@@ -133,13 +133,13 @@ const Err403: React.FC = () => {
                 <div style={{
                     marginTop: '40px',
                     padding: '20px',
-                    background: '#f8f9fa',
+                    background: 'var(--bg-elevated)',
                     borderRadius: '12px',
-                    border: '1px solid #e9ecef'
+                    border: '1px solid var(--border-default)'
                 }}>
                     <Space align="center">
-                        <ContactsOutlined style={{ color: '#6c757d', fontSize: '18px' }} />
-                        <Text style={{ color: '#6c757d', fontSize: '14px' }}>
+                        <ContactsOutlined style={{ color: 'var(--text-secondary)', fontSize: '18px' }} />
+                        <Text style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
                             Need help? Contact your system administrator for access permissions.
                         </Text>
                     </Space>

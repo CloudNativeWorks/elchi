@@ -123,7 +123,7 @@ const FieldInputRedux: React.FC<FieldInputReduxProps> = ({
             url.searchParams.set('search', searchQuery);
 
             const response = await api.get(url.pathname + url.search);
-            
+
             if (field.has_discovery) {
                 // Handle discovery data format
                 const clusters = response.data || [];
@@ -290,7 +290,7 @@ const FieldInputRedux: React.FC<FieldInputReduxProps> = ({
     const renderConnectedField = () => {
         const hasConnected = field.connected && connectedOptions.length > 0;
         const hasApiEndpoint = field.api_endpoint && systemResources.length > 0;
-        
+
 
         // Check if connected component types exist in scenario
         const hasConnectedComponentsInScenario = field.connected && field.connected.component_types &&
@@ -404,7 +404,7 @@ const FieldInputRedux: React.FC<FieldInputReduxProps> = ({
                                                 {field.connected!.field_name !== ':componentname:' && (
                                                     <div style={{
                                                         fontSize: '12px',
-                                                        color: '#8c8c8c',
+                                                        color: 'var(--text-secondary)',
                                                         overflow: 'hidden',
                                                         textOverflow: 'ellipsis',
                                                         whiteSpace: 'nowrap'
@@ -457,8 +457,8 @@ const FieldInputRedux: React.FC<FieldInputReduxProps> = ({
                                                 }}>
                                                     {resource.name}
                                                     {field.has_discovery && resource.nodes && (
-                                                        <span style={{ 
-                                                            color: '#8c8c8c', 
+                                                        <span style={{
+                                                            color: 'var(--text-secondary)',
                                                             fontWeight: 'normal',
                                                             marginLeft: '4px'
                                                         }}>
@@ -469,7 +469,7 @@ const FieldInputRedux: React.FC<FieldInputReduxProps> = ({
                                                 {resource.canonical_name && (
                                                     <div style={{
                                                         fontSize: '12px',
-                                                        color: '#8c8c8c',
+                                                        color: 'var(--text-secondary)',
                                                         overflow: 'hidden',
                                                         textOverflow: 'ellipsis',
                                                         whiteSpace: 'nowrap'
@@ -566,7 +566,7 @@ const FieldInputRedux: React.FC<FieldInputReduxProps> = ({
                                         {field.connected!.field_name !== ':componentname:' && (
                                             <div style={{
                                                 fontSize: '12px',
-                                                color: '#8c8c8c',
+                                                color: 'var(--text-secondary)',
                                                 overflow: 'hidden',
                                                 textOverflow: 'ellipsis',
                                                 whiteSpace: 'nowrap'
@@ -625,7 +625,7 @@ const FieldInputRedux: React.FC<FieldInputReduxProps> = ({
                                         {resource.canonical_name && (
                                             <div style={{
                                                 fontSize: '12px',
-                                                color: '#8c8c8c',
+                                                color: 'var(--text-secondary)',
                                                 overflow: 'hidden',
                                                 textOverflow: 'ellipsis',
                                                 whiteSpace: 'nowrap'
@@ -729,7 +729,7 @@ const FieldInputRedux: React.FC<FieldInputReduxProps> = ({
                                         {field.connected!.field_name !== ':componentname:' && (
                                             <div style={{
                                                 fontSize: '12px',
-                                                color: '#8c8c8c',
+                                                color: 'var(--text-secondary)',
                                                 overflow: 'hidden',
                                                 textOverflow: 'ellipsis',
                                                 whiteSpace: 'nowrap'
@@ -789,8 +789,8 @@ const FieldInputRedux: React.FC<FieldInputReduxProps> = ({
                                         }}>
                                             {resource.name}
                                             {field.has_discovery && resource.nodes && (
-                                                <span style={{ 
-                                                    color: '#8c8c8c', 
+                                                <span style={{
+                                                    color: 'var(--text-secondary)',
                                                     fontWeight: 'normal',
                                                     marginLeft: '4px'
                                                 }}>
@@ -801,7 +801,7 @@ const FieldInputRedux: React.FC<FieldInputReduxProps> = ({
                                         {resource.canonical_name && (
                                             <div style={{
                                                 fontSize: '12px',
-                                                color: '#8c8c8c',
+                                                color: 'var(--text-secondary)',
                                                 overflow: 'hidden',
                                                 textOverflow: 'ellipsis',
                                                 whiteSpace: 'nowrap'
@@ -940,7 +940,7 @@ const FieldInputRedux: React.FC<FieldInputReduxProps> = ({
                                                 {field.connected!.field_name !== ':componentname:' && (
                                                     <div style={{
                                                         fontSize: '12px',
-                                                        color: '#8c8c8c',
+                                                        color: 'var(--text-secondary)',
                                                         overflow: 'hidden',
                                                         textOverflow: 'ellipsis',
                                                         whiteSpace: 'nowrap'
@@ -995,8 +995,8 @@ const FieldInputRedux: React.FC<FieldInputReduxProps> = ({
                                                 }}>
                                                     {resource.name}
                                                     {field.has_discovery && resource.nodes && (
-                                                        <span style={{ 
-                                                            color: '#8c8c8c', 
+                                                        <span style={{
+                                                            color: 'var(--text-secondary)',
                                                             fontWeight: 'normal',
                                                             marginLeft: '4px'
                                                         }}>
@@ -1007,7 +1007,7 @@ const FieldInputRedux: React.FC<FieldInputReduxProps> = ({
                                                 {resource.canonical_name && (
                                                     <div style={{
                                                         fontSize: '12px',
-                                                        color: '#8c8c8c',
+                                                        color: 'var(--text-secondary)',
                                                         overflow: 'hidden',
                                                         textOverflow: 'ellipsis',
                                                         whiteSpace: 'nowrap'
@@ -1112,7 +1112,7 @@ const FieldInputRedux: React.FC<FieldInputReduxProps> = ({
                                         {field.connected!.field_name !== ':componentname:' && (
                                             <div style={{
                                                 fontSize: '12px',
-                                                color: '#8c8c8c',
+                                                color: 'var(--text-secondary)',
                                                 overflow: 'hidden',
                                                 textOverflow: 'ellipsis',
                                                 whiteSpace: 'nowrap'
@@ -1170,8 +1170,8 @@ const FieldInputRedux: React.FC<FieldInputReduxProps> = ({
                                         }}>
                                             {resource.name}
                                             {field.has_discovery && resource.nodes && (
-                                                <span style={{ 
-                                                    color: '#8c8c8c', 
+                                                <span style={{
+                                                    color: 'var(--text-secondary)',
                                                     fontWeight: 'normal',
                                                     marginLeft: '4px'
                                                 }}>
@@ -1182,7 +1182,7 @@ const FieldInputRedux: React.FC<FieldInputReduxProps> = ({
                                         {resource.canonical_name && (
                                             <div style={{
                                                 fontSize: '12px',
-                                                color: '#8c8c8c',
+                                                color: 'var(--text-secondary)',
                                                 overflow: 'hidden',
                                                 textOverflow: 'ellipsis',
                                                 whiteSpace: 'nowrap'
@@ -1228,12 +1228,12 @@ const FieldInputRedux: React.FC<FieldInputReduxProps> = ({
                             style={{
                                 ...commonStyle,
                                 fontStyle: 'italic',
-                                backgroundColor: '#f5f5f5',
-                                borderColor: '#1890ff'
+                                backgroundColor: 'var(--bg-surface)',
+                                borderColor: 'var(--color-primary)'
                             }}
                             disabled={true}
                             addonBefore={
-                                <span style={{ color: '#1890ff', fontSize: '12px' }}>🔗</span>
+                                <span style={{ color: 'var(--color-primary)', fontSize: '12px' }}>🔗</span>
                             }
                             suffix={
                                 <Text type="secondary" style={{ fontSize: '10px' }}>
@@ -1580,7 +1580,7 @@ const FieldInputRedux: React.FC<FieldInputReduxProps> = ({
                                                     </div>
                                                     <div style={{
                                                         fontSize: '12px',
-                                                        color: '#8c8c8c',
+                                                        color: 'var(--text-secondary)',
                                                         overflow: 'hidden',
                                                         textOverflow: 'ellipsis',
                                                         whiteSpace: 'nowrap'
@@ -1613,8 +1613,8 @@ const FieldInputRedux: React.FC<FieldInputReduxProps> = ({
                                                 }}>
                                                     {resource.name}
                                                     {field.has_discovery && resource.nodes && (
-                                                        <span style={{ 
-                                                            color: '#8c8c8c', 
+                                                        <span style={{
+                                                            color: 'var(--text-secondary)',
                                                             fontWeight: 'normal',
                                                             marginLeft: '4px'
                                                         }}>
@@ -1625,7 +1625,7 @@ const FieldInputRedux: React.FC<FieldInputReduxProps> = ({
                                                 {resource.canonical_name && (
                                                     <div style={{
                                                         fontSize: '12px',
-                                                        color: '#8c8c8c',
+                                                        color: 'var(--text-secondary)',
                                                         overflow: 'hidden',
                                                         textOverflow: 'ellipsis',
                                                         whiteSpace: 'nowrap'
@@ -1674,7 +1674,7 @@ const FieldInputRedux: React.FC<FieldInputReduxProps> = ({
                     };
 
                     return (
-                        <div style={{ border: '1px solid #d9d9d9', borderRadius: '6px', padding: '12px' }}>
+                        <div style={{ border: '1px solid var(--border-default)', borderRadius: '6px', padding: '12px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                                 <Text strong>{fieldDisplayName}</Text>
                                 <Button
@@ -1803,7 +1803,7 @@ const FieldInputRedux: React.FC<FieldInputReduxProps> = ({
                     };
 
                     return (
-                        <div style={{ backgroundColor: '#f8f9fa', borderRadius: '4px', padding: '8px', border: '1px solid #e8e8e8' }}>
+                        <div style={{ backgroundColor: 'var(--bg-elevated)', borderRadius: '4px', padding: '8px', border: '1px solid var(--border-default)' }}>
                             <div style={{
                                 display: 'grid',
                                 gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
@@ -1876,7 +1876,7 @@ const FieldInputRedux: React.FC<FieldInputReduxProps> = ({
 
                                                 {/* Show sub-fields for selected option */}
                                                 {selectedChoice && propDef.properties && propDef.properties[selectedChoice] && (
-                                                    <div style={{ marginTop: '6px', paddingLeft: '8px', borderLeft: '2px solid #1890ff' }}>
+                                                    <div style={{ marginTop: '6px', paddingLeft: '8px', borderLeft: '2px solid var(--color-primary)' }}>
                                                         {Object.entries(propDef.properties[selectedChoice].properties || {}).map(([subName, subDef]: [string, any]) => {
                                                             const subValue = currentNestedValue[selectedChoice] ? currentNestedValue[selectedChoice][subName] : undefined;
 
@@ -2078,10 +2078,10 @@ const FieldInputRedux: React.FC<FieldInputReduxProps> = ({
                     size="small"
                     icon={<InfoCircleOutlined />}
                     onClick={handleShowClusterDetails}
-                    style={{ 
-                        padding: 0, 
+                    style={{
+                        padding: 0,
                         marginTop: '8px',
-                        color: '#1890ff',
+                        color: 'var(--color-primary)',
                         fontSize: '12px'
                     }}
                 >
@@ -2099,7 +2099,7 @@ const FieldInputRedux: React.FC<FieldInputReduxProps> = ({
             <Modal
                 title={
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <InfoCircleOutlined style={{ color: '#1890ff', fontSize: '18px' }} />
+                        <InfoCircleOutlined style={{ color: 'var(--color-primary)', fontSize: '18px' }} />
                         <span style={{ fontSize: '16px', fontWeight: '600' }}>Cluster Details</span>
                         {selectedClusterDetails && (
                             <Tag color="cyan" style={{ borderRadius: '12px', padding: '2px 12px' }}>
@@ -2111,8 +2111,8 @@ const FieldInputRedux: React.FC<FieldInputReduxProps> = ({
                 open={showClusterModal}
                 onCancel={() => setShowClusterModal(false)}
                 footer={[
-                    <Button 
-                        key="close" 
+                    <Button
+                        key="close"
                         onClick={() => setShowClusterModal(false)}
                         style={{ borderRadius: '6px' }}
                     >
@@ -2121,10 +2121,10 @@ const FieldInputRedux: React.FC<FieldInputReduxProps> = ({
                 ]}
                 width={900}
                 style={{ top: 20 }}
-                styles={{ 
+                styles={{
                     body: {
-                        padding: 0, 
-                        maxHeight: '70vh', 
+                        padding: 0,
+                        maxHeight: '70vh',
                         overflowY: 'auto'
                     }
                 }}
@@ -2132,46 +2132,46 @@ const FieldInputRedux: React.FC<FieldInputReduxProps> = ({
                 {selectedClusterDetails && (
                     <div>
                         {/* Cluster Information Section */}
-                        <div style={{ 
-                            backgroundColor: '#f8f9fa', 
+                        <div style={{
+                            backgroundColor: 'var(--bg-elevated)',
                             padding: '16px 24px',
-                            borderBottom: '1px solid #e8e8e8'
+                            borderBottom: '1px solid var(--border-default)'
                         }}>
-                            <div style={{ 
-                                fontSize: '14px', 
-                                fontWeight: '600', 
-                                color: '#2c3e50',
+                            <div style={{
+                                fontSize: '14px',
+                                fontWeight: '600',
+                                color: 'var(--text-primary)',
                                 marginBottom: '12px'
                             }}>
                                 Cluster Information
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
                                 <div>
-                                    <div style={{ fontSize: '12px', color: '#8c8c8c', marginBottom: '4px' }}>Cluster Name</div>
+                                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Cluster Name</div>
                                     <Text strong style={{ fontSize: '14px' }}>{selectedClusterDetails.cluster_name}</Text>
                                 </div>
                                 <div>
-                                    <div style={{ fontSize: '12px', color: '#8c8c8c', marginBottom: '4px' }}>Version</div>
+                                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Version</div>
                                     <Tag color="blue" style={{ margin: 0, borderRadius: '4px' }}>
                                         {selectedClusterDetails.cluster_version}
                                     </Tag>
                                 </div>
                                 <div>
-                                    <div style={{ fontSize: '12px', color: '#8c8c8c', marginBottom: '4px' }}>Total Nodes</div>
-                                    <Badge 
-                                        count={selectedClusterDetails.nodes?.length || 0} 
+                                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Total Nodes</div>
+                                    <Badge
+                                        count={selectedClusterDetails.nodes?.length || 0}
                                         color="#52c41a"
                                         style={{ fontSize: '12px' }}
                                     />
                                 </div>
                                 <div>
-                                    <div style={{ fontSize: '12px', color: '#8c8c8c', marginBottom: '4px' }}>Last Seen</div>
+                                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Last Seen</div>
                                     <Text code style={{ fontSize: '12px' }}>
                                         {new Date(selectedClusterDetails.last_seen).toLocaleString()}
                                     </Text>
                                 </div>
                                 <div>
-                                    <div style={{ fontSize: '12px', color: '#8c8c8c', marginBottom: '4px' }}>Project</div>
+                                    <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginBottom: '4px' }}>Project</div>
                                     <Text type="secondary" style={{ fontSize: '12px' }}>{selectedClusterDetails.project}</Text>
                                 </div>
                             </div>
@@ -2180,10 +2180,10 @@ const FieldInputRedux: React.FC<FieldInputReduxProps> = ({
                         {/* Node Details Section */}
                         {selectedClusterDetails.nodes && selectedClusterDetails.nodes.length > 0 && (
                             <div style={{ padding: '24px' }}>
-                                <div style={{ 
-                                    fontSize: '14px', 
-                                    fontWeight: '600', 
-                                    color: '#2c3e50',
+                                <div style={{
+                                    fontSize: '14px',
+                                    fontWeight: '600',
+                                    color: 'var(--text-primary)',
                                     marginBottom: '16px'
                                 }}>
                                     Node Details
@@ -2209,7 +2209,7 @@ const FieldInputRedux: React.FC<FieldInputReduxProps> = ({
                                             key: 'status',
                                             width: 100,
                                             render: (status) => (
-                                                <Tag 
+                                                <Tag
                                                     color={status === 'Ready' ? 'green' : 'orange'}
                                                     style={{ borderRadius: '4px', fontSize: '11px' }}
                                                 >
@@ -2258,10 +2258,10 @@ const FieldInputRedux: React.FC<FieldInputReduxProps> = ({
                                     ]}
                                     pagination={false}
                                     size="small"
-                                    style={{ 
+                                    style={{
                                         borderRadius: '8px',
                                         overflow: 'hidden',
-                                        border: '1px solid #e8e8e8'
+                                        border: '1px solid var(--border-default)'
                                     }}
                                     scroll={{ y: 300 }}
                                 />

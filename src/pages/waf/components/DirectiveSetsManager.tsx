@@ -67,23 +67,23 @@ const DirectiveSetsManager: React.FC<DirectiveSetsManagerProps> = ({
     return (
         <>
             <div style={{
-                background: 'white',
+                background: 'var(--card-bg)',
                 borderRadius: 12,
-                border: '1px solid #e5e7eb',
-                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                border: '1px solid var(--border-default)',
+                boxShadow: 'var(--shadow-sm)',
                 overflow: 'hidden',
                 marginBottom: 16
             }}>
                 {/* Header */}
                 <div style={{
-                    background: '#f9fafb',
-                    borderBottom: '1px solid #e5e7eb',
+                    background: 'var(--bg-surface)',
+                    borderBottom: '1px solid var(--border-default)',
                     padding: '12px 16px',
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center'
                 }}>
-                    <Text strong style={{ fontSize: 16, color: '#111827' }}>Directive Sets</Text>
+                    <Text strong style={{ fontSize: 16, color: 'var(--text-primary)' }}>Directive Sets</Text>
                     <Badge count={Object.keys(directiveSets).length} style={{ backgroundColor: '#1890ff' }} />
                 </div>
 

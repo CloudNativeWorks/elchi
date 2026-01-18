@@ -90,12 +90,12 @@ const JobProgressModal: React.FC<JobProgressModalProps> = ({
 
   const getStatusIcon = (status: JobStatus) => {
     const icons = {
-      PENDING: <ClockCircleOutlined style={{ color: '#1677ff' }} />,
-      CLAIMED: <PlayCircleOutlined style={{ color: '#faad14' }} />,
-      RUNNING: <PlayCircleOutlined style={{ color: '#52c41a' }} />,
-      COMPLETED: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
-      FAILED: <CloseCircleOutlined style={{ color: '#ff4d4f' }} />,
-      NO_WORK_NEEDED: <CheckCircleOutlined style={{ color: '#8c8c8c' }} />
+      PENDING: <ClockCircleOutlined style={{ color: 'var(--color-primary)' }} />,
+      CLAIMED: <PlayCircleOutlined style={{ color: 'var(--color-warning)' }} />,
+      RUNNING: <PlayCircleOutlined style={{ color: 'var(--color-success)' }} />,
+      COMPLETED: <CheckCircleOutlined style={{ color: 'var(--color-success)' }} />,
+      FAILED: <CloseCircleOutlined style={{ color: 'var(--color-danger)' }} />,
+      NO_WORK_NEEDED: <CheckCircleOutlined style={{ color: 'var(--text-secondary)' }} />
     };
     return icons[status] || icons.PENDING;
   };
@@ -141,7 +141,7 @@ const JobProgressModal: React.FC<JobProgressModalProps> = ({
     if (job.status === 'NO_WORK_NEEDED') {
       return (
         <Result
-          icon={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
+          icon={<CheckCircleOutlined style={{ color: 'var(--color-success)' }} />}
           title="No Work Needed"
           subTitle="The resource configuration hasn't changed, so no updates are required."
         />

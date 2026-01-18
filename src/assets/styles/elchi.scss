@@ -6,7 +6,7 @@
     }
 
     50% {
-        color: #056ccd;
+        color: var(--color-primary);
     }
 }
 
@@ -38,17 +38,17 @@
     left: 50%;
     transform: translateX(-50%);
     height: 1px;
-    background-color: #056ccd;
+    background-color: var(--color-primary);
     animation: underlineAnimation 2s ease-in-out forwards;
 }
 
 .bang_iconwrapper {
     position: relative;
     display: inline-flex;
-    border: 1px solid #1890ff;
+    border: 1px solid var(--color-primary);
     border-radius: 5px;
     padding: 5px;
-    background-color: #ffffff;
+    background-color: var(--card-bg);
     transition: background-color 0.3s, border-color 0.3s;
 }
 
@@ -60,17 +60,17 @@
 }
 
 .bang_iconwrapper:hover {
-    background-color: #1890ff;
-    border-color: #1890ff;
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
 }
 
 .bang_Icon {
-    fill: #1890ff;
+    fill: var(--color-primary);
     transition: fill 0.3s;
 }
 
 .bang_iconwrapper:hover .bang_Icon {
-    fill: #ffffff;
+    fill: var(--text-inverse);
 }
 
 .bang_badge {
@@ -94,7 +94,9 @@
 }
 
 .unchangeable-tag {
-    background-color: #4a4a4a;
+    background-color: var(--bg-active);
+    color: var(--text-disabled);
+    border-color: var(--border-default);
     white-space: nowrap;
     width: 100%;
     position: relative;
@@ -102,7 +104,8 @@
 }
 
 .unchangeable-tag:hover {
-    background-color: #4a4a4a;
+    background-color: var(--bg-active);
+    color: var(--text-disabled);
 }
 
 
@@ -127,13 +130,14 @@
 }
 
 .unsopperted-tags {
-    border-color: #d9d1d1;
+    border-color: var(--border-default);
+    background: var(--bg-hover);
     display: block;
     width: 100%;
     max-width: 100%;
     overflow: hidden;
     white-space: nowrap;
-    color: #d9d9d9;
+    color: var(--text-disabled);
     cursor: not-allowed;
     padding: 4px 8px !important;
     line-height: 26px !important;
@@ -143,14 +147,16 @@
 
 
 .ant-tag.ant-tag-checkable.ellipsis-tag {
-    border-color: #d9d1d1;
+    border-color: var(--border-default);
+    background: var(--card-bg);
+    color: var(--text-secondary);
     display: block;
     max-width: 100%;
     width: 100% !important;
     white-space: nowrap;
     overflow: hidden !important;
     text-overflow: ellipsis;
-    transition: max-width 0.3s ease;
+    transition: max-width 0.3s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
     position: relative;
     font-family: sans-serif;
     line-height: 26px;
@@ -204,12 +210,13 @@
 }
 
 .unsupperted-tags-horizon {
-    border-color: #d9d1d1;
+    border-color: var(--border-default);
+    background: var(--bg-hover);
     display: inline-block;
     width: auto;
     overflow: hidden;
     white-space: nowrap;
-    color: #d9d9d9;
+    color: var(--text-disabled);
     cursor: not-allowed;
 }
 
@@ -390,13 +397,11 @@
     width: 100%;
     position: relative;
     border-radius: 10px;
-    background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
-    box-shadow:
-        0 2px 8px rgba(0, 0, 0, 0.04),
-        0 1px 3px rgba(0, 0, 0, 0.02);
+    background: var(--card-bg);
+    box-shadow: var(--shadow-sm);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: visible;
-    border: 1px solid #e8edf2;
+    border: 1px solid var(--border-default);
 }
 
 .ag-courses_item:hover {
@@ -512,18 +517,18 @@
     padding: 3px 10px !important;
     font-size: 13px !important;
     font-weight: 500 !important;
-    border: 1.5px solid #e2e8f0 !important;
+    border: 1.5px solid var(--border-default) !important;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    background: #ffffff !important;
-    color: #475569 !important;
+    background: var(--card-bg) !important;
+    color: var(--text-secondary) !important;
 }
 
 .tags-container .ant-tag-checkable:hover {
-    border-color: #056ccd !important;
-    color: #056ccd !important;
-    background: rgba(5, 108, 205, 0.06) !important;
+    border-color: var(--color-primary) !important;
+    color: var(--color-primary) !important;
+    background: var(--color-primary-light) !important;
     transform: translateY(-1px) !important;
-    box-shadow: 0 2px 8px rgba(5, 108, 205, 0.12) !important;
+    box-shadow: 0 2px 8px var(--shadow-primary) !important;
 }
 
 .tags-container .ant-tag-checkable-checked {
@@ -561,30 +566,39 @@
 
 .ant-anchor .ant-anchor-link {
     padding: 2px 0 !important;
-    padding-left: 5px !important;
+    padding-left: 2px !important;
+    padding-right: 0 !important;
+    width: 100% !important;
 }
 
-.ant-anchor .ant-tag-checkable {
+.ant-anchor .ant-anchor-link-title {
+    display: block !important;
+    width: 100% !important;
+}
+
+.ant-anchor .ant-tag {
     border-radius: 6px !important;
     padding: 3px 10px !important;
     font-size: 13px !important;
     font-weight: 500 !important;
-    border: 1.5px solid #e2e8f0 !important;
+    border: 1.5px solid var(--border-default) !important;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    background: #ffffff !important;
-    color: #475569 !important;
+    background: var(--card-bg) !important;
+    color: var(--text-secondary) !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     max-width: 100%;
+    width: 100% !important;
+    display: block !important;
     margin: 2px 0 !important;
 }
 
-.ant-anchor .ant-tag-checkable:hover {
-    border-color: #056ccd !important;
-    color: #056ccd !important;
-    background: rgba(5, 108, 205, 0.06) !important;
-    box-shadow: 0 2px 8px rgba(5, 108, 205, 0.12) !important;
+.ant-anchor .ant-tag:hover {
+    border-color: var(--color-primary) !important;
+    color: var(--color-primary) !important;
+    background: var(--color-primary-light) !important;
+    box-shadow: 0 2px 8px var(--shadow-primary) !important;
     white-space: normal !important;
     overflow: visible !important;
     text-overflow: clip !important;
@@ -606,7 +620,7 @@
     width: 100% !important;
 }
 
-.ant-anchor .ant-badge>.ant-tag-checkable {
+.ant-anchor .ant-badge>.ant-tag {
     width: 100% !important;
 }
 
@@ -633,14 +647,15 @@
 
 .ant-anchor .unchangeable-tag {
     cursor: not-allowed !important;
-    background-color: #4a4a4a !important;
-    color: #ffffff !important;
+    background-color: var(--bg-active) !important;
+    color: var(--text-disabled) !important;
+    border-color: var(--border-default) !important;
 }
 
 .ant-anchor .unchangeable-tag:hover {
     cursor: not-allowed !important;
-    background-color: #4a4a4a !important;
-    color: #ffffff !important;
-    border-color: #4a4a4a !important;
+    background-color: var(--bg-active) !important;
+    color: var(--text-disabled) !important;
+    border-color: var(--border-default) !important;
     transform: none !important;
 }

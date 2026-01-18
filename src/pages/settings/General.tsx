@@ -1,11 +1,13 @@
 import React from 'react';
-import { Card, Typography, Tag, Space, Row, Col, Divider } from 'antd';
-import { CloudServerOutlined } from '@ant-design/icons';
+import { Card, Typography, Tag, Space, Row, Col, Divider, Segmented } from 'antd';
+import { CloudServerOutlined, SunOutlined, MoonOutlined, DesktopOutlined } from '@ant-design/icons';
 import { getVersionAntdColor } from '@/utils/versionColors';
+import { useTheme, ThemeMode } from '@/contexts/ThemeContext';
 
 const { Text, Title } = Typography;
 
 const General: React.FC = () => {
+    const { mode, setMode, isDark } = useTheme();
     const appInfo = {
         name: 'Elchi',
         version: window.APP_CONFIG.VERSION,
@@ -16,7 +18,7 @@ const General: React.FC = () => {
     return (
         <div style={{ width: '100%', padding: '12px' }}>
             <div style={{ marginBottom: '24px' }}>
-                <Title level={3} style={{ margin: '0 0 8px 0', color: '#1f2937' }}>
+                <Title level={3} style={{ margin: '0 0 8px 0', color: 'var(--text-primary)' }}>
                     General Information
                 </Title>
                 <Text type="secondary">Application details and configuration</Text>
@@ -28,7 +30,7 @@ const General: React.FC = () => {
                     <Card
                         style={{
                             borderRadius: '12px',
-                            background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                            background: 'linear-gradient(90deg, var(--color-primary) 0%, var(--color-accent) 100%)',
                             border: 'none',
                             color: 'white',
                             height: '100%'
@@ -80,7 +82,7 @@ const General: React.FC = () => {
                                             fontWeight: 'bold',
                                             border: 'none',
                                             background: 'rgba(255,255,255,0.9)',
-                                            color: '#056ccd'
+                                            color: 'var(--color-primary)'
                                         }}
                                     >
                                         {appInfo.version}
@@ -98,7 +100,7 @@ const General: React.FC = () => {
                                             fontWeight: 'bold',
                                             border: 'none',
                                             background: 'rgba(255,255,255,0.9)',
-                                            color: '#00c6fb'
+                                            color: 'var(--color-accent)'
                                         }}
                                     >
                                         {appInfo.apiVersion}
@@ -114,7 +116,8 @@ const General: React.FC = () => {
                     <Card
                         style={{
                             borderRadius: '12px',
-                            border: '1px solid #e1e5e9',
+                            border: '1px solid var(--border-default)',
+                            background: 'var(--card-bg)',
                             height: '100%'
                         }}
                         styles={{ body: { padding: '24px' } }}
@@ -125,7 +128,7 @@ const General: React.FC = () => {
                                     width: '40px',
                                     height: '40px',
                                     borderRadius: '10px',
-                                    background: 'linear-gradient(135deg, #52c41a 0%, #389e0d 100%)',
+                                    background: 'linear-gradient(135deg, var(--color-success) 0%, #389e0d 100%)',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center'
@@ -133,7 +136,7 @@ const General: React.FC = () => {
                                     <CloudServerOutlined style={{ color: 'white', fontSize: '20px' }} />
                                 </div>
                                 <div>
-                                    <Text style={{ fontSize: '16px', fontWeight: 'bold', color: '#1f2937' }}>
+                                    <Text style={{ fontSize: '16px', fontWeight: 'bold', color: 'var(--text-primary)' }}>
                                         Supported Envoy Versions
                                     </Text>
                                     <br />
@@ -169,15 +172,88 @@ const General: React.FC = () => {
                                 ))}
                             </div>
                             
-                            <div style={{ 
+                            <div style={{
                                 marginTop: '8px',
                                 padding: '8px 12px',
-                                background: '#f6ffed',
+                                background: 'var(--color-success-light)',
                                 borderRadius: '6px',
-                                border: '1px solid #b7eb8f'
+                                border: '1px solid var(--color-success)'
                             }}>
-                                <Text style={{ fontSize: '12px', color: '#52c41a', fontWeight: '500' }}>
+                                <Text style={{ fontSize: '12px', color: 'var(--color-success)', fontWeight: '500' }}>
                                     Total: {appInfo.supportedEnvoyVersions.length} versions supported
+                                </Text>
+                            </div>
+                        </Space>
+                    </Card>
+                </Col>
+
+                {/* Theme/Appearance Card */}
+                <Col xs={24} lg={12}>
+                    <Card
+                        style={{
+                            borderRadius: '12px',
+                            border: '1px solid var(--border-default)',
+                            background: 'var(--card-bg)',
+                            height: '100%'
+                        }}
+                        styles={{ body: { padding: '24px' } }}
+                    >
+                        <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                            <Space>
+                                <div style={{
+                                    width: '40px',
+                                    height: '40px',
+                                    borderRadius: '10px',
+                                    background: isDark
+                                        ? 'linear-gradient(135deg, var(--color-primary) 0%, #1d4ed8 100%)'
+                                        : 'linear-gradient(135deg, var(--color-warning) 0%, #d97706 100%)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}>
+                                    {isDark ? <MoonOutlined style={{ color: 'white', fontSize: '20px' }} />
+                                        : <SunOutlined style={{ color: 'white', fontSize: '20px' }} />}
+                                </div>
+                                <div>
+                                    <Text style={{ fontSize: '16px', fontWeight: 'bold', color: 'var(--text-primary)' }}>
+                                        Appearance
+                                    </Text>
+                                    <br />
+                                    <Text type="secondary" style={{ fontSize: '14px' }}>
+                                        Customize the application theme
+                                    </Text>
+                                </div>
+                            </Space>
+
+                            <Divider style={{ margin: '12px 0' }} />
+
+                            <div>
+                                <Text style={{ color: 'var(--text-secondary)', marginBottom: '12px', display: 'block' }}>
+                                    Theme Mode
+                                </Text>
+                                <Segmented
+                                    value={mode}
+                                    onChange={(value) => setMode(value as ThemeMode)}
+                                    options={[
+                                        { value: 'light', icon: <SunOutlined />, label: 'Light' },
+                                        { value: 'dark', icon: <MoonOutlined />, label: 'Dark' },
+                                        { value: 'system', icon: <DesktopOutlined />, label: 'System' },
+                                    ]}
+                                    block
+                                />
+                            </div>
+
+                            <div style={{
+                                marginTop: '8px',
+                                padding: '8px 12px',
+                                background: 'var(--bg-hover)',
+                                borderRadius: '6px',
+                                border: '1px solid var(--border-default)'
+                            }}>
+                                <Text style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                                    {mode === 'system'
+                                        ? `Following system preference (currently ${isDark ? 'dark' : 'light'})`
+                                        : `${mode.charAt(0).toUpperCase() + mode.slice(1)} mode active`}
                                 </Text>
                             </div>
                         </Space>

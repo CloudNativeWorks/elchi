@@ -10,20 +10,20 @@ const { Title, Text } = Typography;
 
 // Model tier configuration for dynamic categorization
 const MODEL_TIERS = {
-    free: { 
-        color: '#52c41a', 
-        label: 'Free', 
-        description: 'Free models - great for experimentation' 
+    free: {
+        color: 'var(--color-success)',
+        label: 'Free',
+        description: 'Free models - great for experimentation'
     },
-    budget: { 
-        color: '#1890ff', 
-        label: 'Budget', 
-        description: 'Good balance of cost and performance' 
+    budget: {
+        color: 'var(--color-primary)',
+        label: 'Budget',
+        description: 'Good balance of cost and performance'
     },
-    premium: { 
-        color: '#722ed1', 
-        label: 'Premium', 
-        description: 'Best performance for critical tasks' 
+    premium: {
+        color: 'var(--color-purple)',
+        label: 'Premium',
+        description: 'Best performance for critical tasks'
     }
 };
 
@@ -245,7 +245,7 @@ const AI: React.FC = () => {
 
                 {/* OpenRouter API Key Section */}
                 <Title level={5} style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <ApiOutlined style={{ color: '#1890ff' }} />
+                    <ApiOutlined style={{ color: 'var(--color-primary)' }} />
                     OpenRouter API Key
                 </Title>
                 <Space direction="vertical" style={{ width: '100%', marginBottom: 24 }} size={12}>
@@ -261,16 +261,16 @@ const AI: React.FC = () => {
                             display: 'flex', 
                             alignItems: 'center', 
                             gap: 12, 
-                            padding: '12px 16px', 
-                            background: '#f6ffed', 
-                            border: '1px solid #b7eb8f', 
+                            padding: '12px 16px',
+                            background: 'var(--color-success-bg)',
+                            border: '1px solid var(--color-success-border)',
                             borderRadius: 6 
                         }}>
-                            <Text 
-                                style={{ 
-                                    fontFamily: 'monospace', 
-                                    fontSize: 13, 
-                                    color: '#52c41a',
+                            <Text
+                                style={{
+                                    fontFamily: 'monospace',
+                                    fontSize: 13,
+                                    color: 'var(--color-success)',
                                     flex: 1
                                 }}
                             >
@@ -281,7 +281,7 @@ const AI: React.FC = () => {
                                 size="small"
                                 icon={<EditOutlined />}
                                 onClick={handleEditApiKey}
-                                style={{ color: '#722ed1' }}
+                                style={{ color: 'var(--color-purple)' }}
                             >
                                 Edit
                             </Button>
@@ -290,7 +290,7 @@ const AI: React.FC = () => {
                                 size="small"
                                 icon={<DeleteOutlined />}
                                 onClick={handleDeleteApiKey}
-                                style={{ color: '#ff4d4f' }}
+                                style={{ color: 'var(--color-danger)' }}
                                 danger
                             >
                                 Delete
@@ -309,7 +309,7 @@ const AI: React.FC = () => {
                                 icon={<SaveOutlined />}
                                 loading={isLoadingApiKey}
                                 onClick={handleSaveApiKey}
-                                style={{ background: '#1890ff', borderColor: '#1890ff' }}
+                                style={{ background: 'var(--color-primary)', borderColor: 'var(--color-primary)' }}
                             >
                                 {hasApiKey ? 'Update' : 'Save'}
                             </Button>
@@ -331,7 +331,7 @@ const AI: React.FC = () => {
                         <Divider style={{ margin: '24px 0' }} />
                         
                         <Title level={5} style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <RobotOutlined style={{ color: '#722ed1' }} />
+                            <RobotOutlined style={{ color: 'var(--color-purple)' }} />
                             AI Model Selection
                         </Title>
                         
@@ -366,7 +366,7 @@ const AI: React.FC = () => {
                                             <div style={{ fontWeight: 500, fontSize: 15, marginBottom: 4 }}>
                                                 {getModelInfo(selectedModel)?.name}
                                             </div>
-                                            <div style={{ fontSize: 12, color: '#666', marginBottom: 8 }}>
+                                            <div style={{ fontSize: 12, color: 'var(--text-tertiary)', marginBottom: 8 }}>
                                                 {selectedModel}
                                             </div>
                                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -379,17 +379,17 @@ const AI: React.FC = () => {
                                                 </Tag>
                                             </div>
                                             {!getModelInfo(selectedModel)?.is_free && (
-                                                <div style={{ fontSize: 10, color: '#666', marginTop: 4 }}>
+                                                <div style={{ fontSize: 10, color: 'var(--text-tertiary)', marginTop: 4 }}>
                                                     Prompt: {formatPrice(getModelInfo(selectedModel)?.prompt_price || '0')} • 
                                                     Completion: {formatPrice(getModelInfo(selectedModel)?.completion_price || '0')}
                                                 </div>
                                             )}
                                         </div>
                                     ) : (
-                                        <div style={{ 
-                                            padding: '12px 16px', 
-                                            background: '#fff2e8', 
-                                            border: '1px solid #ffbb96', 
+                                        <div style={{
+                                            padding: '12px 16px',
+                                            background: 'var(--color-warning-bg)',
+                                            border: '1px solid var(--color-warning-border)',
                                             borderRadius: 6,
                                             textAlign: 'center'
                                         }}>
@@ -408,7 +408,7 @@ const AI: React.FC = () => {
                         <Divider style={{ margin: '24px 0' }} />
                         
                         <Title level={5} style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <BarChartOutlined style={{ color: '#52c41a' }} />
+                            <BarChartOutlined style={{ color: 'var(--color-success)' }} />
                             AI Usage Statistics
                         </Title>
                         
@@ -450,7 +450,7 @@ const AI: React.FC = () => {
                                 </Row>
                             ) : (
                                 <Space style={{ width: '100%', justifyContent: 'center', padding: '16px 0' }}>
-                                    <ExclamationCircleOutlined style={{ color: '#faad14' }} />
+                                    <ExclamationCircleOutlined style={{ color: 'var(--color-warning)' }} />
                                     <Text type="secondary">No usage data available yet</Text>
                                 </Space>
                             )}
@@ -465,7 +465,7 @@ const AI: React.FC = () => {
                                             <Progress
                                                 percent={Math.min((aiUsageStats.average_response_time_ms / 10000) * 100, 100)}
                                                 format={() => `${aiUsageStats.average_response_time_ms.toFixed(0)}ms`}
-                                                strokeColor="#722ed1"
+                                                strokeColor="var(--color-purple)"
                                             />
                                         </Col>
                                         <Col span={12}>
@@ -483,7 +483,7 @@ const AI: React.FC = () => {
                                         </Col>
                                     </Row>
                                     {aiUsageStats.last_used && (
-                                        <div style={{ marginTop: 12, fontSize: 12, color: '#8c8c8c' }}>
+                                        <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-tertiary)' }}>
                                             Last used: {new Date(aiUsageStats.last_used).toLocaleString()}
                                         </div>
                                     )}
@@ -499,7 +499,7 @@ const AI: React.FC = () => {
             <Drawer
                 title={
                     <Space>
-                        <RobotOutlined style={{ color: '#1890ff' }} />
+                        <RobotOutlined style={{ color: 'var(--color-primary)' }} />
                         Select AI Model
                     </Space>
                 }
@@ -528,7 +528,7 @@ const AI: React.FC = () => {
                     {/* Search Input */}
                     <Input
                         placeholder="Search models by name or ID..."
-                        prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />}
+                        prefix={<SearchOutlined style={{ color: 'var(--text-secondary)' }} />}
                         value={modelSearchText}
                         onChange={(e) => setModelSearchText(e.target.value)}
                         allowClear
@@ -539,10 +539,10 @@ const AI: React.FC = () => {
                     {isModelsLoading ? (
                         <div style={{ textAlign: 'center', padding: '40px 0' }}>
                             <Spin size="large" />
-                            <div style={{ marginTop: 16, color: '#666' }}>Loading available models...</div>
+                            <div style={{ marginTop: 16, color: 'var(--text-tertiary)' }}>Loading available models...</div>
                         </div>
                     ) : availableModels.length === 0 ? (
-                        <div style={{ textAlign: 'center', padding: '40px 0', color: '#999' }}>
+                        <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--text-tertiary)' }}>
                             <Text type="secondary">No models available. Please check your OpenRouter API key.</Text>
                         </div>
                     ) : (
@@ -573,8 +573,8 @@ const AI: React.FC = () => {
                                                     size="small"
                                                     style={{
                                                         cursor: 'pointer',
-                                                        border: tempSelectedModel === model.id ? `2px solid ${tierInfo.color}` : '1px solid #f0f0f0',
-                                                        background: tempSelectedModel === model.id ? tierInfo.color + '05' : 'white'
+                                                        border: tempSelectedModel === model.id ? `2px solid ${tierInfo.color}` : '1px solid var(--border-default)',
+                                                        background: tempSelectedModel === model.id ? tierInfo.color + '15' : 'var(--bg-surface)'
                                                     }}
                                                     onClick={() => setTempSelectedModel(model.id)}
                                                     hoverable
@@ -591,7 +591,7 @@ const AI: React.FC = () => {
                                                             {model.id}
                                                         </Text>
                                                         
-                                                        <div style={{ fontSize: 11, color: '#666' }}>
+                                                        <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
                                                             <div>Context: {model.context_length?.toLocaleString()} tokens</div>
                                                             {!model.is_free && (
                                                                 <div>

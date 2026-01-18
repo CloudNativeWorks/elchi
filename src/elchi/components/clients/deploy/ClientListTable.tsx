@@ -153,14 +153,14 @@ export function ClientListTable({
                 <div>
                     <div style={{
                         fontWeight: 500,
-                        color: '#262626',
+                        color: 'var(--text-primary)',
                         fontSize: 14
                     }}>
                         {text}
                     </div>
                     <div style={{
                         fontSize: 11,
-                        color: '#8c8c8c',
+                        color: 'var(--text-tertiary)',
                         marginTop: 2
                     }}>
                         {record.client_id}
@@ -177,8 +177,8 @@ export function ClientListTable({
                 <span style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    background: connected ? '#e6fffb' : '#fff1f0',
-                    color: connected ? '#52c41a' : '#ff4d4f',
+                    background: connected ? 'var(--color-success-light)' : 'var(--color-danger-light)',
+                    color: connected ? 'var(--color-success)' : 'var(--color-danger)',
                     borderRadius: 8,
                     fontWeight: 600,
                     fontSize: 12,
@@ -190,7 +190,7 @@ export function ClientListTable({
                         width: 7,
                         height: 7,
                         borderRadius: '50%',
-                        background: connected ? '#52c41a' : '#ff4d4f',
+                        background: connected ? 'var(--color-success)' : 'var(--color-danger)',
                         marginRight: 7,
                         animation: connected ? 'pulse 1.2s infinite' : 'none'
                     }} />
@@ -206,13 +206,13 @@ export function ClientListTable({
             render: (text: string) => (
                 <div style={{
                     padding: '4px 8px',
-                    background: '#f5f5f5',
+                    background: 'var(--bg-surface)',
                     borderRadius: 4,
                     fontSize: 12,
                     fontWeight: 500,
-                    color: '#595959',
+                    color: 'var(--text-secondary)',
                     width: 'fit-content',
-                    border: '1px solid #f0f0f0'
+                    border: '1px solid var(--border-default)'
                 }}>
                     {text || '-'}
                 </div>
@@ -227,22 +227,22 @@ export function ClientListTable({
 
                 // Check if client is disconnected
                 if (!record.connected) {
-                    return <span style={{ color: '#bfbfbf', fontSize: 12 }}>Offline</span>;
+                    return <span style={{ color: 'var(--text-disabled)', fontSize: 12 }}>Offline</span>;
                 }
 
                 // If no version info yet, show loading
                 if (!versionInfo) {
-                    return <span style={{ color: '#bfbfbf', fontSize: 12 }}>Loading...</span>;
+                    return <span style={{ color: 'var(--text-disabled)', fontSize: 12 }}>Loading...</span>;
                 }
 
                 // If there's an error, show it
                 if (versionInfo.error) {
-                    return <span style={{ color: '#ff4d4f', fontSize: 12 }}>{versionInfo.error}</span>;
+                    return <span style={{ color: 'var(--color-danger)', fontSize: 12 }}>{versionInfo.error}</span>;
                 }
 
                 // If no versions available
                 if (!versionInfo.downloaded_versions || versionInfo.downloaded_versions.length === 0) {
-                    return <span style={{ color: '#bfbfbf', fontSize: 12 }}>No versions</span>;
+                    return <span style={{ color: 'var(--text-disabled)', fontSize: 12 }}>No versions</span>;
                 }
 
                 return (
@@ -259,12 +259,12 @@ export function ClientListTable({
                                     key={version}
                                     style={{
                                         padding: '2px 8px',
-                                        background: isCurrentServiceVersion ? '#e6f7ff' : '#f5f5f5',
+                                        background: isCurrentServiceVersion ? 'var(--color-primary-light)' : 'var(--bg-surface)',
                                         borderRadius: 4,
                                         fontSize: 11,
                                         fontWeight: isCurrentServiceVersion ? 600 : 400,
-                                        color: isCurrentServiceVersion ? '#1890ff' : '#595959',
-                                        border: isCurrentServiceVersion ? '1px solid #91d5ff' : '1px solid #f0f0f0',
+                                        color: isCurrentServiceVersion ? 'var(--color-primary)' : 'var(--text-secondary)',
+                                        border: isCurrentServiceVersion ? '1px solid var(--color-info-border)' : '1px solid var(--border-default)',
                                         whiteSpace: 'nowrap'
                                     }}
                                 >
@@ -285,20 +285,20 @@ export function ClientListTable({
                 const serviceIpsCount = record.service_ips?.length || 0;
 
                 if (serviceIpsCount === 0) {
-                    return <span style={{ color: '#bfbfbf', fontSize: 12 }}>-</span>;
+                    return <span style={{ color: 'var(--text-disabled)', fontSize: 12 }}>-</span>;
                 }
 
                 return (
                     <span style={{
                         display: 'inline-flex',
-                        background: 'linear-gradient(90deg, #f6ffed 0%, #d9f7be 100%)',
-                        color: '#52c41a',
+                        background: 'var(--color-success-light)',
+                        color: 'var(--color-success)',
                         alignItems: 'center',
                         borderRadius: 4,
                         padding: '2px 12px',
                         fontWeight: 600,
                         fontSize: 12,
-                        boxShadow: '0 1px 4px rgba(82,196,26,0.08)'
+                        boxShadow: 'var(--color-success-shadow)'
                     }}>
                         {serviceIpsCount}
                     </span>
@@ -328,7 +328,7 @@ export function ClientListTable({
                             style={{
                                 borderRadius: 6,
                                 width: '100%',
-                                backgroundColor: disabledAddressEdit?.(record.client_id) ? '#fafafa' : '#fff'
+                                backgroundColor: disabledAddressEdit?.(record.client_id) ? 'var(--bg-surface)' : 'var(--card-bg)'
                             }}
                         />
                     );
@@ -355,7 +355,7 @@ export function ClientListTable({
                             style={{
                                 borderRadius: 6,
                                 width: '100%',
-                                backgroundColor: disabledAddressEdit?.(record.client_id) ? '#fafafa' : '#fff',
+                                backgroundColor: disabledAddressEdit?.(record.client_id) ? 'var(--bg-surface)' : 'var(--card-bg)',
                                 marginBottom: 8
                             }}
                             suffix={
@@ -364,7 +364,7 @@ export function ClientListTable({
                                         <path d="M12 2L4 8v16l12 6 12-6V8L12 2z" fill="#da1a32" />
                                         <path d="M8 12h8v4H8z" fill="#ffffff" />
                                     </svg>
-                                    <span style={{ fontSize: 11, color: '#666' }}>OpenStack</span>
+                                    <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>OpenStack</span>
                                 </div>
                             }
                         />
@@ -375,13 +375,13 @@ export function ClientListTable({
                             alignItems: 'center',
                             gap: 8,
                             padding: '6px 8px',
-                            background: '#f8f9fa',
-                            border: '1px solid #e9ecef',
+                            background: 'var(--bg-surface)',
+                            border: '1px solid var(--border-default)',
                             borderRadius: 4,
                             fontSize: 12
                         }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="#666">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--text-secondary)">
                                     <path d="M12,2A2,2 0 0,1 14,4C14,4.74 13.6,5.39 13,5.73V7H14A7,7 0 0,1 21,14H22A1,1 0 0,1 23,15V18A1,1 0 0,1 22,19H21V20A2,2 0 0,1 19,22H5A2,2 0 0,1 3,20V19H2A1,1 0 0,1 1,18V15A1,1 0 0,1 2,14H3A7,7 0 0,1 10,7H11V5.73C10.4,5.39 10,4.74 10,4A2,2 0 0,1 12,2M7.5,13A0.5,0.5 0 0,0 7,13.5A0.5,0.5 0 0,0 7.5,14A0.5,0.5 0 0,0 8,13.5A0.5,0.5 0 0,0 7.5,13M16.5,13A0.5,0.5 0 0,0 16,13.5A0.5,0.5 0 0,0 16.5,14A0.5,0.5 0 0,0 17,13.5A0.5,0.5 0 0,0 16.5,13Z" />
                                 </svg>
                                 <span style={{ fontWeight: 500 }}>Interface:</span>
@@ -390,7 +390,7 @@ export function ClientListTable({
                             {isLoading ? (
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                                     <Spin size="small" />
-                                    <span style={{ color: '#666' }}>Loading...</span>
+                                    <span style={{ color: 'var(--text-secondary)' }}>Loading...</span>
                                 </div>
                             ) : (
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -411,10 +411,10 @@ export function ClientListTable({
                                                 shortLabel: shortName.length > 30 ? `${shortName.substring(0, 30)}...` : shortName,
                                                 label: (
                                                     <div style={{ fontSize: 11 }}>
-                                                        <div style={{ fontWeight: 500 }}>
+                                                        <div style={{ fontWeight: 500, color: 'var(--text-primary)' }}>
                                                             {iface.name || iface.id.substring(0, 8)}
                                                         </div>
-                                                        <div style={{ color: '#666', fontSize: 10 }}>
+                                                        <div style={{ color: 'var(--text-secondary)', fontSize: 10 }}>
                                                             IP: {iface.fixed_ips.map(ip => ip.ip_address).join(', ')} | Status: {iface.status || 'N/A'}
                                                         </div>
                                                     </div>
@@ -440,7 +440,7 @@ export function ClientListTable({
                                             padding: '2px 6px',
                                             height: 'auto',
                                             fontSize: 11,
-                                            color: '#1890ff',
+                                            color: 'var(--color-primary)',
                                             whiteSpace: 'nowrap',
                                             flexShrink: 0
                                         }}
@@ -457,14 +457,14 @@ export function ClientListTable({
                             alignItems: 'center',
                             gap: 8,
                             padding: '6px 8px',
-                            background: '#f8f9fa',
-                            border: '1px solid #e9ecef',
+                            background: 'var(--bg-surface)',
+                            border: '1px solid var(--border-default)',
                             borderRadius: 4,
                             fontSize: 12,
                             marginTop: 4
                         }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="#666">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--text-secondary)">
                                     <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2M21 9V7L15 1L13.5 2.5L16.17 5.17L10.58 10.76C9.95 10.27 9.16 10 8.3 10C6.1 10 4.3 11.79 4.3 14S6.1 18 8.3 18S12.3 16.21 12.3 14C12.3 13.14 12.03 12.35 11.54 11.72L17.13 6.13L19.5 8.5L21 9Z"/>
                                 </svg>
                                 <span style={{ fontWeight: 500 }}>IP Mode:</span>
@@ -490,11 +490,11 @@ export function ClientListTable({
                             <div style={{
                                 marginTop: 4,
                                 padding: '4px 8px',
-                                background: '#fff2f0',
-                                border: '1px solid #ffccc7',
+                                background: 'var(--color-danger-light)',
+                                border: '1px solid var(--color-danger-border)',
                                 borderRadius: 4,
                                 fontSize: 11,
-                                color: '#ff4d4f'
+                                color: 'var(--color-danger)'
                             }}>
                                 ⚠ Interface selection required for deployment
                             </div>
@@ -619,7 +619,7 @@ export function ClientListTable({
                 flex: 1,
                 height: '100%',
                 overflow: 'auto',
-                border: '1px solid #f0f0f0',
+                border: '1px solid var(--border-default)',
                 borderRadius: 8
             }}>
                 <Table
@@ -687,7 +687,7 @@ export function ClientListTable({
                         emptyText: (
                             <div style={{
                                 padding: '32px 0',
-                                color: '#00000073',
+                                color: 'var(--text-secondary)',
                                 fontSize: 14
                             }}>
                                 No clients available
@@ -699,14 +699,14 @@ export function ClientListTable({
             <style dangerouslySetInnerHTML={{
                 __html: `
                 .version-incompatible {
-                    background-color: #fff1f0 !important;
+                    background-color: var(--color-danger-light) !important;
                     opacity: 0.8;
                 }
                 .version-incompatible:hover {
-                    background-color: #ffebe6 !important;
+                    background-color: var(--color-danger-light) !important;
                 }
                 .version-incompatible td {
-                    color: #8c8c8c;
+                    color: var(--text-tertiary);
                 }
             `
             }} />
@@ -715,7 +715,7 @@ export function ClientListTable({
             <Drawer
                 title={
                     <Space>
-                        <InfoCircleOutlined style={{ color: '#1890ff' }} />
+                        <InfoCircleOutlined style={{ color: 'var(--color-primary)' }} />
                         Interface Details
                     </Space>
                 }
@@ -802,10 +802,10 @@ export function ClientListTable({
                                 osProjectId={interfaceDetailModal.clientRecord.metadata?.os_project_id}
                             />
                         ) : (
-                            <div style={{ padding: '16px 0', textAlign: 'center', color: '#8c8c8c' }}>
+                            <div style={{ padding: '16px 0', textAlign: 'center', color: 'var(--text-tertiary)' }}>
                                 Network details not available. Please ensure the interfaces API returns consolidated network data.
                                 <br />
-                                <small style={{ color: '#999' }}>
+                                <small style={{ color: 'var(--text-disabled)' }}>
                                     Expected: interface.network or interface.network_details
                                 </small>
                             </div>

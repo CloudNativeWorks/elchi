@@ -130,12 +130,12 @@ const GSLBConfigComponent: React.FC = () => {
 
     const handleDelete = () => {
         confirm({
-            title: 'Delete GSLB Configuration',
-            icon: <ExclamationCircleOutlined />,
+            title: <span style={{ color: 'var(--text-primary)' }}>Delete GSLB Configuration</span>,
+            icon: <ExclamationCircleOutlined style={{ color: 'var(--color-danger)' }} />,
             content: (
-                <div>
+                <div style={{ color: 'var(--text-primary)' }}>
                     <p>Are you sure you want to delete the GSLB configuration?</p>
-                    <p><strong>Warning:</strong> This will only work if there are no existing GSLB records.</p>
+                    <p><strong style={{ color: 'var(--color-danger)' }}>Warning:</strong> This will only work if there are no existing GSLB records.</p>
                 </div>
             ),
             okText: 'Delete',
@@ -155,15 +155,15 @@ const GSLBConfigComponent: React.FC = () => {
             <div style={{ padding: '20px' }}>
                 <div style={{ marginBottom: '24px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-                        <GlobalOutlined style={{ color: '#1890ff', fontSize: 24 }} />
-                        <Title level={4} style={{ margin: 0 }}>GSLB Configuration</Title>
+                        <GlobalOutlined style={{ color: 'var(--color-primary)', fontSize: 24 }} />
+                        <Title level={4} style={{ margin: 0, color: 'var(--text-primary)' }}>GSLB Configuration</Title>
                     </div>
-                    <Text type="secondary">
+                    <Text style={{ color: 'var(--text-secondary)' }}>
                         Configure Global Server Load Balancing (GSLB) with DNS-based health checking and automatic failover.
                     </Text>
                 </div>
 
-                <Card style={{ borderRadius: 8 }}>
+                <Card style={{ borderRadius: 8, background: 'var(--card-bg)', border: '1px solid var(--border-default)' }}>
                     <Spin spinning={isLoading} size="large" tip="Loading GSLB configuration...">
                         <Form
                             form={form}
@@ -217,7 +217,7 @@ const GSLBConfigComponent: React.FC = () => {
                                             label="Failover Zones (Optional)"
                                             extra={
                                                 <Space direction="vertical" size={4} style={{ marginTop: 8 }}>
-                                                    <Text type="secondary" strong style={{ color: '#faad14' }}>
+                                                    <Text strong style={{ color: 'var(--color-warning)', fontSize: 13 }}>
                                                         First zone in the list is the default for auto-created records
                                                     </Text>
                                                 </Space>
@@ -285,7 +285,7 @@ const GSLBConfigComponent: React.FC = () => {
                             <Form.Item label="DNS Secret">
                                 {isConfigured && !showSecretInput ? (
                                     <div>
-                                        <Text type="secondary">
+                                        <Text style={{ color: 'var(--text-secondary)' }}>
                                             Secret is configured (masked for security)
                                         </Text>
                                         <br />
@@ -293,18 +293,29 @@ const GSLBConfigComponent: React.FC = () => {
                                             type="link"
                                             onClick={() => {
                                                 confirm({
-                                                    title: 'Change DNS Secret',
-                                                    icon: <ExclamationCircleOutlined />,
+                                                    title: <span style={{ color: 'var(--text-primary)' }}>Change DNS Secret</span>,
+                                                    icon: <ExclamationCircleOutlined style={{ color: 'var(--color-warning)' }} />,
                                                     content: (
-                                                        <div>
-                                                            <p>Are you sure you want to change the DNS secret?</p>
-                                                            <Alert
-                                                                message="Important: You must update the secret in CoreDNS configuration as well"
-                                                                description="If you change the DNS secret here, CoreDNS will not be able to fetch GSLB records until you update the X-Elchi-Secret header in your CoreDNS plugin configuration."
-                                                                type="error"
-                                                                showIcon
-                                                                style={{ marginTop: 12 }}
-                                                            />
+                                                        <div style={{ color: 'var(--text-primary)' }}>
+                                                            <p style={{ marginBottom: 16 }}>Are you sure you want to change the DNS secret?</p>
+                                                            <div style={{
+                                                                background: 'var(--color-danger-light)',
+                                                                border: '1px solid var(--color-danger-border)',
+                                                                padding: '12px 16px',
+                                                                borderRadius: 8,
+                                                                display: 'flex',
+                                                                gap: 12
+                                                            }}>
+                                                                <ExclamationCircleOutlined style={{ color: 'var(--color-danger)', fontSize: 18, marginTop: 2, flexShrink: 0 }} />
+                                                                <div>
+                                                                    <div style={{ fontWeight: 600, color: 'var(--color-danger)', marginBottom: 4 }}>
+                                                                        Important: You must update the secret in CoreDNS configuration as well
+                                                                    </div>
+                                                                    <div style={{ fontSize: 13, color: 'var(--text-primary)', opacity: 0.9 }}>
+                                                                        If you change the DNS secret here, CoreDNS will not be able to fetch GSLB records until you update the X-Elchi-Secret header in your CoreDNS plugin configuration.
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     ),
                                                     okText: 'Change Secret',
@@ -353,7 +364,7 @@ const GSLBConfigComponent: React.FC = () => {
                                         )}
                                     </>
                                 )}
-                                <Paragraph type="secondary" style={{ marginTop: 8, marginBottom: 0 }}>
+                                <Paragraph style={{ marginTop: 8, marginBottom: 0, color: 'var(--text-secondary)', fontSize: 12 }}>
                                     CoreDNS authentication secret (minimum {DNS_SECRET_MIN_LENGTH} characters)
                                 </Paragraph>
                             </Form.Item>

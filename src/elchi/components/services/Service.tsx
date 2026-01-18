@@ -70,7 +70,7 @@ export const ServiceDetails: React.FC<ServiceDetailsProps> = ({
                         })}
                     </div>
                 ) : (
-                    <span style={{ color: '#bfbfbf' }}>Service not deployed</span>
+                    <span style={{ color: 'var(--text-tertiary)' }}>Service not deployed</span>
                 )}
             </Descriptions.Item>
             <Descriptions.Item label="Service Status">
@@ -97,17 +97,17 @@ export const ServiceActions: React.FC<{
     actionLoading,
     serviceActionsDisabled
 }) => (
-        <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            marginBottom: 16, 
+        <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            marginBottom: 16,
             marginTop: 8,
             gap: 16,
             padding: '12px 16px',
-            background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+            background: 'var(--bg-elevated)',
             borderRadius: 14,
-            border: '1px solid rgba(226, 232, 240, 0.6)',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.7)',
+            border: '1px solid var(--border-default)',
+            boxShadow: 'var(--shadow-sm)',
             position: 'relative'
         }}>
             <DeploymentButton onClick={onDeployClick} />
@@ -228,11 +228,11 @@ const ServiceActionButtons: React.FC<{
     <div style={{
         display: 'flex',
         alignItems: 'center',
-        background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+        background: 'var(--bg-surface)',
         padding: '8px',
         borderRadius: 20,
-        border: '1px solid rgba(226, 232, 240, 0.8)',
-        boxShadow: '0 4px 15px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.9)',
+        border: '1px solid var(--border-default)',
+        boxShadow: 'var(--shadow-sm)',
         gap: 6,
         backdropFilter: 'blur(10px)'
     }}>
@@ -265,9 +265,9 @@ const ServiceActionButtons: React.FC<{
                         width: 36,
                         height: 36,
                         borderRadius: 12,
-                        background: disabled ? '#f1f5f9' : 'linear-gradient(135deg, #10b981, #059669)',
+                        background: disabled ? 'var(--bg-disabled)' : 'linear-gradient(135deg, #10b981, #059669)',
                         border: 'none',
-                        color: disabled ? '#94a3b8' : '#ffffff',
+                        color: disabled ? 'var(--text-disabled)' : '#ffffff',
                         cursor: disabled ? 'not-allowed' : 'pointer',
                         display: 'flex',
                         alignItems: 'center',
@@ -305,9 +305,9 @@ const ServiceActionButtons: React.FC<{
                         width: 36,
                         height: 36,
                         borderRadius: 12,
-                        background: disabled ? '#f1f5f9' : 'linear-gradient(135deg, #ef4444, #dc2626)',
+                        background: disabled ? 'var(--bg-disabled)' : 'linear-gradient(135deg, #ef4444, #dc2626)',
                         border: 'none',
-                        color: disabled ? '#94a3b8' : '#ffffff',
+                        color: disabled ? 'var(--text-disabled)' : '#ffffff',
                         cursor: disabled ? 'not-allowed' : 'pointer',
                         display: 'flex',
                         alignItems: 'center',
@@ -345,9 +345,9 @@ const ServiceActionButtons: React.FC<{
                         width: 36,
                         height: 36,
                         borderRadius: 12,
-                        background: disabled ? '#f1f5f9' : 'linear-gradient(135deg, #f59e0b, #d97706)',
+                        background: disabled ? 'var(--bg-disabled)' : 'linear-gradient(135deg, #f59e0b, #d97706)',
                         border: 'none',
-                        color: disabled ? '#94a3b8' : '#ffffff',
+                        color: disabled ? 'var(--text-disabled)' : '#ffffff',
                         cursor: disabled ? 'not-allowed' : 'pointer',
                         display: 'flex',
                         alignItems: 'center',
@@ -385,9 +385,9 @@ const ServiceActionButtons: React.FC<{
                         width: 36,
                         height: 36,
                         borderRadius: 12,
-                        background: disabled ? '#f1f5f9' : 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                        background: disabled ? 'var(--bg-disabled)' : 'linear-gradient(135deg, #3b82f6, #2563eb)',
                         border: 'none',
-                        color: disabled ? '#94a3b8' : '#ffffff',
+                        color: disabled ? 'var(--text-disabled)' : '#ffffff',
                         cursor: disabled ? 'not-allowed' : 'pointer',
                         display: 'flex',
                         alignItems: 'center',
@@ -425,9 +425,9 @@ const ServiceActionButtons: React.FC<{
                         width: 36,
                         height: 36,
                         borderRadius: 12,
-                        background: disabled ? '#f1f5f9' : 'linear-gradient(135deg, #6366f1, #4f46e5)',
+                        background: disabled ? 'var(--bg-disabled)' : 'linear-gradient(135deg, #6366f1, #4f46e5)',
                         border: 'none',
-                        color: disabled ? '#94a3b8' : '#ffffff',
+                        color: disabled ? 'var(--text-disabled)' : '#ffffff',
                         cursor: disabled ? 'not-allowed' : 'pointer',
                         display: 'flex',
                         alignItems: 'center',

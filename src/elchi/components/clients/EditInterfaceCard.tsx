@@ -157,13 +157,14 @@ const EditInterfaceCard: React.FC<EditInterfaceCardProps> = ({
     return (
         <div style={{
             width: '100%',
-            background: '#fff',
+            background: 'var(--card-bg)',
             borderRadius: 14,
             padding: '20px',
             marginTop: 0,
             marginLeft: 0,
             minWidth: 0,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+            boxShadow: 'var(--shadow-sm)',
+            border: '1px solid var(--border-default)'
         }}>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 18 }}>
                 <Title level={5} style={{ margin: 0 }}>Edit Interface: {entry.name}</Title>
