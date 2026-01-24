@@ -442,6 +442,30 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
         }
     }, [open, clients, fetchClientVersions, fetchOpenStackInterfaces]);
 
+    // Re-apply existing client interface selections after interfaceData is loaded
+    useEffect(() => {
+        if (!open || existingClients.length === 0) return;
+
+        // For each existing client with interface_id, ensure the selection is applied
+        existingClients.forEach(existingClient => {
+            // Always set the interface selection if it exists in existingClients
+            if (existingClient.interface_id && !selectedInterfaces[existingClient.client_id]) {
+                setSelectedInterfaces(prev => ({
+                    ...prev,
+                    [existingClient.client_id]: existingClient.interface_id!
+                }));
+            }
+
+            // Also ensure IP mode is set
+            if (existingClient.ip_mode && !selectedIpModes[existingClient.client_id]) {
+                setSelectedIpModes(prev => ({
+                    ...prev,
+                    [existingClient.client_id]: existingClient.ip_mode!
+                }));
+            }
+        });
+    }, [open, interfaceData, existingClients]);
+
     // Handle selection when switching between DEPLOY and UNDEPLOY modes
     useEffect(() => {
         if (!clients) return;
