@@ -989,7 +989,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
 
     return (
         <div style={{
-            background: 'linear-gradient(90deg, rgba(5, 108, 205, 0.8) 0%, rgba(0, 198, 251, 0.6) 50%)',
+            background: 'var(--gradient-primary)',
             borderRadius: 24,
             padding: 24,
             marginBottom: 0,
@@ -1003,7 +1003,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                 left: -100,
                 width: 300,
                 height: 300,
-                background: 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)',
+                background: 'radial-gradient(circle, var(--glass-white-light) 0%, transparent 70%)',
                 borderRadius: '50%',
                 animation: 'float 6s ease-in-out infinite'
             }} />
@@ -1013,7 +1013,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                 right: -150,
                 width: 400,
                 height: 400,
-                background: 'radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%)',
+                background: 'radial-gradient(circle, var(--glass-white-lighter) 0%, transparent 70%)',
                 borderRadius: '50%',
                 animation: 'float 8s ease-in-out infinite reverse'
             }} />
@@ -1032,15 +1032,15 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         width: 48,
                         height: 48,
                         borderRadius: 16,
-                        background: 'rgba(255, 255, 255, 0.15)',
+                        background: 'var(--glass-white-medium)',
                         backdropFilter: 'blur(20px)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         color: 'white',
                         fontSize: 20,
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                        boxShadow: '0 4px 16px rgba(5, 108, 205, 0.3)'
+                        border: '1px solid var(--glass-border)',
+                        boxShadow: '0 4px 16px var(--shadow-primary-color-hover)'
                     }}>
                         <DashboardOutlined />
                     </div>
@@ -1050,12 +1050,12 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                             color: 'white',
                             fontWeight: 800,
                             fontSize: 28,
-                            textShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                            textShadow: '0 2px 4px var(--shadow-text)'
                         }}>
                             Traffic Overview
                         </Title>
                         <Text style={{
-                            color: 'rgba(255, 255, 255, 0.8)',
+                            color: 'var(--text-on-gradient)',
                             fontSize: 14,
                             fontWeight: 500
                         }}>
@@ -1065,11 +1065,11 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                     {loading && (
                         <div style={{
                             padding: '8px 16px',
-                            background: 'rgba(255, 255, 255, 0.08)',
+                            background: 'var(--glass-white-light)',
                             borderRadius: 12,
                             backdropFilter: 'blur(10px)',
-                            border: '1px solid rgba(255, 255, 255, 0.1)',
-                            boxShadow: '0 2px 8px rgba(5, 108, 205, 0.2)'
+                            border: '1px solid var(--glass-border)',
+                            boxShadow: '0 2px 8px var(--shadow-primary-color)'
                         }}>
                             <Spin size="small" style={{ color: 'white' }} />
                         </div>
@@ -1090,22 +1090,22 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         fontSize: 14,
                         padding: '12px 20px',
                         height: 'auto',
-                        background: 'rgba(255, 255, 255, 0.08)',
+                        background: 'var(--glass-white-light)',
                         backdropFilter: 'blur(20px)',
-                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        border: '1px solid var(--glass-white-medium)',
                         borderRadius: 12,
                         transition: 'all 0.3s ease',
-                        boxShadow: '0 4px 16px rgba(5, 108, 205, 0.2)'
+                        boxShadow: '0 4px 16px var(--shadow-primary-color)'
                     }}
                     onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+                        e.currentTarget.style.background = 'var(--glass-white-medium)';
                         e.currentTarget.style.transform = 'translateY(-2px)';
-                        e.currentTarget.style.boxShadow = '0 6px 20px rgba(5, 108, 205, 0.3)';
+                        e.currentTarget.style.boxShadow = '0 6px 20px var(--shadow-primary-color-hover)';
                     }}
                     onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
+                        e.currentTarget.style.background = 'var(--glass-white-light)';
                         e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.boxShadow = '0 4px 16px rgba(5, 108, 205, 0.2)';
+                        e.currentTarget.style.boxShadow = '0 4px 16px var(--shadow-primary-color)';
                     }}
                 >
                     Refresh
@@ -1335,7 +1335,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                                             borderRadius: 8,
                                             padding: 12,
                                             transition: 'all 0.2s ease',
-                                            boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                                            boxShadow: '0 1px 3px var(--shadow-card-item)',
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'space-between'
@@ -1343,12 +1343,12 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                                         onMouseEnter={(e) => {
                                             e.currentTarget.style.borderColor = getStatusColor(item.status);
                                             e.currentTarget.style.transform = 'translateY(-1px)';
-                                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.12)';
+                                            e.currentTarget.style.boxShadow = '0 4px 12px var(--shadow-card-item-hover)';
                                         }}
                                         onMouseLeave={(e) => {
                                             e.currentTarget.style.borderColor = 'var(--border-default)';
                                             e.currentTarget.style.transform = 'translateY(0)';
-                                            e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08)';
+                                            e.currentTarget.style.boxShadow = '0 1px 3px var(--shadow-card-item)';
                                         }}
                                     >
                                         {/* Left: Domain name and status */}

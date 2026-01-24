@@ -14,16 +14,16 @@ const ElchiIconButton: React.FC<ElchiIconButtonProps> = ({ style, disabled, ...p
             type="primary"
             size="small"
             icon={
-                <svg width={13} height={13} className="add-icon-shadow" fill="#fff" viewBox="0 0 16 16">
-                    <path d="M8 1v14M1 8h14" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
+                <svg width={13} height={13} className="add-icon-shadow" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 1v14M1 8h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
                 </svg>
             }
             style={{
                 background: isDisabled
-                    ? 'linear-gradient(90deg, #e0e0e0 0%, #bdbdbd 100%)'
-                    : 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                    ? 'var(--btn-disabled-gradient, linear-gradient(90deg, #e0e0e0 0%, #bdbdbd 100%))'
+                    : 'var(--gradient-primary)',
                 border: 'none',
-                color: '#fff',
+                color: 'var(--text-on-primary)',
                 boxShadow: '0 2px 8px 0 rgba(5,117,230,0.10)',
                 width: 26,
                 height: 26,

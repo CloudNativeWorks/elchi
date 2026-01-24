@@ -129,15 +129,15 @@ const DeploymentButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
                 position: 'relative',
                 width: 150,
                 height: 42,
-                background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #06b6d4 100%)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
+                background: 'var(--gradient-primary)',
+                border: '1px solid var(--glass-border)',
                 borderRadius: 12,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                boxShadow: '0 8px 20px rgba(59, 130, 246, 0.3), 0 3px 10px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.15)',
+                boxShadow: 'var(--shadow-primary)',
                 overflow: 'hidden',
                 color: '#ffffff',
                 padding: '0 16px',
@@ -146,9 +146,9 @@ const DeploymentButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
             }}
             onMouseEnter={e => {
                 e.currentTarget.style.transform = 'translateY(-2px) scale(1.03)';
-                e.currentTarget.style.boxShadow = '0 12px 30px rgba(59, 130, 246, 0.4), 0 6px 20px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.2)';
-                e.currentTarget.style.background = 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #0891b2 100%)';
-                
+                e.currentTarget.style.boxShadow = 'var(--shadow-primary-hover)';
+                e.currentTarget.style.background = 'var(--gradient-primary-reverse)';
+
                 const shimmer = e.currentTarget.querySelector('.shimmer') as HTMLElement;
                 if (shimmer) {
                     shimmer.style.left = '100%';
@@ -156,9 +156,9 @@ const DeploymentButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
             }}
             onMouseLeave={e => {
                 e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                e.currentTarget.style.boxShadow = '0 8px 20px rgba(59, 130, 246, 0.3), 0 3px 10px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.15)';
-                e.currentTarget.style.background = 'linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #06b6d4 100%)';
-                
+                e.currentTarget.style.boxShadow = 'var(--shadow-primary)';
+                e.currentTarget.style.background = 'var(--gradient-primary)';
+
                 const shimmer = e.currentTarget.querySelector('.shimmer') as HTMLElement;
                 if (shimmer) {
                     shimmer.style.left = '-100%';
@@ -171,7 +171,7 @@ const DeploymentButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
                 e.currentTarget.style.transform = 'translateY(-2px) scale(1.03)';
             }}
         >
-            <div 
+            <div
                 className="shimmer"
                 style={{
                     position: 'absolute',
@@ -179,10 +179,10 @@ const DeploymentButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
                     left: '-100%',
                     width: '100%',
                     height: '100%',
-                    background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)',
+                    background: 'linear-gradient(90deg, transparent, var(--glass-white-medium), transparent)',
                     transition: 'left 0.6s ease-out',
                     borderRadius: 12
-                }} 
+                }}
             />
             <div style={{
                 position: 'absolute',
@@ -190,25 +190,25 @@ const DeploymentButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
                 left: '1px',
                 right: '1px',
                 height: '40%',
-                background: 'linear-gradient(180deg, rgba(255,255,255,0.1), transparent)',
+                background: 'linear-gradient(180deg, var(--glass-white-light), transparent)',
                 borderRadius: '11px 11px 0 0',
                 pointerEvents: 'none'
             }} />
-            <DeployLineIcon style={{ 
+            <DeployLineIcon style={{
                 fontSize: 20,
                 width: 20,
                 height: 20,
                 color: '#ffffff',
                 fill: '#ffffff',
                 transform: 'scale(1.6)',
-                filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.3)) brightness(1.1)',
+                filter: 'drop-shadow(0 1px 2px var(--shadow-text)) brightness(1.1)',
                 zIndex: 1
             }} />
-            <span style={{ 
-                fontSize: 12, 
-                fontWeight: 600, 
+            <span style={{
+                fontSize: 12,
+                fontWeight: 600,
                 letterSpacing: '0.2px',
-                textShadow: '0 1px 2px rgba(0,0,0,0.3)',
+                textShadow: '0 1px 2px var(--shadow-text)',
                 zIndex: 1,
                 whiteSpace: 'nowrap'
             }}>
@@ -242,12 +242,12 @@ const ServiceActionButtons: React.FC<{
             padding: '0 16px',
             minWidth: 'fit-content'
         }}>
-            <span style={{ 
-                fontSize: 13, 
-                fontWeight: 600, 
-                color: '#4f46e5',
+            <span style={{
+                fontSize: 13,
+                fontWeight: 600,
+                color: 'var(--color-indigo)',
                 letterSpacing: '0.5px',
-                textShadow: '0 1px 2px rgba(0,0,0,0.1)'
+                textShadow: '0 1px 2px var(--shadow-text)'
             }}>
                 Actions
             </span>
@@ -265,7 +265,7 @@ const ServiceActionButtons: React.FC<{
                         width: 36,
                         height: 36,
                         borderRadius: 12,
-                        background: disabled ? 'var(--bg-disabled)' : 'linear-gradient(135deg, #10b981, #059669)',
+                        background: disabled ? 'var(--bg-disabled)' : 'var(--gradient-success)',
                         border: 'none',
                         color: disabled ? 'var(--text-disabled)' : '#ffffff',
                         cursor: disabled ? 'not-allowed' : 'pointer',
@@ -274,19 +274,19 @@ const ServiceActionButtons: React.FC<{
                         justifyContent: 'center',
                         fontSize: 16,
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        boxShadow: disabled ? 'none' : '0 4px 12px rgba(16, 185, 129, 0.3)',
+                        boxShadow: disabled ? 'none' : '0 4px 12px var(--shadow-success-color)',
                         position: 'relative'
                     }}
                     onMouseEnter={e => {
                         if (!disabled && !loading) {
                             e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
-                            e.currentTarget.style.boxShadow = '0 6px 20px rgba(16, 185, 129, 0.4)';
+                            e.currentTarget.style.boxShadow = '0 6px 20px var(--shadow-success-color-hover)';
                         }
                     }}
                     onMouseLeave={e => {
                         if (!disabled) {
                             e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.3)';
+                            e.currentTarget.style.boxShadow = '0 4px 12px var(--shadow-success-color)';
                         }
                     }}
                 >
@@ -305,7 +305,7 @@ const ServiceActionButtons: React.FC<{
                         width: 36,
                         height: 36,
                         borderRadius: 12,
-                        background: disabled ? 'var(--bg-disabled)' : 'linear-gradient(135deg, #ef4444, #dc2626)',
+                        background: disabled ? 'var(--bg-disabled)' : 'var(--gradient-danger)',
                         border: 'none',
                         color: disabled ? 'var(--text-disabled)' : '#ffffff',
                         cursor: disabled ? 'not-allowed' : 'pointer',
@@ -314,19 +314,19 @@ const ServiceActionButtons: React.FC<{
                         justifyContent: 'center',
                         fontSize: 16,
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        boxShadow: disabled ? 'none' : '0 4px 12px rgba(239, 68, 68, 0.3)',
+                        boxShadow: disabled ? 'none' : '0 4px 12px var(--shadow-danger-color)',
                         position: 'relative'
                     }}
                     onMouseEnter={e => {
                         if (!disabled && !loading) {
                             e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
-                            e.currentTarget.style.boxShadow = '0 6px 20px rgba(239, 68, 68, 0.4)';
+                            e.currentTarget.style.boxShadow = '0 6px 20px var(--shadow-danger-color-hover)';
                         }
                     }}
                     onMouseLeave={e => {
                         if (!disabled) {
                             e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(239, 68, 68, 0.3)';
+                            e.currentTarget.style.boxShadow = '0 4px 12px var(--shadow-danger-color)';
                         }
                     }}
                 >
@@ -345,7 +345,7 @@ const ServiceActionButtons: React.FC<{
                         width: 36,
                         height: 36,
                         borderRadius: 12,
-                        background: disabled ? 'var(--bg-disabled)' : 'linear-gradient(135deg, #f59e0b, #d97706)',
+                        background: disabled ? 'var(--bg-disabled)' : 'var(--gradient-warning)',
                         border: 'none',
                         color: disabled ? 'var(--text-disabled)' : '#ffffff',
                         cursor: disabled ? 'not-allowed' : 'pointer',
@@ -354,19 +354,19 @@ const ServiceActionButtons: React.FC<{
                         justifyContent: 'center',
                         fontSize: 16,
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        boxShadow: disabled ? 'none' : '0 4px 12px rgba(245, 158, 11, 0.3)',
+                        boxShadow: disabled ? 'none' : '0 4px 12px var(--shadow-warning-color)',
                         position: 'relative'
                     }}
                     onMouseEnter={e => {
                         if (!disabled && !loading) {
                             e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
-                            e.currentTarget.style.boxShadow = '0 6px 20px rgba(245, 158, 11, 0.4)';
+                            e.currentTarget.style.boxShadow = '0 6px 20px var(--shadow-warning-color-hover)';
                         }
                     }}
                     onMouseLeave={e => {
                         if (!disabled) {
                             e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(245, 158, 11, 0.3)';
+                            e.currentTarget.style.boxShadow = '0 4px 12px var(--shadow-warning-color)';
                         }
                     }}
                 >
@@ -385,7 +385,7 @@ const ServiceActionButtons: React.FC<{
                         width: 36,
                         height: 36,
                         borderRadius: 12,
-                        background: disabled ? 'var(--bg-disabled)' : 'linear-gradient(135deg, #3b82f6, #2563eb)',
+                        background: disabled ? 'var(--bg-disabled)' : 'var(--gradient-primary)',
                         border: 'none',
                         color: disabled ? 'var(--text-disabled)' : '#ffffff',
                         cursor: disabled ? 'not-allowed' : 'pointer',
@@ -394,19 +394,19 @@ const ServiceActionButtons: React.FC<{
                         justifyContent: 'center',
                         fontSize: 16,
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        boxShadow: disabled ? 'none' : '0 4px 12px rgba(59, 130, 246, 0.3)',
+                        boxShadow: disabled ? 'none' : '0 4px 12px var(--shadow-blue-color)',
                         position: 'relative'
                     }}
                     onMouseEnter={e => {
                         if (!disabled && !loading) {
                             e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
-                            e.currentTarget.style.boxShadow = '0 6px 20px rgba(59, 130, 246, 0.4)';
+                            e.currentTarget.style.boxShadow = '0 6px 20px var(--shadow-blue-color-hover)';
                         }
                     }}
                     onMouseLeave={e => {
                         if (!disabled) {
                             e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.3)';
+                            e.currentTarget.style.boxShadow = '0 4px 12px var(--shadow-blue-color)';
                         }
                     }}
                 >
@@ -425,7 +425,7 @@ const ServiceActionButtons: React.FC<{
                         width: 36,
                         height: 36,
                         borderRadius: 12,
-                        background: disabled ? 'var(--bg-disabled)' : 'linear-gradient(135deg, #6366f1, #4f46e5)',
+                        background: disabled ? 'var(--bg-disabled)' : 'linear-gradient(135deg, var(--color-indigo), var(--color-purple))',
                         border: 'none',
                         color: disabled ? 'var(--text-disabled)' : '#ffffff',
                         cursor: disabled ? 'not-allowed' : 'pointer',
@@ -434,19 +434,19 @@ const ServiceActionButtons: React.FC<{
                         justifyContent: 'center',
                         fontSize: 16,
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                        boxShadow: disabled ? 'none' : '0 4px 12px rgba(99, 102, 241, 0.3)',
+                        boxShadow: disabled ? 'none' : '0 4px 12px var(--shadow-indigo-color)',
                         position: 'relative'
                     }}
                     onMouseEnter={e => {
                         if (!disabled) {
                             e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
-                            e.currentTarget.style.boxShadow = '0 6px 20px rgba(99, 102, 241, 0.4)';
+                            e.currentTarget.style.boxShadow = '0 6px 20px var(--shadow-indigo-color-hover)';
                         }
                     }}
                     onMouseLeave={e => {
                         if (!disabled) {
                             e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.3)';
+                            e.currentTarget.style.boxShadow = '0 4px 12px var(--shadow-indigo-color)';
                         }
                     }}
                 >

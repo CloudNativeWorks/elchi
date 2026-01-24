@@ -33,17 +33,18 @@ const collectionColors: Record<string, string> = {
     services: "volcano",
 };
 
-// Collection gradient colors for icons
+// Collection gradient colors for icons - using semantic color names
+// These colors work well in both light and dark mode as they're used on gradient backgrounds
 const collectionGradients: Record<string, { start: string; end: string }> = {
-    virtual_hosts: { start: "#1890ff", end: "#096dd9" },
-    routes: { start: "#13c2c2", end: "#08979c" },
-    filters: { start: "#722ed1", end: "#531dab" },
-    endpoints: { start: "#fa8c16", end: "#d46b08" },
-    discovery: { start: "#52c41a", end: "#389e0d" },
-    clusters: { start: "#2f54eb", end: "#1d39c4" },
-    listeners: { start: "#eb2f96", end: "#c41d7f" },
-    secrets: { start: "#f5222d", end: "#cf1322" },
-    services: { start: "#fa541c", end: "#d4380d" },
+    virtual_hosts: { start: "var(--chart-blue, #1890ff)", end: "var(--chart-blue-dark, #096dd9)" },
+    routes: { start: "var(--chart-cyan, #13c2c2)", end: "var(--chart-cyan-dark, #08979c)" },
+    filters: { start: "var(--chart-purple, #722ed1)", end: "var(--chart-purple-dark, #531dab)" },
+    endpoints: { start: "var(--chart-orange, #fa8c16)", end: "var(--chart-orange-dark, #d46b08)" },
+    discovery: { start: "var(--chart-green, #52c41a)", end: "var(--chart-green-dark, #389e0d)" },
+    clusters: { start: "var(--chart-geekblue, #2f54eb)", end: "var(--chart-geekblue-dark, #1d39c4)" },
+    listeners: { start: "var(--chart-magenta, #eb2f96)", end: "var(--chart-magenta-dark, #c41d7f)" },
+    secrets: { start: "var(--chart-red, #f5222d)", end: "var(--chart-red-dark, #cf1322)" },
+    services: { start: "var(--chart-volcano, #fa541c)", end: "var(--chart-volcano-dark, #d4380d)" },
 };
 
 // Collection name mapping
@@ -186,7 +187,7 @@ function Search() {
                 variant="borderless"
                 style={{
                     marginBottom: 16,
-                    background: "linear-gradient(90deg, rgba(5, 108, 205, 0.95) 0%, rgba(0, 198, 251, 0.85) 100%)",
+                    background: "var(--gradient-primary)",
                     borderRadius: 16
                 }}
             >
@@ -197,7 +198,7 @@ function Search() {
                             Search Domain and IP Addresses
                         </Title>
                     </div>
-                    <Text style={{ color: "rgba(255, 255, 255, 0.9)", fontSize: 14 }}>
+                    <Text style={{ color: "var(--text-on-primary)", fontSize: 14 }}>
                         Search for domains or IP addresses across your Elchi configuration resources
                     </Text>
                     <ConfigProvider
@@ -213,22 +214,22 @@ function Search() {
                                 <Button
                                     icon={<SearchOutlined />}
                                     style={{
-                                        background: "rgba(255, 255, 255, 0.25)",
+                                        background: "var(--search-btn-bg, rgba(255, 255, 255, 0.25))",
                                         backdropFilter: "blur(10px)",
                                         WebkitBackdropFilter: "blur(10px)",
-                                        border: "1px solid rgba(255, 255, 255, 0.4)",
-                                        color: "white",
+                                        border: "1px solid var(--search-btn-border, rgba(255, 255, 255, 0.4))",
+                                        color: "var(--text-on-primary)",
                                         fontWeight: 600,
-                                        boxShadow: "0 4px 15px rgba(0, 0, 0, 0.1)",
+                                        boxShadow: "var(--shadow-md)",
                                         transition: "all 0.3s ease"
                                     }}
                                     onMouseEnter={(e) => {
-                                        e.currentTarget.style.background = "rgba(255, 255, 255, 0.4)";
-                                        e.currentTarget.style.boxShadow = "0 4px 20px rgba(255, 255, 255, 0.3)";
+                                        e.currentTarget.style.background = "var(--search-btn-hover, rgba(255, 255, 255, 0.4))";
+                                        e.currentTarget.style.boxShadow = "var(--shadow-lg)";
                                     }}
                                     onMouseLeave={(e) => {
-                                        e.currentTarget.style.background = "rgba(255, 255, 255, 0.25)";
-                                        e.currentTarget.style.boxShadow = "0 4px 15px rgba(0, 0, 0, 0.1)";
+                                        e.currentTarget.style.background = "var(--search-btn-bg, rgba(255, 255, 255, 0.25))";
+                                        e.currentTarget.style.boxShadow = "var(--shadow-md)";
                                     }}
                                     onMouseDown={(e) => {
                                         e.currentTarget.style.transform = "scale(0.98)";
@@ -299,7 +300,7 @@ function Search() {
                                             if (selectedCollection !== summary.collection) {
                                                 e.currentTarget.style.background = 'var(--bg-hover)';
                                                 e.currentTarget.style.transform = 'translateY(-2px)';
-                                                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.08)';
+                                                e.currentTarget.style.boxShadow = 'var(--shadow-md)';
                                             }
                                         }}
                                         onMouseLeave={(e) => {
@@ -316,7 +317,7 @@ function Search() {
                                                 height: 40,
                                                 borderRadius: 8,
                                                 background: selectedCollection === summary.collection
-                                                    ? 'rgba(255, 255, 255, 0.3)'
+                                                    ? 'var(--bg-glass-hover, rgba(255, 255, 255, 0.3))'
                                                     : `linear-gradient(135deg, ${summary.gradient.start} 0%, ${summary.gradient.end} 100%)`,
                                                 display: 'flex',
                                                 alignItems: 'center',
@@ -353,7 +354,7 @@ function Search() {
                                                 width: 24,
                                                 height: 24,
                                                 borderRadius: '50%',
-                                                background: 'rgba(255, 255, 255, 0.3)',
+                                                background: 'var(--bg-glass-hover, rgba(255, 255, 255, 0.3))',
                                                 display: 'flex',
                                                 alignItems: 'center',
                                                 justifyContent: 'center',
@@ -402,7 +403,7 @@ function Search() {
                                         size="small"
                                         onClick={() => setSelectedCollection(null)}
                                         style={{
-                                            background: 'rgba(24, 144, 255, 0.1)',
+                                            background: 'var(--color-primary-bg)',
                                             border: '1px solid var(--color-primary)',
                                             color: 'var(--color-primary)'
                                         }}
@@ -432,7 +433,7 @@ function Search() {
                                     onClick={() => handleResourceClick(result)}
                                     onMouseEnter={(e) => {
                                         e.currentTarget.style.background = "var(--bg-hover)";
-                                        e.currentTarget.style.boxShadow = "0 2px 8px rgba(0, 0, 0, 0.1)";
+                                        e.currentTarget.style.boxShadow = "var(--shadow-sm)";
                                     }}
                                     onMouseLeave={(e) => {
                                         e.currentTarget.style.background = "var(--bg-elevated)";
@@ -446,7 +447,7 @@ function Search() {
                                             borderRadius: 8,
                                             background: collectionGradients[result.collection]
                                                 ? `linear-gradient(135deg, ${collectionGradients[result.collection].start} 0%, ${collectionGradients[result.collection].end} 100%)`
-                                                : "linear-gradient(135deg, #1890ff 0%, #096dd9 100%)",
+                                                : "var(--gradient-primary)",
                                             display: "flex",
                                             alignItems: "center",
                                             justifyContent: "center",

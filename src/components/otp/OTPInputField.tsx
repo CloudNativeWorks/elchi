@@ -173,7 +173,19 @@ export const OTPInputField: React.FC<OTPInputFieldProps> = ({
                     borderRadius: 8,
                     background: 'var(--gradient-primary)',
                     border: 'none',
-                    boxShadow: '0 2px 4px var(--shadow-primary)'
+                    boxShadow: '0 2px 4px var(--shadow-primary)',
+                    color: '#ffffff',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+                onMouseEnter={(e) => {
+                    if (!loading && (useBackupCode ? backupCode : otpValue.length === 6)) {
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                        e.currentTarget.style.boxShadow = '0 4px 12px var(--shadow-primary-hover)';
+                    }
+                }}
+                onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 2px 4px var(--shadow-primary)';
                 }}
             >
                 Verify

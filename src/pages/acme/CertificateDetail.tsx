@@ -558,7 +558,7 @@ const CertificateDetail: React.FC = () => {
                       <Tag icon={<WarningOutlined />} color="warning">
                         Account Deleted
                       </Tag>
-                      <span style={{ color: '#999', fontSize: 12 }}>
+                      <span style={{ color: 'var(--text-tertiary)', fontSize: 12 }}>
                         (Deleted on {new Date(certificate.acme.account_deleted_at!).toLocaleDateString()})
                       </span>
                     </Space>

@@ -10,7 +10,7 @@ import BreadCrumb from "./BreadCrumb";
 
 const { Header: AntHeader, Content, Sider } = Layout;
 function Main() {
-	const sidenavColor = "#1890ff"
+	const sidenavColor = "var(--color-primary)"
 	const location = useLocation();
 	const userDetail = DecodeToken(Cookies.get('bb_token'))
 	const { notification } = AntdApp.useApp();
@@ -86,20 +86,18 @@ function Main() {
 										alignItems: 'center',
 										justifyContent: 'center',
 										cursor: 'pointer',
-										boxShadow: '0 4px 12px rgba(5, 108, 205, 0.3)',
+										boxShadow: '0 4px 12px var(--shadow-color)',
 										transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
 										zIndex: 9999,
-										border: '2px solid rgba(255, 255, 255, 0.15)',
+										border: 'none',
 									}}
 									onMouseEnter={(e) => {
 										e.currentTarget.style.transform = 'translateX(-50%) scale(1.08)';
-										e.currentTarget.style.boxShadow = '0 6px 20px rgba(5, 108, 205, 0.45)';
-										e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)';
+										e.currentTarget.style.boxShadow = '0 6px 20px var(--shadow-color)';
 									}}
 									onMouseLeave={(e) => {
 										e.currentTarget.style.transform = 'translateX(-50%) scale(1)';
-										e.currentTarget.style.boxShadow = '0 4px 12px rgba(5, 108, 205, 0.3)';
-										e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+										e.currentTarget.style.boxShadow = '0 4px 12px var(--shadow-color)';
 									}}
 								>
 									{collapsed ? (

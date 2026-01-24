@@ -223,7 +223,7 @@ function Header({ userDetail }: Readonly<HeaderProps>) {
 				.ai-analyzer-button {
 					height: 32px !important;
 					border-radius: 8px !important;
-					background: linear-gradient(90deg, #722ed1 0%, #1890ff 100%) !important;
+					background: var(--gradient-ai) !important;
 					border: none !important;
 					box-shadow: 0 2px 4px rgba(114, 46, 209, 0.3) !important;
 					display: flex !important;
@@ -320,7 +320,7 @@ function Header({ userDetail }: Readonly<HeaderProps>) {
 								>
 									<Badge count={errorSummary.total_error > 99 ? '99+' : errorSummary.total_error} size="small">
 										<Button
-											icon={<ExclamationCircleOutlined style={{ color: '#ff4d4f' }} />}
+											icon={<ExclamationCircleOutlined style={{ color: 'var(--color-danger)' }} />}
 											style={{
 												background: 'rgba(255, 77, 79, 0.1)',
 												border: '1px solid rgba(255, 77, 79, 0.2)',

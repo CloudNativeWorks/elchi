@@ -489,18 +489,18 @@ const DynamicScenarioExecutionRedux: React.FC = () => {
             <div style={{
                 marginBottom: '32px',
                 padding: '24px',
-                background: 'linear-gradient(135deg, #00c6fb 0%, #056ccd 100%)',
+                background: 'var(--gradient-primary)',
                 borderRadius: '12px',
-                color: 'white'
+                color: 'var(--text-on-primary)'
             }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
                     <Button
                         icon={<ArrowLeftOutlined />}
                         onClick={() => navigate('/scenarios')}
                         style={{
-                            background: 'rgba(255, 255, 255, 0.15)',
-                            border: '1px solid rgba(255, 255, 255, 0.3)',
-                            color: 'white',
+                            background: 'var(--bg-glass-hover)',
+                            border: '1px solid var(--border-on-primary)',
+                            color: 'var(--text-on-primary)',
                             borderRadius: '8px'
                         }}
                         ghost

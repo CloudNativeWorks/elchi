@@ -244,7 +244,7 @@ const Backup: React.FC = () => {
                         <div style={{ marginTop: 12, maxHeight: 300, overflow: 'auto' }}>
                             <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse' }}>
                                 <thead>
-                                    <tr style={{ borderBottom: '1px solid #f0f0f0' }}>
+                                    <tr style={{ borderBottom: '1px solid var(--border-default)' }}>
                                         <th style={{ textAlign: 'left', padding: '8px', fontWeight: 600 }}>Resource Type</th>
                                         <th style={{ textAlign: 'center', padding: '8px', fontWeight: 600 }}>Total</th>
                                         <th style={{ textAlign: 'center', padding: '8px', fontWeight: 600 }}>Created</th>
@@ -256,7 +256,7 @@ const Backup: React.FC = () => {
                                 <tbody>
                                     {Object.entries(data.details).map(([resourceType, stats]: [string, any]) => (
                                         stats.total > 0 && (
-                                            <tr key={resourceType} style={{ borderBottom: '1px solid #f5f5f5' }}>
+                                            <tr key={resourceType} style={{ borderBottom: '1px solid var(--border-light)' }}>
                                                 <td style={{ padding: '6px 8px' }}>
                                                     <Text style={{ fontSize: 12, textTransform: 'capitalize' }}>
                                                         {resourceType.replace(/_/g, ' ')}

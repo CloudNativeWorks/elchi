@@ -182,7 +182,7 @@ const BgpLogs: React.FC<BgpLogProps> = ({ clientId }) => {
                 {error ? (
                     <Alert type="error" message={error} style={{ margin: 24 }} />
                 ) : filteredLogs.length === 0 && !loading ? (
-                    <div style={{ textAlign: 'center', color: '#888', padding: 48 }}>
+                    <div style={{ textAlign: 'center', color: 'var(--text-tertiary)', padding: 48 }}>
                         <div style={{ fontSize: 40, marginBottom: 12 }}>🗒️</div>
                         <div style={{ fontSize: 18, fontWeight: 500 }}>No logs found!</div>
                         <div style={{ fontSize: 14, marginTop: 4 }}>Check your search and filter criteria.</div>

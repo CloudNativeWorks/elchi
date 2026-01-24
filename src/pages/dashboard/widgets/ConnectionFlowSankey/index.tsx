@@ -119,7 +119,7 @@ export const ConnectionFlowSankey: React.FC = () => {
           alignItems: 'center',
           justifyContent: 'center',
           height: '200px',
-          color: '#999'
+          color: 'var(--text-tertiary)'
         }}>
           No connection data available
         </div>

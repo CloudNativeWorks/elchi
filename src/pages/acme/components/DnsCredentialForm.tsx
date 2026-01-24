@@ -169,7 +169,7 @@ const DnsCredentialForm: React.FC<DnsCredentialFormProps> = ({ form, isCreateMod
                   {getIcon(p.icon)}
                   <span>{p.label}</span>
                 </Space>
-                <div style={{ fontSize: 12, color: '#666', paddingLeft: 24 }}>
+                <div style={{ fontSize: 12, color: 'var(--text-tertiary)', paddingLeft: 24 }}>
                   {p.description}
                 </div>
               </Space>

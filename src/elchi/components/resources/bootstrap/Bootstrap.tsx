@@ -26,6 +26,7 @@ import ComponentDeferredStatOptions from "./DeferredStatOptions";
 import ComponentOverloadManager from "./OverloadManager/OverloadManager";
 import CommonComponentStatsSinks from "@/elchi/components/resources/common/StatsSinks/StatsSinks";
 import { ResourceAction } from "@/redux/reducers/slice";
+import CommonComponentTypedDnsResolverConfig from "@/elchi/components/resources/common/TypedDnsResolverConfig/TypedDnsResolverConfig";
 
 type GeneralProps = {
     veri: {
@@ -198,6 +199,18 @@ const ComponentBootstrap: React.FC<GeneralProps> = ({ veri }) => {
                                 keyPrefix: `overload_manager`,
                                 reduxStore: reduxStore?.overload_manager,
                                 id: `overload_manager_0`,
+                            }}
+                        />
+
+                        <ConditionalComponent
+                            shouldRender={matchesEndOrStartOf("typed_dns_resolver_config", selectedTags)}
+                            Component={CommonComponentTypedDnsResolverConfig}
+                            componentProps={{
+                                version: veri.version,
+                                keyPrefix: `typed_dns_resolver_config`,
+                                reduxStore: reduxStore?.typed_dns_resolver_config,
+                                reduxAction: ResourceAction,
+                                id: `typed_dns_resolver_config_0`,
                             }}
                         />
 

@@ -419,13 +419,34 @@ com-1password-button {
     margin-right: 11px;
 }
 
-.ant-layout-sider-collapsed .menu-item-header {
-    display: none;
+.ant-layout-sider-collapsed .menu-item-header,
+.ant-layout-sider-collapsed .ant-menu-item.menu-item-header,
+.ant-layout-sider-collapsed li.ant-menu-item.menu-item-header {
+    display: none !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    visibility: hidden !important;
+    overflow: hidden !important;
+    line-height: 0 !important;
+    font-size: 0 !important;
+    opacity: 0 !important;
+}
+
+.ant-layout-sider-collapsed .menu-item-header::before,
+.ant-layout-sider-collapsed .ant-menu-item.menu-item-header::before,
+.ant-layout-sider-collapsed li.ant-menu-item.menu-item-header::before {
+    display: none !important;
+    content: none !important;
 }
 
 .ant-layout-sider-collapsed .ant-menu-item .ant-menu-item-icon :active,
 .ant-layout-sider-collapsed .ant-menu-item .ant-menu-item-icon {
     display: flex;
+    flex-direction: column-reverse;
     justify-content: center;
 }
 
@@ -940,13 +961,13 @@ com-1password-button {
 
 .modern-error-notification .ant-notification-notice-description {
     font-size: 12px !important;
-    color: #5a3a3a !important;
+    color: var(--text-primary) !important;
     line-height: 1.3 !important;
     font-weight: 400 !important;
     margin: 0 !important;
     margin-left: 2px !important;
     margin-top: -10px !important;
-    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3) !important;
+    text-shadow: none !important;
     position: relative !important;
     z-index: 3 !important;
 }
@@ -961,10 +982,10 @@ com-1password-button {
 .modern-error-notification .ant-notification-notice-close {
     right: 10px !important;
     top: 10px !important;
-    color: rgba(93, 58, 58, 0.6) !important;
+    color: var(--text-secondary) !important;
     font-size: 14px !important;
     transition: all 0.2s ease !important;
-    background: rgba(255, 255, 255, 0.2) !important;
+    background: var(--glass-white-light) !important;
     border-radius: 50% !important;
     width: 22px !important;
     height: 22px !important;
@@ -977,10 +998,10 @@ com-1password-button {
 }
 
 .modern-error-notification .ant-notification-notice-close:hover {
-    color: #ff4757 !important;
-    background: rgba(255, 255, 255, 0.4) !important;
+    color: var(--color-danger) !important;
+    background: var(--glass-white-medium) !important;
     transform: scale(1.1) !important;
-    box-shadow: 0 2px 8px rgba(255, 71, 87, 0.2) !important;
+    box-shadow: 0 2px 8px var(--shadow-danger-color) !important;
 }
 
 @keyframes slideInGlass {

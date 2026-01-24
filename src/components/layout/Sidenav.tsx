@@ -2,32 +2,32 @@ import React from "react";
 import { Menu, Select } from "antd";
 import { NavLink, useLocation } from "react-router-dom";
 import {
-    HomeOutlined,
-    RocketOutlined,
-    GlobalOutlined,
-    ShareAltOutlined,
-    CloudOutlined,
-    ClusterOutlined,
-    AimOutlined,
-    SafetyOutlined,
-    SafetyCertificateOutlined,
-    KeyOutlined,
-    FilterOutlined,
-    AppstoreOutlined,
-    DashboardOutlined,
-    FileTextOutlined,
-    SettingOutlined,
-    UserOutlined,
-    BarChartOutlined,
-    CloudServerOutlined,
-    CodeOutlined,
-    ApiOutlined,
-    RadarChartOutlined,
-    RobotOutlined,
-    ScheduleOutlined,
-    DatabaseOutlined,
-    AuditOutlined,
-    FireOutlined
+	HomeOutlined,
+	RocketOutlined,
+	GlobalOutlined,
+	ShareAltOutlined,
+	CloudOutlined,
+	ClusterOutlined,
+	AimOutlined,
+	SafetyOutlined,
+	SafetyCertificateOutlined,
+	KeyOutlined,
+	FilterOutlined,
+	AppstoreOutlined,
+	DashboardOutlined,
+	FileTextOutlined,
+	SettingOutlined,
+	UserOutlined,
+	BarChartOutlined,
+	CloudServerOutlined,
+	CodeOutlined,
+	ApiOutlined,
+	RadarChartOutlined,
+	RobotOutlined,
+	ScheduleOutlined,
+	DatabaseOutlined,
+	AuditOutlined,
+	FireOutlined
 } from '@ant-design/icons';
 import { useProjectVariable } from "@/hooks/useProjectVariable";
 import { UserDetail } from "@/common/types";
@@ -248,28 +248,28 @@ function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
 		if (path === "/" || path === "") {
 			return "/home";
 		}
-		
+
 		// Special case: both /quick_start and /scenarios should activate scenarios button
 		if (path.startsWith("/quick_start") || path.startsWith("/scenarios")) {
 			return "/scenarios";
 		}
-		
+
 		let bestMatch = "";
 		menuConfig.forEach((item) => {
 			if (item.key === "/home" && (path === "/" || path === "")) {
 				bestMatch = "/home";
 				return;
 			}
-			
+
 			if (path.startsWith(item.key) && item.key.length > bestMatch.length && item.key !== "/home") {
 				bestMatch = item.key;
 			}
 		});
-		
+
 		if (!bestMatch && (path === "/" || path === "")) {
 			bestMatch = "/home";
 		}
-		
+
 		return bestMatch;
 	};
 
@@ -284,6 +284,11 @@ function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
 			const isActive = page.startsWith(item.key.replace("/", ""));
 			const itemStyle = isActive ? { background: color } : {};
 			const itemClassName = `icon ${isActive ? 'active' : ''}`;
+
+			// Hide menu headers when collapsed
+			if (collapsed && item.className === 'menu-item-header') {
+				return null;
+			}
 
 			if (item.key.startsWith("/settings") && !["owner", "admin"].includes(userDetail.role)) {
 				return null;
@@ -325,7 +330,7 @@ function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
 		<div style={{
 			background: 'var(--sidenav-bg)',
 			borderRadius: 0,
-			boxShadow: collapsed ? 'var(--shadow-md)' : 'none',
+			boxShadow: 'none',
 			padding: collapsed ? '4px 0' : '10px 0 10px 0',
 			margin: 0,
 			minHeight: '100vh',
@@ -723,6 +728,31 @@ function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
 					height: 3px;
 					background: var(--gradient-primary);
 					border-radius: 50%;
+				}
+				/* Collapsed state - hide menu headers completely */
+				.ant-menu-inline-collapsed .menu-item-header,
+				.ant-menu-inline-collapsed .ant-menu-item.menu-item-header,
+				.ant-menu-collapsed .menu-item-header,
+				.ant-menu-collapsed .ant-menu-item.menu-item-header {
+					display: none !important;
+					height: 0 !important;
+					min-height: 0 !important;
+					max-height: 0 !important;
+					margin: 0 !important;
+					padding: 0 !important;
+					border: none !important;
+					visibility: hidden !important;
+					overflow: hidden !important;
+					line-height: 0 !important;
+					font-size: 0 !important;
+					opacity: 0 !important;
+				}
+				.ant-menu-inline-collapsed .menu-item-header::before,
+				.ant-menu-inline-collapsed .ant-menu-item.menu-item-header::before,
+				.ant-menu-collapsed .menu-item-header::before,
+				.ant-menu-collapsed .ant-menu-item.menu-item-header::before {
+					display: none !important;
+					content: none !important;
 				}
 			`}</style>
 		</div>

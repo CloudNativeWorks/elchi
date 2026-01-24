@@ -138,10 +138,10 @@ const AddBGPCommunityListCard: React.FC<AddBGPCommunityListCardProps> = ({
                         htmlType="submit"
                         icon={<CheckOutlined />}
                         style={{
-                            background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                            background: 'var(--gradient-primary)',
                             border: 'none',
                             fontWeight: 500,
-                            boxShadow: '0 2px 8px rgba(0,198,251,0.10)',
+                            boxShadow: 'var(--shadow-primary)',
                         }}
                     >
                         {isEditing ? 'Update Community List' : 'Add Community List'}

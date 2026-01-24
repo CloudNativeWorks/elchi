@@ -267,7 +267,7 @@ const CustomAnchor = ({
                                 />
                             }>
                             <Tag
-                                className="ellipsis-tag unsopperted-tags">
+                                className="ellipsis-tag unsupported-tags">
                                 <span>{prettyTag(tag)}</span>
                             </Tag>
                         </Popover>
@@ -291,7 +291,7 @@ const CustomAnchor = ({
                         >
                             <Badge
                                 status={isChecked ? undefined : "processing"}
-                                color="linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)"
+                                color="var(--color-primary)"
                                 dot
                                 className='elipsis-tag-badge'
                                 offset={[-3, 4]}
@@ -324,7 +324,7 @@ const CustomAnchor = ({
                             onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}
                         >
                             <Badge
-                                count={<WarningOutlined style={{ color: '#E9D502' }} />}
+                                count={<WarningOutlined style={{ color: 'var(--color-warning)' }} />}
                                 className='elipsis-tag-badge'
                                 offset={[-9, 9]}
                                 key={tag + index?.toString()}

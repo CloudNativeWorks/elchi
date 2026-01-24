@@ -57,11 +57,11 @@ const QuickStart: React.FC = () => {
                         width: 40,
                         height: 40,
                         borderRadius: 10,
-                        background: 'linear-gradient(135deg, #00c6fb 0%, #056ccd 100%)',
+                        background: 'var(--gradient-primary)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        color: 'white',
+                        color: 'var(--text-on-primary)',
                         fontSize: 18
                     }}>
                         <RocketOutlined />
@@ -119,11 +119,11 @@ const QuickStart: React.FC = () => {
                                     width: 56,
                                     height: 56,
                                     borderRadius: 16,
-                                    background: 'linear-gradient(135deg, #00c6fb 0%, #056ccd 100%)',
+                                    background: 'var(--gradient-primary)',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
-                                    color: 'white',
+                                    color: 'var(--text-on-primary)',
                                     fontSize: 24,
                                     margin: '0 auto 16px auto'
                                 }}>
@@ -177,7 +177,7 @@ const QuickStart: React.FC = () => {
                                     width: 56,
                                     height: 56,
                                     borderRadius: 16,
-                                    background: 'linear-gradient(135deg,rgb(67, 252, 190) 0%,rgb(6, 112, 78) 100%)',
+                                    background: 'var(--gradient-success)',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center',
@@ -241,7 +241,7 @@ const QuickStart: React.FC = () => {
                             border: '1px solid var(--border-default)',
                             overflow: 'hidden',
                             transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-                            boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+                            boxShadow: '0 1px 4px var(--shadow-card-subtle)',
                             background: 'var(--card-bg)'
                         }}
                         styles={{ body: { padding: '16px', height: '100%', display: 'flex', flexDirection: 'column' } }}
@@ -389,7 +389,7 @@ const QuickStart: React.FC = () => {
                                     style={{
                                         width: '100%',
                                         height: 38,
-                                        background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                                        background: 'var(--gradient-primary)',
                                         border: 'none',
                                         borderRadius: 6,
                                         fontWeight: 500,

@@ -20,9 +20,10 @@ import {
     RadarChartOutlined,
     DashboardOutlined,
     SwapOutlined,
-    BranchesOutlined
+    BranchesOutlined,
+    CloudServerOutlined
 } from '@ant-design/icons';
-import { D_E_ACCESS_LOG, D_E_CLUSTER_DYNAMIC_FORWARD_PROXY, D_E_COMPRESSOR_LIBRARY, D_E_HEALTH_CHECK_EVENT_FILE_SINK, D_E_HTTP_PROTOCOL_OPTIONS, D_E_STAT_SINKS, D_E_STATEFUL_SESSION_STATE, D_E_URI_TEMPLATE_MATCH, original_ip_detection, resource_monitor, path_rewrite_policy, internal_redirect_predicates } from "@/common/statics/ResourceDescriptions";
+import { D_E_ACCESS_LOG, D_E_CLUSTER_DYNAMIC_FORWARD_PROXY, D_E_COMPRESSOR_LIBRARY, D_E_HEALTH_CHECK_EVENT_FILE_SINK, D_E_HTTP_PROTOCOL_OPTIONS, D_E_STAT_SINKS, D_E_STATEFUL_SESSION_STATE, D_E_URI_TEMPLATE_MATCH, D_E_DNS_RESOLVER, original_ip_detection, resource_monitor, path_rewrite_policy, internal_redirect_predicates } from "@/common/statics/ResourceDescriptions";
 
 const { Title, Text } = Typography;
 
@@ -37,6 +38,7 @@ const getExtensionIcon = (extensionName: string) => {
         'Access Log': <FileTextOutlined />,
         'Cluster Dynamic Forward Proxy': <GlobalOutlined />,
         'Compressor Library': <CompressOutlined />,
+        'DNS Resolver': <CloudServerOutlined />,
         'HealthCheck Event File Sink': <HeartOutlined />,
         'Http Protocol Options': <ApiOutlined />,
         'Uri Template Match': <AimOutlined />,
@@ -68,6 +70,12 @@ const extensions = [
         path: '/extensions/compressor_library',
         data: D_E_COMPRESSOR_LIBRARY,
         category: "envoy.compression.compressor"
+    },
+    {
+        name: 'DNS Resolver',
+        path: '/extensions/dns_resolver',
+        data: D_E_DNS_RESOLVER,
+        category: "envoy.network.dns_resolver"
     },
     {
         name: 'HealthCheck Event File Sink',
@@ -331,13 +339,13 @@ const ExtensionsMain: React.FC = () => {
                                 minWidth: 48,
                                 height: 48,
                                 borderRadius: 12,
-                                background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                                background: 'var(--gradient-primary)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                color: 'white',
+                                color: 'var(--text-on-primary)',
                                 fontSize: 20,
-                                boxShadow: '0 6px 20px rgba(5, 108, 205, 0.25)'
+                                boxShadow: 'var(--shadow-primary)'
                             }}>
                                 <InfoCircleOutlined />
                             </div>
@@ -420,7 +428,7 @@ const ExtensionsMain: React.FC = () => {
                         type="primary"
                         size="large"
                         style={{
-                            background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                            background: 'var(--gradient-primary)',
                             border: 'none',
                             borderRadius: 6,
                             fontWeight: 500,

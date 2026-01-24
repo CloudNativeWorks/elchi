@@ -15,6 +15,7 @@ import ResourceNode from '@/elchi/components/common/dependency/nodes/ResourceNod
 import AnimatedEdge from '@/elchi/components/common/dependency/edges/AnimatedEdge';
 import { transformApiDataToFlowData } from '@/elchi/components/common/dependency/utils';
 import { useGraphLayout } from '@/elchi/components/common/dependency/hooks/useGraphLayout';
+import { useChartTheme } from '@/utils/chartTheme';
 import type { DependencyApiResponse } from '@/elchi/components/common/dependency/types';
 
 interface DependencyGraphWrapperProps {
@@ -24,8 +25,12 @@ interface DependencyGraphWrapperProps {
 export const DependencyGraphWrapper: React.FC<DependencyGraphWrapperProps> = ({ dependencies }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const { isDark } = useChartTheme();
 
   const { applyLayout } = useGraphLayout();
+
+  // Theme-aware background color for ReactFlow grid
+  const gridColor = isDark ? '#374151' : '#e2e8f0';
 
   // Memoize node and edge types to prevent re-renders
   const nodeTypes = useMemo(() => ({ resourceNode: ResourceNode as any }), []);
@@ -77,7 +82,7 @@ export const DependencyGraphWrapper: React.FC<DependencyGraphWrapperProps> = ({ 
         zoomOnScroll={false}
         preventScrolling={false}
       >
-        <Background color="#e2e8f0" gap={16} size={1} />
+        <Background color={gridColor} gap={16} size={1} />
       </ReactFlow>
     </div>
   );

@@ -93,7 +93,7 @@ const ComponentPreresolveHostnames: React.FC<GeneralProps> = ({ veri }) => {
                     transition: 'all 0.3s ease',
                 }}>
                     <Empty
-                        image={<UnorderedListOutlined style={{ fontSize: 48, color: '#94a3b8' }} />}
+                        image={<UnorderedListOutlined style={{ fontSize: 48, color: 'var(--text-secondary)' }} />}
                         description={
                             <div style={{ marginTop: 16 }}>
                                 <h4 style={{

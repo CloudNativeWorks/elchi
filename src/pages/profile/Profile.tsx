@@ -110,7 +110,7 @@ const Profile: React.FC = () => {
                                     width: '48px',
                                     height: '48px',
                                     borderRadius: '12px',
-                                    background: 'rgba(255, 255, 255, 0.2)',
+                                    background: 'var(--header-icon-bg, rgba(255, 255, 255, 0.2))',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center'
@@ -121,17 +121,17 @@ const Profile: React.FC = () => {
                                     <Text style={{ color: 'white', fontSize: '18px', fontWeight: 'bold', display: 'block' }}>
                                         {userDetail?.username}
                                     </Text>
-                                    <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: '14px' }}>
+                                    <Text style={{ color: 'var(--text-on-gradient, rgba(255,255,255,0.9))', fontSize: '14px' }}>
                                         {userDetail?.email}
                                     </Text>
                                 </div>
                             </Space>
 
-                            <Divider style={{ borderColor: 'rgba(255,255,255,0.3)', margin: '12px 0' }} />
+                            <Divider style={{ borderColor: 'var(--header-divider, rgba(255,255,255,0.3))', margin: '12px 0' }} />
 
                             <Space direction="vertical" size="small" style={{ width: '100%' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: '14px' }}>
+                                    <Text style={{ color: 'var(--text-on-gradient, rgba(255,255,255,0.9))', fontSize: '14px' }}>
                                         Role
                                     </Text>
                                     <Tag
@@ -147,7 +147,7 @@ const Profile: React.FC = () => {
                                     </Tag>
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: '14px' }}>
+                                    <Text style={{ color: 'var(--text-on-gradient, rgba(255,255,255,0.9))', fontSize: '14px' }}>
                                         Authentication
                                     </Text>
                                     <Tag
@@ -163,14 +163,14 @@ const Profile: React.FC = () => {
                                     </Tag>
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: '14px' }}>
+                                    <Text style={{ color: 'var(--text-on-gradient, rgba(255,255,255,0.9))', fontSize: '14px' }}>
                                         2FA Status
                                     </Text>
                                     <Tag
                                         style={{
                                             fontSize: '12px',
                                             fontWeight: 'bold',
-                                            background: otpStatus?.otp_enabled ? 'rgba(82, 196, 26, 0.3)' : 'rgba(255, 77, 79, 0.3)',
+                                            background: otpStatus?.otp_enabled ? 'var(--color-success-light)' : 'var(--color-danger-light)',
                                             color: 'white',
                                             border: 'none'
                                         }}

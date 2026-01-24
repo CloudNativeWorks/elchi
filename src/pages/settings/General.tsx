@@ -43,7 +43,7 @@ const General: React.FC = () => {
                                     width: '40px',
                                     height: '40px',
                                     borderRadius: '10px',
-                                    background: 'rgba(255, 255, 255, 0.2)',
+                                    background: 'var(--header-icon-bg, rgba(255, 255, 255, 0.2))',
                                     display: 'flex',
                                     alignItems: 'center',
                                     justifyContent: 'center'
@@ -62,17 +62,17 @@ const General: React.FC = () => {
                                         {appInfo.name}
                                     </Text>
                                     <br />
-                                    <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: '14px' }}>
+                                    <Text style={{ color: 'var(--text-on-gradient, rgba(255,255,255,0.9))', fontSize: '14px' }}>
                                         Proxy Management Platform
                                     </Text>
                                 </div>
                             </Space>
                             
-                            <Divider style={{ borderColor: 'rgba(255,255,255,0.3)', margin: '12px 0' }} />
+                            <Divider style={{ borderColor: 'var(--header-divider, rgba(255,255,255,0.3))', margin: '12px 0' }} />
                             
                             <Space direction="vertical" size="small" style={{ width: '100%' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: '14px' }}>
+                                    <Text style={{ color: 'var(--text-on-gradient, rgba(255,255,255,0.9))', fontSize: '14px' }}>
                                         Application Version
                                     </Text>
                                     <Tag 
@@ -81,7 +81,7 @@ const General: React.FC = () => {
                                             fontSize: '12px', 
                                             fontWeight: 'bold',
                                             border: 'none',
-                                            background: 'rgba(255,255,255,0.9)',
+                                            background: 'var(--tag-on-gradient, rgba(255,255,255,0.9))',
                                             color: 'var(--color-primary)'
                                         }}
                                     >
@@ -90,7 +90,7 @@ const General: React.FC = () => {
                                 </div>
                                 
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: '14px' }}>
+                                    <Text style={{ color: 'var(--text-on-gradient, rgba(255,255,255,0.9))', fontSize: '14px' }}>
                                         API Version
                                     </Text>
                                     <Tag 
@@ -99,7 +99,7 @@ const General: React.FC = () => {
                                             fontSize: '12px', 
                                             fontWeight: 'bold',
                                             border: 'none',
-                                            background: 'rgba(255,255,255,0.9)',
+                                            background: 'var(--tag-on-gradient, rgba(255,255,255,0.9))',
                                             color: 'var(--color-accent)'
                                         }}
                                     >

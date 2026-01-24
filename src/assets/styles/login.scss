@@ -17,8 +17,8 @@ body {
     flex-direction: row-reverse;
     max-width: 1000px;
     width: 400px;
-    background-color: white;
-    box-shadow: 0 0 40px rgba(0, 0, 0, 0.16);
+    background-color: var(--bg-surface);
+    box-shadow: var(--shadow-lg);
     overflow: hidden;
     margin: 0 auto;
     border-radius: 12px;
@@ -66,7 +66,7 @@ body {
     align-items: flex-end;
     max-width: 800px;
     min-height: 100%;
-    background-color: #fffdf2;
+    background-color: var(--bg-elevated);
     img {
         display: block;
         width: 100%;

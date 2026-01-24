@@ -9,7 +9,7 @@ import { useTags } from "@/hooks/useTags";
 import { FieldConfigType, startsWithAny } from "@/utils/tools";
 import ComponentDnsResolverOptions from "./DnsResolverOptions";
 import { FieldTypes } from "@/common/statics/general";
-import ComponentResolvers from "./Resolvers";
+import CommonComponentAddresses from "@/elchi/components/resources/common/Address/Addresses";
 import { ConditionalComponent } from "@/elchi/components/common/ConditionalComponent";
 import { EForm } from "@/elchi/components/common/e-components/EForm";
 import { EFields } from "@/elchi/components/common/e-components/EFields";
@@ -71,14 +71,14 @@ const ComponentDnsResolutionConfig: React.FC<GeneralProps> = ({ veri }) => {
             </Col>
             <ConditionalComponent
                 shouldRender={startsWithAny("resolvers", selectedTags)}
-                Component={ComponentResolvers}
+                Component={CommonComponentAddresses}
                 componentProps={{
                     version: veri.version,
                     keyPrefix: `${veri.keyPrefix}.resolvers`,
                     drawerOpen: resolvers,
                     reduxStore: veri.reduxStore?.resolvers,
                     drawerClose: () => { setResolvers(false); },
-                    id: `resolvers_0`,
+                    title: "Resolvers",
                 }}
             />
         </ECard>

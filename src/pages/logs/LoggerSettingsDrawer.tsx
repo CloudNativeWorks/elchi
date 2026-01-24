@@ -141,7 +141,7 @@ const LoggerSettingsDrawer: React.FC<LoggerSettingsDrawerProps> = ({
                                 type="primary"
                                 onClick={handleUpdateGlobalLevel}
                                 loading={loading}
-                                style={{background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)', fontWeight: 600, border: 'none', color: '#fff'}}
+                                style={{background: 'var(--gradient-primary)', fontWeight: 600, border: 'none', color: 'var(--text-on-primary)'}}
                             >
                                 Update All
                             </Button>
@@ -179,7 +179,7 @@ const LoggerSettingsDrawer: React.FC<LoggerSettingsDrawerProps> = ({
                                 onClick={handleUpdateComponentLevel}
                                 loading={loading}
                                 disabled={!selectedComponent}
-                                style={selectedComponent && {background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)', fontWeight: 600, border: 'none', color: '#fff'}}
+                                style={selectedComponent ? {background: 'var(--gradient-primary)', fontWeight: 600, border: 'none', color: 'var(--text-on-primary)'} : undefined}
                             >
                                 Update Component
                             </Button>

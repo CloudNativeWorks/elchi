@@ -48,7 +48,7 @@ const Demo = () => {
             {contextHolder}
             <div className="wrapper2">
                 {success ?
-                    <Card style={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', border: 'none' }}>
+                    <Card style={{ backgroundColor: 'var(--bg-glass)', border: 'none' }}>
                         <Result
                             status="success"
                             title="Successfully Created!"

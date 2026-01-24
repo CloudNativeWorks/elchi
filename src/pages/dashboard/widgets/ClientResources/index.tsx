@@ -68,7 +68,7 @@ const ClientResources: React.FC = () => {
           }}>
             {displayedClients.map((client) => {
               const isOffline = client.cpu_usage < 0;
-              const offlineColor = isDark ? '#64748b' : '#bfbfbf';
+              const offlineColor = 'var(--text-tertiary)';
               const cpuColor = isOffline ? offlineColor : getStatusColor(client.cpu_usage, chartTheme);
               const memColor = isOffline ? offlineColor : getStatusColor(client.memory_usage, chartTheme);
               const diskColor = isOffline ? offlineColor : getStatusColor(client.disk_usage, chartTheme);

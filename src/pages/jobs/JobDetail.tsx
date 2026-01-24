@@ -69,10 +69,10 @@ const JobDetail: React.FC = () => {
   const getStatusIcon = (status: JobStatus) => {
     const icons = {
       PENDING: <ClockCircleOutlined style={{ color: 'var(--color-primary)' }} />,
-      CLAIMED: <PlayCircleOutlined style={{ color: '#faad14' }} />,
-      RUNNING: <PlayCircleOutlined style={{ color: '#52c41a' }} />,
-      COMPLETED: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
-      FAILED: <CloseCircleOutlined style={{ color: '#ff4d4f' }} />,
+      CLAIMED: <PlayCircleOutlined style={{ color: 'var(--color-warning)' }} />,
+      RUNNING: <PlayCircleOutlined style={{ color: 'var(--color-success)' }} />,
+      COMPLETED: <CheckCircleOutlined style={{ color: 'var(--color-success)' }} />,
+      FAILED: <CloseCircleOutlined style={{ color: 'var(--color-danger)' }} />,
       NO_WORK_NEEDED: <CheckCircleOutlined style={{ color: 'var(--text-secondary)' }} />
     };
     return icons[status] || icons.PENDING;

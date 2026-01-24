@@ -177,7 +177,7 @@ const GslbList: React.FC = () => {
             case HEALTH_STATUS.NO_PROBE:
                 return (
                     <Badge status="default" text={
-                        <span style={{ color: '#999' }}>
+                        <span style={{ color: 'var(--text-tertiary)' }}>
                             <MinusCircleOutlined /> No Health Check
                         </span>
                     } />

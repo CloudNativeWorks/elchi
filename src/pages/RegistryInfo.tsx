@@ -805,9 +805,9 @@ const RegistryInfo: React.FC = () => {
                             <Card
                                 style={{
                                     borderRadius: '12px',
-                                    background: 'linear-gradient(135deg, #056ccd 0%, #00c6fb 100%)',
+                                    background: 'var(--gradient-primary)',
                                     border: 'none',
-                                    color: 'white',
+                                    color: 'var(--text-on-primary)',
                                     height: 180
                                 }}
                                 styles={{ body: { padding: '24px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' } }}
@@ -827,12 +827,12 @@ const RegistryInfo: React.FC = () => {
                                         >
                                             {registryData?.data?.status === 'connected' ? 'CONNECTED' : 'DISCONNECTED'}
                                         </Tag>
-                                        <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '13px', fontWeight: '500' }}>
+                                        <div style={{ color: 'var(--text-on-gradient)', fontSize: '13px', fontWeight: '500' }}>
                                             {registryData?.data?.registry_address || 'N/A'}
                                         </div>
                                     </div>
                                 </div>
-                                <Text style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px' }}>
+                                <Text style={{ color: 'var(--text-on-gradient)', fontSize: '12px' }}>
                                     Last updated: {registryData?.data?.timestamp ?
                                         new Date(registryData.data.timestamp).toLocaleString('en-US') :
                                         'N/A'

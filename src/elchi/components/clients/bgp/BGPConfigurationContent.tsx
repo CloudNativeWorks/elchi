@@ -384,7 +384,7 @@ const BGPConfigurationContent: React.FC<BGPConfigurationContentProps> = ({ clien
                                 icon={<SaveOutlined />}
                                 loading={loading}
                                 style={{
-                                    background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                                    background: 'var(--gradient-primary)',
                                     border: 'none',
                                     borderRadius: 8
                                 }}

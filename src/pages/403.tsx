@@ -46,7 +46,7 @@ const Err403: React.FC = () => {
                         justifyContent: 'center',
                         margin: '0 auto',
                         animation: 'pulse 2s infinite',
-                        boxShadow: '0 10px 30px rgba(255, 107, 107, 0.3)'
+                        boxShadow: '0 10px 30px var(--shadow-danger-color)'
                     }}>
                         <LockOutlined style={{ 
                             fontSize: '60px', 
@@ -59,7 +59,7 @@ const Err403: React.FC = () => {
                 <Title level={1} style={{
                     fontSize: '72px',
                     margin: '0 0 16px 0',
-                    background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                    background: 'var(--gradient-primary)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                     backgroundClip: 'text',
@@ -103,11 +103,11 @@ const Err403: React.FC = () => {
                             height: '48px',
                             padding: '0 24px',
                             borderRadius: '8px',
-                            background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                            background: 'var(--gradient-primary)',
                             border: 'none',
                             fontSize: '16px',
                             fontWeight: '500',
-                            boxShadow: '0 4px 12px rgba(5, 108, 205, 0.3)'
+                            boxShadow: '0 4px 12px var(--shadow-primary-color-hover)'
                         }}
                     >
                         Go Home
@@ -151,15 +151,15 @@ const Err403: React.FC = () => {
                 @keyframes pulse {
                     0% {
                         transform: scale(1);
-                        box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+                        box-shadow: 0 10px 30px var(--shadow-danger-color);
                     }
                     50% {
                         transform: scale(1.05);
-                        box-shadow: 0 15px 40px rgba(255, 107, 107, 0.4);
+                        box-shadow: 0 15px 40px var(--shadow-danger-color-hover);
                     }
                     100% {
                         transform: scale(1);
-                        box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+                        box-shadow: 0 10px 30px var(--shadow-danger-color);
                     }
                 }
             `}</style>

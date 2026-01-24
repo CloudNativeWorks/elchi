@@ -8,7 +8,7 @@ import { handleChangeResources } from "@/redux/dispatcher";
 import { memorizeComponent, compareVeri } from "@/hooks/useMemoComponent";
 import { ResourceAction } from "@/redux/reducers/slice";
 import { DeleteTwoTone, InboxOutlined } from '@ant-design/icons';
-import CommonComponentSocketAddress from "@/elchi/components/resources/common/Address/socket_address";
+import CommonComponentSocketAddress from "./socket_address";
 import ElchiButton from "@/elchi/components/common/ElchiButton";
 
 
@@ -19,6 +19,7 @@ type GeneralProps = {
         drawerOpen: boolean;
         reduxStore: any;
         drawerClose: () => void;
+        title?: string;
     }
 };
 
@@ -26,8 +27,9 @@ interface TableDataWithIndex {
     tableIndex: number;
 }
 
-const ComponentResolvers: React.FC<GeneralProps> = ({ veri }) => {
+const CommonComponentAddresses: React.FC<GeneralProps> = ({ veri }) => {
     const dispatch = useDispatch();
+    const title = veri.title || "Addresses";
 
     const columns: ColumnsType<TableDataWithIndex> = [
         {
@@ -69,13 +71,13 @@ const ComponentResolvers: React.FC<GeneralProps> = ({ veri }) => {
         handleChangeResources({ version: veri.version, type: ActionType.Delete, keys: fullKey, resourceType: ResourceType.Resource }, dispatch, ResourceAction);
     };
 
-    const addResolver = () => {
+    const addItem = () => {
         handleChangeResources({ keys: `${veri.keyPrefix}`, version: veri.version, type: ActionType.Append, val: {}, resourceType: ResourceType.Resource }, dispatch, ResourceAction);
     };
 
     return (
         <Drawer
-            title={`Resolvers`}
+            title={title}
             placement="right"
             closable={false}
             width={"60%"}
@@ -83,8 +85,8 @@ const ComponentResolvers: React.FC<GeneralProps> = ({ veri }) => {
             onClose={veri.drawerClose}
             size='large'
         >
-            <ElchiButton onlyText onClick={() => addResolver()} size="small">
-                Add Resolver
+            <ElchiButton onlyText onClick={() => addItem()} size="small">
+                Add Address
             </ElchiButton>
             <Divider type="horizontal" />
             <Row>
@@ -106,7 +108,7 @@ const ComponentResolvers: React.FC<GeneralProps> = ({ veri }) => {
                         emptyText: (
                             <div>
                                 <InboxOutlined style={{ fontSize: 48, marginBottom: 8 }} />
-                                <div>No Resolvers</div>
+                                <div>No {title}</div>
                             </div>
                         )
                     }}
@@ -133,4 +135,4 @@ const ComponentResolvers: React.FC<GeneralProps> = ({ veri }) => {
         </Drawer>
     );
 }
-export default memorizeComponent(ComponentResolvers, compareVeri);
+export default memorizeComponent(CommonComponentAddresses, compareVeri);

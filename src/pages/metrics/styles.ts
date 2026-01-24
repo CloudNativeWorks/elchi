@@ -10,9 +10,9 @@ export const ToolbarContainer = styled.div<{ $theme: ThemeProps }>`
     border-radius: 12px;
     padding: 6px 8px;
     margin-bottom: 24px;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-md);
     display: flex;
-    border: 1px solid rgba(32, 181, 227, 0.3);
+    border: 1px solid var(--color-accent-border, rgba(32, 181, 227, 0.3));
     align-items: flex-start;
     gap: 16px;
     position: sticky;
@@ -23,7 +23,7 @@ export const ToolbarContainer = styled.div<{ $theme: ThemeProps }>`
     flex-wrap: wrap;
 
     &:hover {
-        box-shadow: 0 4px 12px rgba(32, 181, 227, 0.3);
+        box-shadow: var(--shadow-lg);
     }
 
     @media (max-width: 1200px) {
@@ -113,7 +113,7 @@ export const ToolbarContainer = styled.div<{ $theme: ThemeProps }>`
 
         &:not(:disabled):hover {
             transform: translateY(-1px);
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow-sm);
         }
 
         .anticon {
@@ -126,13 +126,13 @@ export const TimeControls = styled(Space.Compact)`
     background: ${props => props.theme.antd?.colorBgContainer};
     border-radius: 8px;
     padding: 1px;
-    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 0 0 1px var(--border-light);
     flex-wrap: nowrap;
     flex-shrink: 0;
 
     .ant-picker {
         &:hover {
-            border-color: #4096ff;
+            border-color: var(--color-primary);
         }
         
         &:first-child {
@@ -199,9 +199,9 @@ export const ServiceSelect = styled(Select)`
     max-width: 300px;
     width: 35%;
     flex-shrink: 0;
-    
+
     .ant-select-selector {
-        background: rgba(0, 0, 0, 0.02) !important;
+        background: var(--bg-hover) !important;
     }
 
     @media (max-width: 1200px) {

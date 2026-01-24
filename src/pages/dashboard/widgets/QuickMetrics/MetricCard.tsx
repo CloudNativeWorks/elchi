@@ -28,7 +28,7 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   icon,
   trend,
   type = 'number',
-  color = '#0a7fda',
+  color = 'var(--color-primary)',
 }) => {
   const formattedValue =
     type === 'percentage'

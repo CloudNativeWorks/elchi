@@ -158,7 +158,7 @@ const BGPRoutesContent: React.FC<BGPRoutesContentProps> = ({ clientId }) => {
                             <div>
                                 <Text strong>{uniquePeers[0] || 'Local'}</Text>
                                 {uniquePeers.length > 1 && (
-                                    <div style={{ fontSize: 11, color: '#666' }}>
+                                    <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
                                         +{uniquePeers.length - 1} more
                                     </div>
                                 )}
@@ -179,7 +179,7 @@ const BGPRoutesContent: React.FC<BGPRoutesContentProps> = ({ clientId }) => {
                     <div>
                         <Text>{nextHop.ip}</Text>
                         {nextHop.hostname && (
-                            <div style={{ fontSize: 12, color: '#666' }}>
+                            <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>
                                 {nextHop.hostname}
                             </div>
                         )}

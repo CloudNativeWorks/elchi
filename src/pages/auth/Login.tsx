@@ -30,7 +30,7 @@ const CloudNativeWorksLogo = styled.div`
     }
 
     .works {
-        background: linear-gradient(to right, rgb(255, 107, 53), rgb(30, 58, 138), rgb(59, 130, 246));
+        background: var(--gradient-text);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -177,7 +177,7 @@ const Login = () => {
                 <span className="works">Works</span>
             </CloudNativeWorksLogo>
             <form className={`login ${buttonState === 'Username or Password incorrect!' ? 'ok' : ''} ${buttonState === 'Authenticating' || buttonState === 'Verifying OTP' ? 'loading' : ''}`} onSubmit={handleSubmit}>
-                <div className="brand" style={{ textAlign: 'center', marginBottom: 4 }}>
+                <div className="brand" style={{ textAlign: 'center', marginBottom: 20 }}>
                     <span><img alt='Elchi' src={logoelchi} /></span>
                 </div>
                 <input
@@ -211,7 +211,7 @@ const Login = () => {
                     </a>
                 </div>
                 <div className="footer-text">
-                    <span>Powered by Elchi</span>
+                    Powered by&nbsp;<span className="cloudnative-text">CloudNative</span><span className="works-text">Works</span>
                 </div>
             </footer>
 
@@ -223,12 +223,12 @@ const Login = () => {
                             width: 40,
                             height: 40,
                             borderRadius: 10,
-                            background: 'linear-gradient(135deg, #1890ff 0%, #096dd9 100%)',
+                            background: 'var(--gradient-primary)',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center'
                         }}>
-                            <KeyOutlined style={{ color: '#fff', fontSize: 20 }} />
+                            <KeyOutlined style={{ color: 'var(--text-on-primary)', fontSize: 20 }} />
                         </div>
                         <div>
                             <div style={{ fontSize: 18, fontWeight: 600, color: 'var(--text-primary)' }}>

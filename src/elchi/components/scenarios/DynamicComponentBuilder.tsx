@@ -1038,16 +1038,16 @@ const DynamicComponentBuilder: React.FC<DynamicComponentBuilderProps> = ({
                 {configuringIndex >= 0 && (
                     <div style={{ padding: '24px 0' }}>
                         <div style={{
-                            background: 'linear-gradient(135deg, #056ccd 0%, #00c6fb 100%)',
+                            background: 'var(--gradient-primary)',
                             borderRadius: '12px',
                             padding: '20px',
                             marginBottom: '24px',
-                            color: 'white'
+                            color: 'var(--text-on-primary)'
                         }}>
-                            <Typography.Title level={4} style={{ color: 'white', margin: '0 0 8px 0' }}>
+                            <Typography.Title level={4} style={{ color: 'var(--text-on-primary)', margin: '0 0 8px 0' }}>
                                 Field Configuration
                             </Typography.Title>
-                            <Text style={{ color: 'rgba(255,255,255,0.9)' }}>
+                            <Text style={{ color: 'var(--text-on-primary)', opacity: 0.9 }}>
                                 Select the fields you want to include in this component and configure their properties.
                             </Text>
                         </div>

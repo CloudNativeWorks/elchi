@@ -237,7 +237,7 @@ const MetricsToolbar: React.FC<MetricsToolbarProps> = ({
                             height: '38px',
                             minWidth: '38px',
                             padding: '0 0px',
-                            border: '1px solid #d9d9d9',
+                            border: '1px solid var(--border-default)',
                             borderRadius: '6px'
                         }}
                     >
@@ -296,9 +296,9 @@ const MetricsToolbar: React.FC<MetricsToolbarProps> = ({
                             onClick={onNowClick}
                             icon={<FieldTimeOutlined />}
                             style={isNowSelected ? {
-                                background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                                background: 'var(--gradient-primary)',
                                 border: 'none',
-                                color: 'white',
+                                color: 'var(--text-on-primary)',
                                 fontWeight: 600
                             } : {}}
                         >
@@ -357,14 +357,14 @@ const MetricsToolbar: React.FC<MetricsToolbarProps> = ({
                                     <Badge
                                         count={countdown}
                                         style={{
-                                            backgroundColor: 'rgba(255, 255, 255, 0.3)',
-                                            color: 'white',
+                                            backgroundColor: 'var(--bg-glass-hover, rgba(255, 255, 255, 0.3))',
+                                            color: 'var(--text-on-primary)',
                                             boxShadow: 'none',
                                             marginRight: '4px',
                                             marginBottom: '4px'
                                         }}
                                     />
-                                    <span style={{ color: 'white' }} className="btn-text">Auto</span>
+                                    <span style={{ color: 'var(--text-on-primary)' }} className="btn-text">Auto</span>
                                 </>
                             ) : <span className="btn-text">Auto</span>}
                         </RefreshButton>

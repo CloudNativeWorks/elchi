@@ -84,7 +84,7 @@ const DirectiveSetsManager: React.FC<DirectiveSetsManagerProps> = ({
                     alignItems: 'center'
                 }}>
                     <Text strong style={{ fontSize: 16, color: 'var(--text-primary)' }}>Directive Sets</Text>
-                    <Badge count={Object.keys(directiveSets).length} style={{ backgroundColor: '#1890ff' }} />
+                    <Badge count={Object.keys(directiveSets).length} style={{ backgroundColor: 'var(--color-primary)' }} />
                 </div>
 
                 {/* Body */}
@@ -162,7 +162,7 @@ const DirectiveSetsManager: React.FC<DirectiveSetsManagerProps> = ({
                                 >
                                     {setName}
                                     {form.getFieldValue('default_directives') === setName && (
-                                        <span style={{ marginLeft: 8, background: '#52c41a', color: 'white', padding: '2px 8px', borderRadius: 4, fontSize: 12 }}>
+                                        <span style={{ marginLeft: 8, background: 'var(--color-success)', color: 'var(--text-on-primary)', padding: '2px 8px', borderRadius: 4, fontSize: 12 }}>
                                             Default
                                         </span>
                                     )}

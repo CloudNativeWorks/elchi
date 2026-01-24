@@ -233,7 +233,7 @@ const CrsRuleBrowser: React.FC<CrsRuleBrowserProps> = ({ onSelectRule, onSelectF
                     )}
                 </div>
                 {rulesData && Object.keys(rulesByFile).length > 0 && (
-                    <Badge count={Object.keys(rulesByFile).length} style={{ backgroundColor: '#52c41a' }} showZero />
+                    <Badge count={Object.keys(rulesByFile).length} style={{ backgroundColor: 'var(--color-success)' }} showZero />
                 )}
             </div>
             {/* Body */}
@@ -362,7 +362,7 @@ const CrsRuleBrowser: React.FC<CrsRuleBrowserProps> = ({ onSelectRule, onSelectF
                             <Space>
                                 <FileOutlined />
                                 <Text strong>{filename}</Text>
-                                <Badge count={rules.length} style={{ backgroundColor: '#1890ff' }} />
+                                <Badge count={rules.length} style={{ backgroundColor: 'var(--color-primary)' }} />
                             </Space>
                         </Space>
                     ),
@@ -376,9 +376,9 @@ const CrsRuleBrowser: React.FC<CrsRuleBrowserProps> = ({ onSelectRule, onSelectF
                             }}
                             disabled={!selectedSetName}
                             style={{
-                                backgroundColor: selectedSetName ? '#1890ff' : undefined,
-                                borderColor: selectedSetName ? '#1890ff' : undefined,
-                                color: selectedSetName ? '#ffffff' : undefined,
+                                backgroundColor: selectedSetName ? 'var(--color-primary)' : undefined,
+                                borderColor: selectedSetName ? 'var(--color-primary)' : undefined,
+                                color: selectedSetName ? 'var(--text-on-primary)' : undefined,
                                 borderRadius: 6
                             }}
                         >

@@ -99,8 +99,8 @@ export const ThemeColors = {
 
     // Edge colors
     edge: {
-        default: '#94a3b8',
-        highlighted: '#fbbf24',
+        default: 'var(--routemap-edge, #94a3b8)',
+        highlighted: 'var(--color-warning)',
     },
 };
 

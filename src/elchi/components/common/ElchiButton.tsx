@@ -26,7 +26,7 @@ const ElchiButton: React.FC<ElchiButtonProps> = ({ children = 'Add New', onlyTex
                         height: 20,
                         marginRight: 8
                     }}>
-                        <PlusOutlined style={{ fontSize: 14, color: isDisabled ? '#eee' : '#fff' }} />
+                        <PlusOutlined style={{ fontSize: 14, color: isDisabled ? 'var(--text-disabled)' : 'var(--text-on-primary)' }} />
                     </span>
                 )
             }
@@ -35,7 +35,7 @@ const ElchiButton: React.FC<ElchiButtonProps> = ({ children = 'Add New', onlyTex
                     ? 'var(--btn-disabled-gradient, linear-gradient(90deg, #e0e0e0 0%, #bdbdbd 100%))'
                     : 'var(--gradient-primary)',
                 border: 'none',
-                color: isDisabled ? 'var(--text-disabled)' : '#fff',
+                color: isDisabled ? 'var(--text-disabled)' : 'var(--text-on-primary)',
                 fontWeight: 600,
                 fontSize: 12,
                 borderRadius: 8,

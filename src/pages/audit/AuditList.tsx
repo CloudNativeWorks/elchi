@@ -241,7 +241,7 @@ const AuditList: React.FC = () => {
             render: (_, record: AuditLog) => (
                 <Space direction="vertical" size="small">
                     {getSuccessTag(record.success)}
-                    <Text style={{ fontSize: 11, color: record.response_status >= 400 ? '#ff4d4f' : '#52c41a' }}>
+                    <Text style={{ fontSize: 11, color: record.response_status >= 400 ? 'var(--color-danger)' : 'var(--color-success)' }}>
                         {record.response_status}
                     </Text>
                 </Space>
@@ -619,18 +619,18 @@ const AuditList: React.FC = () => {
                                     onClick={applyFilters}
                                     style={{
                                         borderRadius: 6,
-                                        background: 'white',
+                                        background: 'var(--bg-surface)',
                                         border: '1px solid var(--border-default)',
                                         transition: 'all 0.3s ease'
                                     }}
                                     onMouseEnter={(e) => {
-                                        e.currentTarget.style.background = 'linear-gradient(90deg, var(--color-primary) 0%, var(--color-accent) 100%)';
-                                        e.currentTarget.style.color = 'white';
+                                        e.currentTarget.style.background = 'var(--gradient-primary)';
+                                        e.currentTarget.style.color = 'var(--text-on-primary)';
                                         e.currentTarget.style.borderColor = 'var(--color-primary)';
                                     }}
                                     onMouseLeave={(e) => {
-                                        e.currentTarget.style.background = 'white';
-                                        e.currentTarget.style.color = 'rgba(0, 0, 0, 0.88)';
+                                        e.currentTarget.style.background = 'var(--bg-surface)';
+                                        e.currentTarget.style.color = 'var(--text-primary)';
                                         e.currentTarget.style.borderColor = 'var(--border-default)';
                                     }}
                                 >
@@ -655,7 +655,7 @@ const AuditList: React.FC = () => {
             <Card
                 style={{
                     borderRadius: 12,
-                    boxShadow: '0 2px 8px rgba(5,117,230,0.06)',
+                    boxShadow: 'var(--shadow-sm)',
                 }}
                 styles={{
                     body: { padding: 12 }

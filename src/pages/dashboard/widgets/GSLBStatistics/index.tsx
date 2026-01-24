@@ -257,6 +257,14 @@ export const GSLBStatistics: React.FC = () => {
     return num.toFixed(0);
   };
 
+  // Helper to convert hex color to rgba
+  const hexToRgba = (hex: string, alpha: number): string => {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
+
   // Success Rate & Latency Timeline Chart
   const timelineChartOptions = {
     animation: false,
@@ -331,8 +339,8 @@ export const GSLBStatistics: React.FC = () => {
         lineStyle: { color: chartTheme.successColor, width: 2 },
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: isDark ? 'rgba(52, 211, 153, 0.3)' : 'rgba(82, 196, 26, 0.3)' },
-            { offset: 1, color: isDark ? 'rgba(52, 211, 153, 0.05)' : 'rgba(82, 196, 26, 0.05)' },
+            { offset: 0, color: hexToRgba(chartTheme.successColor, 0.3) },
+            { offset: 1, color: hexToRgba(chartTheme.successColor, 0.05) },
           ]),
         },
       },
@@ -346,8 +354,8 @@ export const GSLBStatistics: React.FC = () => {
         lineStyle: { color: chartTheme.seriesColors[0], width: 2 },
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: isDark ? 'rgba(59, 158, 255, 0.3)' : 'rgba(24, 144, 255, 0.3)' },
-            { offset: 1, color: isDark ? 'rgba(59, 158, 255, 0.05)' : 'rgba(24, 144, 255, 0.05)' },
+            { offset: 0, color: hexToRgba(chartTheme.seriesColors[0], 0.3) },
+            { offset: 1, color: hexToRgba(chartTheme.seriesColors[0], 0.05) },
           ]),
         },
       },

@@ -237,7 +237,7 @@ const AcmeAccountDetail: React.FC = () => {
                     >
                       <div>
                         <div>{env.label}</div>
-                        <div style={{ fontSize: 12, color: '#666' }}>{env.description}</div>
+                        <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>{env.description}</div>
                       </div>
                     </Select.Option>
                   ))}

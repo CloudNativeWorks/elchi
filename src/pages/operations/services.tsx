@@ -361,9 +361,9 @@ const Services: React.FC = () => {
                                         transition: 'all 0.3s ease'
                                     }}
                                     onMouseEnter={(e) => {
-                                        e.currentTarget.style.background = 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)';
-                                        e.currentTarget.style.color = 'white';
-                                        e.currentTarget.style.borderColor = '#056ccd';
+                                        e.currentTarget.style.background = 'var(--gradient-primary)';
+                                        e.currentTarget.style.color = 'var(--text-on-primary)';
+                                        e.currentTarget.style.borderColor = 'var(--color-primary)';
                                     }}
                                     onMouseLeave={(e) => {
                                         e.currentTarget.style.background = 'var(--card-bg)';

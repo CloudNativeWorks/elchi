@@ -83,20 +83,30 @@ const GslbStatistics: React.FC = () => {
     return num.toFixed(0);
   };
 
+  // Detect if dark mode is active by checking the document body class
+  const isDarkMode = document.body.classList.contains('dark') ||
+                     document.documentElement.getAttribute('data-theme') === 'dark' ||
+                     window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+  // Theme-aware colors for ECharts (which doesn't support CSS variables directly)
+  const textColor = isDarkMode ? '#e0e0e0' : '#333333';
+  const textSecondaryColor = isDarkMode ? '#a0a0a0' : '#666666';
+  const gridLineColor = isDarkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+
   // IP Health Distribution Pie Chart
   const ipHealthChartOptions = {
     tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
-    legend: { bottom: 0, left: 'center', textStyle: { fontSize: 11 } },
+    legend: { bottom: 0, left: 'center', textStyle: { fontSize: 11, color: textSecondaryColor } },
     series: [{
       type: 'pie',
       radius: ['45%', '75%'],
       center: ['50%', '45%'],
       avoidLabelOverlap: true,
-      label: { show: true, formatter: '{c}', fontSize: 12 },
+      label: { show: true, formatter: '{c}', fontSize: 12, color: textColor },
       data: [
-        { value: metrics.healthyIps, name: 'Healthy', itemStyle: { color: 'var(--color-success)' } },
-        { value: metrics.warningIps, name: 'Warning', itemStyle: { color: 'var(--color-warning)' } },
-        { value: metrics.criticalIps, name: 'Critical', itemStyle: { color: 'var(--color-danger)' } },
+        { value: metrics.healthyIps, name: 'Healthy', itemStyle: { color: '#52c41a' } },
+        { value: metrics.warningIps, name: 'Warning', itemStyle: { color: '#faad14' } },
+        { value: metrics.criticalIps, name: 'Critical', itemStyle: { color: '#ff4d4f' } },
       ].filter(d => d.value > 0),
     }],
   };
@@ -110,7 +120,7 @@ const GslbStatistics: React.FC = () => {
     legend: {
       bottom: 0,
       left: 'center',
-      textStyle: { fontSize: 10 },
+      textStyle: { fontSize: 10, color: textSecondaryColor },
       data: visibleErrors.map(e => e.type.replace(/_/g, ' ')),
     },
     series: [{
@@ -140,20 +150,23 @@ const GslbStatistics: React.FC = () => {
     grid: { left: '3%', right: '4%', bottom: '10%', top: '10%', containLabel: true },
     xAxis: {
       type: 'time',
-      axisLabel: { fontSize: 10, formatter: (value: number) => new Date(value).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) },
+      axisLabel: { fontSize: 10, color: textSecondaryColor, formatter: (value: number) => new Date(value).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) },
+      axisLine: { lineStyle: { color: gridLineColor } },
     },
     yAxis: {
       type: 'value',
       min: 0,
       max: 100,
-      axisLabel: { fontSize: 10, formatter: '{value}%' },
+      axisLabel: { fontSize: 10, color: textSecondaryColor, formatter: '{value}%' },
+      axisLine: { lineStyle: { color: gridLineColor } },
+      splitLine: { lineStyle: { color: gridLineColor } },
     },
     series: [{
       type: 'line',
       data: metrics.successRateTrend,
       smooth: true,
       symbol: 'none',
-      lineStyle: { color: 'var(--color-success)', width: 2 },
+      lineStyle: { color: '#52c41a', width: 2 },
       areaStyle: {
         color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
           { offset: 0, color: 'rgba(82, 196, 26, 0.4)' },
@@ -176,18 +189,21 @@ const GslbStatistics: React.FC = () => {
     grid: { left: '3%', right: '4%', bottom: '10%', top: '10%', containLabel: true },
     xAxis: {
       type: 'time',
-      axisLabel: { fontSize: 10, formatter: (value: number) => new Date(value).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) },
+      axisLabel: { fontSize: 10, color: textSecondaryColor, formatter: (value: number) => new Date(value).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) },
+      axisLine: { lineStyle: { color: gridLineColor } },
     },
     yAxis: {
       type: 'value',
-      axisLabel: { fontSize: 10, formatter: (value: number) => `${(value * 1000).toFixed(0)}ms` },
+      axisLabel: { fontSize: 10, color: textSecondaryColor, formatter: (value: number) => `${(value * 1000).toFixed(0)}ms` },
+      axisLine: { lineStyle: { color: gridLineColor } },
+      splitLine: { lineStyle: { color: gridLineColor } },
     },
     series: [{
       type: 'line',
       data: metrics.latencyTrend,
       smooth: true,
       symbol: 'none',
-      lineStyle: { color: 'var(--color-primary)', width: 2 },
+      lineStyle: { color: '#1890ff', width: 2 },
       areaStyle: {
         color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
           { offset: 0, color: 'rgba(24, 144, 255, 0.4)' },

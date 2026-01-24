@@ -406,10 +406,10 @@ const Clients: React.FC = () => {
                             icon={<DownloadOutlined />}
                             onClick={() => setIsInstallationDrawerOpen(true)}
                             style={{
-                                background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                                background: 'var(--gradient-primary)',
                                 border: 'none',
                                 fontWeight: 500,
-                                boxShadow: '0 2px 8px rgba(0,198,251,0.15)',
+                                boxShadow: 'var(--shadow-primary)',
                             }}
                         >
                             Install Client

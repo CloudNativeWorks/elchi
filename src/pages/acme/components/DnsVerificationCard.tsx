@@ -232,11 +232,11 @@ const DnsVerificationCard: React.FC<DnsVerificationCardProps> = ({
             loading={verifying}
             size="large"
             style={{
-              background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+              background: 'var(--gradient-primary)',
               border: 'none',
               borderRadius: 8,
               fontWeight: 500,
-              boxShadow: '0 2px 8px rgba(0,198,251,0.10)',
+              boxShadow: 'var(--shadow-primary)',
             }}
           >
             Verify DNS and Issue Certificate

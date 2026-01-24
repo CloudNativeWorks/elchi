@@ -641,13 +641,13 @@ const FilterMain: React.FC = () => {
                                 minWidth: 48,
                                 height: 48,
                                 borderRadius: 12,
-                                background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                                background: 'var(--gradient-primary)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                color: 'white',
+                                color: 'var(--text-on-primary)',
                                 fontSize: 20,
-                                boxShadow: '0 6px 20px rgba(5, 108, 205, 0.25)'
+                                boxShadow: 'var(--shadow-primary)'
                             }}>
                                 <InfoCircleOutlined />
                             </div>
@@ -730,7 +730,7 @@ const FilterMain: React.FC = () => {
                         type="primary"
                         size="large"
                         style={{
-                            background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                            background: 'var(--gradient-primary)',
                             border: 'none',
                             borderRadius: 6,
                             fontWeight: 500,

@@ -530,11 +530,11 @@ const BGPPoliciesContent: React.FC<BGPPoliciesContentProps> = ({ clientId }) => 
                         icon={<PlusOutlined />}
                         onClick={() => handleAddPolicy(type)}
                         style={{
-                            background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                            background: 'var(--gradient-primary)',
                             border: 'none',
                             borderRadius: 8,
                             fontWeight: 500,
-                            boxShadow: '0 2px 8px rgba(0,198,251,0.10)',
+                            boxShadow: 'var(--shadow-primary)',
                         }}
                         className="modern-add-btn"
                     >
@@ -543,7 +543,7 @@ const BGPPoliciesContent: React.FC<BGPPoliciesContentProps> = ({ clientId }) => 
                 </div>
             </div>
 
-            <Card style={{ borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+            <Card style={{ borderRadius: 12, boxShadow: 'var(--shadow-sm)' }}>
                 <Table
                     rowSelection={getRowSelectionProps(type)}
                     dataSource={data}

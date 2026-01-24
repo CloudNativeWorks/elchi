@@ -144,7 +144,7 @@ const FormItem = ({ veri }: RenderFormItemProps) => {
                             <div>
                                 <span>{filter.name}</span>
                                 <br />
-                                <small style={{ color: '#888' }}>{filter.gtype}</small>
+                                <small style={{ color: 'var(--text-tertiary)' }}>{filter.gtype}</small>
                             </div>
                         </Select.Option>
                     ))}
