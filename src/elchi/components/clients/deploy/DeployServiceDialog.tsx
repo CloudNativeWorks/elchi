@@ -444,39 +444,24 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
 
     // Re-apply existing client interface selections after interfaceData is loaded
     useEffect(() => {
-        console.log('[DeployDialog] useEffect triggered - open:', open, 'existingClients:', existingClients, 'interfaceData keys:', Object.keys(interfaceData));
-
-        if (!open || existingClients.length === 0) {
-            console.log('[DeployDialog] Early return - open:', open, 'existingClients.length:', existingClients.length);
-            return;
-        }
+        if (!open || existingClients.length === 0) return;
 
         // For each existing client with interface_id, ensure the selection is applied
         existingClients.forEach(existingClient => {
-            console.log('[DeployDialog] Processing existingClient:', existingClient.client_id, 'interface_id:', existingClient.interface_id, 'ip_mode:', existingClient.ip_mode);
-            console.log('[DeployDialog] Current selectedInterfaces:', selectedInterfaces);
-            console.log('[DeployDialog] Current selectedIpModes:', selectedIpModes);
-
             // Always set the interface selection if it exists in existingClients
             if (existingClient.interface_id && !selectedInterfaces[existingClient.client_id]) {
-                console.log('[DeployDialog] Setting interface for', existingClient.client_id, 'to', existingClient.interface_id);
                 setSelectedInterfaces(prev => ({
                     ...prev,
                     [existingClient.client_id]: existingClient.interface_id!
                 }));
-            } else {
-                console.log('[DeployDialog] Skipping interface set - already set or no interface_id');
             }
 
             // Also ensure IP mode is set
             if (existingClient.ip_mode && !selectedIpModes[existingClient.client_id]) {
-                console.log('[DeployDialog] Setting IP mode for', existingClient.client_id, 'to', existingClient.ip_mode);
                 setSelectedIpModes(prev => ({
                     ...prev,
                     [existingClient.client_id]: existingClient.ip_mode!
                 }));
-            } else {
-                console.log('[DeployDialog] Skipping IP mode set - already set or no ip_mode');
             }
         });
     }, [open, interfaceData, existingClients]);

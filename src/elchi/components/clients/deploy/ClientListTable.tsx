@@ -363,13 +363,6 @@ export function ClientListTable({
                 // Get interface from state, or fallback to existingClients
                 const existingClientForInterface = existingClients.find(ec => ec.client_id === record.client_id);
                 const selectedInterface = selectedInterfaces[record.client_id] || existingClientForInterface?.interface_id;
-
-                // Debug logging
-                console.log('[ClientListTable] Rendering client:', record.client_id);
-                console.log('[ClientListTable] existingClientForInterface:', existingClientForInterface);
-                console.log('[ClientListTable] selectedInterfaces[client_id]:', selectedInterfaces[record.client_id]);
-                console.log('[ClientListTable] Final selectedInterface:', selectedInterface);
-                console.log('[ClientListTable] interfaces count:', interfaces.length, 'isLoading:', isLoading);
                 const selectedInterfaceData = interfaces.find(i => i.id === selectedInterface);
                 // Get IP mode from state, or fallback to existingClients, or default to 'fixed'
                 const existingClientData = existingClients.find(ec => ec.client_id === record.client_id);
@@ -650,25 +643,32 @@ export function ClientListTable({
         if (!clients) return [];
 
         return [...clients].sort((a, b) => {
-            // First priority: Selected items
+            // First priority: Deployed items (existingClients)
+            const aDeployed = existingClients.some(ec => ec.client_id === a.client_id);
+            const bDeployed = existingClients.some(ec => ec.client_id === b.client_id);
+
+            if (aDeployed && !bDeployed) return -1;
+            if (!aDeployed && bDeployed) return 1;
+
+            // Second priority: Selected items
             const aSelected = selectedRowKeys.includes(a.client_id);
             const bSelected = selectedRowKeys.includes(b.client_id);
 
             if (aSelected && !bSelected) return -1;
             if (!aSelected && bSelected) return 1;
 
-            // Second priority: Online status (online first, offline last)
+            // Third priority: Online status (online first, offline last)
             if (a.connected !== b.connected) {
                 return b.connected ? 1 : -1; // Online (true) first, offline (false) last
             }
 
-            // Third priority: Name alphabetical
+            // Fourth priority: Name alphabetical
             return (a.name || '').localeCompare(b.name || '');
         }).map(client => ({
             ...client,
             key: client.client_id
         }));
-    }, [clients, selectedRowKeys]);
+    }, [clients, selectedRowKeys, existingClients]);
 
     return (
         <>
