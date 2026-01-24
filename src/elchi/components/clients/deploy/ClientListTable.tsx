@@ -1,4 +1,4 @@
-import { Table, Input, Select, Spin, Tag, Button, Drawer, Descriptions, Space } from 'antd';
+import { Table, Input, Select, Tag, Button, Drawer, Descriptions, Space } from 'antd';
 import { useMemo, useCallback, useState } from 'react';
 import { OperationsType } from '@/common/types';
 import { InfoCircleOutlined } from '@ant-design/icons';
@@ -360,9 +360,20 @@ export function ClientListTable({
                 // Enhanced input for OpenStack clients with interface selection
                 const interfaces = interfaceData[record.client_id] || [];
                 const isLoading = interfaceLoading[record.client_id];
-                const selectedInterface = selectedInterfaces[record.client_id];
+                // Get interface from state, or fallback to existingClients
+                const existingClientForInterface = existingClients.find(ec => ec.client_id === record.client_id);
+                const selectedInterface = selectedInterfaces[record.client_id] || existingClientForInterface?.interface_id;
+
+                // Debug logging
+                console.log('[ClientListTable] Rendering client:', record.client_id);
+                console.log('[ClientListTable] existingClientForInterface:', existingClientForInterface);
+                console.log('[ClientListTable] selectedInterfaces[client_id]:', selectedInterfaces[record.client_id]);
+                console.log('[ClientListTable] Final selectedInterface:', selectedInterface);
+                console.log('[ClientListTable] interfaces count:', interfaces.length, 'isLoading:', isLoading);
                 const selectedInterfaceData = interfaces.find(i => i.id === selectedInterface);
-                const selectedIpMode = selectedIpModes[record.client_id] || 'fixed';
+                // Get IP mode from state, or fallback to existingClients, or default to 'fixed'
+                const existingClientData = existingClients.find(ec => ec.client_id === record.client_id);
+                const selectedIpMode = selectedIpModes[record.client_id] || existingClientData?.ip_mode || 'fixed';
                 const interfaceError = interfaceErrors[record.client_id];
 
                 return (
@@ -410,68 +421,91 @@ export function ClientListTable({
                                 <span style={{ fontWeight: 500 }}>Interface:</span>
                             </div>
 
-                            {isLoading ? (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                                    <Spin size="small" />
-                                    <span style={{ color: 'var(--text-secondary)' }}>Loading...</span>
-                                </div>
-                            ) : (
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                    <Select
-                                        size="small"
-                                        placeholder={interfaces.length === 0 ? "No interfaces available" : "Select interface"}
-                                        value={selectedInterface}
-                                        onChange={(value) => handleInterfaceChange(record.client_id, value)}
-                                        style={{ fontSize: 11, width: '180px' }}
-                                        status={actionType === OperationsType.DEPLOY && !selectedInterface ? 'error' : undefined}
-                                        disabled={interfaces.length === 0 || disabledAddressEdit?.(record.client_id)}
-                                        optionLabelProp="shortLabel"
-                                        title={selectedInterface ? interfaces.find(i => i.id === selectedInterface)?.name || '' : ''}
-                                        options={interfaces.map(iface => {
-                                            const shortName = iface.name || iface.id.substring(0, 13);
-                                            return {
-                                                value: iface.id,
-                                                shortLabel: shortName.length > 30 ? `${shortName.substring(0, 30)}...` : shortName,
-                                                label: (
-                                                    <div style={{ fontSize: 11 }}>
-                                                        <div style={{ fontWeight: 500, color: 'var(--text-primary)' }}>
-                                                            {iface.name || iface.id.substring(0, 8)}
-                                                        </div>
-                                                        <div style={{ color: 'var(--text-secondary)', fontSize: 10 }}>
-                                                            IP: {iface.fixed_ips.map(ip => ip.ip_address).join(', ')} | Status: {iface.status || 'N/A'}
-                                                        </div>
-                                                    </div>
-                                                )
-                                            };
-                                        })}
-                                    />
-                                    <Button
-                                        type="text"
-                                        size="small"
-                                        icon={<InfoCircleOutlined />}
-                                        onClick={() => {
-                                            const interfaceToShow = selectedInterfaceData || (selectedInterface && interfaces.find(i => i.id === selectedInterface));
-                                            if (interfaceToShow) {
-                                                setInterfaceDetailModal({
-                                                    visible: true,
-                                                    interface: interfaceToShow,
-                                                    clientRecord: record
-                                                });
-                                            }
-                                        }}
-                                        style={{
-                                            padding: '2px 6px',
-                                            height: 'auto',
-                                            fontSize: 11,
-                                            color: 'var(--color-primary)',
-                                            whiteSpace: 'nowrap',
-                                            flexShrink: 0
-                                        }}
-                                    >
-                                        Details
-                                    </Button>
-                                </div>
-                            )}
+                            {(() => {
+                                // Get existing interface info from existingClients
+                                const existingClient = existingClients.find(ec => ec.client_id === record.client_id);
+                                const existingInterfaceId = existingClient?.interface_id;
+
+                                // Build options - include existing interface even if not in current list
+                                const baseOptions = interfaces.map(iface => {
+                                    const shortName = iface.name || iface.id.substring(0, 13);
+                                    return {
+                                        value: iface.id,
+                                        shortLabel: shortName.length > 30 ? `${shortName.substring(0, 30)}...` : shortName,
+                                        label: (
+                                            <div style={{ fontSize: 11 }}>
+                                                <div style={{ fontWeight: 500, color: 'var(--text-primary)' }}>
+                                                    {iface.name || iface.id.substring(0, 8)}
+                                                </div>
+                                                <div style={{ color: 'var(--text-secondary)', fontSize: 10 }}>
+                                                    IP: {iface.fixed_ips.map(ip => ip.ip_address).join(', ')} | Status: {iface.status || 'N/A'}
+                                                </div>
+                                            </div>
+                                        )
+                                    };
+                                });
+
+                                // Add existing interface as option if not already in list
+                                const finalOptions = existingInterfaceId && !interfaces.some(i => i.id === existingInterfaceId)
+                                    ? [{
+                                        value: existingInterfaceId,
+                                        shortLabel: isLoading ? 'Loading...' : existingInterfaceId.substring(0, 13) + '...',
+                                        label: (
+                                            <div style={{ fontSize: 11 }}>
+                                                <div style={{ fontWeight: 500, color: 'var(--text-primary)' }}>
+                                                    {existingInterfaceId.substring(0, 8)}...
+                                                </div>
+                                                <div style={{ color: 'var(--text-tertiary)', fontSize: 10 }}>
+                                                    {isLoading ? 'Loading interface details...' : 'Interface not found in current list'}
+                                                </div>
+                                            </div>
+                                        )
+                                    }, ...baseOptions]
+                                    : baseOptions;
+
+                                return (
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                        <Select
+                                            size="small"
+                                            placeholder={isLoading ? "Loading..." : (interfaces.length === 0 ? "No interfaces available" : "Select interface")}
+                                            value={selectedInterface}
+                                            onChange={(value) => handleInterfaceChange(record.client_id, value)}
+                                            style={{ fontSize: 11, width: '180px' }}
+                                            status={actionType === OperationsType.DEPLOY && !selectedInterface ? 'error' : undefined}
+                                            disabled={disabledAddressEdit?.(record.client_id)}
+                                            loading={isLoading}
+                                            optionLabelProp="shortLabel"
+                                            title={selectedInterface ? interfaces.find(i => i.id === selectedInterface)?.name || selectedInterface : ''}
+                                            options={finalOptions}
+                                        />
+                                        <Button
+                                            type="text"
+                                            size="small"
+                                            icon={<InfoCircleOutlined />}
+                                            onClick={() => {
+                                                const interfaceToShow = selectedInterfaceData || (selectedInterface && interfaces.find(i => i.id === selectedInterface));
+                                                if (interfaceToShow) {
+                                                    setInterfaceDetailModal({
+                                                        visible: true,
+                                                        interface: interfaceToShow,
+                                                        clientRecord: record
+                                                    });
+                                                }
+                                            }}
+                                            style={{
+                                                padding: '2px 6px',
+                                                height: 'auto',
+                                                fontSize: 11,
+                                                color: 'var(--color-primary)',
+                                                whiteSpace: 'nowrap',
+                                                flexShrink: 0
+                                            }}
+                                        >
+                                            Details
+                                        </Button>
+                                    </div>
+                                );
+                            })()}
                         </div>
 
                         {/* IP Mode Selection */}
