@@ -155,7 +155,7 @@ const CertificateList: React.FC = () => {
       <div style={{ marginBottom: 16 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
           <Space>
-            <SafetyCertificateOutlined style={{ color: '#1890ff', fontSize: 24 }} />
+            <SafetyCertificateOutlined style={{ color: 'var(--color-primary)', fontSize: 24 }} />
             <Title level={4} style={{ margin: 0 }}>Certificates</Title>
           </Space>
         </div>
@@ -174,9 +174,9 @@ const CertificateList: React.FC = () => {
             children: (
               <div
                 style={{
-                  background: 'white',
+                  background: 'var(--card-bg)',
                   borderRadius: 12,
-                  border: '1px solid #e5e7eb',
+                  border: '1px solid var(--border-default)',
                   boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
                   overflow: 'hidden',
                   marginBottom: 16
@@ -184,14 +184,14 @@ const CertificateList: React.FC = () => {
               >
                 {/* Header */}
                 <div style={{
-                  background: '#f9fafb',
-                  borderBottom: '1px solid #e5e7eb',
+                  background: 'var(--bg-surface)',
+                  borderBottom: '1px solid var(--border-default)',
                   padding: '12px 16px',
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center'
                 }}>
-                  <Text strong style={{ fontSize: 16, color: '#111827' }}>SSL/TLS Certificates</Text>
+                  <Text strong style={{ fontSize: 16, color: 'var(--text-primary)' }}>SSL/TLS Certificates</Text>
                   <Space>
                     <Input
                       placeholder="Search certificates..."

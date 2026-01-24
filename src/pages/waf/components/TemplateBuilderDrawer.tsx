@@ -164,7 +164,7 @@ const TemplateBuilderDrawer: React.FC<TemplateBuilderDrawerProps> = ({
         <Drawer
             title={
                 <Space>
-                    <ThunderboltOutlined style={{ color: '#1890ff', fontSize: 20 }} />
+                    <ThunderboltOutlined style={{ color: 'var(--color-primary)', fontSize: 20 }} />
                     <span style={{ fontSize: 18, fontWeight: 600 }}>Directive Template Builder</span>
                 </Space>
             }
@@ -228,12 +228,12 @@ const TemplateBuilderDrawer: React.FC<TemplateBuilderDrawerProps> = ({
                     <Divider />
                     <div style={{ marginTop: 16 }}>
                         <Space style={{ marginBottom: 8 }}>
-                            <EyeOutlined style={{ color: '#52c41a' }} />
+                            <EyeOutlined style={{ color: 'var(--color-success)' }} />
                             <Text strong style={{ fontSize: 14 }}>Live Preview:</Text>
                         </Space>
                         <div style={{
-                            background: '#f6ffed',
-                            border: '1px solid #b7eb8f',
+                            background: 'var(--color-success-light)',
+                            border: '1px solid var(--color-success-border)',
                             borderRadius: 6,
                             padding: 12,
                             fontFamily: 'monospace',

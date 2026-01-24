@@ -59,19 +59,19 @@ const CustomListenerDataTable: React.FC<CustomListenerDataTableProps> = ({ path,
         const params = new URLSearchParams();
         params.append('limit', pageSize.toString());
         params.append('offset', ((currentPage - 1) * pageSize).toString());
-        
+
         // Add filters from parent component
         Object.entries(filters).forEach(([key, value]) => {
             if (value !== undefined && value !== null && value !== '') {
                 params.append(key, value.toString());
             }
         });
-        
+
         if (sortBy) {
             params.append('sort_by', sortBy);
             params.append('sort_order', sortOrder);
         }
-        
+
         return params.toString();
     };
 
@@ -126,7 +126,7 @@ const CustomListenerDataTable: React.FC<CustomListenerDataTableProps> = ({ path,
             // Duplicate functionality - navigate to create page with resource data
             const gtype = getGTypeFields(record.gtype);
             const GType = getFieldsByGType(gtype);
-            
+
             // Navigate to create page with duplicate data as query parameters
             navigate(`${GType.createPath}?duplicate=true&resource_id=${record.id}&resource_name=${encodeURIComponent(record.name)}&version=${record.version}`);
         }
@@ -212,24 +212,24 @@ const CustomListenerDataTable: React.FC<CustomListenerDataTableProps> = ({ path,
                         {enabled ? (
                             <span style={{
                                 display: 'inline-block',
-                                background: '#f6ffed',
-                                color: '#52c41a',
+                                background: 'var(--color-success-light)',
+                                color: 'var(--color-success)',
                                 borderRadius: 4,
-                                border: '1px solid #52c41a',
+                                border: '1px solid var(--color-success)',
                                 padding: '2px 12px',
                                 fontWeight: 'bold',
                                 fontSize: 10,
-                                boxShadow: '0 1px 4px rgba(82,196,26,0.08)'
+                                boxShadow: 'var(--color-success-shadow)'
                             }}>
                                 Managed
                             </span>
                         ) : (
                             <span style={{
                                 display: 'inline-block',
-                                background: '#f5f5f5',
-                                color: '#8c8c8c',
+                                background: 'var(--bg-disabled)',
+                                color: 'var(--text-tertiary)',
                                 borderRadius: 4,
-                                border: '1px solid #8c8c8c',
+                                border: '1px solid var(--text-tertiary)',
                                 padding: '2px 12px',
                                 fontWeight: 'bold',
                                 fontSize: 10,
@@ -380,7 +380,7 @@ const CustomListenerDataTable: React.FC<CustomListenerDataTableProps> = ({ path,
                     showSizeChanger={true}
                     showQuickJumper={true}
                     pageSizeOptions={['20', '50', '100', '200']}
-                    showTotal={(total, range) => 
+                    showTotal={(total, range) =>
                         `${range[0]}-${range[1]} of ${total} items`
                     }
                 />

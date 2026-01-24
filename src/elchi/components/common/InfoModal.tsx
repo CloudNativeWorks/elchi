@@ -24,11 +24,11 @@ const mapInfoTypeToTitle = {
 
 const useStyle = createStyles(({ token }) => ({
     'my-modal-body': {
-        background: token.blue1,
+        background: 'var(--bg-surface)',
         padding: token.paddingSM,
     },
     'my-modal-mask': {
-        boxShadow: `inset 0 0 15px #fff`,
+        boxShadow: 'inset 0 0 15px var(--shadow-color, rgba(0, 0, 0, 0.1))',
     },
     'my-modal-header': {
         borderBottom: `1px dotted ${token.colorPrimary}`,
@@ -37,7 +37,8 @@ const useStyle = createStyles(({ token }) => ({
         color: token.colorPrimary,
     },
     'my-modal-content': {
-        border: '1px solid #333',
+        border: '1px solid var(--border-default)',
+        background: 'var(--card-bg)',
     },
 }));
 
@@ -63,13 +64,16 @@ const InfoModal: React.FC<InfoModalProps> = ({ isOpen, infoType, data, onClose }
         header: {
             borderLeft: `5px solid ${token.colorPrimary}`,
             borderRadius: 0,
-            paddingInlineStart: 5,
+            paddingInlineStart: 12,
+            background: 'transparent',
+            paddingTop: 12,
+            paddingBottom: 12,
         },
         mask: {
             backdropFilter: 'blur(10px)',
         },
         content: {
-            boxShadow: '0 0 30px #999',
+            boxShadow: 'var(--shadow-lg)',
         },
     };
 
@@ -89,7 +93,7 @@ const InfoModal: React.FC<InfoModalProps> = ({ isOpen, infoType, data, onClose }
             centered
             width={1400}
             height={"80%"}
-            title={<Title level={4}>{mapInfoTypeToTitle[infoType || '']}</Title>}
+            title={<Title level={4} style={{ margin: 0, color: 'var(--text-primary)' }}>{mapInfoTypeToTitle[infoType || '']}</Title>}
             open={isOpen}
             onCancel={onClose}
             style={{ top: 20 }}

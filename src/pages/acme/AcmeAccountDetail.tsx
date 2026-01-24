@@ -112,7 +112,7 @@ const AcmeAccountDetail: React.FC = () => {
               type="text"
             />
           )}
-          <SafetyCertificateOutlined style={{ fontSize: 24, color: '#1890ff' }} />
+          <SafetyCertificateOutlined style={{ fontSize: 24, color: 'var(--color-primary)' }} />
           <h2 style={{ margin: 0 }}>
             {isCreateMode ? 'Create ACME Account' : acmeAccount?.name || 'ACME Account Details'}
           </h2>
@@ -133,24 +133,24 @@ const AcmeAccountDetail: React.FC = () => {
       {isCreateMode ? (
         <div
           style={{
-            background: 'white',
+            background: 'var(--card-bg)',
             borderRadius: 12,
-            border: '1px solid #e5e7eb',
-            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+            border: '1px solid var(--border-default)',
+            boxShadow: 'var(--shadow-sm)',
             overflow: 'hidden',
             marginBottom: 16
           }}
         >
           {/* Header */}
           <div style={{
-            background: '#f9fafb',
-            borderBottom: '1px solid #e5e7eb',
+            background: 'var(--bg-surface)',
+            borderBottom: '1px solid var(--border-default)',
             padding: '12px 16px',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center'
           }}>
-            <span style={{ fontSize: 16, fontWeight: 600, color: '#111827' }}>
+            <span style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)' }}>
               ACME Account Configuration
             </span>
           </div>
@@ -237,7 +237,7 @@ const AcmeAccountDetail: React.FC = () => {
                     >
                       <div>
                         <div>{env.label}</div>
-                        <div style={{ fontSize: 12, color: '#666' }}>{env.description}</div>
+                        <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>{env.description}</div>
                       </div>
                     </Select.Option>
                   ))}
@@ -250,24 +250,24 @@ const AcmeAccountDetail: React.FC = () => {
         acmeAccount && (
           <div
             style={{
-              background: 'white',
+              background: 'var(--card-bg)',
               borderRadius: 12,
-              border: '1px solid #e5e7eb',
-              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+              border: '1px solid var(--border-default)',
+              boxShadow: 'var(--shadow-sm)',
               overflow: 'hidden',
               marginBottom: 16
             }}
           >
             {/* Header */}
             <div style={{
-              background: '#f9fafb',
-              borderBottom: '1px solid #e5e7eb',
+              background: 'var(--bg-surface)',
+              borderBottom: '1px solid var(--border-default)',
               padding: '12px 16px',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center'
             }}>
-              <span style={{ fontSize: 16, fontWeight: 600, color: '#111827' }}>
+              <span style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)' }}>
                 ACME Account Information
               </span>
             </div>
@@ -358,11 +358,11 @@ const AcmeAccountDetail: React.FC = () => {
               </Descriptions>
 
               {acmeAccount.last_error && (
-                <div style={{ marginTop: 16, padding: 12, background: '#fff2f0', borderRadius: 8, border: '1px solid #ffccc7' }}>
-                  <p style={{ margin: 0, fontSize: 12, color: '#cf1322' }}>
+                <div style={{ marginTop: 16, padding: 12, background: 'var(--color-danger-bg)', borderRadius: 8, border: '1px solid var(--color-danger-border)' }}>
+                  <p style={{ margin: 0, fontSize: 12, color: 'var(--color-danger)' }}>
                     <strong>Last Error:</strong> {acmeAccount.last_error.message}
                   </p>
-                  <p style={{ margin: '4px 0 0', fontSize: 11, color: '#999' }}>
+                  <p style={{ margin: '4px 0 0', fontSize: 11, color: 'var(--text-tertiary)' }}>
                     {new Date(acmeAccount.last_error.timestamp).toLocaleString()}
                   </p>
                 </div>

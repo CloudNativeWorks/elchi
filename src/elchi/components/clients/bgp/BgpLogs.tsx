@@ -169,20 +169,20 @@ const BgpLogs: React.FC<BgpLogProps> = ({ clientId }) => {
             <div
                 ref={logListRef}
                 style={{
-                    background: '#fff',
+                    background: 'var(--card-bg)',
                     borderRadius: 8,
                     minHeight: 700,
                     maxHeight: 700,
                     overflowY: 'auto',
                     textAlign: 'left',
                     position: 'relative',
-                    border: '1px solid #e8e8e8'
+                    border: '1px solid var(--border-default)'
                 }}
             >
                 {error ? (
                     <Alert type="error" message={error} style={{ margin: 24 }} />
                 ) : filteredLogs.length === 0 && !loading ? (
-                    <div style={{ textAlign: 'center', color: '#888', padding: 48 }}>
+                    <div style={{ textAlign: 'center', color: 'var(--text-tertiary)', padding: 48 }}>
                         <div style={{ fontSize: 40, marginBottom: 12 }}>🗒️</div>
                         <div style={{ fontSize: 18, fontWeight: 500 }}>No logs found!</div>
                         <div style={{ fontSize: 14, marginTop: 4 }}>Check your search and filter criteria.</div>
@@ -194,41 +194,41 @@ const BgpLogs: React.FC<BgpLogProps> = ({ clientId }) => {
                             position: 'sticky',
                             top: 0,
                             zIndex: 10,
-                            background: '#f8f9fa',
-                            borderBottom: '2px solid #dee2e6',
+                            background: 'var(--bg-surface)',
+                            borderBottom: '2px solid var(--border-default)',
                             display: 'flex',
                             alignItems: 'center',
                             padding: '12px 16px',
                             fontSize: 12,
                             fontWeight: 600,
-                            color: '#495057',
+                            color: 'var(--text-secondary)',
                             textTransform: 'uppercase',
                             letterSpacing: '0.5px'
                         }}>
                             {/* Line Number Header */}
-                            <div style={{ 
-                                minWidth: 40, 
-                                textAlign: 'right', 
+                            <div style={{
+                                minWidth: 40,
+                                textAlign: 'right',
                                 marginRight: 12,
-                                color: '#6c757d'
+                                color: 'var(--text-tertiary)'
                             }}>
                                 #
                             </div>
 
                             {/* Timestamp Header */}
-                            <div style={{ 
-                                minWidth: 140, 
+                            <div style={{
+                                minWidth: 140,
                                 marginRight: 12,
-                                color: '#495057'
+                                color: 'var(--text-secondary)'
                             }}>
                                 Timestamp
                             </div>
 
                             {/* Level Header */}
-                            <div style={{ 
-                                minWidth: 60, 
+                            <div style={{
+                                minWidth: 60,
                                 marginRight: 12,
-                                color: '#495057'
+                                color: 'var(--text-secondary)'
                             }}>
                                 Level
                             </div>
@@ -237,7 +237,7 @@ const BgpLogs: React.FC<BgpLogProps> = ({ clientId }) => {
                             <div style={{
                                 flex: 1,
                                 paddingLeft: 8,
-                                color: '#495057'
+                                color: 'var(--text-secondary)'
                             }}>
                                 Message
                             </div>
@@ -251,25 +251,25 @@ const BgpLogs: React.FC<BgpLogProps> = ({ clientId }) => {
                                     display: 'flex',
                                     alignItems: 'flex-start',
                                     padding: '8px 16px',
-                                    borderBottom: '1px solid #f0f0f0',
-                                    background: idx % 2 === 0 ? '#fafafa' : '#fff',
+                                    borderBottom: '1px solid var(--border-default)',
+                                    background: idx % 2 === 0 ? 'var(--bg-surface)' : 'var(--card-bg)',
                                     transition: 'background-color 0.15s ease',
                                     cursor: 'pointer',
                                     fontSize: 13
                                 }}
                                 onMouseEnter={(e) => {
-                                    e.currentTarget.style.backgroundColor = '#e6f7ff';
+                                    e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
                                 }}
                                 onMouseLeave={(e) => {
-                                    e.currentTarget.style.backgroundColor = idx % 2 === 0 ? '#fafafa' : '#fff';
+                                    e.currentTarget.style.backgroundColor = idx % 2 === 0 ? 'var(--bg-surface)' : 'var(--card-bg)';
                                 }}
                             >
                                 {/* Line Number */}
-                                <div style={{ 
-                                    minWidth: 40, 
-                                    textAlign: 'right', 
-                                    marginRight: 12, 
-                                    color: '#bfbfbf',
+                                <div style={{
+                                    minWidth: 40,
+                                    textAlign: 'right',
+                                    marginRight: 12,
+                                    color: 'var(--text-tertiary)',
                                     fontSize: 12,
                                     lineHeight: '20px'
                                 }}>
@@ -277,9 +277,9 @@ const BgpLogs: React.FC<BgpLogProps> = ({ clientId }) => {
                                 </div>
 
                                 {/* Timestamp */}
-                                <div style={{ 
-                                    minWidth: 140, 
-                                    color: '#666',
+                                <div style={{
+                                    minWidth: 140,
+                                    color: 'var(--text-secondary)',
                                     fontSize: 12,
                                     marginRight: 12,
                                     lineHeight: '20px'
@@ -312,7 +312,7 @@ const BgpLogs: React.FC<BgpLogProps> = ({ clientId }) => {
                                     fontFamily: "'Fira Code', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace",
                                     fontSize: 12,
                                     lineHeight: '20px',
-                                    color: '#2c3e50',
+                                    color: 'var(--text-primary)',
                                     paddingLeft: 8
                                 }}>
                                     {log.message.split('\n').map((line, i) => {
@@ -343,10 +343,10 @@ const BgpLogs: React.FC<BgpLogProps> = ({ clientId }) => {
                         top: '50%',
                         left: '50%',
                         transform: 'translate(-50%, -50%)',
-                        background: 'rgba(255, 255, 255, 0.9)',
+                        background: 'var(--bg-loading)',
                         padding: '20px',
                         borderRadius: '8px',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                        boxShadow: 'var(--shadow-lg)',
                         backdropFilter: 'blur(2px)'
                     }}>
                         <Spin size="large" />

@@ -9,11 +9,12 @@ import { useNavigate } from 'react-router-dom';
 import { BaseWidget } from '../shared/BaseWidget';
 import { useClientResources } from '../../hooks/useClientResources';
 import styles from '../../styles/widgets.module.scss';
+import { useChartTheme } from '@/utils/chartTheme';
 
-const getStatusColor = (value: number): string => {
-  if (value > 90) return '#ff4d4f';
-  if (value > 70) return '#faad14';
-  return '#52c41a';
+const getStatusColor = (value: number, theme: any): string => {
+  if (value > 90) return theme.dangerColor;
+  if (value > 70) return theme.warningColor;
+  return theme.successColor;
 };
 
 const formatBytes = (bytes: number): string => {
@@ -35,6 +36,7 @@ const ClientResources: React.FC = () => {
   const { clients, loading, error, refresh } = useClientResources({ limit: 20 });
   const navigate = useNavigate();
   const [expanded, setExpanded] = React.useState(false);
+  const { theme: chartTheme, isDark } = useChartTheme();
 
   const displayedClients = expanded ? clients : clients.slice(0, 6);
   const hasMore = clients.length > 6;
@@ -66,18 +68,21 @@ const ClientResources: React.FC = () => {
           }}>
             {displayedClients.map((client) => {
               const isOffline = client.cpu_usage < 0;
-              const cpuColor = isOffline ? '#bfbfbf' : getStatusColor(client.cpu_usage);
-              const memColor = isOffline ? '#bfbfbf' : getStatusColor(client.memory_usage);
-              const diskColor = isOffline ? '#bfbfbf' : getStatusColor(client.disk_usage);
+              const offlineColor = 'var(--text-tertiary)';
+              const cpuColor = isOffline ? offlineColor : getStatusColor(client.cpu_usage, chartTheme);
+              const memColor = isOffline ? offlineColor : getStatusColor(client.memory_usage, chartTheme);
+              const diskColor = isOffline ? offlineColor : getStatusColor(client.disk_usage, chartTheme);
 
               return (
                 <div
                   key={client.client_id}
                   style={{
                     background: isOffline
-                      ? 'linear-gradient(135deg, rgba(0, 0, 0, 0.02) 0%, rgba(0, 0, 0, 0.03) 100%)'
-                      : 'linear-gradient(135deg, rgba(5, 108, 205, 0.03) 0%, rgba(0, 198, 251, 0.03) 100%)',
-                    border: isOffline ? '1px solid rgba(0, 0, 0, 0.1)' : '1px solid rgba(5, 108, 205, 0.1)',
+                      ? 'var(--bg-hover)'
+                      : isDark
+                        ? 'linear-gradient(135deg, rgba(59, 158, 255, 0.05) 0%, rgba(34, 211, 238, 0.05) 100%)'
+                        : 'linear-gradient(135deg, rgba(5, 108, 205, 0.03) 0%, rgba(0, 198, 251, 0.03) 100%)',
+                    border: `1px solid ${isOffline ? 'var(--border-default)' : 'var(--color-primary)'}`,
                     borderRadius: 8,
                     padding: 10,
                     cursor: 'pointer',
@@ -88,19 +93,11 @@ const ClientResources: React.FC = () => {
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = 'translateY(-2px)';
-                    e.currentTarget.style.boxShadow = isOffline
-                      ? '0 4px 12px rgba(0, 0, 0, 0.1)'
-                      : '0 4px 12px rgba(5, 108, 205, 0.15)';
-                    e.currentTarget.style.borderColor = isOffline
-                      ? 'rgba(0, 0, 0, 0.2)'
-                      : 'rgba(5, 108, 205, 0.3)';
+                    e.currentTarget.style.boxShadow = 'var(--shadow-md)';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.transform = 'translateY(0)';
                     e.currentTarget.style.boxShadow = 'none';
-                    e.currentTarget.style.borderColor = isOffline
-                      ? 'rgba(0, 0, 0, 0.1)'
-                      : 'rgba(5, 108, 205, 0.1)';
                   }}
                   onClick={() => navigate(`/clients/${client.client_id}`)}
                 >
@@ -112,15 +109,15 @@ const ClientResources: React.FC = () => {
                     width: 6,
                     height: 6,
                     borderRadius: '50%',
-                    background: isOffline ? '#ff4d4f' : '#52c41a',
-                    boxShadow: isOffline ? 'none' : '0 0 6px #52c41a',
+                    background: isOffline ? chartTheme.dangerColor : chartTheme.successColor,
+                    boxShadow: isOffline ? 'none' : `0 0 6px ${chartTheme.successColor}`,
                   }} />
 
                   {/* Client name */}
                   <div style={{
                     fontSize: 12,
                     fontWeight: 600,
-                    color: '#262626',
+                    color: 'var(--text-primary)',
                     marginBottom: 8,
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
@@ -138,7 +135,7 @@ const ClientResources: React.FC = () => {
                       alignItems: 'center',
                       marginBottom: 4,
                     }}>
-                      <span style={{ fontSize: 10, color: '#8c8c8c', fontWeight: 500 }}>CPU</span>
+                      <span style={{ fontSize: 10, color: 'var(--text-tertiary)', fontWeight: 500 }}>CPU</span>
                       <span style={{
                         fontSize: 11,
                         fontWeight: 700,
@@ -150,7 +147,7 @@ const ClientResources: React.FC = () => {
                     <div style={{
                       width: '100%',
                       height: 4,
-                      background: 'rgba(0, 0, 0, 0.06)',
+                      background: 'var(--bg-hover)',
                       borderRadius: 2,
                       overflow: 'hidden',
                     }}>
@@ -162,7 +159,7 @@ const ClientResources: React.FC = () => {
                         transition: 'width 0.3s ease',
                       }} />
                     </div>
-                    <div style={{ fontSize: 9, color: '#bfbfbf', marginTop: 2 }}>
+                    <div style={{ fontSize: 9, color: 'var(--text-disabled)', marginTop: 2 }}>
                       {isOffline ? 'offline' : `${client.cpu_cores} cores`}
                     </div>
                   </div>
@@ -175,7 +172,7 @@ const ClientResources: React.FC = () => {
                       alignItems: 'center',
                       marginBottom: 4,
                     }}>
-                      <span style={{ fontSize: 10, color: '#8c8c8c', fontWeight: 500 }}>MEM</span>
+                      <span style={{ fontSize: 10, color: 'var(--text-tertiary)', fontWeight: 500 }}>MEM</span>
                       <span style={{
                         fontSize: 11,
                         fontWeight: 700,
@@ -187,7 +184,7 @@ const ClientResources: React.FC = () => {
                     <div style={{
                       width: '100%',
                       height: 4,
-                      background: 'rgba(0, 0, 0, 0.06)',
+                      background: 'var(--bg-hover)',
                       borderRadius: 2,
                       overflow: 'hidden',
                     }}>
@@ -199,7 +196,7 @@ const ClientResources: React.FC = () => {
                         transition: 'width 0.3s ease',
                       }} />
                     </div>
-                    <div style={{ fontSize: 9, color: '#bfbfbf', marginTop: 2 }}>
+                    <div style={{ fontSize: 9, color: 'var(--text-disabled)', marginTop: 2 }}>
                       {isOffline ? 'offline' : formatBytes(client.memory_total)}
                     </div>
                   </div>
@@ -212,7 +209,7 @@ const ClientResources: React.FC = () => {
                       alignItems: 'center',
                       marginBottom: 4,
                     }}>
-                      <span style={{ fontSize: 10, color: '#8c8c8c', fontWeight: 500 }}>DISK</span>
+                      <span style={{ fontSize: 10, color: 'var(--text-tertiary)', fontWeight: 500 }}>DISK</span>
                       <span style={{
                         fontSize: 11,
                         fontWeight: 700,
@@ -224,7 +221,7 @@ const ClientResources: React.FC = () => {
                     <div style={{
                       width: '100%',
                       height: 4,
-                      background: 'rgba(0, 0, 0, 0.06)',
+                      background: 'var(--bg-hover)',
                       borderRadius: 2,
                       overflow: 'hidden',
                     }}>
@@ -236,7 +233,7 @@ const ClientResources: React.FC = () => {
                         transition: 'width 0.3s ease',
                       }} />
                     </div>
-                    <div style={{ fontSize: 9, color: '#bfbfbf', marginTop: 2 }}>
+                    <div style={{ fontSize: 9, color: 'var(--text-disabled)', marginTop: 2 }}>
                       {isOffline ? 'offline' : '/'}
                     </div>
                   </div>
@@ -246,17 +243,17 @@ const ClientResources: React.FC = () => {
                     display: 'flex',
                     justifyContent: 'space-between',
                     paddingTop: 6,
-                    borderTop: '1px solid rgba(0, 0, 0, 0.06)',
+                    borderTop: '1px solid var(--border-default)',
                   }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <span style={{ fontSize: 9, color: '#8c8c8c' }}>⏱</span>
-                      <span style={{ fontSize: 10, color: '#595959', fontWeight: 500 }}>
+                      <span style={{ fontSize: 9, color: 'var(--text-tertiary)' }}>⏱</span>
+                      <span style={{ fontSize: 10, color: 'var(--text-secondary)', fontWeight: 500 }}>
                         {isOffline ? '—' : formatUptime(client.uptime)}
                       </span>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                      <span style={{ fontSize: 9, color: '#8c8c8c' }}>🔗</span>
-                      <span style={{ fontSize: 10, color: '#595959', fontWeight: 500 }}>
+                      <span style={{ fontSize: 9, color: 'var(--text-tertiary)' }}>🔗</span>
+                      <span style={{ fontSize: 10, color: 'var(--text-secondary)', fontWeight: 500 }}>
                         {isOffline ? '—' : client.connections}
                       </span>
                     </div>
@@ -277,20 +274,18 @@ const ClientResources: React.FC = () => {
                   padding: '8px 16px',
                   fontSize: 12,
                   fontWeight: 500,
-                  color: '#056ccd',
+                  color: 'var(--color-primary)',
                   background: 'transparent',
-                  border: '1px solid rgba(5, 108, 205, 0.3)',
+                  border: '1px solid var(--color-primary)',
                   borderRadius: 6,
                   cursor: 'pointer',
                   transition: 'all 0.2s',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(5, 108, 205, 0.05)';
-                  e.currentTarget.style.borderColor = '#056ccd';
+                  e.currentTarget.style.background = 'var(--color-primary-light)';
                 }}
                 onMouseLeave={(e) => {
                   e.currentTarget.style.background = 'transparent';
-                  e.currentTarget.style.borderColor = 'rgba(5, 108, 205, 0.3)';
                 }}
               >
                 {expanded ? `Show Less` : `Show All ${clients.length} Clients`}

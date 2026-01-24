@@ -15,7 +15,7 @@ const ComponentNameInput: React.FC<ComponentNameInputProps> = ({ originalName, c
 
     return (
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <Text strong style={{ color: 'white' }}>
+            <Text strong style={{ color: 'var(--text-primary)' }}>
                 Resource Name:
             </Text>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -30,7 +30,7 @@ const ComponentNameInput: React.FC<ComponentNameInputProps> = ({ originalName, c
                     status={!isCurrentValid ? 'error' : ''}
                 />
                 {!isCurrentValid && (
-                    <Text style={{ whiteSpace: 'nowrap', color: 'white', WebkitTextStroke: '0.2px red' }}>
+                    <Text style={{ whiteSpace: 'nowrap', color: 'var(--color-error)' }}>
                         !!!Only alphanumeric, dash, underscore allowed
                     </Text>
                 )}

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Col, Table, Row, Modal, Form, Input, Select, Switch } from 'antd';
+import { Button, Col, Table, Row, Modal, Form, Input, Select, Switch, Popconfirm } from 'antd';
 import { useDispatch } from "react-redux";
 import type { ColumnsType } from 'antd/es/table';
 import { ActionType, ResourceType } from "@/redux/reducer-helpers/common";
@@ -8,7 +8,7 @@ import { checkIfExists, makeHeaderValue } from "./helpers";
 import { FieldComponent } from "@/elchi/components/common/FormItems";
 import { handleChangeResources } from "@/redux/dispatcher";
 import { FieldTypes } from "@/common/statics/general";
-import { DeleteTwoTone, InboxOutlined } from '@ant-design/icons';
+import { DeleteOutlined, InboxOutlined } from '@ant-design/icons';
 import { useTags } from "@/hooks/useTags";
 import { useModels } from "@/hooks/useModels";
 import { modtag_header_value_option } from "./_modtag_";
@@ -179,13 +179,31 @@ const HeaderToAdd: React.FC<GeneralProps> = ({ veri }) => {
             width: 50,
             key: 'x',
             render: (_, __, index) =>
-                <Button
-                    icon={<DeleteTwoTone twoToneColor="#eb2f96" />}
-                    size='small'
-                    onClick={(e) => handleDelete(e, index)}
-                    style={{ marginRight: 8 }}
-                    iconPosition={"end"}
-                />,
+                <Popconfirm
+                    title="Delete confirmation"
+                    description="Are you sure you want to delete this item?"
+                    onConfirm={(e) => handleDelete(e as React.MouseEvent<HTMLElement>, index)}
+                    okText="Yes"
+                    cancelText="No"
+                    placement="left"
+                >
+                    <Button
+                        type="text"
+                        danger
+                        icon={<DeleteOutlined style={{ color: 'var(--color-danger)' }} />}
+                        size='small'
+                        className="elchi-delete-button"
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: 'var(--color-danger-light)',
+                            border: '1px solid var(--color-danger-border)',
+                            borderRadius: '6px'
+                        }}
+                    />
+                </Popconfirm>,
         },
     ];
 
@@ -279,7 +297,7 @@ const HeaderToAdd: React.FC<GeneralProps> = ({ veri }) => {
                 </Form>
             </Modal>
 
-            <ECard 
+            <ECard
                 title={veri.title}
                 reduxStore={veri.reduxStore}
                 ctype="header_to_add"

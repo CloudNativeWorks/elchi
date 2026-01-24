@@ -90,7 +90,7 @@ const BGPContent: React.FC<BGPContentProps> = ({ clientId }) => {
                     items={tabItems}
                     tabBarStyle={{
                         marginBottom: 24,
-                        borderBottom: '1px solid #e6f7ff'
+                        borderBottom: '1px solid var(--border-default)'
                     }}
                     tabBarGutter={24}
                     destroyOnHidden

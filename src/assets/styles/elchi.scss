@@ -6,7 +6,7 @@
     }
 
     50% {
-        color: #056ccd;
+        color: var(--color-primary);
     }
 }
 
@@ -38,17 +38,17 @@
     left: 50%;
     transform: translateX(-50%);
     height: 1px;
-    background-color: #056ccd;
+    background-color: var(--color-primary);
     animation: underlineAnimation 2s ease-in-out forwards;
 }
 
 .bang_iconwrapper {
     position: relative;
     display: inline-flex;
-    border: 1px solid #1890ff;
+    border: 1px solid var(--color-primary);
     border-radius: 5px;
     padding: 5px;
-    background-color: #ffffff;
+    background-color: var(--card-bg);
     transition: background-color 0.3s, border-color 0.3s;
 }
 
@@ -60,17 +60,17 @@
 }
 
 .bang_iconwrapper:hover {
-    background-color: #1890ff;
-    border-color: #1890ff;
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
 }
 
 .bang_Icon {
-    fill: #1890ff;
+    fill: var(--color-primary);
     transition: fill 0.3s;
 }
 
 .bang_iconwrapper:hover .bang_Icon {
-    fill: #ffffff;
+    fill: var(--text-inverse);
 }
 
 .bang_badge {
@@ -80,7 +80,7 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background-color: green;
+    background-color: var(--color-success);
 }
 
 .bang_badge_disable {
@@ -90,11 +90,13 @@
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background-color: rgb(73, 75, 73);
+    background-color: var(--bg-disabled);
 }
 
 .unchangeable-tag {
-    background-color: #4a4a4a;
+    background-color: var(--bg-active);
+    color: var(--text-disabled);
+    border-color: var(--border-default);
     white-space: nowrap;
     width: 100%;
     position: relative;
@@ -102,7 +104,8 @@
 }
 
 .unchangeable-tag:hover {
-    background-color: #4a4a4a;
+    background-color: var(--bg-active);
+    color: var(--text-disabled);
 }
 
 
@@ -112,45 +115,42 @@
 
 
 
-.unsopperted-tags:hover span {
-    padding-right: 10px !important;
-    white-space: normal !important;
-    overflow: visible !important;
-    max-width: none !important;
-}
-
-.unsopperted-tags:hover {
-    padding-right: 10px !important;
-    white-space: normal !important;
-    overflow: visible !important;
-    max-width: none !important;
-}
-
-.unsopperted-tags {
-    border-color: #d9d1d1;
+.unsupported-tags {
+    border: 1px dashed var(--border-light, rgba(0, 0, 0, 0.15)) !important;
+    background: transparent !important;
     display: block;
     width: 100%;
     max-width: 100%;
     overflow: hidden;
     white-space: nowrap;
-    color: #d9d9d9;
+    color: var(--text-disabled) !important;
     cursor: not-allowed;
     padding: 4px 8px !important;
     line-height: 26px !important;
     min-height: 34px !important;
     box-sizing: border-box !important;
+    opacity: 0.6;
+    font-weight: 400;
+
+    &:hover {
+        border: 1px dashed var(--border-light, rgba(0, 0, 0, 0.15)) !important;
+        background: transparent !important;
+        color: var(--text-disabled) !important;
+    }
 }
 
 
 .ant-tag.ant-tag-checkable.ellipsis-tag {
-    border-color: #d9d1d1;
+    border-color: var(--border-default);
+    background: var(--card-bg);
+    color: var(--text-secondary);
     display: block;
     max-width: 100%;
     width: 100% !important;
     white-space: nowrap;
     overflow: hidden !important;
     text-overflow: ellipsis;
-    transition: max-width 0.3s ease;
+    transition: max-width 0.3s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
     position: relative;
     font-family: sans-serif;
     line-height: 26px;
@@ -204,12 +204,13 @@
 }
 
 .unsupperted-tags-horizon {
-    border-color: #d9d1d1;
+    border-color: var(--border-default);
+    background: var(--bg-hover);
     display: inline-block;
     width: auto;
     overflow: hidden;
     white-space: nowrap;
-    color: #d9d9d9;
+    color: var(--text-disabled);
     cursor: not-allowed;
 }
 
@@ -225,7 +226,7 @@
     height: 0;
     border-top: 5px solid transparent;
     border-bottom: 5px solid transparent;
-    border-left: 10px solid black;
+    border-left: 10px solid var(--text-primary);
     display: inline-block;
     transform: translateY(-50%);
     position: relative;
@@ -259,10 +260,10 @@
     cursor: pointer;
     display: flex;
     align-items: center;
-    background: "#1990FF";
+    background: var(--color-primary);
     border: none;
     border-radius: 5px;
-    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-sm);
     position: relative;
 }
 
@@ -273,29 +274,29 @@
 
 #buttondiv button .text {
     transform: translateX(35px);
-    color: white;
+    color: var(--text-inverse);
     font-weight: bold;
 }
 
 .secbut {
-    color: white;
-    background: #1990FF;
+    color: var(--text-inverse);
+    background: var(--color-primary);
     font-weight: bold;
     width: 140px;
     height: 48px;
     border-radius: 5px;
-    box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-sm);
     font-size: small;
 }
 
 .menudropdown {
     height: 48px;
-    background: #1990FF;
+    background: var(--color-primary);
 }
 
 #buttondiv button .icon {
     position: absolute;
-    border-left: 1px solid white;
+    border-left: 1px solid var(--text-inverse);
     transform: translateX(110px);
     height: 30px;
     width: 30px;
@@ -306,11 +307,11 @@
 
 #buttondiv button svg {
     width: 15px;
-    fill: #eee;
+    fill: var(--text-tertiary);
 }
 
 #buttondiv button:hover {
-    background: "#1990FF";
+    background: var(--color-primary-hover);
 }
 
 #buttondiv button:hover .text {
@@ -340,7 +341,7 @@
     left: 50%;
     right: 50%;
     bottom: 0;
-    background-color: darkgreen;
+    background-color: var(--color-success);
     pointer-events: none;
     z-index: -1;
     transition: left 0.5s, right 0.5s;
@@ -352,12 +353,12 @@
 }
 
 #buttondiv .activeButton {
-    background-color: green;
+    background-color: var(--color-success);
 
 }
 
 #buttondiv button.activeButton:hover {
-    background: green;
+    background: var(--color-success);
 }
 
 #buttondiv button.activeButton .text {
@@ -390,20 +391,16 @@
     width: 100%;
     position: relative;
     border-radius: 10px;
-    background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
-    box-shadow:
-        0 2px 8px rgba(0, 0, 0, 0.04),
-        0 1px 3px rgba(0, 0, 0, 0.02);
+    background: var(--card-bg);
+    box-shadow: var(--shadow-sm);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: visible;
-    border: 1px solid #e8edf2;
+    border: 1px solid var(--border-default);
 }
 
 .ag-courses_item:hover {
-    box-shadow:
-        0 4px 16px rgba(5, 108, 205, 0.12),
-        0 2px 6px rgba(0, 0, 0, 0.04);
-    border-color: rgba(5, 108, 205, 0.2);
+    box-shadow: 0 4px 16px var(--shadow-primary);
+    border-color: var(--color-primary-border);
 }
 
 .ag-courses-item_link {
@@ -431,8 +428,8 @@
     width: 100%;
     height: 100%;
     background: linear-gradient(135deg,
-            rgba(5, 108, 205, 0.03) 0%,
-            rgba(0, 198, 251, 0.03) 100%);
+            var(--color-primary-bg) 0%,
+            var(--color-primary-bg) 100%);
     border-radius: 10px;
     opacity: 0;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -471,14 +468,14 @@
 }
 
 .info-button:hover {
-    background: rgba(5, 108, 205, 0.1);
+    background: var(--color-primary-bg);
     transform: scale(1.1);
 }
 
 .info-button .ant-btn {
     border: none;
     box-shadow: none;
-    color: #94a3b8;
+    color: var(--text-tertiary);
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     width: 28px;
     height: 28px;
@@ -490,8 +487,8 @@
 }
 
 .info-button .ant-btn:hover {
-    color: #056ccd;
-    background: rgba(5, 108, 205, 0.08);
+    color: var(--color-primary);
+    background: var(--color-primary-light);
     transform: rotate(15deg);
 }
 
@@ -512,33 +509,33 @@
     padding: 3px 10px !important;
     font-size: 13px !important;
     font-weight: 500 !important;
-    border: 1.5px solid #e2e8f0 !important;
+    border: 1.5px solid var(--border-default) !important;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    background: #ffffff !important;
-    color: #475569 !important;
+    background: var(--card-bg) !important;
+    color: var(--text-secondary) !important;
 }
 
 .tags-container .ant-tag-checkable:hover {
-    border-color: #056ccd !important;
-    color: #056ccd !important;
-    background: rgba(5, 108, 205, 0.06) !important;
+    border-color: var(--color-primary) !important;
+    color: var(--color-primary) !important;
+    background: var(--color-primary-light) !important;
     transform: translateY(-1px) !important;
-    box-shadow: 0 2px 8px rgba(5, 108, 205, 0.12) !important;
+    box-shadow: 0 2px 8px var(--shadow-primary) !important;
 }
 
 .tags-container .ant-tag-checkable-checked {
-    background: linear-gradient(135deg, #0a7fda 0%, #1fb5e8 50%, #0a7fda 100%) !important;
+    background: var(--gradient-primary) !important;
     color: #ffffff !important;
     border-color: transparent !important;
     font-weight: 600 !important;
-    box-shadow: 0 2px 12px rgba(5, 108, 205, 0.25) !important;
+    box-shadow: 0 2px 12px var(--shadow-primary-color) !important;
 }
 
 .tags-container .ant-tag-checkable-checked:hover {
-    background: linear-gradient(135deg, #0869b8 0%, #1a9dd1 50%, #0869b8 100%) !important;
+    background: var(--gradient-primary-reverse) !important;
     color: #ffffff !important;
     transform: translateY(-1px) scale(1.02) !important;
-    box-shadow: 0 4px 16px rgba(5, 108, 205, 0.35) !important;
+    box-shadow: 0 4px 16px var(--shadow-primary-color-hover) !important;
 }
 
 .ant-tag {
@@ -561,30 +558,39 @@
 
 .ant-anchor .ant-anchor-link {
     padding: 2px 0 !important;
-    padding-left: 5px !important;
+    padding-left: 2px !important;
+    padding-right: 0 !important;
+    width: 100% !important;
 }
 
-.ant-anchor .ant-tag-checkable {
+.ant-anchor .ant-anchor-link-title {
+    display: block !important;
+    width: 100% !important;
+}
+
+.ant-anchor .ant-tag {
     border-radius: 6px !important;
     padding: 3px 10px !important;
     font-size: 13px !important;
     font-weight: 500 !important;
-    border: 1.5px solid #e2e8f0 !important;
+    border: 1.5px solid var(--border-default) !important;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
-    background: #ffffff !important;
-    color: #475569 !important;
+    background: var(--card-bg) !important;
+    color: var(--text-secondary) !important;
     white-space: nowrap !important;
     overflow: hidden !important;
     text-overflow: ellipsis !important;
     max-width: 100%;
+    width: 100% !important;
+    display: block !important;
     margin: 2px 0 !important;
 }
 
-.ant-anchor .ant-tag-checkable:hover {
-    border-color: #056ccd !important;
-    color: #056ccd !important;
-    background: rgba(5, 108, 205, 0.06) !important;
-    box-shadow: 0 2px 8px rgba(5, 108, 205, 0.12) !important;
+.ant-anchor .ant-tag:hover {
+    border-color: var(--color-primary) !important;
+    color: var(--color-primary) !important;
+    background: var(--color-primary-light) !important;
+    box-shadow: 0 2px 8px var(--shadow-primary) !important;
     white-space: normal !important;
     overflow: visible !important;
     text-overflow: clip !important;
@@ -606,7 +612,7 @@
     width: 100% !important;
 }
 
-.ant-anchor .ant-badge>.ant-tag-checkable {
+.ant-anchor .ant-badge>.ant-tag {
     width: 100% !important;
 }
 
@@ -617,30 +623,31 @@
 }
 
 .ant-anchor .ant-tag-checkable-checked {
-    background: linear-gradient(135deg, #0a7fda 0%, #1fb5e8 50%, #0a7fda 100%) !important;
+    background: var(--gradient-primary) !important;
     color: #ffffff !important;
     border-color: transparent !important;
     font-weight: 600 !important;
-    box-shadow: 0 2px 12px rgba(5, 108, 205, 0.25) !important;
+    box-shadow: 0 2px 12px var(--shadow-primary-color) !important;
 }
 
 .ant-anchor .ant-tag-checkable-checked:hover {
-    background: linear-gradient(135deg, #0869b8 0%, #1a9dd1 50%, #0869b8 100%) !important;
+    background: var(--gradient-primary-reverse) !important;
     color: #ffffff !important;
     transform: translateY(-1px) scale(1.02) !important;
-    box-shadow: 0 4px 16px rgba(5, 108, 205, 0.35) !important;
+    box-shadow: 0 4px 16px var(--shadow-primary-color-hover) !important;
 }
 
 .ant-anchor .unchangeable-tag {
     cursor: not-allowed !important;
-    background-color: #4a4a4a !important;
-    color: #ffffff !important;
+    background-color: var(--bg-active) !important;
+    color: var(--text-disabled) !important;
+    border-color: var(--border-default) !important;
 }
 
 .ant-anchor .unchangeable-tag:hover {
     cursor: not-allowed !important;
-    background-color: #4a4a4a !important;
-    color: #ffffff !important;
-    border-color: #4a4a4a !important;
+    background-color: var(--bg-active) !important;
+    color: var(--text-disabled) !important;
+    border-color: var(--border-default) !important;
     transform: none !important;
 }

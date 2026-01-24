@@ -33,11 +33,12 @@ const AddBGPPrefixListCard: React.FC<AddBGPPrefixListCardProps> = ({
     };
 
     return (
-        <div style={{ 
-            width: '100%', 
-            background: '#fff', 
-            borderRadius: 14, 
-            padding: '20px'
+        <div style={{
+            width: '100%',
+            background: 'var(--card-bg)',
+            borderRadius: 14,
+            padding: '20px',
+            border: '1px solid var(--border-default)'
         }}>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 18 }}>
                 <Title level={5} style={{ margin: 0 }}>
@@ -153,7 +154,7 @@ const AddBGPPrefixListCard: React.FC<AddBGPPrefixListCardProps> = ({
                     <div style={{ fontSize: 13, color: '#0958d9', marginBottom: 4, fontWeight: 500 }}>
                         Examples:
                     </div>
-                    <div style={{ fontSize: 12, color: '#666' }}>
+                    <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>
                         • <code>192.168.0.0/16</code> - Exact match<br/>
                         • <code>192.168.0.0/16 ge 24</code> - /16 network with /24 or longer prefixes<br/>
                         • <code>192.168.0.0/16 le 24</code> - /16 network with /24 or shorter prefixes<br/>
@@ -167,10 +168,10 @@ const AddBGPPrefixListCard: React.FC<AddBGPPrefixListCardProps> = ({
                         htmlType="submit"
                         icon={<CheckOutlined />}
                         style={{
-                            background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                            background: 'var(--gradient-primary)',
                             border: 'none',
                             fontWeight: 500,
-                            boxShadow: '0 2px 8px rgba(0,198,251,0.10)',
+                            boxShadow: 'var(--shadow-primary)',
                         }}
                     >
                         {isEditing ? 'Update Prefix List' : 'Add Prefix List'}

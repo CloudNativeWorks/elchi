@@ -56,7 +56,7 @@ const DiscoveryModal: React.FC<DiscoveryModalProps> = ({ open, onClose, onSave, 
             const selectedRoles = [];
             if (values.role_master) selectedRoles.push('master');
             if (values.role_worker) selectedRoles.push('worker');
-            
+
             const newDiscovery: DiscoveryConfig = {
                 cluster_name: values.cluster_name,
                 protocol: values.protocol,
@@ -95,8 +95,8 @@ const DiscoveryModal: React.FC<DiscoveryModalProps> = ({ open, onClose, onSave, 
             key: 'cluster_name',
             render: (text: string) => (
                 <Space>
-                    <CloudServerOutlined style={{ color: '#1890ff' }} />
-                    <Text strong>{text}</Text>
+                    <CloudServerOutlined style={{ color: 'var(--color-primary)' }} />
+                    <Text strong style={{ color: 'var(--text-primary)' }}>{text}</Text>
                 </Space>
             ),
         },
@@ -105,7 +105,7 @@ const DiscoveryModal: React.FC<DiscoveryModalProps> = ({ open, onClose, onSave, 
             dataIndex: 'protocol',
             key: 'protocol',
             render: (protocol: string) => (
-                <Text code style={{ color: protocol === 'TCP' ? '#52c41a' : '#1890ff' }}>
+                <Text code style={{ color: protocol === 'TCP' ? 'var(--color-success)' : 'var(--color-primary)' }}>
                     {protocol}
                 </Text>
             ),
@@ -115,7 +115,13 @@ const DiscoveryModal: React.FC<DiscoveryModalProps> = ({ open, onClose, onSave, 
             dataIndex: 'port',
             key: 'port',
             render: (port: number) => (
-                <Text code style={{ backgroundColor: '#f0f2f5', padding: '2px 6px', borderRadius: '4px' }}>
+                <Text code style={{
+                    backgroundColor: 'var(--bg-surface)',
+                    color: 'var(--text-primary)',
+                    padding: '2px 6px',
+                    borderRadius: '4px',
+                    border: '1px solid var(--border-default)'
+                }}>
                     {port}
                 </Text>
             ),
@@ -126,8 +132,8 @@ const DiscoveryModal: React.FC<DiscoveryModalProps> = ({ open, onClose, onSave, 
             key: 'address_type',
             render: (addressType: string) => (
                 <Text code style={{
-                    backgroundColor: addressType === 'ExternalIP' ? '#e6fffb' : '#f0f5ff',
-                    color: addressType === 'ExternalIP' ? '#00b96b' : '#1677ff',
+                    backgroundColor: addressType === 'ExternalIP' ? 'var(--color-success-light)' : 'var(--color-primary-light)',
+                    color: addressType === 'ExternalIP' ? 'var(--color-success)' : 'var(--color-primary)',
                     padding: '2px 6px',
                     borderRadius: '4px'
                 }}>
@@ -140,7 +146,7 @@ const DiscoveryModal: React.FC<DiscoveryModalProps> = ({ open, onClose, onSave, 
             dataIndex: 'roles',
             key: 'roles',
             render: (roles: string[]) => (
-                <Text type="secondary">
+                <Text style={{ color: 'var(--text-secondary)' }}>
                     {roles && roles.length > 0 ? roles.join(', ') : 'All'}
                 </Text>
             ),
@@ -192,8 +198,8 @@ const DiscoveryModal: React.FC<DiscoveryModalProps> = ({ open, onClose, onSave, 
             <Modal
                 title={
                     <Space>
-                        <CloudServerOutlined style={{ color: '#1890ff' }} />
-                        <span>Cluster Discovery Configuration</span>
+                        <CloudServerOutlined style={{ color: 'var(--color-primary)', fontSize: 20 }} />
+                        <span style={{ color: 'var(--text-primary)' }}>Cluster Discovery Configuration</span>
                     </Space>
                 }
                 open={open}
@@ -210,7 +216,7 @@ const DiscoveryModal: React.FC<DiscoveryModalProps> = ({ open, onClose, onSave, 
                 style={{ borderRadius: 12 }}
             >
                 <div style={{ marginBottom: 24 }}>
-                    <Text type="secondary">
+                    <Text style={{ color: 'var(--text-secondary)' }}>
                         Configure cluster discovery for automatic endpoint detection.
                         Select clusters and specify protocols and ports for service discovery.
                     </Text>
@@ -228,18 +234,19 @@ const DiscoveryModal: React.FC<DiscoveryModalProps> = ({ open, onClose, onSave, 
 
                 {/* Add New Cluster Form */}
                 <div style={{
-                    background: '#fafafa',
-                    padding: 16,
-                    borderRadius: 8,
+                    background: 'var(--bg-surface)',
+                    padding: 20,
+                    borderRadius: 12,
                     marginBottom: 24,
-                    border: '1px solid #e8f4ff'
+                    border: '1px solid var(--border-default)',
+                    boxShadow: 'var(--shadow-sm)'
                 }}>
-                    <Title level={5} style={{ marginBottom: 16 }}>Add New Cluster</Title>
+                    <Title level={5} style={{ marginBottom: 20, color: 'var(--color-primary)' }}>Add New Cluster</Title>
                     <Form form={form} layout="vertical">
                         {/* Cluster Selection - Top */}
                         <Form.Item
                             name="cluster_name"
-                            label={<span>Cluster <span style={{ color: '#ff4d4f' }}>*</span></span>}
+                            label={<span>Cluster <span style={{ color: 'var(--color-danger)' }}>*</span></span>}
                             rules={[{ required: true, message: 'Please select a cluster' }]}
                             style={{ marginBottom: 16 }}
                         >
@@ -259,9 +266,9 @@ const DiscoveryModal: React.FC<DiscoveryModalProps> = ({ open, onClose, onSave, 
                                 {unusedClusters.map((cluster: ClusterData, index: number) => (
                                     <Select.Option key={cluster.cluster_name || `cluster-${index}`} value={cluster.cluster_name}>
                                         <Space>
-                                            <CloudServerOutlined />
-                                            <span>{cluster.cluster_name}</span>
-                                            <Text type="secondary" style={{ fontSize: 12 }}>
+                                            <CloudServerOutlined style={{ color: 'var(--color-primary)' }} />
+                                            <span style={{ color: 'var(--text-primary)' }}>{cluster.cluster_name}</span>
+                                            <Text style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>
                                                 ({cluster.cluster_version}, {cluster.nodes?.length || 0} nodes)
                                             </Text>
                                         </Space>
@@ -274,7 +281,7 @@ const DiscoveryModal: React.FC<DiscoveryModalProps> = ({ open, onClose, onSave, 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 16, marginBottom: 16 }}>
                             <Form.Item
                                 name="protocol"
-                                label={<span>Protocol <span style={{ color: '#ff4d4f' }}>*</span></span>}
+                                label={<span>Protocol <span style={{ color: 'var(--color-danger)' }}>*</span></span>}
                                 rules={[{ required: true, message: 'Please select protocol' }]}
                                 style={{ marginBottom: 0 }}
                             >
@@ -286,7 +293,7 @@ const DiscoveryModal: React.FC<DiscoveryModalProps> = ({ open, onClose, onSave, 
 
                             <Form.Item
                                 name="port"
-                                label={<span>Port <span style={{ color: '#ff4d4f' }}>*</span></span>}
+                                label={<span>Port <span style={{ color: 'var(--color-danger)' }}>*</span></span>}
                                 rules={[
                                     { required: true, message: 'Please enter port' },
                                     { type: 'number', min: 1, max: 65535, message: 'Port must be between 1-65535' }
@@ -303,7 +310,7 @@ const DiscoveryModal: React.FC<DiscoveryModalProps> = ({ open, onClose, onSave, 
 
                             <Form.Item
                                 name="address_type"
-                                label={<span>Address Type <span style={{ color: '#ff4d4f' }}>*</span></span>}
+                                label={<span>Address Type <span style={{ color: 'var(--color-danger)' }}>*</span></span>}
                                 rules={[{ required: true, message: 'Please select address type' }]}
                                 style={{ marginBottom: 0 }}
                             >
@@ -329,7 +336,7 @@ const DiscoveryModal: React.FC<DiscoveryModalProps> = ({ open, onClose, onSave, 
 
                         {/* Role Selection */}
                         <div style={{ marginBottom: 16 }}>
-                            <div style={{ marginBottom: 8, fontSize: 12, fontWeight: 500, color: '#595959' }}>
+                            <div style={{ marginBottom: 8, fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)' }}>
                                 Node Roles (Optional - leave unchecked to include all nodes)
                             </div>
                             <Space>
@@ -366,7 +373,7 @@ const DiscoveryModal: React.FC<DiscoveryModalProps> = ({ open, onClose, onSave, 
 
                 {/* Selected Clusters Table */}
                 <div>
-                    <Title level={5} style={{ marginBottom: 16 }}>
+                    <Title level={5} style={{ marginBottom: 16, color: 'var(--text-primary)' }}>
                         Selected Clusters ({selectedClusters.length})
                     </Title>
                     <Table
@@ -379,8 +386,9 @@ const DiscoveryModal: React.FC<DiscoveryModalProps> = ({ open, onClose, onSave, 
                             emptyText: 'No clusters added yet. Add clusters using the form above.'
                         }}
                         style={{
-                            border: '1px solid #f0f0f0',
-                            borderRadius: 8
+                            border: '1px solid var(--border-default)',
+                            borderRadius: 8,
+                            background: 'transparent'
                         }}
                     />
                 </div>

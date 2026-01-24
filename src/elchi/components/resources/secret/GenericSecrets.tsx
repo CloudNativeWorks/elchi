@@ -126,7 +126,7 @@ const ComponentGenericSecrets: React.FC<GeneralProps> = ({ veri }) => {
                 })}
             />
             {secretKeys.length === 0 && (
-                <div style={{ textAlign: 'center', padding: '40px', color: '#999' }}>
+                <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-tertiary)' }}>
                     No secrets added. Enter a name above and click the + button or press Enter to add a secret.
                 </div>
             )}

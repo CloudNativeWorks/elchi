@@ -36,18 +36,18 @@ const DnsVerificationCard: React.FC<DnsVerificationCardProps> = ({
   return (
     <div
       style={{
-        background: 'white',
+        background: 'var(--bg-surface)',
         borderRadius: 12,
-        border: '1px solid #e5e7eb',
-        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+        border: '1px solid var(--border-default)',
+        boxShadow: 'var(--shadow-sm)',
         overflow: 'hidden',
         marginBottom: 16
       }}
     >
       {/* Header */}
       <div style={{
-        background: '#f9fafb',
-        borderBottom: '1px solid #e5e7eb',
+        background: 'var(--bg-elevated)',
+        borderBottom: '1px solid var(--border-default)',
         padding: '12px 16px',
         display: 'flex',
         justifyContent: 'space-between',
@@ -102,7 +102,7 @@ const DnsVerificationCard: React.FC<DnsVerificationCardProps> = ({
           <div
             style={{
               padding: '16px',
-              background: '#fafafa',
+              background: 'var(--bg-elevated)',
               borderRadius: 8,
               marginBottom: index < challenges.length - 1 ? 16 : 0,
             }}
@@ -144,7 +144,7 @@ const DnsVerificationCard: React.FC<DnsVerificationCardProps> = ({
                     style={{
                       fontFamily: 'monospace',
                       fontSize: 13,
-                      background: '#fff',
+                      background: 'var(--bg-surface)',
                       padding: '4px 8px',
                       borderRadius: 4,
                     }}
@@ -173,7 +173,7 @@ const DnsVerificationCard: React.FC<DnsVerificationCardProps> = ({
                     style={{
                       fontFamily: 'monospace',
                       fontSize: 13,
-                      background: '#fff',
+                      background: 'var(--bg-surface)',
                       padding: '4px 8px',
                       borderRadius: 4,
                       wordBreak: 'break-all',
@@ -185,7 +185,7 @@ const DnsVerificationCard: React.FC<DnsVerificationCardProps> = ({
                 </div>
               </div>
 
-              <div style={{ fontSize: 12, color: '#666' }}>
+              <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>
                 <Text type="secondary">
                   Expires: {new Date(challenge.expires_at).toLocaleString()}
                 </Text>
@@ -232,11 +232,11 @@ const DnsVerificationCard: React.FC<DnsVerificationCardProps> = ({
             loading={verifying}
             size="large"
             style={{
-              background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+              background: 'var(--gradient-primary)',
               border: 'none',
               borderRadius: 8,
               fontWeight: 500,
-              boxShadow: '0 2px 8px rgba(0,198,251,0.10)',
+              boxShadow: 'var(--shadow-primary)',
             }}
           >
             Verify DNS and Issue Certificate

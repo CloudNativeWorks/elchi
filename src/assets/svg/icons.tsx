@@ -12,8 +12,8 @@ export const AddSVG: React.FC<SVGProps> = ({ onClick }) => {
                 <g id="SVGRepo_bgCarrier" strokeWidth="0" />
                 <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round" stroke="#CCCCCC" strokeWidth="0.336" />
                 <g id="SVGRepo_iconCarrier">
-                    <path opacity="0.5" d="M2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C22 4.92893 22 7.28595 22 12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12Z" stroke="#056ccd" strokeWidth="1.5" />
-                    <path d="M15 12L12 12M12 12L9 12M12 12L12 9M12 12L12 15" stroke="#056ccd" strokeWidth="1.5" strokeLinecap="round" /> </g>
+                    <path opacity="0.5" d="M2 12C2 7.28595 2 4.92893 3.46447 3.46447C4.92893 2 7.28595 2 12 2C16.714 2 19.0711 2 20.5355 3.46447C22 4.92893 22 7.28595 22 12C22 16.714 22 19.0711 20.5355 20.5355C19.0711 22 16.714 22 12 22C7.28595 22 4.92893 22 3.46447 20.5355C2 19.0711 2 16.714 2 12Z" stroke="currentColor" strokeWidth="1.5" />
+                    <path d="M15 12L12 12M12 12L9 12M12 12L12 9M12 12L12 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /> </g>
             </svg>
         </Button>
     );
@@ -44,9 +44,9 @@ export const ActionsSVG: React.FC<SVGProps> = ({ onClick }) => {
                 <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
                 <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
                 <g id="SVGRepo_iconCarrier">
-                    <path d="M20 7L4 7" stroke="#056ccd" strokeWidth="1.5" strokeLinecap="round"></path>
-                    <path opacity="0.5" d="M20 12L4 12" stroke="#056ccd" strokeWidth="1.5" strokeLinecap="round"></path>
-                    <path d="M20 17L4 17" stroke="#056ccd" strokeWidth="1.5" strokeLinecap="round"></path>
+                    <path d="M20 7L4 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"></path>
+                    <path opacity="0.5" d="M20 12L4 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"></path>
+                    <path d="M20 17L4 17" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"></path>
                 </g>
             </svg>
         </Button>
@@ -150,8 +150,8 @@ export const Copy2SVG: React.FC<SVGProps> = ({ onClick }) => {
                 </g>
                 <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round">
                 </g><g id="SVGRepo_iconCarrier">
-                    <rect width="24" height="24" fill="white"></rect> <rect x="4" y="8" width="12" height="12" rx="1" stroke="#056ccd" strokeLinecap="round" strokeLinejoin="round"></rect>
-                    <path d="M8 6V5C8 4.44772 8.44772 4 9 4H19C19.5523 4 20 4.44772 20 5V15C20 15.5523 19.5523 16 19 16H18" stroke="#056ccd" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="2 2"></path>
+                    <rect width="24" height="24" fill="white"></rect> <rect x="4" y="8" width="12" height="12" rx="1" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round"></rect>
+                    <path d="M8 6V5C8 4.44772 8.44772 4 9 4H19C19.5523 4 20 4.44772 20 5V15C20 15.5523 19.5523 16 19 16H18" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="2 2"></path>
                 </g></svg>
         </Button>
     );
@@ -160,7 +160,7 @@ export const Copy2SVG: React.FC<SVGProps> = ({ onClick }) => {
 export const PasteSVG: React.FC<SVGProps> = ({ onClick }) => {
     return (
         <Button className='ADDSVGContainer' onClick={onClick}>
-            <svg fill="#056ccd" viewBox="-25.2 -25.2 86.40 86.40" version="1.1" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+            <svg fill="currentColor" viewBox="-25.2 -25.2 86.40 86.40" version="1.1" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
                 <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
                 <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
                 <g id="SVGRepo_iconCarrier">
@@ -182,7 +182,7 @@ export const PasteSVG: React.FC<SVGProps> = ({ onClick }) => {
 
 export const DeployLineIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg
-        fill="#056ccd"
+        fill="currentColor"
         viewBox="0 0 32 32"
         xmlns="http://www.w3.org/2000/svg"
         {...props}
@@ -203,7 +203,7 @@ export const DeployLineIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export const EthernetIcon = () => (
     <svg
-        fill="#056ccd"
+        fill="currentColor"
         height="30px"
         width="30px"
         version="1.1"

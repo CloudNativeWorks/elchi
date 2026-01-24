@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import type { DragEndEvent } from '@dnd-kit/core';
 import type { ColumnsType } from 'antd/es/table';
-import { Button, Table } from 'antd';
-import { DeleteTwoTone, InboxOutlined } from '@ant-design/icons';
+import { Button, Table, Popconfirm } from 'antd';
+import { DeleteOutlined, InboxOutlined } from '@ant-design/icons';
 import { useCustomGetQuery } from "@/common/api";
 import { TypeConfig } from '@/common/types';
 import { useDispatch } from "react-redux";
@@ -43,12 +43,12 @@ const ComponentListenerFilters: React.FC<GeneralProps> = ({ veri }) => {
     const [open, setOpen] = useState(false);
     const { project } = useProjectVariable();
     const [data, setData] = useState<any>()
-    
+
     const [ids, setIds] = useState<string[]>([]);
-    
+
     const [searchQuery, setSearchQuery] = useState<string>('');
     const debouncedSearch = useCallback(debounce((value: string) => setSearchQuery(value), 300), []);
-    
+
     const { data: dataQuery } = useCustomGetQuery({
         queryKey: `custom_listener_filters_${searchQuery}`,
         enabled: true,
@@ -68,7 +68,7 @@ const ComponentListenerFilters: React.FC<GeneralProps> = ({ veri }) => {
     useEffect(() => {
         const decoded = ByteToObj(veri.reduxStore);
         setState(decoded);
-        
+
         if (Array.isArray(veri.reduxStore)) {
             const newIds = veri.reduxStore.map((_, index: number) => `item-${index}`);
             setIds(newIds);
@@ -121,14 +121,14 @@ const ComponentListenerFilters: React.FC<GeneralProps> = ({ veri }) => {
 
     const handleDeleteAdditional = ({ event, index }: { event?: React.MouseEvent<HTMLElement>, del_url?: string, parent_name: string, index?: number }) => {
         if (event) { event.stopPropagation(); }
-        
+
         if (index !== undefined) {
-            handleChangeResources({ 
-                version: veri.version, 
-                type: ActionType.Delete, 
-                keys: `${veri.keyPrefix}.${index}`, 
-                val: undefined, 
-                resourceType: ResourceType.Resource 
+            handleChangeResources({
+                version: veri.version,
+                type: ActionType.Delete,
+                keys: `${veri.keyPrefix}.${index}`,
+                val: undefined,
+                resourceType: ResourceType.Resource
             }, dispatch, ResourceAction);
         }
     };
@@ -159,7 +159,7 @@ const ComponentListenerFilters: React.FC<GeneralProps> = ({ veri }) => {
             title: 'Type',
             width: "57%",
             key: 'gtype',
-            render: (_, record) => { 
+            render: (_, record) => {
                 const gtype = record.gtype;
                 return gtype ? getLastDotPart(gtype) : 'Unknown';
             }
@@ -169,13 +169,31 @@ const ComponentListenerFilters: React.FC<GeneralProps> = ({ veri }) => {
             width: "10%",
             key: 'x',
             render: (_, record) =>
-                <Button
-                    icon={<DeleteTwoTone twoToneColor="#eb2f96" />}
-                    size='small'
-                    onClick={(e) => handleDeleteAdditional({ event: e, parent_name: record.parent_name, index: record.tableIndex })}
-                    style={{ marginRight: 8 }}
-                    iconPosition={"end"}
-                />,
+                <Popconfirm
+                    title="Delete confirmation"
+                    description="Are you sure you want to delete this item?"
+                    onConfirm={(e) => handleDeleteAdditional({ event: e as React.MouseEvent<HTMLElement>, parent_name: record.parent_name, index: record.tableIndex })}
+                    okText="Yes"
+                    cancelText="No"
+                    placement="left"
+                >
+                    <Button
+                        type="text"
+                        danger
+                        icon={<DeleteOutlined style={{ color: 'var(--color-danger)' }} />}
+                        size='small'
+                        className="elchi-delete-button"
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: 'var(--color-danger-light)',
+                            border: '1px solid var(--color-danger-border)',
+                            borderRadius: '6px'
+                        }}
+                    />
+                </Popconfirm>,
         },
     ];
 
@@ -185,11 +203,12 @@ const ComponentListenerFilters: React.FC<GeneralProps> = ({ veri }) => {
         <>
             <ECard title={"Listener Filters"}>
                 <div style={{
-                    background: '#fff',
+                    background: 'var(--card-bg)',
                     padding: '4px 4px 24px 4px',
                     borderRadius: 12,
-                    boxShadow: '0 2px 8px rgba(5,117,230,0.06)',
-                    margin: '4px 0'
+                    boxShadow: 'var(--shadow-sm)',
+                    margin: '4px 0',
+                    border: '1px solid var(--border-default)'
                 }}>
                     <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
                         <ElchiIconButton onClick={() => setOpen(true)} />

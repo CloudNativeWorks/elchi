@@ -108,8 +108,9 @@ const ComponentEndpoint: React.FC<GeneralProps> = ({ veri }) => {
                             style={{
                                 marginBottom: 16,
                                 borderRadius: 8,
-                                backgroundColor: '#e6f7ff',
-                                borderColor: '#91d5ff'
+                                backgroundColor: 'var(--color-info-light)',
+                                borderColor: 'var(--color-info-border)',
+                                color: 'var(--text-primary)'
                             }}
                             closable={false}
                         />

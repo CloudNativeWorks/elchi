@@ -51,7 +51,7 @@ const ComponentRoute: React.FC<GeneralProps> = ({ veri }) => {
     ]
 
     return (
-        <Card size='small' title={'Route'} styles={{ header: { background: 'white', color: 'black' } }} style={{ marginBottom: 8, width: '100%' }}>
+        <Card size='small' title={'Route'} styles={{ header: { background: 'var(--bg-surface)', color: 'var(--text-primary)' } }} style={{ marginBottom: 8, width: '100%' }}>
             <Row>
                 <HorizonTags veri={{
                     tags: vTags.rta?.RouteAction,
@@ -113,7 +113,7 @@ const ComponentRoute: React.FC<GeneralProps> = ({ veri }) => {
                     />
                     <Row>
                         <Collapse accordion bordered={false} size="small"
-                            style={{ width: '100%', marginBottom: 10, background: "#1890ff" }}
+                            style={{ width: '100%', marginBottom: 10, background: "var(--color-primary)" }}
                             items={getCollapseItems([
                                 {
                                     reduxStore: veri.reduxStore?.regex_rewrite,

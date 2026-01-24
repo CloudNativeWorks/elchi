@@ -30,8 +30,8 @@ export const EmptyStateCard: React.FC<EmptyStateCardProps> = ({
             title: 'All Metrics',
             description: 'Monitor all service metrics including all indicators',
             icon: <DashboardOutlined />,
-            color: '#1890ff',
-            gradient: 'linear-gradient(135deg, #1890ff 0%, #40a9ff 100%)',
+            color: 'var(--color-primary)',
+            gradient: 'linear-gradient(135deg, var(--color-primary) 0%, #40a9ff 100%)',
             features: ['Performance Monitoring', 'Resource Usage', 'Request Analytics']
         },
         {
@@ -39,8 +39,8 @@ export const EmptyStateCard: React.FC<EmptyStateCardProps> = ({
             title: 'Negative Metrics',
             description: 'Focus on error tracking, failure rates, and service reliability metrics',
             icon: <ExclamationCircleOutlined />,
-            color: '#ff4d4f',
-            gradient: 'linear-gradient(135deg, #ff4d4f 0%, #ff7875 100%)',
+            color: 'var(--color-danger)',
+            gradient: 'linear-gradient(135deg, var(--color-danger) 0%, #ff7875 100%)',
             features: ['Error Rates', 'Failed Requests', 'Exception Tracking']
         },
         {
@@ -48,8 +48,8 @@ export const EmptyStateCard: React.FC<EmptyStateCardProps> = ({
             title: 'Filter Metrics',
             description: 'Focus on Network, Listener and HTTP filter metrics',
             icon: <FilterOutlined />,
-            color: 'rgb(13, 171, 210)',
-            gradient: 'linear-gradient(135deg,rgb(13, 171, 210) 0%,rgb(117, 204, 255) 100%)',
+            color: 'var(--color-cyan)',
+            gradient: 'linear-gradient(135deg, var(--color-cyan) 0%, rgb(117, 204, 255) 100%)',
             features: ['HTTP Filter Metrics', 'Network Filter Metrics', 'Listener Filter Metrics']
         },
         {
@@ -57,8 +57,8 @@ export const EmptyStateCard: React.FC<EmptyStateCardProps> = ({
             title: 'Cluster Metrics',
             description: 'Focus on Cluster, Upstream, Health and Outlier Detection',
             icon: <ClusterOutlined />,
-            color: 'rgb(44, 155, 4)',
-            gradient: 'linear-gradient(135deg,rgb(44, 155, 4) 0%,rgb(59, 184, 14) 100%)',
+            color: 'var(--color-success)',
+            gradient: 'linear-gradient(135deg, var(--color-success) 0%, rgb(59, 184, 14) 100%)',
             features: ['Cluster Metrics', 'Upstream Requests', 'Outlier Detection']
         }
     ];
@@ -66,7 +66,7 @@ export const EmptyStateCard: React.FC<EmptyStateCardProps> = ({
     return (
         <div style={{
             minHeight: '70vh',
-            background: 'linear-gradient(135deg, #f0f2f5 0%, #e6f7ff 100%)',
+            background: 'var(--empty-state-gradient)',
             padding: '40px 24px',
             borderRadius: '12px'
         }}>
@@ -89,7 +89,7 @@ export const EmptyStateCard: React.FC<EmptyStateCardProps> = ({
                 </div>
 
                 <Title level={2} style={{
-                    color: '#262626',
+                    color: 'var(--text-primary)',
                     marginBottom: '12px',
                     fontWeight: 600
                 }}>
@@ -97,7 +97,7 @@ export const EmptyStateCard: React.FC<EmptyStateCardProps> = ({
                 </Title>
 
                 <Text style={{
-                    color: '#8c8c8c',
+                    color: 'var(--text-secondary)',
                     fontSize: '16px',
                     display: 'block',
                     maxWidth: '600px',
@@ -132,17 +132,17 @@ export const EmptyStateCard: React.FC<EmptyStateCardProps> = ({
                 <div style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    background: 'white',
+                    background: 'var(--bg-surface)',
                     padding: '12px 24px',
                     borderRadius: '24px',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                    border: '1px solid #f0f0f0'
+                    boxShadow: 'var(--shadow-md)',
+                    border: '1px solid var(--border-default)'
                 }}>
                     <div style={{
                         width: '24px',
                         height: '24px',
                         borderRadius: '50%',
-                        background: selectedGroup ? '#52c41a' : '#1890ff',
+                        background: selectedGroup ? 'var(--color-success)' : 'var(--color-primary)',
                         color: 'white',
                         display: 'flex',
                         alignItems: 'center',
@@ -153,12 +153,12 @@ export const EmptyStateCard: React.FC<EmptyStateCardProps> = ({
                     }}>
                         {selectedGroup ? <CheckCircleOutlined /> : '1'}
                     </div>
-                    <Text style={{ color: '#595959', fontWeight: 500 }}>
+                    <Text style={{ color: 'var(--text-primary)', fontWeight: 500 }}>
                         Choose Metric Group
                     </Text>
 
                     <ArrowRightOutlined style={{
-                        color: '#d9d9d9',
+                        color: 'var(--text-disabled)',
                         margin: '0 16px',
                         fontSize: '12px'
                     }} />
@@ -167,7 +167,7 @@ export const EmptyStateCard: React.FC<EmptyStateCardProps> = ({
                         width: '24px',
                         height: '24px',
                         borderRadius: '50%',
-                        background: '#d9d9d9',
+                        background: 'var(--text-disabled)',
                         color: 'white',
                         display: 'flex',
                         alignItems: 'center',
@@ -178,7 +178,7 @@ export const EmptyStateCard: React.FC<EmptyStateCardProps> = ({
                     }}>
                         2
                     </div>
-                    <Text style={{ color: '#8c8c8c' }}>
+                    <Text style={{ color: 'var(--text-secondary)' }}>
                         Select Service
                     </Text>
                 </div>
@@ -197,12 +197,12 @@ export const EmptyStateCard: React.FC<EmptyStateCardProps> = ({
                                     style={{
                                         height: '380px',
                                         borderRadius: '16px',
-                                        border: isSelected ? `2px solid ${option.color}` : '1px solid #f0f0f0',
+                                        border: isSelected ? `2px solid ${option.color}` : '1px solid var(--border-default)',
                                         cursor: 'pointer',
                                         transition: 'all 0.3s ease',
                                         boxShadow: isSelected
                                             ? `0 8px 32px ${option.color}25`
-                                            : '0 4px 16px rgba(0,0,0,0.08)',
+                                            : 'var(--shadow-md)',
                                         transform: isSelected ? 'translateY(-4px)' : 'none',
                                         position: 'relative',
                                         overflow: 'hidden'
@@ -256,7 +256,7 @@ export const EmptyStateCard: React.FC<EmptyStateCardProps> = ({
                                         </div>
 
                                         <Title level={5} style={{
-                                            color: isSelected ? option.color : '#262626',
+                                            color: isSelected ? option.color : 'var(--text-primary)',
                                             marginBottom: '6px',
                                             transition: 'color 0.3s ease'
                                         }}>
@@ -264,7 +264,7 @@ export const EmptyStateCard: React.FC<EmptyStateCardProps> = ({
                                         </Title>
 
                                         <Text style={{
-                                            color: '#8c8c8c',
+                                            color: 'var(--text-secondary)',
                                             lineHeight: '1.4',
                                             fontSize: '13px'
                                         }}>
@@ -275,14 +275,14 @@ export const EmptyStateCard: React.FC<EmptyStateCardProps> = ({
                                     {/* Features */}
                                     <div style={{ flex: 1 }}>
                                         <div style={{
-                                            background: '#fafafa',
+                                            background: 'var(--bg-elevated)',
                                             borderRadius: '8px',
                                             padding: '12px',
                                             minHeight: '120px'
                                         }}>
                                             <Text style={{
                                                 fontSize: '11px',
-                                                color: '#8c8c8c',
+                                                color: 'var(--text-tertiary)',
                                                 fontWeight: 500,
                                                 marginBottom: '6px',
                                                 display: 'block'
@@ -304,7 +304,7 @@ export const EmptyStateCard: React.FC<EmptyStateCardProps> = ({
                                                     }} />
                                                     <Text style={{
                                                         fontSize: '12px',
-                                                        color: '#595959'
+                                                        color: 'var(--text-primary)'
                                                     }}>
                                                         {feature}
                                                     </Text>
@@ -318,13 +318,13 @@ export const EmptyStateCard: React.FC<EmptyStateCardProps> = ({
                                         marginTop: '12px',
                                         textAlign: 'center',
                                         padding: '13px',
-                                        background: isSelected ? `${option.color}08` : '#f9f9f9',
+                                        background: isSelected ? `${option.color}08` : 'var(--bg-elevated)',
                                         borderRadius: '8px',
-                                        border: isSelected ? `1px solid ${option.color}20` : '1px solid #f0f0f0'
+                                        border: isSelected ? `1px solid ${option.color}20` : '1px solid var(--border-default)'
                                     }}>
                                         <Text style={{
                                             fontSize: '11px',
-                                            color: isSelected ? option.color : '#8c8c8c',
+                                            color: isSelected ? option.color : 'var(--text-secondary)',
                                             fontWeight: 500
                                         }}>
                                             {isSelected ? 'SELECTED' : 'CLICK TO SELECT'}
@@ -341,12 +341,12 @@ export const EmptyStateCard: React.FC<EmptyStateCardProps> = ({
                     textAlign: 'center',
                     marginTop: '32px',
                     padding: '24px',
-                    background: 'white',
+                    background: 'var(--bg-surface)',
                     borderRadius: '12px',
-                    border: '1px solid #f0f0f0'
+                    border: '1px solid var(--border-default)'
                 }}>
                     <Text style={{
-                        color: '#8c8c8c',
+                        color: 'var(--text-secondary)',
                         fontSize: '14px'
                     }}>
                         💡 After selecting a metric group, choose a service from the dropdown above to start monitoring

@@ -99,7 +99,7 @@ const formatCGroup = (cgroup: string[]) => {
 
 export const ServiceStatus: React.FC<{ statusData: any[]; loading: boolean; error: string | null }> = ({ statusData, loading, error }) => {
     if (error) return <Alert type="error" message={error} />;
-    if (!statusData || statusData.length === 0) return <span style={{ color: '#bfbfbf' }}>No status info</span>;
+    if (!statusData || statusData.length === 0) return <span style={{ color: 'var(--text-tertiary)' }}>No status info</span>;
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16, position: 'relative' }}>
@@ -110,7 +110,7 @@ export const ServiceStatus: React.FC<{ statusData: any[]; loading: boolean; erro
                     left: 0,
                     right: 0,
                     bottom: 0,
-                    background: 'rgba(255, 255, 255, 0.6)',
+                    background: 'var(--bg-loading)',
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
@@ -244,16 +244,16 @@ export const ServiceStatus: React.FC<{ statusData: any[]; loading: boolean; erro
                                                 display: 'flex',
                                                 flexDirection: 'column',
                                                 gap: 12,
-                                                background: '#fafafa',
+                                                background: 'var(--bg-surface)',
                                                 borderRadius: 8
                                             }}>
                                                 {cgroupData.map((cg, i) => (
                                                     <div 
                                                         key={i}
                                                         style={{
-                                                            background: '#fff',
+                                                            background: 'var(--card-bg)',
                                                             borderRadius: 8,
-                                                            border: '1px solid #f0f0f0',
+                                                            border: '1px solid var(--border-default)',
                                                             overflow: 'hidden'
                                                         }}
                                                     >
@@ -262,8 +262,8 @@ export const ServiceStatus: React.FC<{ statusData: any[]; loading: boolean; erro
                                                             alignItems: 'center',
                                                             padding: '8px 8px',
                                                             gap: 12,
-                                                            borderBottom: cg.params.length > 0 ? '1px solid #f0f0f0' : 'none',
-                                                            background: '#fafafa'
+                                                            borderBottom: cg.params.length > 0 ? '1px solid var(--border-default)' : 'none',
+                                                            background: 'var(--bg-body)'
                                                         }}>
                                                             {cg.type === 'python' ? (
                                                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -325,7 +325,7 @@ export const ServiceStatus: React.FC<{ statusData: any[]; loading: boolean; erro
                                                                 display: 'flex',
                                                                 flexWrap: 'wrap',
                                                                 gap: 8,
-                                                                background: '#fff'
+                                                                background: 'var(--card-bg)'
                                                             }}>
                                                                 {cg.params.map((param, idx) => (
                                                                     <Tag
@@ -333,8 +333,8 @@ export const ServiceStatus: React.FC<{ statusData: any[]; loading: boolean; erro
                                                                         style={{
                                                                             padding: '1px 8px',
                                                                             borderRadius: 4,
-                                                                            border: '1px solid #d9d9d9',
-                                                                            background: '#fafafa'
+                                                                            border: '1px solid var(--border-default)',
+                                                                            background: 'var(--bg-body)'
                                                                         }}
                                                                     >
                                                                         <Text type="secondary" style={{ fontSize: 12 }}>

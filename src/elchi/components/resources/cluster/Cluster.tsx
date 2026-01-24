@@ -36,6 +36,7 @@ import ComponentOriginalDstLbConfig from './LbConfig/OriginalDstLbConfig/Origina
 import ComponentLeastRequestLbConfig from './LbConfig/LeastRequestLbConfig/LeastRequestLbConfig';
 import ComponentRoundRobinLbConfig from './LbConfig/RoundRobinLbConfig/RoundRobinLbConfig';
 import { ConditionalComponent } from "../../common/ConditionalComponent";
+import CommonComponentTypedDnsResolverConfig from "@/elchi/components/resources/common/TypedDnsResolverConfig/TypedDnsResolverConfig";
 
 
 type GeneralProps = {
@@ -94,8 +95,8 @@ const ClusterComponent: React.FC<GeneralProps> = ({ veri }) => {
                     }}
                 />
                 <Divider type="horizontal" orientation="left" orientationMargin="0">Cluster Configuration</Divider>
-                <Row>
-                    <Col md={4} style={{ display: "block", maxHeight: "auto", overflowY: "auto" }}>
+                <Row gutter={[2, 0]}>
+                    <Col md={4} style={{ display: "block", maxHeight: "100vh", overflowY: "auto" }} className="custom-scrollbar-side">
                         <CustomAnchor
                             resourceConfKeys={vTags.c?.Cluster}
                             unsuportedTags={modtag_us_cluster["Cluster"]}
@@ -329,6 +330,17 @@ const ClusterComponent: React.FC<GeneralProps> = ({ veri }) => {
                                 gtype: 'envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext',
                                 prettyName: 'Upstream',
                                 id: "transport_socket_0"
+                            }}
+                        />
+                        <ConditionalComponent
+                            shouldRender={matchesEndOrStartOf("typed_dns_resolver_config", selectedTags)}
+                            Component={CommonComponentTypedDnsResolverConfig}
+                            componentProps={{
+                                version: veri.version,
+                                keyPrefix: `typed_dns_resolver_config`,
+                                reduxStore: reduxStore?.typed_dns_resolver_config,
+                                reduxAction: ResourceAction,
+                                id: "typed_dns_resolver_config_0"
                             }}
                         />
                     </Col>

@@ -1241,6 +1241,39 @@ Instead of pre-configuring upstream endpoints, this extension resolves the targe
 
 Used properly, Cluster Dynamic Forward Proxy unlocks flexible, scalable forward proxy capabilities without hardcoding upstream endpoints—ideal for egress control, SaaS integrations, and dynamic multi-tenant routing.`
 
+export const D_E_DNS_RESOLVER = `
+**DNS Resolver** is an Envoy extension that provides pluggable DNS resolution capabilities for clusters and other components that need to resolve hostnames to IP addresses.
+Envoy supports multiple DNS resolver implementations, each optimized for different platforms and use cases.
+
+### 🔍 Available Resolver Types
+
+**Apple DNS Resolver** (\`envoy.network.dns_resolver.apple\`)
+- Native macOS/iOS DNS resolution using Apple's system APIs
+- Best for Apple platform deployments where system DNS settings should be respected
+- Supports platform-specific features like mDNS and DNS-over-HTTPS when configured at the OS level
+
+**C-Ares DNS Resolver** (\`envoy.network.dns_resolver.cares\`)
+- Cross-platform asynchronous DNS resolution using the c-ares library
+- Supports custom DNS server configuration and advanced options
+- Ideal for environments requiring fine-grained control over DNS behavior
+
+**GetAddrInfo DNS Resolver** (\`envoy.network.dns_resolver.getaddrinfo\`)
+- Uses the standard POSIX \`getaddrinfo()\` system call
+- Respects system-wide DNS configuration (\`/etc/resolv.conf\`, \`/etc/hosts\`)
+- Simple and portable, suitable for most Linux/Unix deployments
+
+### 🧩 Common Use Cases
+- Configuring custom DNS servers for cluster endpoint resolution
+- Enabling platform-specific DNS features (e.g., Apple DNS for macOS)
+- Fine-tuning DNS query behavior (timeouts, retries, caching)
+- Supporting IPv4/IPv6 dual-stack or preference configurations
+
+### ⚠️ Good to Know
+- The default resolver varies by platform and Envoy build configuration
+- C-Ares resolver provides the most configuration options but requires the c-ares library
+- GetAddrInfo is blocking by default; consider thread pool settings for high-throughput scenarios
+- DNS resolution settings affect cluster discovery, health checks, and dynamic forward proxy behavior`
+
 export const D_HTTP_WASM = `
 **WASM HTTP Filter** is a powerful and extensible Envoy filter that enables execution of **WebAssembly (WASM)** modules within the HTTP request/response lifecycle.
 It allows developers to run custom logic—such as authentication, rate limiting, logging, or request transformation—directly inside Envoy without needing to recompile the Envoy binary.

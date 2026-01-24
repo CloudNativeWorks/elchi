@@ -207,33 +207,33 @@ const CrsRuleBrowser: React.FC<CrsRuleBrowserProps> = ({ onSelectRule, onSelectF
 
     return (
         <div style={{
-            background: 'white',
+            background: 'var(--card-bg)',
             borderRadius: 12,
-            border: '1px solid #e5e7eb',
-            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+            border: '1px solid var(--border-default)',
+            boxShadow: 'var(--shadow-sm)',
             overflow: 'hidden',
             marginBottom: 24
         }}>
             {/* Header */}
             <div style={{
-                background: '#f9fafb',
-                borderBottom: '1px solid #e5e7eb',
+                background: 'var(--bg-elevated)',
+                borderBottom: '1px solid var(--border-default)',
                 padding: '12px 16px',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <FilterOutlined style={{ fontSize: 18, color: '#6b7280' }} />
-                    <Text strong style={{ fontSize: 16, color: '#111827' }}>CRS Rule Browser</Text>
+                    <FilterOutlined style={{ fontSize: 18, color: 'var(--text-secondary)' }} />
+                    <Text strong style={{ fontSize: 16, color: 'var(--text-primary)' }}>CRS Rule Browser</Text>
                     {rulesData && typeof rulesData.total === 'number' && (
-                        <Text style={{ fontSize: 13, color: '#6b7280' }}>
+                        <Text style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
                             ({filteredRules.length} {filteredRules.length !== rulesData.total && `of ${rulesData.total}`} rules)
                         </Text>
                     )}
                 </div>
                 {rulesData && Object.keys(rulesByFile).length > 0 && (
-                    <Badge count={Object.keys(rulesByFile).length} style={{ backgroundColor: '#52c41a' }} showZero />
+                    <Badge count={Object.keys(rulesByFile).length} style={{ backgroundColor: 'var(--color-success)' }} showZero />
                 )}
             </div>
             {/* Body */}
@@ -346,7 +346,7 @@ const CrsRuleBrowser: React.FC<CrsRuleBrowserProps> = ({ onSelectRule, onSelectF
             />
 
             {!selectedSetName && (
-                <div style={{ marginBottom: 16, padding: 12, background: '#fff7e6', borderRadius: 8, border: '1px solid #ffd666' }}>
+                <div style={{ marginBottom: 16, padding: 12, background: 'var(--color-warning-light)', borderRadius: 8, border: '1px solid var(--color-warning-border)' }}>
                     <Text type="warning">Please create at least one directive set below to add CRS rules</Text>
                 </div>
             )}
@@ -362,7 +362,7 @@ const CrsRuleBrowser: React.FC<CrsRuleBrowserProps> = ({ onSelectRule, onSelectF
                             <Space>
                                 <FileOutlined />
                                 <Text strong>{filename}</Text>
-                                <Badge count={rules.length} style={{ backgroundColor: '#1890ff' }} />
+                                <Badge count={rules.length} style={{ backgroundColor: 'var(--color-primary)' }} />
                             </Space>
                         </Space>
                     ),
@@ -376,9 +376,9 @@ const CrsRuleBrowser: React.FC<CrsRuleBrowserProps> = ({ onSelectRule, onSelectF
                             }}
                             disabled={!selectedSetName}
                             style={{
-                                backgroundColor: selectedSetName ? '#1890ff' : undefined,
-                                borderColor: selectedSetName ? '#1890ff' : undefined,
-                                color: selectedSetName ? '#ffffff' : undefined,
+                                backgroundColor: selectedSetName ? 'var(--color-primary)' : undefined,
+                                borderColor: selectedSetName ? 'var(--color-primary)' : undefined,
+                                color: selectedSetName ? 'var(--text-on-primary)' : undefined,
                                 borderRadius: 6
                             }}
                         >
@@ -449,14 +449,15 @@ const CrsRuleBrowser: React.FC<CrsRuleBrowserProps> = ({ onSelectRule, onSelectF
                                                                         <div>
                                                                             <Text strong>Rule:</Text>
                                                                             <div style={{
-                                                                                background: '#f5f5f5',
+                                                                                background: 'var(--code-bg)',
                                                                                 padding: '8px',
                                                                                 borderRadius: 4,
                                                                                 overflow: 'auto',
                                                                                 fontFamily: 'monospace',
-                                                                                fontSize: 12
+                                                                                fontSize: 12,
+                                                                                color: 'var(--code-text)'
                                                                             }}>
-                                                                                <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+                                                                                <pre style={{ margin: 0, whiteSpace: 'pre-wrap', wordBreak: 'break-all', color: 'inherit' }}>
                                                                                     {rule.description.rule
                                                                                         .replace(/\\n/g, '\n')
                                                                                         .replace(/\\t/g, '\t')

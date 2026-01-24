@@ -67,24 +67,24 @@ const DirectiveSetsManager: React.FC<DirectiveSetsManagerProps> = ({
     return (
         <>
             <div style={{
-                background: 'white',
+                background: 'var(--card-bg)',
                 borderRadius: 12,
-                border: '1px solid #e5e7eb',
-                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                border: '1px solid var(--border-default)',
+                boxShadow: 'var(--shadow-sm)',
                 overflow: 'hidden',
                 marginBottom: 16
             }}>
                 {/* Header */}
                 <div style={{
-                    background: '#f9fafb',
-                    borderBottom: '1px solid #e5e7eb',
+                    background: 'var(--bg-surface)',
+                    borderBottom: '1px solid var(--border-default)',
                     padding: '12px 16px',
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center'
                 }}>
-                    <Text strong style={{ fontSize: 16, color: '#111827' }}>Directive Sets</Text>
-                    <Badge count={Object.keys(directiveSets).length} style={{ backgroundColor: '#1890ff' }} />
+                    <Text strong style={{ fontSize: 16, color: 'var(--text-primary)' }}>Directive Sets</Text>
+                    <Badge count={Object.keys(directiveSets).length} style={{ backgroundColor: 'var(--color-primary)' }} />
                 </div>
 
                 {/* Body */}
@@ -162,7 +162,7 @@ const DirectiveSetsManager: React.FC<DirectiveSetsManagerProps> = ({
                                 >
                                     {setName}
                                     {form.getFieldValue('default_directives') === setName && (
-                                        <span style={{ marginLeft: 8, background: '#52c41a', color: 'white', padding: '2px 8px', borderRadius: 4, fontSize: 12 }}>
+                                        <span style={{ marginLeft: 8, background: 'var(--color-success)', color: 'var(--text-on-primary)', padding: '2px 8px', borderRadius: 4, fontSize: 12 }}>
                                             Default
                                         </span>
                                     )}

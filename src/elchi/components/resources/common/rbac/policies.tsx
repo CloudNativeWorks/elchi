@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { Button, Drawer, Input, Modal, Table } from 'antd';
+import { Button, Drawer, Input, Modal, Table, Popconfirm } from 'antd';
 import { useDispatch } from "react-redux";
 import { ActionType, ResourceType } from "@/redux/reducer-helpers/common";
 import { handleChangeResources } from "@/redux/dispatcher";
 import { memorizeComponent, compareVeri } from "@/hooks/useMemoComponent";
 import { ResourceAction } from "@/redux/reducers/slice";
 import { ColumnsType } from "antd/es/table";
-import { DeleteTwoTone, InboxOutlined } from '@ant-design/icons';
+import { DeleteOutlined, InboxOutlined } from '@ant-design/icons';
 import ComponentPolicy from "./policy";
 import ElchiIconButton from "@/elchi/components/common/ElchiIconButton";
 import ElchiButton from "@/elchi/components/common/ElchiButton";
@@ -74,13 +74,32 @@ const CommonComponentPolicies: React.FC<GeneralProps> = ({ veri }) => {
             title: 'Delete',
             width: "10%",
             key: 'x',
-            render: (record) => <Button
-                icon={<DeleteTwoTone twoToneColor="#eb2f96" />}
-                size='small'
-                onClick={(e) => handleDeleteRedux({ event: e, index: record.key })}
-                style={{ marginRight: 8 }}
-                iconPosition={"end"}
-            />
+            render: (record) =>
+                <Popconfirm
+                    title="Delete confirmation"
+                    description="Are you sure you want to delete this item?"
+                    onConfirm={(e) => handleDeleteRedux({ event: e as React.MouseEvent<HTMLElement>, index: record.key })}
+                    okText="Yes"
+                    cancelText="No"
+                    placement="left"
+                >
+                    <Button
+                        type="text"
+                        danger
+                        icon={<DeleteOutlined style={{ color: 'var(--color-danger)' }} />}
+                        size='small'
+                        className="elchi-delete-button"
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: 'var(--color-danger-light)',
+                            border: '1px solid var(--color-danger-border)',
+                            borderRadius: '6px'
+                        }}
+                    />
+                </Popconfirm>
         },
     ];
 
@@ -97,11 +116,12 @@ const CommonComponentPolicies: React.FC<GeneralProps> = ({ veri }) => {
             >
 
                 <div style={{
-                    background: '#fff',
+                    background: 'var(--card-bg)',
                     padding: '12px 12px 24px 12px',
                     borderRadius: 12,
-                    boxShadow: '0 2px 8px rgba(5,117,230,0.06)',
-                    margin: '4px 0'
+                    boxShadow: 'var(--shadow-sm)',
+                    margin: '4px 0',
+                    border: '1px solid var(--border-default)'
                 }}>
                     <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
                         <ElchiIconButton onClick={() => addPolicy()} />

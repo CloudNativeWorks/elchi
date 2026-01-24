@@ -125,7 +125,7 @@ const Tokens: React.FC = () => {
             <Card variant="borderless" style={{ boxShadow: 'none', background: 'transparent' }}>
                 
                 <Title level={5} style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <ApiOutlined style={{ color: '#13c2c2' }} />
+                    <ApiOutlined style={{ color: 'var(--color-cyan)' }} />
                     Discovery Token
                 </Title>
                 <Space direction="vertical" style={{ width: '100%', marginBottom: 24 }} size={12}>
@@ -138,21 +138,21 @@ const Tokens: React.FC = () => {
                     ) : (
                         <>
                             {hasDiscoveryToken ? (
-                                <div style={{ 
-                                    display: 'flex', 
-                                    alignItems: 'center', 
-                                    gap: 12, 
-                                    padding: '12px 16px', 
-                                    background: '#e6fffb', 
-                                    border: '1px solid #87e8de', 
-                                    borderRadius: 6 
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 12,
+                                    padding: '12px 16px',
+                                    background: 'var(--color-info-light)',
+                                    border: '1px solid var(--color-info)',
+                                    borderRadius: 6
                                 }}>
                                     <Text 
                                         copyable={showDiscoveryToken ? { text: discoveryToken } : false}
                                         style={{ 
                                             fontFamily: 'monospace', 
                                             fontSize: 12, 
-                                            color: '#13c2c2',
+                                            color: 'var(--color-cyan)',
                                             flex: 1,
                                             wordBreak: 'break-all'
                                         }}
@@ -174,17 +174,17 @@ const Tokens: React.FC = () => {
                                         size="small"
                                         icon={<DeleteOutlined />}
                                         onClick={handleDeleteDiscoveryToken}
-                                        style={{ color: '#ff4d4f' }}
+                                        style={{ color: 'var(--color-danger)' }}
                                         danger
                                     >
                                         Delete
                                     </Button>
                                 </div>
                             ) : (
-                                <div style={{ 
-                                    padding: '16px', 
-                                    background: '#fafafa', 
-                                    border: '1px solid #f0f0f0', 
+                                <div style={{
+                                    padding: '16px',
+                                    background: 'var(--bg-surface)',
+                                    border: '1px solid var(--border-default)',
                                     borderRadius: 6,
                                     textAlign: 'center'
                                 }}>
@@ -196,7 +196,7 @@ const Tokens: React.FC = () => {
                                         icon={<ThunderboltOutlined />}
                                         onClick={handleGenerateDiscoveryToken}
                                         loading={isDiscoveryTokenLoading}
-                                        style={{ background: '#13c2c2', borderColor: '#13c2c2' }}
+                                        style={{ background: 'var(--color-cyan)', borderColor: 'var(--color-cyan)' }}
                                     >
                                         Generate Discovery Token
                                     </Button>
@@ -215,7 +215,7 @@ const Tokens: React.FC = () => {
                 <Divider style={{ margin: '24px 0' }} />
                 
                 <Title level={5} style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <ThunderboltOutlined style={{ color: '#1890ff' }} />
+                    <ThunderboltOutlined style={{ color: 'var(--color-primary)' }} />
                     Client Tokens
                 </Title>
                 <Space direction="vertical" style={{ width: '100%', marginBottom: 24 }} size={12}>
@@ -244,10 +244,10 @@ const Tokens: React.FC = () => {
                     {isLoading ? (
                         <div style={{ padding: 16, textAlign: 'center' }}>Loading tokens...</div>
                     ) : tokens.length === 0 ? (
-                        <div style={{ 
-                            padding: '16px', 
-                            background: '#fafafa', 
-                            border: '1px solid #f0f0f0', 
+                        <div style={{
+                            padding: '16px',
+                            background: 'var(--bg-surface)',
+                            border: '1px solid var(--border-default)',
                             borderRadius: 6,
                             textAlign: 'center'
                         }}>
@@ -260,21 +260,21 @@ const Tokens: React.FC = () => {
                             {tokens.map((item, index) => (
                                 <div
                                     key={index}
-                                    style={{ 
-                                        display: 'flex', 
-                                        alignItems: 'center', 
-                                        gap: 12, 
-                                        padding: '12px 16px', 
-                                        background: '#f0f8ff', 
-                                        border: '1px solid #91d5ff', 
-                                        borderRadius: 6 
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 12,
+                                        padding: '12px 16px',
+                                        background: 'var(--color-primary-light)',
+                                        border: '1px solid var(--color-primary-border)',
+                                        borderRadius: 6
                                     }}
                                 >
                                     <div style={{ flex: 1 }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                                            <Text strong style={{ fontSize: 14, color: '#1890ff' }}>{item.name}</Text>
+                                            <Text strong style={{ fontSize: 14, color: 'var(--color-primary)' }}>{item.name}</Text>
                                             <div style={{
-                                                background: '#1890ff',
+                                                background: 'var(--color-primary)',
                                                 color: 'white',
                                                 fontSize: 10,
                                                 padding: '2px 6px',
@@ -287,11 +287,11 @@ const Tokens: React.FC = () => {
                                             </div>
                                         </div>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                                            <Text 
-                                                style={{ 
-                                                    fontFamily: 'monospace', 
-                                                    fontSize: 12, 
-                                                    color: '#1890ff',
+                                            <Text
+                                                style={{
+                                                    fontFamily: 'monospace',
+                                                    fontSize: 12,
+                                                    color: 'var(--color-primary)',
                                                     wordBreak: 'break-all'
                                                 }}
                                             >
@@ -309,7 +309,7 @@ const Tokens: React.FC = () => {
                                         size="small"
                                         icon={<DeleteOutlined />}
                                         onClick={() => handleDeleteToken(item.name, item._id || item.id)}
-                                        style={{ color: '#ff4d4f' }}
+                                        style={{ color: 'var(--color-danger)' }}
                                         danger
                                     >
                                         Delete
@@ -327,7 +327,7 @@ const Tokens: React.FC = () => {
                     title="Token Information"
                 >
                     <Text copyable style={{ fontSize: 16, wordBreak: 'break-all' }}>{createdToken}</Text>
-                    <div style={{ marginTop: 12, color: '#faad14' }}>
+                    <div style={{ marginTop: 12, color: 'var(--color-warning)' }}>
                         <b>Note:</b> You cannot view the token again, please copy it!
                     </div>
                 </Modal>
@@ -342,7 +342,7 @@ const Tokens: React.FC = () => {
                     okButtonProps={{ danger: true }}
                 >
                     <p>Are you sure you want to delete the token <strong>"{deleteModal.tokenName}"</strong>?</p>
-                    <p style={{ color: '#ff4d4f', fontSize: 12 }}>
+                    <p style={{ color: 'var(--color-danger)', fontSize: 12 }}>
                         <strong>Warning:</strong> This action cannot be undone. Any client using this token will lose access.
                     </p>
                 </Modal>
@@ -371,20 +371,20 @@ const Tokens: React.FC = () => {
                             value={showGeneratedToken}
                             readOnly
                             autoSize={{ minRows: 2, maxRows: 4 }}
-                            style={{ 
-                                fontFamily: 'monospace', 
+                            style={{
+                                fontFamily: 'monospace',
                                 fontSize: 12,
-                                background: '#f6ffed',
-                                border: '1px solid #b7eb8f'
+                                background: 'var(--color-success-light)',
+                                border: '1px solid var(--color-success)'
                             }}
                         />
-                        <div style={{ 
-                            padding: 12, 
-                            background: '#e6fffb', 
-                            border: '1px solid #87e8de', 
-                            borderRadius: 6 
+                        <div style={{
+                            padding: 12,
+                            background: 'var(--color-info-light)',
+                            border: '1px solid var(--color-info)',
+                            borderRadius: 6
                         }}>
-                            <Text style={{ fontSize: 12, color: '#13c2c2' }}>
+                            <Text style={{ fontSize: 12, color: 'var(--color-info)' }}>
                                 <strong>Note:</strong> This token will be used by Kubernetes discovery agents to authenticate 
                                 and update endpoint configurations. The token format includes your project identifier for security.
                             </Text>

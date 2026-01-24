@@ -23,17 +23,18 @@ interface EdgeStyle {
 
 /**
  * Modern theme colors with professional gradients
+ * Uses CSS variables for dark mode support
  */
 export const ThemeColors = {
-    background: '#fafbfc',
-    backgroundSolid: '#ffffff',
+    background: 'var(--dependency-bg, #fafbfc)',
+    backgroundSolid: 'var(--bg-surface, #ffffff)',
 
     // Glass morphism effects
     glass: {
-        background: 'rgba(255, 255, 255, 0.92)',
+        background: 'var(--glass-bg, rgba(255, 255, 255, 0.92))',
         backdrop: 'blur(12px)',
-        border: 'rgba(0, 0, 0, 0.08)',
-        shadow: '0 8px 32px 0 rgba(31, 38, 135, 0.15)',
+        border: 'var(--glass-border, rgba(0, 0, 0, 0.08))',
+        shadow: 'var(--glass-shadow, 0 8px 32px 0 rgba(31, 38, 135, 0.15))',
     },
 
     // Node styles with gradients per category
@@ -137,7 +138,7 @@ export const ThemeColors = {
 
     // Edge styles
     edge: {
-        default: 'rgba(100, 116, 139, 0.5)',
+        default: 'var(--dependency-edge, rgba(100, 116, 139, 0.5))',
         highlighted: '#fbbf24',
         hover: '#3b82f6',
         animated: 'linear-gradient(90deg, #667eea 0%, #764ba2 50%, #667eea 100%)',

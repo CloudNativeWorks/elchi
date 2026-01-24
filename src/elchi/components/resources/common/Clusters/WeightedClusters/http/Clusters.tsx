@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { Col, Collapse, Divider, Row, Button, Drawer, Empty } from 'antd';
-import { DeleteTwoTone, ClusterOutlined } from "@ant-design/icons";
+import { Col, Collapse, Divider, Row, Button, Drawer, Empty, Popconfirm } from 'antd';
+import { DeleteOutlined, ClusterOutlined } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
 import { ActionType, ResourceType } from "@/redux/reducer-helpers/common";
 import { handleChangeResources } from '@/redux/dispatcher';
@@ -96,8 +96,8 @@ const CommonComponentWClusters: React.FC<GeneralProps> = ({ veri }) => {
 
             {!veri.reduxStore || veri.reduxStore.length === 0 ? (
                 <div style={{
-                    background: 'linear-gradient(135deg, rgba(248, 250, 252, 0.8) 0%, rgba(241, 245, 249, 0.9) 100%)',
-                    border: '2px dashed rgba(148, 163, 184, 0.3)',
+                    background: 'var(--bg-active)',
+                    border: '2px dashed var(--border-default)',
                     borderRadius: 16,
                     padding: '40px 20px',
                     textAlign: 'center',
@@ -106,11 +106,11 @@ const CommonComponentWClusters: React.FC<GeneralProps> = ({ veri }) => {
                     transition: 'all 0.3s ease',
                 }}>
                     <Empty
-                        image={<ClusterOutlined style={{ fontSize: 48, color: '#94a3b8' }} />}
+                        image={<ClusterOutlined style={{ fontSize: 48, color: 'var(--text-secondary)' }} />}
                         description={
                             <div style={{ marginTop: 16 }}>
                                 <h4 style={{
-                                    color: '#475569',
+                                    color: 'var(--text-primary)',
                                     marginBottom: 8,
                                     fontSize: 16,
                                     fontWeight: 500
@@ -118,7 +118,7 @@ const CommonComponentWClusters: React.FC<GeneralProps> = ({ veri }) => {
                                     No Weighted Clusters
                                 </h4>
                                 <p style={{
-                                    color: '#64748b',
+                                    color: 'var(--text-secondary)',
                                     margin: 0,
                                     fontSize: 14,
                                     lineHeight: 1.5
@@ -147,7 +147,7 @@ const CommonComponentWClusters: React.FC<GeneralProps> = ({ veri }) => {
                                 label: (
                                     <span style={{
                                         fontWeight: 500,
-                                        color: '#1e293b',
+                                        color: 'var(--text-primary)',
                                         fontSize: 14
                                     }}>
                                         {data.name || data.cluster_header}
@@ -157,93 +157,105 @@ const CommonComponentWClusters: React.FC<GeneralProps> = ({ veri }) => {
                                     <>
                                         <label style={{
                                             marginRight: 20,
-                                            color: '#64748b',
+                                            color: 'var(--text-secondary)',
                                             fontSize: 13,
                                             fontWeight: 500
                                         }}>
-                                            Weight: <span style={{ color: '#1e293b' }}>{data.weight || 'auto'}</span>
+                                            Weight: <span style={{ color: 'var(--text-primary)' }}>{data.weight || 'auto'}</span>
                                         </label>
-                                        <Button
-                                            key={"btn_ " + index.toString()}
-                                            icon={<DeleteTwoTone twoToneColor="#ef4444" />}
-                                            size='small'
-                                            onClick={(e) => { onRemove(e, index) }}
-                                            iconPosition={"end"}
-                                            style={{
-                                                borderRadius: 8,
-                                                border: '1px solid rgba(239, 68, 68, 0.2)',
-                                                background: 'rgba(254, 242, 242, 0.5)',
-                                            }}
-                                        />
+                                        <Popconfirm
+                                            title="Delete confirmation"
+                                            description="Are you sure you want to delete this item?"
+                                            onConfirm={(e) => { onRemove(e as React.MouseEvent<HTMLElement>, index) }}
+                                            okText="Yes"
+                                            cancelText="No"
+                                            placement="left"
+                                        >
+                                            <Button
+                                                key={"btn_ " + index.toString()}
+                                                type="text"
+                                                danger
+                                                icon={<DeleteOutlined style={{ color: 'var(--color-danger)' }} />}
+                                                size='small'
+                                                className="elchi-delete-button"
+                                                onClick={(e) => e.stopPropagation()}
+                                                iconPosition={"end"}
+                                                style={{
+                                                    borderRadius: 8,
+                                                    border: '1px solid var(--color-danger-border)',
+                                                    background: 'var(--color-danger-light)',
+                                                }}
+                                            />
+                                        </Popconfirm>
                                     </>,
                                 style: {
                                     marginBottom: 8,
                                     borderRadius: 12,
-                                    border: '1px solid rgba(226, 232, 240, 0.5)',
-                                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.8) 100%)',
+                                    border: '1px solid var(--border-default)',
+                                    background: 'var(--card-bg)',
                                     backdropFilter: 'blur(10px)',
                                 },
                                 children:
-                                <>
-                                    <Row>
-                                        <HorizonTags veri={{
-                                            tags: vTags.wccw?.WeightedCluster_ClusterWeight,
-                                            selectedTags: selectedTags[index],
-                                            unsupportedTags: modtag_us_wc['WeightedClusters'],
-                                            index: index,
-                                            handleChangeTag: handleChangeTag,
-                                            tagMatchPrefix: `${veri.tagMatchPrefix}.clusters`,
-                                            required: ["name", "cluster_header", "weight"],
-                                            onlyOneTag: [["name", "cluster_header"]],
-                                            specificTagPrefix: { 'host_rewrite_literal': 'host_rewrite_specifier' }
-                                        }} />
-                                        <Divider style={{ marginTop: '8px', marginBottom: '8px' }} type="horizontal" />
-                                        <Col md={24}>
-                                            <EForm>
-                                                <CommonComponentCluster veri={{
-                                                    version: veri.version,
-                                                    reduxStore: data?.name,
-                                                    tag: 'name',
-                                                    reduxAction: veri.reduxAction,
-                                                    keyPrefix: `${veri.keyPrefix}.${index}`,
-                                                    tagPrefix: '',
-                                                    size: 10,
-                                                    selectedTags: selectedTags[index]
-                                                }} />
-                                                <EFields
-                                                    fieldConfigs={fieldConfigs.filter(conf => !excludeFields.includes(conf.tag))}
-                                                    selectedTags={selectedTags[index]}
-                                                    handleChangeRedux={handleChangeRedux}
-                                                    reduxStore={data}
-                                                    keyPrefix={`${veri.keyPrefix}.${index}`}
-                                                    version={veri.version}
-                                                />
-                                            </EForm>
-                                        </Col>
-                                    </Row>
-                                    <Collapse accordion bordered={false} size="small"
-                                        style={{ width: '100%', marginBottom: 10, background: "#1890ff" }}
-                                        items={getCollapseItems([
-                                            {
-                                                reduxStore: {
-                                                    response_headers_to_remove: data.response_headers_to_remove,
-                                                    response_headers_to_add: data.response_headers_to_add,
-                                                    request_headers_to_remove: data.request_headers_to_remove,
-                                                    request_headers_to_add: data.request_headers_to_add,
-                                                },
-                                                version: veri.version,
-                                                reduxAction: veri.reduxAction,
+                                    <>
+                                        <Row>
+                                            <HorizonTags veri={{
+                                                tags: vTags.wccw?.WeightedCluster_ClusterWeight,
                                                 selectedTags: selectedTags[index],
-                                                componentName: 'Header Option',
-                                                component: CommonComponentHeaderOptions,
-                                                toJSON: vModels.wccw?.WeightedCluster_ClusterWeight.toJSON,
-                                                keyPrefix: `${veri.keyPrefix}.${index}`,
-                                                tagMatchPrefix: `${veri.tagMatchPrefix}`,
-                                                condition: selectedTags[index]?.some(item => headerOptionFields.includes(item)),
-                                            }
-                                        ])}
-                                    />
-                                </>
+                                                unsupportedTags: modtag_us_wc['WeightedClusters'],
+                                                index: index,
+                                                handleChangeTag: handleChangeTag,
+                                                tagMatchPrefix: `${veri.tagMatchPrefix}.clusters`,
+                                                required: ["name", "cluster_header", "weight"],
+                                                onlyOneTag: [["name", "cluster_header"]],
+                                                specificTagPrefix: { 'host_rewrite_literal': 'host_rewrite_specifier' }
+                                            }} />
+                                            <Divider style={{ marginTop: '8px', marginBottom: '8px' }} type="horizontal" />
+                                            <Col md={24}>
+                                                <EForm>
+                                                    <CommonComponentCluster veri={{
+                                                        version: veri.version,
+                                                        reduxStore: data?.name,
+                                                        tag: 'name',
+                                                        reduxAction: veri.reduxAction,
+                                                        keyPrefix: `${veri.keyPrefix}.${index}`,
+                                                        tagPrefix: '',
+                                                        size: 10,
+                                                        selectedTags: selectedTags[index]
+                                                    }} />
+                                                    <EFields
+                                                        fieldConfigs={fieldConfigs.filter(conf => !excludeFields.includes(conf.tag))}
+                                                        selectedTags={selectedTags[index]}
+                                                        handleChangeRedux={handleChangeRedux}
+                                                        reduxStore={data}
+                                                        keyPrefix={`${veri.keyPrefix}.${index}`}
+                                                        version={veri.version}
+                                                    />
+                                                </EForm>
+                                            </Col>
+                                        </Row>
+                                        <Collapse accordion bordered={false} size="small"
+                                            style={{ width: '100%', marginBottom: 10, background: "var(--gradient-primary)" }}
+                                            items={getCollapseItems([
+                                                {
+                                                    reduxStore: {
+                                                        response_headers_to_remove: data.response_headers_to_remove,
+                                                        response_headers_to_add: data.response_headers_to_add,
+                                                        request_headers_to_remove: data.request_headers_to_remove,
+                                                        request_headers_to_add: data.request_headers_to_add,
+                                                    },
+                                                    version: veri.version,
+                                                    reduxAction: veri.reduxAction,
+                                                    selectedTags: selectedTags[index],
+                                                    componentName: 'Header Option',
+                                                    component: CommonComponentHeaderOptions,
+                                                    toJSON: vModels.wccw?.WeightedCluster_ClusterWeight.toJSON,
+                                                    keyPrefix: `${veri.keyPrefix}.${index}`,
+                                                    tagMatchPrefix: `${veri.tagMatchPrefix}`,
+                                                    condition: selectedTags[index]?.some(item => headerOptionFields.includes(item)),
+                                                }
+                                            ])}
+                                        />
+                                    </>
                             })
                         )}
                 />

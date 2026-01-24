@@ -93,7 +93,7 @@ export const HeadOfResource = ({ generalName, version, changeGeneralName, locati
         <Card
             style={{
                 borderRadius: 12,
-                boxShadow: '0 2px 8px rgba(5,117,230,0.06)',
+                boxShadow: 'var(--shadow-sm)',
                 marginBottom: 24
             }}
             styles={{
@@ -104,15 +104,15 @@ export const HeadOfResource = ({ generalName, version, changeGeneralName, locati
                 <Col flex="1" style={{ paddingRight: 24 }}>
                     <div style={{ marginBottom: 16 }}>
                         <Space align="center">
-                            <FileTextOutlined style={{ color: '#1890ff', fontSize: 18 }} />
-                            <Title level={5} style={{ margin: 0, color: '#262626' }}>General</Title>
+                            <FileTextOutlined style={{ color: 'var(--color-primary)', fontSize: 18 }} />
+                            <Title level={5} style={{ margin: 0, color: 'var(--text-primary)' }}>General</Title>
                         </Space>
                     </div>
 
                     <Row gutter={[16, 12]}>
                         <Col span={8}>
                             <div>
-                                <Text style={{ fontSize: 12, fontWeight: 500, color: '#595959', display: 'block', marginBottom: 6 }}>
+                                <Text style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>
                                     Name <Text type="danger">*</Text>
                                 </Text>
                                 <Input
@@ -129,16 +129,16 @@ export const HeadOfResource = ({ generalName, version, changeGeneralName, locati
                         </Col>
                         <Col span={4}>
                             <div>
-                                <Text style={{ fontSize: 12, fontWeight: 500, color: '#595959', display: 'block', marginBottom: 6 }}>
+                                <Text style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>
                                     Version <Text type="danger">*</Text>
                                 </Text>
                                 <Input
                                     value={version}
                                     disabled
-                                    prefix={<CodeOutlined style={{ color: '#bfbfbf', fontSize: 14 }} />}
+                                    prefix={<CodeOutlined style={{ color: 'var(--text-tertiary)', fontSize: 14 }} />}
                                     style={{
                                         borderRadius: 6,
-                                        backgroundColor: '#fafafa',
+                                        backgroundColor: 'var(--bg-disabled)',
                                         fontSize: 14
                                     }}
                                 />
@@ -147,7 +147,7 @@ export const HeadOfResource = ({ generalName, version, changeGeneralName, locati
                         {isEndpointType && (
                             <Col span={4}>
                                 <div>
-                                    <Text style={{ fontSize: 12, fontWeight: 500, color: '#595959', display: 'block', marginBottom: 6 }}>
+                                    <Text style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>
                                         Discovery
                                     </Text>
                                     <Button
@@ -157,9 +157,9 @@ export const HeadOfResource = ({ generalName, version, changeGeneralName, locati
                                             width: '100%',
                                             borderRadius: 6,
                                             height: 32,
-                                            backgroundColor: discoveryData.length > 0 ? '#e6f7ff' : undefined,
-                                            borderColor: discoveryData.length > 0 ? '#1890ff' : undefined,
-                                            color: discoveryData.length > 0 ? '#1890ff' : undefined
+                                            backgroundColor: discoveryData.length > 0 ? 'var(--color-primary-light)' : 'var(--bg-surface)',
+                                            borderColor: discoveryData.length > 0 ? 'var(--color-primary)' : 'var(--border-default)',
+                                            color: discoveryData.length > 0 ? 'var(--color-primary)' : 'var(--text-primary)'
                                         }}
                                     >
                                         {discoveryData.length > 0 ? `${discoveryData.length} Clusters` : 'Configure Discovery'}
@@ -170,7 +170,7 @@ export const HeadOfResource = ({ generalName, version, changeGeneralName, locati
                         {isWasmType && wafConfigs && changeWafConfig && (
                             <Col span={6}>
                                 <div>
-                                    <Text style={{ fontSize: 12, fontWeight: 500, color: '#595959', display: 'block', marginBottom: 6 }}>
+                                    <Text style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>
                                         WAF Profile
                                     </Text>
                                     <Select
@@ -200,7 +200,7 @@ export const HeadOfResource = ({ generalName, version, changeGeneralName, locati
                         {createUpdate.gtype === "envoy.config.bootstrap.v3.Bootstrap" && (
                             <Col span={4}>
                                 <div>
-                                    <Text style={{ fontSize: 12, fontWeight: 500, color: '#595959', display: 'block', marginBottom: 6 }}>
+                                    <Text style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>
                                         Documentation
                                     </Text>
                                     <Button
@@ -220,12 +220,12 @@ export const HeadOfResource = ({ generalName, version, changeGeneralName, locati
                         {managed !== undefined && (
                             <Col span={4}>
                                 <div>
-                                    <Text style={{ fontSize: 12, fontWeight: 500, color: '#595959', display: 'block', marginBottom: 6 }}>
+                                    <Text style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>
                                         Managed <Text type="danger">*</Text>
                                     </Text>
                                     <div style={{
-                                        background: managed ? '#e6f7ff' : '#f5f5f5',
-                                        border: `1px solid ${managed ? '#91d5ff' : '#d9d9d9'}`,
+                                        background: managed ? 'var(--color-primary-light)' : 'var(--bg-active)',
+                                        border: `1px solid ${managed ? 'var(--color-primary-border)' : 'var(--border-default)'}`,
                                         borderRadius: 6,
                                         padding: '4px 12px',
                                         display: 'flex',
@@ -234,7 +234,7 @@ export const HeadOfResource = ({ generalName, version, changeGeneralName, locati
                                         height: 32,
                                         fontSize: 14
                                     }}>
-                                        <Text style={{ fontSize: 13, color: managed ? '#096dd9' : '#595959' }}>
+                                        <Text style={{ fontSize: 13, color: managed ? 'var(--color-primary)' : 'var(--text-secondary)' }}>
                                             {managed ? 'Yes' : 'No'}
                                         </Text>
                                         <Switch
@@ -251,16 +251,16 @@ export const HeadOfResource = ({ generalName, version, changeGeneralName, locati
                             <Col span={4}>
                                 <div>
                                     <Space style={{ marginBottom: 6 }}>
-                                        <Text style={{ fontSize: 12, fontWeight: 500, color: '#595959' }}>
+                                        <Text style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)' }}>
                                             Validate
                                         </Text>
                                         <Tooltip title={validate}>
-                                            <InfoCircleOutlined style={{ color: '#8c8c8c', fontSize: 12 }} />
+                                            <InfoCircleOutlined style={{ color: 'var(--text-tertiary)', fontSize: 12 }} />
                                         </Tooltip>
                                     </Space>
                                     <div style={{
-                                        background: validateEnabled ? '#e6f7ff' : '#f5f5f5',
-                                        border: `1px solid ${validateEnabled ? '#91d5ff' : '#d9d9d9'}`,
+                                        background: validateEnabled ? 'var(--color-primary-light)' : 'var(--bg-active)',
+                                        border: `1px solid ${validateEnabled ? 'var(--color-primary-border)' : 'var(--border-default)'}`,
                                         borderRadius: 6,
                                         padding: '4px 12px',
                                         display: 'flex',
@@ -270,8 +270,8 @@ export const HeadOfResource = ({ generalName, version, changeGeneralName, locati
                                         fontSize: 14
                                     }}>
                                         <Space size={4}>
-                                            {validateEnabled && <CheckCircleOutlined style={{ color: '#52c41a', fontSize: 12 }} />}
-                                            <Text style={{ fontSize: 13, color: validateEnabled ? '#096dd9' : '#595959' }}>
+                                            {validateEnabled && <CheckCircleOutlined style={{ color: 'var(--color-success)', fontSize: 12 }} />}
+                                            <Text style={{ fontSize: 13, color: validateEnabled ? 'var(--color-primary)' : 'var(--text-secondary)' }}>
                                                 {validateEnabled ? 'Enabled' : 'Disabled'}
                                             </Text>
                                         </Space>
@@ -288,7 +288,7 @@ export const HeadOfResource = ({ generalName, version, changeGeneralName, locati
                         )}
                         <Col span={4}>
                             <div>
-                                <Text style={{ fontSize: 12, fontWeight: 500, color: '#595959', display: 'block', marginBottom: 6 }}>
+                                <Text style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>
                                     Template
                                 </Text>
                                 <Button
@@ -309,7 +309,7 @@ export const HeadOfResource = ({ generalName, version, changeGeneralName, locati
 
                 <Col>
                     <div style={{
-                        borderLeft: '1px solid #f0f0f0',
+                        borderLeft: '1px solid var(--border-default)',
                         paddingLeft: 20,
                         height: 100,
                         display: 'flex',

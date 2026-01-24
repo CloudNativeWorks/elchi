@@ -18,7 +18,7 @@ export const WidgetContainer: React.FC<WidgetContainerProps> = ({
   const containerClass = `${styles.widgetContainer} ${styles[size]} ${className}`;
 
   const containerStyle: React.CSSProperties = gradient
-    ? { background: gradient, color: 'white' }
+    ? { background: gradient, color: 'var(--text-on-primary)' }
     : {};
 
   if (error) {

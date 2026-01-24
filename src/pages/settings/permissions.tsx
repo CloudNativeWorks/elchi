@@ -117,8 +117,8 @@ const Permission: React.FC<GeneralProps> = ({ kind, userOrGroupID, onPermissions
     return (
         <Card
             style={{
-                background: '#fafafa',
-                border: '1px solid #e8f4ff',
+                background: 'var(--bg-elevated)',
+                border: '1px solid var(--border-default)',
                 borderRadius: 8,
                 margin: 0
             }}
@@ -136,7 +136,7 @@ const Permission: React.FC<GeneralProps> = ({ kind, userOrGroupID, onPermissions
                     <Badge 
                         count={`${selectedCount}/${totalCount}`} 
                         style={{ 
-                            backgroundColor: selectedCount > 0 ? '#52c41a' : '#d9d9d9',
+                            backgroundColor: selectedCount > 0 ? 'var(--color-success)' : 'var(--text-disabled)',
                             color: selectedCount > 0 ? '#fff' : '#666'
                         }} 
                     />
@@ -154,7 +154,7 @@ const Permission: React.FC<GeneralProps> = ({ kind, userOrGroupID, onPermissions
                                 {kinds.find(k => k.value === option.value)?.icon}
                                 <div>
                                     <div style={{ fontWeight: 500 }}>{option.label}</div>
-                                    <div style={{ fontSize: 12, color: '#666' }}>
+                                    <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>
                                         {kinds.find(k => k.value === option.value)?.description}
                                     </div>
                                 </div>
@@ -202,7 +202,7 @@ const Permission: React.FC<GeneralProps> = ({ kind, userOrGroupID, onPermissions
                         render={item => (
                             <div style={{ padding: '4px 0' }}>
                                 <div style={{ fontWeight: 500, fontSize: 13 }}>{item.title}</div>
-                                <div style={{ fontSize: 11, color: '#999' }}>v{item.description}</div>
+                                <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>v{item.description}</div>
                             </div>
                         )}
                         listStyle={{
@@ -225,14 +225,14 @@ const Permission: React.FC<GeneralProps> = ({ kind, userOrGroupID, onPermissions
             </div>
 
             {selectedCount > 0 && (
-                <div style={{ 
-                    marginTop: 16, 
-                    padding: '12px 16px', 
-                    background: '#e6f7ff', 
-                    border: '1px solid #91d5ff',
+                <div style={{
+                    marginTop: 16,
+                    padding: '12px 16px',
+                    background: 'var(--color-primary-bg)',
+                    border: '1px solid var(--color-primary-border)',
                     borderRadius: 6
                 }}>
-                    <Text style={{ fontSize: 12, color: '#1890ff' }}>
+                    <Text style={{ fontSize: 12, color: 'var(--color-primary)' }}>
                         <strong>Summary:</strong> {selectedCount} {activeKind?.label.toLowerCase()} resource{selectedCount !== 1 ? 's' : ''} will be accessible to this user.
                     </Text>
                 </div>

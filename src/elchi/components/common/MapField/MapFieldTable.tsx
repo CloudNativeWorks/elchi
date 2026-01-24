@@ -185,7 +185,7 @@ const MapFieldTable: React.FC<MapFieldProps> = ({
         if (valueType !== 'component' || !ValueComponent) return null;
 
         return (
-            <div style={{ padding: '0px', background: '#fafafa' }}>
+            <div style={{ padding: '0px', background: 'var(--bg-elevated)' }}>
                 <ValueComponent
                     veri={{
                         version: version,

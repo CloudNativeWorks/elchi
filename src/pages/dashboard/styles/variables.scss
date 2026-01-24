@@ -1,47 +1,48 @@
 /**
  * SCSS Variables
  * Design tokens for the space command center dashboard
+ * Now using CSS custom properties for dark mode support
  */
 
-// Colors - Space Command Center Palette
-$color-primary: #0a7fda;
-$color-accent: #00c6fb;
+// Colors - Space Command Center Palette (Using CSS Variables)
+$color-primary: var(--color-primary);
+$color-accent: var(--color-accent);
 
-$color-success: #10b981;
-$color-warning: #f59e0b;
-$color-danger: #ef4444;
-$color-info: #06b6d4;
+$color-success: var(--color-success);
+$color-warning: var(--color-warning);
+$color-danger: var(--color-danger);
+$color-info: var(--color-info);
 
-$color-purple: #8b5cf6;
-$color-indigo: #6366f1;
-$color-pink: #ec4899;
-$color-gray: #6b7280;
+$color-purple: var(--color-purple);
+$color-indigo: var(--color-indigo);
+$color-pink: var(--color-pink);
+$color-gray: var(--text-secondary);
 
-// Background Colors
-$bg-light: #f8fafc;
-$bg-surface: #ffffff;
-$bg-glass: rgba(255, 255, 255, 0.95);
-$bg-glass-hover: rgba(255, 255, 255, 0.98);
+// Background Colors (Using CSS Variables)
+$bg-light: var(--bg-body);
+$bg-surface: var(--bg-surface);
+$bg-glass: var(--bg-glass);
+$bg-glass-hover: var(--bg-glass-hover);
 
-// Border Colors
-$border-light: rgba(255, 255, 255, 0.3);
-$border-gray: #e5e7eb;
+// Border Colors (Using CSS Variables)
+$border-light: var(--border-light);
+$border-gray: var(--border-default);
 
-// Text Colors
-$text-primary: #111827;
-$text-secondary: #6b7280;
-$text-tertiary: #9ca3af;
-$text-white: #ffffff;
+// Text Colors (Using CSS Variables)
+$text-primary: var(--text-primary);
+$text-secondary: var(--text-secondary);
+$text-tertiary: var(--text-tertiary);
+$text-white: var(--text-on-primary);
 
-// Gradients
-$gradient-primary: linear-gradient(135deg, #056ccd 0%, #00c6fb 100%);
-$gradient-success: linear-gradient(135deg, #10b981 0%, #34d399 100%);
-$gradient-warning: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
-$gradient-danger: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
-$gradient-info: linear-gradient(135deg, #06b6d4 0%, #22d3ee 100%);
-$gradient-purple: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
-$gradient-indigo: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
-$gradient-background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+// Gradients (Using CSS Variables for theme support)
+$gradient-primary: var(--gradient-primary);
+$gradient-success: var(--gradient-success);
+$gradient-warning: var(--gradient-warning);
+$gradient-danger: var(--gradient-danger);
+$gradient-info: var(--gradient-info);
+$gradient-purple: linear-gradient(135deg, var(--color-purple) 0%, var(--color-purple-light, rgba(167, 139, 250, 0.8)) 100%);
+$gradient-indigo: linear-gradient(135deg, var(--color-indigo) 0%, var(--color-indigo-light, rgba(129, 140, 248, 0.8)) 100%);
+$gradient-background: var(--gradient-background);
 
 // Typography
 $font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -74,12 +75,12 @@ $radius-lg: 16px;
 $radius-xl: 20px;
 $radius-full: 9999px;
 
-// Shadows
-$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-$shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-$shadow-glass: 0 8px 32px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+// Shadows (Using CSS Variables)
+$shadow-sm: var(--shadow-sm);
+$shadow-md: var(--shadow-md);
+$shadow-lg: var(--shadow-lg);
+$shadow-xl: var(--shadow-xl);
+$shadow-glass: var(--glass-shadow, 0 8px 32px var(--shadow-color));
 
 // Transitions
 $transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -124,10 +125,10 @@ $z-tooltip: 1070;
 // Pulse Animation
 @keyframes pulse-glow {
   0%, 100% {
-    box-shadow: 0 0 10px rgba(10, 127, 218, 0.3);
+    box-shadow: 0 0 10px var(--shadow-primary-color);
   }
   50% {
-    box-shadow: 0 0 20px rgba(10, 127, 218, 0.6);
+    box-shadow: 0 0 20px var(--shadow-primary-color-hover);
   }
 }
 
@@ -205,15 +206,15 @@ $z-tooltip: 1070;
   }
 
   &::-webkit-scrollbar-track {
-    background: transparent;
+    background: var(--scrollbar-track);
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--scrollbar-thumb);
     border-radius: $radius-full;
 
     &:hover {
-      background: rgba(0, 0, 0, 0.3);
+      background: var(--scrollbar-thumb-hover);
     }
   }
 }

@@ -6,13 +6,14 @@ export const renderStatusBadge = (clients: any[], statusData: any[] | null, envo
                 display: 'flex',
                 alignItems: 'center',
                 gap: 6,
-                background: '#f5f5f5',
-                color: '#bfbfbf',
+                background: 'var(--bg-surface)',
+                color: 'var(--text-tertiary)',
                 borderRadius: 8,
                 padding: '4px 14px',
                 fontWeight: 700,
                 fontSize: 15,
-                boxShadow: '0 1px 4px rgba(191,191,191,0.08)',
+                boxShadow: 'var(--shadow-sm)',
+                border: '1px solid var(--border-default)',
                 marginLeft: 16
             }}>
                 Not Deployed
@@ -31,12 +32,12 @@ export const renderStatusBadge = (clients: any[], statusData: any[] | null, envo
 
         if (runningCount === all.length && respondedClients === totalClients) {
             // All clients responded and all are running
-            return renderStatusIndicator('Live', '#f6ffed', '#389e0d', '#52c41a', true);
+            return renderStatusIndicator('Live', 'var(--color-success-light)', 'var(--color-success)', 'var(--color-success)', true);
         } else if (runningCount > 0 || respondedClients < totalClients) {
             // Some running OR some clients didn't respond
-            return renderStatusIndicator('Partial', '#fffbe6', '#faad14', '#faad14', true);
+            return renderStatusIndicator('Partial', 'var(--color-warning-light)', 'var(--color-warning)', 'var(--color-warning)', true);
         } else {
-            return renderStatusIndicator('Offline', '#fff1f0', '#ff4d4f', '#ff4d4f', false);
+            return renderStatusIndicator('Offline', 'var(--color-danger-light)', 'var(--color-danger)', 'var(--color-danger)', false);
         }
     }
 
@@ -46,11 +47,11 @@ export const renderStatusBadge = (clients: any[], statusData: any[] | null, envo
         const totalCount = envoysData.envoys.length;
 
         if (connectedCount === totalCount && totalCount > 0) {
-            return renderStatusIndicator('Live', '#f6ffed', '#389e0d', '#52c41a', true);
+            return renderStatusIndicator('Live', 'var(--color-success-light)', 'var(--color-success)', 'var(--color-success)', true);
         } else if (connectedCount > 0) {
-            return renderStatusIndicator('Partial', '#fffbe6', '#faad14', '#faad14', true);
+            return renderStatusIndicator('Partial', 'var(--color-warning-light)', 'var(--color-warning)', 'var(--color-warning)', true);
         } else {
-            return renderStatusIndicator('Offline', '#fff1f0', '#ff4d4f', '#ff4d4f', false);
+            return renderStatusIndicator('Offline', 'var(--color-danger-light)', 'var(--color-danger)', 'var(--color-danger)', false);
         }
     }
 
@@ -58,11 +59,11 @@ export const renderStatusBadge = (clients: any[], statusData: any[] | null, envo
     if (envoysData?.status) {
         const status = envoysData.status.toLowerCase();
         if (status === 'live') {
-            return renderStatusIndicator('Live', '#f6ffed', '#389e0d', '#52c41a', true);
+            return renderStatusIndicator('Live', 'var(--color-success-light)', 'var(--color-success)', 'var(--color-success)', true);
         } else if (status === 'partial') {
-            return renderStatusIndicator('Partial', '#fffbe6', '#faad14', '#faad14', true);
+            return renderStatusIndicator('Partial', 'var(--color-warning-light)', 'var(--color-warning)', 'var(--color-warning)', true);
         } else if (status === 'offline') {
-            return renderStatusIndicator('Offline', '#fff1f0', '#ff4d4f', '#ff4d4f', false);
+            return renderStatusIndicator('Offline', 'var(--color-danger-light)', 'var(--color-danger)', 'var(--color-danger)', false);
         }
     }
 

@@ -13,9 +13,11 @@ import {
 import { MetricCard } from './MetricCard';
 import { useQuickMetrics } from '../../hooks/useQuickMetrics';
 import styles from './styles.module.scss';
+import { useChartTheme } from '@/utils/chartTheme';
 
 export const QuickMetrics: React.FC = () => {
   const { metrics, loading } = useQuickMetrics();
+  const { theme: chartTheme } = useChartTheme();
 
   if (loading) {
     return (
@@ -38,7 +40,7 @@ export const QuickMetrics: React.FC = () => {
           icon={<ApiOutlined />}
           trend={metrics.activeConnections.trend}
           type="number"
-          color="#0a7fda"
+          color={chartTheme.seriesColors[0]}
         />
         <MetricCard
           title="Error Rate"
@@ -46,7 +48,7 @@ export const QuickMetrics: React.FC = () => {
           icon={<WarningOutlined />}
           trend={metrics.errorRate.trend}
           type="number"
-          color="#ef4444"
+          color={chartTheme.dangerColor}
         />
         <MetricCard
           title="Avg Response Time"
@@ -54,7 +56,7 @@ export const QuickMetrics: React.FC = () => {
           icon={<ClockCircleOutlined />}
           trend={metrics.avgResponseTime.trend}
           type="number"
-          color="#f59e0b"
+          color={chartTheme.warningColor}
         />
         <MetricCard
           title="Healthy Clusters"
@@ -62,7 +64,7 @@ export const QuickMetrics: React.FC = () => {
           icon={<ClusterOutlined />}
           trend={metrics.healthyClusters.trend}
           type="percentage"
-          color="#10b981"
+          color={chartTheme.successColor}
         />
       </div>
     </div>

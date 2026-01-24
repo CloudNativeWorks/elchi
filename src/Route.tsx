@@ -39,6 +39,9 @@ import AuditDetail from './pages/audit/AuditDetail';
 import Search from './pages/Search';
 import WafList from './pages/waf/WafList';
 import WafDetail from './pages/waf/WafDetail';
+import GslbList from './pages/gslb/GslbList';
+import GslbDetail from './pages/gslb/GslbDetail';
+import GslbStatistics from './pages/gslb/GslbStatistics';
 import CertificateList from './pages/acme/CertificateList';
 import CertificateDetail from './pages/acme/CertificateDetail';
 import DnsCredentialDetail from './pages/acme/DnsCredentialDetail';
@@ -134,6 +137,12 @@ const AppRoutes: React.FC = () => (
                 {/* WAF Routes */}
                 <Route path="/waf" element={<WafList />} />
                 <Route path="/waf/:id" element={<WafDetail />} />
+
+                {/* GSLB Routes */}
+                <Route path="/gslb" element={<GslbList />} />
+                <Route path="/gslb/statistics" element={<GslbStatistics />} />
+                <Route path="/gslb/create" element={<GslbDetail />} />
+                <Route path="/gslb/:id" element={<GslbDetail />} />
 
                 {/* ACME Certificate Routes */}
                 <Route path="/acme" element={<CertificateList />} />

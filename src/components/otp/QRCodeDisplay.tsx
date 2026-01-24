@@ -20,14 +20,14 @@ export const QRCodeDisplay: React.FC<QRCodeDisplayProps> = ({ qrCode, secret }) 
     return (
         <Card
             style={{
-                background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-                border: '1px solid #e8edf2',
+                background: 'var(--card-bg)',
+                border: '1px solid var(--border-default)',
                 borderRadius: 12
             }}
         >
             <Space direction="vertical" align="center" style={{ width: '100%' }} size="large">
                 <div style={{ textAlign: 'center' }}>
-                    <QrcodeOutlined style={{ fontSize: 24, color: '#056ccd', marginBottom: 8 }} />
+                    <QrcodeOutlined style={{ fontSize: 24, color: 'var(--color-primary)', marginBottom: 8 }} />
                     <Title level={4} style={{ margin: 0 }}>Scan QR Code</Title>
                     <Text type="secondary" style={{ fontSize: 13 }}>
                         Use Google Authenticator, Authy, or any TOTP app
@@ -37,9 +37,9 @@ export const QRCodeDisplay: React.FC<QRCodeDisplayProps> = ({ qrCode, secret }) 
                 <div
                     style={{
                         padding: 16,
-                        background: '#fff',
+                        background: 'var(--card-bg)',
                         borderRadius: 12,
-                        border: '2px solid #e8edf2',
+                        border: '2px solid var(--border-default)',
                         display: 'inline-block'
                     }}
                 >
@@ -79,17 +79,17 @@ export const QRCodeDisplay: React.FC<QRCodeDisplayProps> = ({ qrCode, secret }) 
                 </div>
 
                 <Paragraph
-                    type="warning"
                     style={{
-                        background: 'rgba(250, 173, 20, 0.1)',
-                        border: '1px solid rgba(250, 173, 20, 0.3)',
+                        background: 'var(--color-warning-light)',
+                        border: '1px solid var(--color-warning-border)',
+                        color: 'var(--text-primary)',
                         borderRadius: 8,
                         padding: 12,
                         margin: '8px 0 0 0',
                         fontSize: 12
                     }}
                 >
-                    <strong>Important:</strong> Keep your secret key safe. Don't share it with anyone.
+                    <strong style={{ color: 'var(--color-warning)' }}>Important:</strong> Keep your secret key safe. Don't share it with anyone.
                 </Paragraph>
             </Space>
         </Card>

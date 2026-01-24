@@ -192,9 +192,9 @@ const AcmeAccountsList: React.FC = () => {
   return (
     <div
       style={{
-        background: 'white',
+        background: 'var(--card-bg)',
         borderRadius: 12,
-        border: '1px solid #e5e7eb',
+        border: '1px solid var(--border-default)',
         boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
         overflow: 'hidden',
         marginBottom: 16
@@ -202,14 +202,14 @@ const AcmeAccountsList: React.FC = () => {
     >
       {/* Header */}
       <div style={{
-        background: '#f9fafb',
-        borderBottom: '1px solid #e5e7eb',
+        background: 'var(--bg-surface)',
+        borderBottom: '1px solid var(--border-default)',
         padding: '12px 16px',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center'
       }}>
-        <Text strong style={{ fontSize: 16, color: '#111827' }}>ACME Accounts</Text>
+        <Text strong style={{ fontSize: 16, color: 'var(--text-primary)' }}>ACME Accounts</Text>
         <Space>
           <Select
             value={selectedCAProvider}

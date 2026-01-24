@@ -53,13 +53,13 @@ export const DynamicLogAnalysisRenderer: React.FC<{ analysisResult: any }> = ({ 
             marginBottom: 16,
             marginLeft: indent,
             borderRadius: 8,
-            border: '1px solid #f0f0f0',
-            borderLeft: '4px solid #1890ff'
+            border: '1px solid var(--border-default)',
+            borderLeft: '4px solid var(--color-primary)'
           }}
           styles={{ body: { padding: 16 } }}
         >
           <Space style={{ marginBottom: 12 }}>
-            <InfoCircleOutlined style={{ color: '#1890ff' }} />
+            <InfoCircleOutlined style={{ color: 'var(--color-primary)' }} />
             <Typography.Title level={5} style={{ margin: 0, textTransform: 'capitalize' }}>
               {key.replace(/_/g, ' ')}
             </Typography.Title>
@@ -77,8 +77,8 @@ export const DynamicLogAnalysisRenderer: React.FC<{ analysisResult: any }> = ({ 
                     <Typography.Text
                       code
                       style={{
-                        backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                        color: '#d63384',
+                        backgroundColor: 'var(--code-inline-bg)',
+                        color: 'var(--code-inline-color)',
                         padding: '2px 6px',
                         borderRadius: 4,
                         fontSize: 13
@@ -96,8 +96,8 @@ export const DynamicLogAnalysisRenderer: React.FC<{ analysisResult: any }> = ({ 
                         position: 'absolute',
                         top: 8,
                         right: 8,
-                        background: 'rgba(0, 0, 0, 0.7)',
-                        color: '#fff',
+                        background: 'var(--code-block-bg)',
+                        color: 'var(--code-block-color)',
                         padding: '2px 8px',
                         borderRadius: 4,
                         fontSize: 12,
@@ -107,11 +107,11 @@ export const DynamicLogAnalysisRenderer: React.FC<{ analysisResult: any }> = ({ 
                       </div>
                     )}
                     <pre style={{
-                      backgroundColor: '#f6f8fa',
+                      backgroundColor: 'var(--code-bg)',
                       padding: 16,
                       borderRadius: 8,
                       overflow: 'auto',
-                      border: '1px solid #e1e4e8',
+                      border: '1px solid var(--code-border)',
                       fontSize: 13,
                       margin: 0,
                       fontFamily: 'SFMono-Regular, Monaco, Consolas, monospace',
@@ -127,7 +127,7 @@ export const DynamicLogAnalysisRenderer: React.FC<{ analysisResult: any }> = ({ 
                   <table style={{ 
                     width: '100%', 
                     borderCollapse: 'collapse',
-                    border: '1px solid #d9d9d9',
+                    border: '1px solid var(--border-default)',
                     fontSize: 13
                   }}>
                     {children}
@@ -137,8 +137,8 @@ export const DynamicLogAnalysisRenderer: React.FC<{ analysisResult: any }> = ({ 
               th: ({ children }) => (
                 <th style={{ 
                   padding: '8px 12px', 
-                  background: '#fafafa', 
-                  border: '1px solid #d9d9d9',
+                  background: 'var(--bg-elevated)', 
+                  border: '1px solid var(--border-default)',
                   textAlign: 'left',
                   fontWeight: 600
                 }}>
@@ -148,7 +148,7 @@ export const DynamicLogAnalysisRenderer: React.FC<{ analysisResult: any }> = ({ 
               td: ({ children }) => (
                 <td style={{ 
                   padding: '8px 12px', 
-                  border: '1px solid #d9d9d9',
+                  border: '1px solid var(--border-default)',
                   verticalAlign: 'top'
                 }}>
                   {children}
@@ -170,8 +170,8 @@ export const DynamicLogAnalysisRenderer: React.FC<{ analysisResult: any }> = ({ 
             marginBottom: 16,
             marginLeft: indent,
             borderRadius: 8,
-            border: '1px solid #f0f0f0',
-            borderLeft: '4px solid #52c41a'
+            border: '1px solid var(--border-default)',
+            borderLeft: '4px solid var(--color-success)'
           }}
           styles={{ body: { padding: 16 } }}
         >
@@ -184,7 +184,7 @@ export const DynamicLogAnalysisRenderer: React.FC<{ analysisResult: any }> = ({ 
           <List
             dataSource={value}
             renderItem={(item, index) => (
-              <List.Item style={{ borderBottom: index === value.length - 1 ? 'none' : '1px solid #f0f0f0' }}>
+              <List.Item style={{ borderBottom: index === value.length - 1 ? 'none' : '1px solid var(--border-default)' }}>
                 {typeof item === 'string' ? (
                   <Typography.Text>{item}</Typography.Text>
                 ) : (
@@ -209,8 +209,8 @@ export const DynamicLogAnalysisRenderer: React.FC<{ analysisResult: any }> = ({ 
             marginBottom: 16,
             marginLeft: indent,
             borderRadius: 8,
-            border: '1px solid #f0f0f0',
-            borderLeft: '4px solid #722ed1'
+            border: '1px solid var(--border-default)',
+            borderLeft: '4px solid var(--color-purple)'
           }}
           styles={{ body: { padding: 16 } }}
         >
@@ -304,9 +304,9 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
 
   const getSectionIcon = (type: string) => {
     switch (type) {
-      case 'summary': return <InfoCircleOutlined style={{ color: '#1890ff' }} />;
+      case 'summary': return <InfoCircleOutlined style={{ color: 'var(--color-primary)' }} />;
       case 'errors': return <WarningOutlined style={{ color: '#ff4d4f' }} />;
-      case 'analysis': return <BulbOutlined style={{ color: '#1890ff' }} />;
+      case 'analysis': return <BulbOutlined style={{ color: 'var(--color-primary)' }} />;
       case 'root_cause': return <InfoCircleOutlined style={{ color: '#fa541c' }} />;
       case 'solutions': return <CheckCircleOutlined style={{ color: '#52c41a' }} />;
       case 'monitoring': return <InfoCircleOutlined style={{ color: '#13c2c2' }} />;
@@ -315,7 +315,7 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
       case 'yaml': return <InfoCircleOutlined style={{ color: '#13c2c2' }} />;
       case 'suggestions': return <BulbOutlined style={{ color: '#722ed1' }} />;
       case 'warnings': return <WarningOutlined style={{ color: '#fa8c16' }} />;
-      default: return <InfoCircleOutlined style={{ color: '#8c8c8c' }} />;
+      default: return <InfoCircleOutlined style={{ color: 'var(--text-secondary)' }} />;
     }
   };
 
@@ -325,26 +325,26 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
       marginBottom: 16,
       overflow: 'hidden',
       boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
-      border: '1px solid #f0f0f0',
+      border: '1px solid var(--border-default)',
       position: 'relative' as const,
-      background: '#ffffff'
+      background: 'var(--card-bg)'
     };
 
     const borderColors = {
-      summary: '#1890ff',
-      errors: '#ff4d4f',
-      analysis: '#1890ff',
-      root_cause: '#fa541c',
-      solutions: '#52c41a',
-      monitoring: '#13c2c2',
-      next_steps: '#722ed1',
-      answer: '#52c41a',
-      yaml: '#13c2c2', 
-      suggestions: '#722ed1',
-      warnings: '#fa8c16'
+      summary: 'var(--color-primary)',
+      errors: 'var(--color-danger)',
+      analysis: 'var(--color-primary)',
+      root_cause: 'var(--color-danger)',
+      solutions: 'var(--color-success)',
+      monitoring: 'var(--color-cyan)',
+      next_steps: 'var(--color-purple)',
+      answer: 'var(--color-success)',
+      yaml: 'var(--color-cyan)',
+      suggestions: 'var(--color-purple)',
+      warnings: 'var(--color-warning)'
     };
 
-    const borderColor = borderColors[type] || '#d9d9d9';
+    const borderColor = borderColors[type] || 'var(--border-default)';
 
     return { 
       ...baseStyle,
@@ -357,17 +357,17 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
     return (
       <Card
         style={{
-          background: '#ffffff',
+          background: 'var(--card-bg)',
           borderRadius: 12,
-          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
-          border: '1px solid #f0f0f0',
-          borderLeft: '4px solid #1890ff'
+          boxShadow: 'var(--shadow-sm)',
+          border: '1px solid var(--border-default)',
+          borderLeft: '4px solid var(--color-primary)'
         }}
         styles={{ body: { padding: 20 } }}
       >
         <Space style={{ marginBottom: 16 }}>
-          <BulbOutlined style={{ color: '#1890ff' }} />
-          <Typography.Title level={4} style={{ margin: 0, color: '#262626' }}>
+          <BulbOutlined style={{ color: 'var(--color-primary)' }} />
+          <Typography.Title level={4} style={{ margin: 0, color: 'var(--text-primary)' }}>
             AI Analysis
           </Typography.Title>
         </Space>
@@ -449,7 +449,7 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
             {getSectionIcon(section.type)}
             <Typography.Title level={4} style={{ 
               margin: 0, 
-              color: '#262626'
+              color: 'var(--text-primary)'
             }}>
               {section.title}
             </Typography.Title>
@@ -467,8 +467,8 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
                     <Typography.Text
                       code
                       style={{
-                        backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                        color: '#d63384',
+                        backgroundColor: 'var(--code-inline-bg)',
+                        color: 'var(--code-inline-color)',
                         padding: '2px 6px',
                         borderRadius: 4,
                         fontSize: 13
@@ -486,8 +486,8 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
                         position: 'absolute',
                         top: 8,
                         right: 8,
-                        background: 'rgba(0, 0, 0, 0.7)',
-                        color: '#fff',
+                        background: 'var(--code-block-bg)',
+                        color: 'var(--code-block-color)',
                         padding: '2px 8px',
                         borderRadius: 4,
                         fontSize: 12,
@@ -497,11 +497,11 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
                       </div>
                     )}
                     <pre style={{
-                      backgroundColor: '#f6f8fa',
+                      backgroundColor: 'var(--code-bg)',
                       padding: 16,
                       borderRadius: 8,
                       overflow: 'auto',
-                      border: '1px solid #e1e4e8',
+                      border: '1px solid var(--code-border)',
                       fontSize: 13,
                       margin: 0,
                       fontFamily: 'SFMono-Regular, Monaco, Consolas, monospace',
@@ -673,7 +673,7 @@ const AIConfigAnalyzer: React.FC = () => {
 
   return (
     <div style={{ width: '100%', margin: '3px auto', padding: 0 }}>
-      <Card style={{ borderRadius: 14, boxShadow: '0 2px 8px rgba(24,144,255,0.10)', background: '#ffffff' }}>
+      <Card style={{ borderRadius: 14, boxShadow: 'var(--shadow-sm)', background: 'var(--card-bg)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
             <span style={{ display: 'flex', alignItems: 'center' }}>
@@ -841,7 +841,7 @@ const AIConfigAnalyzer: React.FC = () => {
                     renderItem={(suggestion, index) => (
                       <List.Item style={{ paddingLeft: 0, paddingRight: 0 }}>
                         <Text>
-                          <span style={{ color: '#1890ff', fontWeight: 'bold', marginRight: 8 }}>
+                          <span style={{ color: 'var(--color-primary)', fontWeight: 'bold', marginRight: 8 }}>
                             {index + 1}.
                           </span>
                           {suggestion}
@@ -978,7 +978,7 @@ const AIConfigAnalyzer: React.FC = () => {
                         title="Input Tokens"
                         value={analysisResult.token_usage.input_tokens}
                         prefix={<InfoCircleOutlined />}
-                        valueStyle={{ color: '#1890ff' }}
+                        valueStyle={{ color: 'var(--color-primary)' }}
                       />
                     </Col>
                     <Col span={6}>
@@ -1010,8 +1010,8 @@ const AIConfigAnalyzer: React.FC = () => {
                   <div style={{
                     marginTop: 16,
                     padding: '8px 12px',
-                    background: '#f6ffed',
-                    border: '1px solid #b7eb8f',
+                    background: 'var(--color-success-bg)',
+                    border: '1px solid var(--color-success-border)',
                     borderRadius: 6
                   }}>
                     <Space>

@@ -161,7 +161,7 @@ const RouteMapGraph: React.FC<RouteMapGraphProps> = ({
             >
                 <div style={{ textAlign: 'center' }}>
                     <Spin size="large" />
-                    <p style={{ marginTop: 15, color: '#64748b', fontSize: '14px' }}>
+                    <p style={{ marginTop: 15, color: 'var(--text-secondary)', fontSize: '14px' }}>
                         Loading route map graph...
                     </p>
                 </div>
@@ -194,10 +194,10 @@ const RouteMapGraph: React.FC<RouteMapGraphProps> = ({
                         maxWidth: '500px',
                     }}
                 >
-                    <div style={{ color: '#ef4444', marginBottom: '20px', fontSize: '16px', fontWeight: 600 }}>
+                    <div style={{ color: 'var(--color-danger)', marginBottom: '20px', fontSize: '16px', fontWeight: 600 }}>
                         Failed to load route map data
                     </div>
-                    <div style={{ color: '#64748b', marginBottom: '24px', fontSize: '14px' }}>
+                    <div style={{ color: 'var(--text-secondary)', marginBottom: '24px', fontSize: '14px' }}>
                         {error.toString()}
                     </div>
                     <Button onClick={() => refetch()} type="primary" size="large">
@@ -239,13 +239,13 @@ const RouteMapGraph: React.FC<RouteMapGraphProps> = ({
                         maxWidth: '500px',
                     }}
                 >
-                    <div style={{ marginBottom: '16px', fontSize: '16px', fontWeight: 600, color: '#1e293b' }}>
+                    <div style={{ marginBottom: '16px', fontSize: '16px', fontWeight: 600, color: 'var(--text-primary)' }}>
                         No Route Map Found
                     </div>
-                    <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '8px' }}>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginBottom: '8px' }}>
                         No route map data found for this resource.
                     </p>
-                    <p style={{ color: '#94a3b8', fontSize: '12px', marginBottom: '24px' }}>
+                    <p style={{ color: 'var(--text-tertiary)', fontSize: '12px', marginBottom: '24px' }}>
                         Resource: {name} | Collection: {collection} | Type: {gtype}
                     </p>
                     <Button onClick={() => refetch()} type="primary" size="large">

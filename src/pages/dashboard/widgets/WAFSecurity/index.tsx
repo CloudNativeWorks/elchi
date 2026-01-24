@@ -15,6 +15,7 @@ import { useProjectVariable } from '@/hooks/useProjectVariable';
 import { api } from '@/common/api';
 import { useDashboardRefresh } from '../../context/DashboardRefreshContext';
 import styles from './styles.module.scss';
+import { useChartTheme } from '@/utils/chartTheme';
 
 echarts.use([BarChart, LineChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer]);
 
@@ -29,6 +30,7 @@ export const WAFSecurity: React.FC = () => {
   const projectContext = useProjectVariable();
   const project = typeof projectContext === 'string' ? projectContext : projectContext.project;
   const { refreshTrigger } = useDashboardRefresh();
+  const { theme: chartTheme } = useChartTheme();
 
   const [metrics, setMetrics] = useState<WAFMetrics>({
     blocked: 0,
@@ -140,12 +142,15 @@ export const WAFSecurity: React.FC = () => {
     animationDuration: 300,
     tooltip: {
       trigger: 'axis',
-      axisPointer: { type: 'shadow' }
+      axisPointer: { type: 'shadow' },
+      backgroundColor: chartTheme.tooltipBg,
+      borderColor: chartTheme.tooltipBorder,
+      textStyle: { color: chartTheme.tooltipTextColor }
     },
     legend: {
       data: ['Blocked', 'Allowed'],
       bottom: -3,
-      textStyle: { fontSize: 11 }
+      textStyle: { fontSize: 11, color: chartTheme.legendTextColor }
     },
     grid: {
       left: '3%',
@@ -156,11 +161,14 @@ export const WAFSecurity: React.FC = () => {
     xAxis: {
       type: 'category',
       data: metrics.timeline.map(t => t.time),
-      axisLabel: { fontSize: 10, rotate: 45 }
+      axisLabel: { fontSize: 10, rotate: 45, color: chartTheme.axisLabelColor },
+      axisLine: { lineStyle: { color: chartTheme.axisLineColor } }
     },
     yAxis: {
       type: 'value',
-      axisLabel: { fontSize: 10 }
+      axisLabel: { fontSize: 10, color: chartTheme.axisLabelColor },
+      axisLine: { lineStyle: { color: chartTheme.axisLineColor } },
+      splitLine: { lineStyle: { color: chartTheme.axisSplitLineColor } }
     },
     series: [
       {
@@ -168,14 +176,14 @@ export const WAFSecurity: React.FC = () => {
         type: 'bar',
         stack: 'total',
         data: metrics.timeline.map(t => t.blocked),
-        itemStyle: { color: '#ef4444' }
+        itemStyle: { color: chartTheme.dangerColor }
       },
       {
         name: 'Allowed',
         type: 'bar',
         stack: 'total',
         data: metrics.timeline.map(t => t.allowed),
-        itemStyle: { color: '#10b981' }
+        itemStyle: { color: chartTheme.successColor }
       }
     ]
   };
@@ -192,19 +200,19 @@ export const WAFSecurity: React.FC = () => {
         <div className={styles.stats}>
           <div className={styles.stat}>
             <div className={styles.statLabel}>Blocked</div>
-            <div className={styles.statValue} style={{ color: '#ef4444' }}>
+            <div className={styles.statValue} style={{ color: chartTheme.dangerColor }}>
               {metrics.blocked.toLocaleString()}
             </div>
           </div>
           <div className={styles.stat}>
             <div className={styles.statLabel}>Allowed</div>
-            <div className={styles.statValue} style={{ color: '#10b981' }}>
+            <div className={styles.statValue} style={{ color: chartTheme.successColor }}>
               {metrics.allowed.toLocaleString()}
             </div>
           </div>
           <div className={styles.stat}>
             <div className={styles.statLabel}>Unique Rules</div>
-            <div className={styles.statValue} style={{ color: '#f59e0b' }}>
+            <div className={styles.statValue} style={{ color: chartTheme.warningColor }}>
               {metrics.uniqueRules.toLocaleString()}
             </div>
           </div>

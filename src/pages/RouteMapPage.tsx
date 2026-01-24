@@ -23,10 +23,10 @@ const RouteMapPage: React.FC = () => {
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
-                    background: '#f8fafc',
+                    background: 'var(--bg-body)',
                 }}
             >
-                <div style={{ textAlign: 'center', color: '#64748b' }}>
+                <div style={{ textAlign: 'center', color: 'var(--text-secondary)' }}>
                     <h3>Missing required parameters</h3>
                     <p>Please provide name, collection, gtype, and version</p>
                 </div>

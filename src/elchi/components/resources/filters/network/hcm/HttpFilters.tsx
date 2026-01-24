@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Table } from 'antd';
+import { Button, Table, Popconfirm } from 'antd';
 import { useDispatch } from "react-redux";
 import { memorizeComponent, compareVeriReduxStoreAndHttpFilter } from "@/hooks/useMemoComponent";
 import { ActionType, ResourceType } from "@/redux/reducer-helpers/common";
@@ -15,7 +15,7 @@ import { HttpFilterConfigDiscovery, ConfigSource } from "@/common/statics/config
 import { useDragAndDrop } from "@/hooks/useDragAndDrop";
 import { FilterDrawer } from "@/elchi/components/common/filterDrawer";
 import { ResourceAction } from "@/redux/reducers/slice";
-import { DeleteTwoTone, InboxOutlined } from '@ant-design/icons';
+import { DeleteOutlined, InboxOutlined } from '@ant-design/icons';
 import { useProjectVariable } from "@/hooks/useProjectVariable";
 import ComponentHttpFilterChild from "@resources/common/TypedPerFilter/http_filter_child";
 import ECard from "@/elchi/components/common/ECard";
@@ -103,13 +103,31 @@ const ComponentHttpFilters: React.FC<GeneralProps> = ({ veri }) => {
             width: "10%",
             key: 'x',
             render: (_, record) =>
-                <Button
-                    icon={<DeleteTwoTone twoToneColor="#eb2f96" />}
-                    size='small'
-                    onClick={(e) => handleDeleteAdditional({ event: e, parent_name: record.parent_name })}
-                    style={{ marginRight: 8 }}
-                    iconPosition={"end"}
-                />,
+                <Popconfirm
+                    title="Delete confirmation"
+                    description="Are you sure you want to delete this item?"
+                    onConfirm={(e) => handleDeleteAdditional({ event: e as React.MouseEvent<HTMLElement>, parent_name: record.parent_name })}
+                    okText="Yes"
+                    cancelText="No"
+                    placement="left"
+                >
+                    <Button
+                        type="text"
+                        danger
+                        icon={<DeleteOutlined style={{ color: 'var(--color-danger)' }} />}
+                        size='small'
+                        className="elchi-delete-button"
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: 'var(--color-danger-light)',
+                            border: '1px solid var(--color-danger-border)',
+                            borderRadius: '6px'
+                        }}
+                    />
+                </Popconfirm>,
         },
     ];
 
@@ -117,11 +135,12 @@ const ComponentHttpFilters: React.FC<GeneralProps> = ({ veri }) => {
         <>
             <ECard title={"Http Filters"}>
                 <div style={{
-                    background: '#fff',
+                    background: 'var(--card-bg)',
                     padding: '4px 4px 12px 4px',
                     borderRadius: 12,
-                    boxShadow: '0 2px 8px rgba(5,117,230,0.06)',
-                    margin: '4px 0'
+                    boxShadow: 'var(--shadow-sm)',
+                    margin: '4px 0',
+                    border: '1px solid var(--border-default)'
                 }}>
                     <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
                         <ElchiIconButton onClick={() => setOpen(true)} />

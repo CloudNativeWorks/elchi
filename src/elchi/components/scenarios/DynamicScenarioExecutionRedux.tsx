@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { AppDispatch, RootState } from '@/redux/store';
-import { 
-    Card, 
-    Button, 
-    Space, 
-    Typography, 
+import {
+    Card,
+    Button,
+    Space,
+    Typography,
     Tag,
     Spin,
     Alert,
@@ -14,9 +14,9 @@ import {
     Progress,
 } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-    ArrowLeftOutlined, 
-    PlayCircleOutlined, 
+import {
+    ArrowLeftOutlined,
+    PlayCircleOutlined,
     ArrowRightOutlined,
     SettingOutlined,
     GlobalOutlined,
@@ -189,7 +189,7 @@ const DynamicScenarioExecutionRedux: React.FC = () => {
         componentName: string,
         fieldPath: string = ''
     ): any => {
-        if (!fieldDef || fieldDef.type !== 'nested_choice' || 
+        if (!fieldDef || fieldDef.type !== 'nested_choice' ||
             !fieldValue || typeof fieldValue !== 'object' || !fieldValue.nested_selection) {
             return fieldValue;
         }
@@ -211,8 +211,8 @@ const DynamicScenarioExecutionRedux: React.FC = () => {
             // Try multiple key patterns to find the field value
             const possibleKeys = [
                 // Pattern 1: Standard nested field
-                fieldPath ? 
-                    `${fieldPath}.nested_${fieldDef.name}_${nestedSelection.selected_choice}.${subField.name}` : 
+                fieldPath ?
+                    `${fieldPath}.nested_${fieldDef.name}_${nestedSelection.selected_choice}.${subField.name}` :
                     `nested_${fieldDef.name}_${nestedSelection.selected_choice}.${subField.name}`,
                 // Pattern 2: Direct nested (for double nested)
                 `nested_${subField.name}_${nestedSelection.selected_choice}.${subField.name}`,
@@ -221,10 +221,10 @@ const DynamicScenarioExecutionRedux: React.FC = () => {
                 // Pattern 4: For virtual_host_config special case
                 `nested_virtual_host_config_inline_virtual_hosts.${subField.name}`,
             ];
-            
+
             let nestedFieldKey = possibleKeys[0]; // Default key
             let nestedFieldValue;
-            
+
             // Try each possible key pattern
             for (const key of possibleKeys) {
                 if (fieldValues[key] !== undefined && fieldValues[key] !== null) {
@@ -233,7 +233,7 @@ const DynamicScenarioExecutionRedux: React.FC = () => {
                     break;
                 }
             }
-            
+
             if (!nestedFieldValue) {
                 nestedFieldValue = fieldValues[nestedFieldKey];
             }
@@ -248,20 +248,20 @@ const DynamicScenarioExecutionRedux: React.FC = () => {
 
             if (nestedFieldValue !== undefined && nestedFieldValue !== null) {
                 // Build current path for recursive calls
-                const currentPath = fieldPath ? 
-                    `${fieldPath}.nested_${fieldDef.name}_${nestedSelection.selected_choice}` : 
+                const currentPath = fieldPath ?
+                    `${fieldPath}.nested_${fieldDef.name}_${nestedSelection.selected_choice}` :
                     `nested_${fieldDef.name}_${nestedSelection.selected_choice}`;
-                
+
                 // Recursively process if this sub-field is also a nested choice
                 const processedValue = processNestedChoiceField(
-                    nestedFieldValue, 
-                    subField, 
-                    componentName, 
+                    nestedFieldValue,
+                    subField,
+                    componentName,
                     currentPath
                 );
 
                 // For nested choice sub-fields, use nested_selection directly
-                if (subField.type === 'nested_choice' && processedValue && 
+                if (subField.type === 'nested_choice' && processedValue &&
                     typeof processedValue === 'object' && processedValue.nested_selection) {
                     nestedFieldValues.push({
                         field_name: subField.name,
@@ -304,44 +304,44 @@ const DynamicScenarioExecutionRedux: React.FC = () => {
             // Build components with runtime field values
             const componentsWithValues = sortedComponents.map(component => {
                 const updatedComponent = { ...component };
-                
+
                 // Update component name to current name
                 const currentComponentName = componentNames[component.name] || component.name;
                 updatedComponent.name = currentComponentName;
-                
+
                 // Update selected fields with runtime values
                 updatedComponent.selected_fields = component.selected_fields.map(selectedField => {
                     const fieldKey = `${component.name}.${selectedField.field_name}`;
                     const runtimeValue = fieldValues[fieldKey];
-                    
+
                     // Get field definition to check for use_component_name and default values
                     const componentDef = componentCatalog?.find(c => c.name === component.type);
                     const fieldDef = componentDef?.available_fields.find(f => f.name === selectedField.field_name);
-                    
+
                     let finalValue = selectedField.value; // Start with existing value
-                    
+
                     // For nested choice fields, we need to build the structure from Redux values
                     if (fieldDef?.type === 'nested_choice') {
                         // Check if there's a runtime value for the nested choice selection
                         const nestedChoiceKey = `${component.name}.${selectedField.field_name}`;
                         const nestedChoiceValue = fieldValues[nestedChoiceKey];
-                                                
+
                         // Build nested_selection structure from Redux values
                         if (nestedChoiceValue && typeof nestedChoiceValue === 'object' && nestedChoiceValue.nested_selection) {
                             finalValue = nestedChoiceValue;
                         } else if (!finalValue || typeof finalValue !== 'object' || !finalValue.nested_selection) {
                             // If no nested_selection structure exists, create one
                             // Look for the selected choice in Redux
-                            const choiceKeys = Object.keys(fieldValues).filter(k => 
+                            const choiceKeys = Object.keys(fieldValues).filter(k =>
                                 k.startsWith(`nested_${selectedField.field_name}_`)
                             );
-                                                        
+
                             if (choiceKeys.length > 0 && fieldDef.nested_config?.choices) {
                                 // Extract the selected choice from the first key
                                 const firstKey = choiceKeys[0];
                                 const match = firstKey.match(new RegExp(`nested_${selectedField.field_name}_([^.]+)`));
                                 const selectedChoice = match ? match[1] : fieldDef.nested_config.default_choice;
-                                                                
+
                                 finalValue = {
                                     field_name: selectedField.field_name,
                                     required: selectedField.required || false,
@@ -352,12 +352,12 @@ const DynamicScenarioExecutionRedux: React.FC = () => {
                                 };
                             }
                         }
-                        
+
                         // Now process the nested choice field recursively
                         if (finalValue && typeof finalValue === 'object' && finalValue.nested_selection) {
                             finalValue = processNestedChoiceField(
-                                finalValue, 
-                                fieldDef, 
+                                finalValue,
+                                fieldDef,
                                 component.name,
                                 '' // Empty path for top-level nested fields
                             );
@@ -376,15 +376,15 @@ const DynamicScenarioExecutionRedux: React.FC = () => {
                     else if (finalValue === undefined && fieldDef?.default_value !== undefined) {
                         finalValue = fieldDef.default_value;
                     }
-                    
+
                     // 4. Check for :componentname: placeholder pattern
                     if (typeof finalValue === 'string' && finalValue === ':componentname:') {
                         finalValue = currentComponentName;
                     }
-                    
+
                     // Final value transformation for execution - ensure component names are updated
                     let executionValue = finalValue;
-                    
+
                     // For connected fields, make sure we're using the latest component names
                     if (fieldDef?.connected && typeof finalValue === 'string') {
                         // Check if this value matches any old component name
@@ -406,25 +406,25 @@ const DynamicScenarioExecutionRedux: React.FC = () => {
                             return item;
                         });
                     }
-                    
+
                     // For nested choice fields, don't wrap in value - use nested_selection directly
-                    if (fieldDef?.type === 'nested_choice' && executionValue && 
+                    if (fieldDef?.type === 'nested_choice' && executionValue &&
                         typeof executionValue === 'object' && executionValue.nested_selection) {
                         return {
                             ...selectedField,
                             nested_selection: executionValue.nested_selection
                         };
                     }
-                    
+
                     return {
                         ...selectedField,
                         value: executionValue
                     };
                 });
-                
+
                 return updatedComponent;
             });
-                        
+
             const result = await dispatch(executeScenario({
                 scenarioId: scenario.scenario_id,
                 components: componentsWithValues,
@@ -432,7 +432,7 @@ const DynamicScenarioExecutionRedux: React.FC = () => {
                 version: selectedVersion,
                 managed
             })).unwrap();
-            
+
             if (result.success) {
                 showSuccessNotification(`Scenario executed successfully! Generated ${result.resources?.length || 0} resources.`);
             }
@@ -486,35 +486,35 @@ const DynamicScenarioExecutionRedux: React.FC = () => {
             />
 
             {/* Header Section */}
-            <div style={{ 
+            <div style={{
                 marginBottom: '32px',
                 padding: '24px',
-                background: 'linear-gradient(135deg, #00c6fb 0%, #056ccd 100%)',
+                background: 'var(--gradient-primary)',
                 borderRadius: '12px',
-                color: 'white'
+                color: 'var(--text-on-primary)'
             }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
-                    <Button 
-                        icon={<ArrowLeftOutlined />} 
+                    <Button
+                        icon={<ArrowLeftOutlined />}
                         onClick={() => navigate('/scenarios')}
-                        style={{ 
-                            background: 'rgba(255, 255, 255, 0.15)',
-                            border: '1px solid rgba(255, 255, 255, 0.3)',
-                            color: 'white',
+                        style={{
+                            background: 'var(--bg-glass-hover)',
+                            border: '1px solid var(--border-on-primary)',
+                            color: 'var(--text-on-primary)',
                             borderRadius: '8px'
                         }}
                         ghost
                     >
                         Back to Scenarios
                     </Button>
-                    
+
                     <Space wrap>
                         {selectedVersion && (
-                            <Tag 
-                                style={{ 
-                                    background: 'rgba(82, 196, 26, 0.2)',
-                                    border: '1px solid rgba(82, 196, 26, 0.5)',
-                                    color: '#52c41a',
+                            <Tag
+                                style={{
+                                    background: 'var(--color-success-bg)',
+                                    border: '1px solid var(--color-success-border)',
+                                    color: 'var(--color-success)',
                                     borderRadius: '6px',
                                     fontWeight: 600,
                                     cursor: 'pointer'
@@ -528,16 +528,16 @@ const DynamicScenarioExecutionRedux: React.FC = () => {
                             <Button
                                 size="small"
                                 onClick={() => setShowVersionModal(true)}
-                                style={{ 
-                                    background: 'rgba(255, 193, 7, 0.2)',
-                                    border: '1px solid rgba(255, 193, 7, 0.5)',
-                                    color: '#faad14'
+                                style={{
+                                    background: 'var(--color-warning-bg)',
+                                    border: '1px solid var(--color-warning-border)',
+                                    color: 'var(--color-warning)'
                                 }}
                             >
                                 Select Version
                             </Button>
                         )}
-                        <Tag style={{ 
+                        <Tag style={{
                             background: 'rgba(255, 255, 255, 0.15)',
                             border: '1px solid rgba(255, 255, 255, 0.3)',
                             color: 'white',
@@ -545,7 +545,7 @@ const DynamicScenarioExecutionRedux: React.FC = () => {
                         }}>
                             ID: {scenario.scenario_id}
                         </Tag>
-                        <Tag style={{ 
+                        <Tag style={{
                             background: 'rgba(255, 255, 255, 0.15)',
                             border: '1px solid rgba(255, 255, 255, 0.3)',
                             color: 'white',
@@ -555,7 +555,7 @@ const DynamicScenarioExecutionRedux: React.FC = () => {
                         </Tag>
                     </Space>
                 </div>
-                
+
                 <div>
                     <Title level={1} style={{ color: 'white', margin: 0, marginBottom: '8px', fontSize: '28px' }}>
                         {scenario.name}
@@ -583,11 +583,11 @@ const DynamicScenarioExecutionRedux: React.FC = () => {
                     description={
                         executionResult.success ? (
                             <div>
-                                <p style={{ marginBottom: '8px', color: '#52c41a' }}>
+                                <p style={{ marginBottom: '8px', color: 'var(--color-success)' }}>
                                     Scenario executed successfully!
                                 </p>
                                 {executionResult.resources && (
-                                    <p style={{ margin: 0, color: '#595959' }}>
+                                    <p style={{ margin: 0, color: 'var(--text-secondary)' }}>
                                         Generated {executionResult.resources.length} resources and saved to database.
                                     </p>
                                 )}
@@ -596,28 +596,28 @@ const DynamicScenarioExecutionRedux: React.FC = () => {
                             <div>
                                 {(() => {
                                     const errorMessage = executionResult.message || 'Unknown error';
-                                    
+
                                     // Always show modern error display for any error
                                     const cleanMessage = errorMessage
                                         .replace(/failed to save component .+ to database: failed to save resource via XDS SetResource: Validation error: /, '')
                                         .replace(/Validation error: /, '')
                                         .trim();
-                                    
+
                                     // Split by newlines and filter out empty lines
                                     const validationErrors = cleanMessage
                                         .split(/\n/)
                                         .map(line => line.trim())
                                         .filter(line => line.length > 0)
                                         .map(line => line.startsWith(':') ? line.substring(1).trim() : line);
-                                    
+
                                     // Always show modern card-based display
                                     return (
                                         <div style={{ marginTop: '12px' }}>
-                                            <p style={{ marginBottom: '16px', color: '#ff4d4f', fontWeight: 500 }}>
+                                            <p style={{ marginBottom: '16px', color: 'var(--color-danger)', fontWeight: 500 }}>
                                                 Please fix the following configuration issue{validationErrors.length > 1 ? 's' : ''}:
                                             </p>
-                                            <ul style={{ 
-                                                margin: 0, 
+                                            <ul style={{
+                                                margin: 0,
                                                 paddingLeft: '0',
                                                 listStyle: 'none'
                                             }}>
@@ -625,10 +625,10 @@ const DynamicScenarioExecutionRedux: React.FC = () => {
                                                     <li key={index} style={{
                                                         marginBottom: '12px',
                                                         padding: '12px 16px',
-                                                        backgroundColor: '#fff2f0',
-                                                        border: '1px solid #ffccc7',
+                                                        backgroundColor: 'rgba(255, 77, 79, 0.1)',
+                                                        border: '1px solid rgba(255, 77, 79, 0.2)',
                                                         borderRadius: '6px',
-                                                        borderLeft: '4px solid #ff4d4f'
+                                                        borderLeft: '4px solid var(--color-danger)'
                                                     }}>
                                                         <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
                                                             <span style={{
@@ -637,7 +637,7 @@ const DynamicScenarioExecutionRedux: React.FC = () => {
                                                                 justifyContent: 'center',
                                                                 width: '20px',
                                                                 height: '20px',
-                                                                backgroundColor: '#ff4d4f',
+                                                                backgroundColor: 'var(--color-danger)',
                                                                 color: 'white',
                                                                 borderRadius: '50%',
                                                                 fontSize: '12px',
@@ -646,8 +646,8 @@ const DynamicScenarioExecutionRedux: React.FC = () => {
                                                             }}>
                                                                 {index + 1}
                                                             </span>
-                                                            <span style={{ 
-                                                                color: '#595959',
+                                                            <span style={{
+                                                                color: 'var(--text-primary)',
                                                                 lineHeight: '1.5',
                                                                 fontSize: '14px'
                                                             }}>
@@ -670,25 +670,25 @@ const DynamicScenarioExecutionRedux: React.FC = () => {
             )}
 
             {/* Configuration Wizard */}
-            <Card 
+            <Card
                 title={<span>Configuration - Step by Step</span>}
             >
                 {/* Progress */}
                 <div style={{ marginBottom: '24px' }}>
-                    <Progress 
+                    <Progress
                         percent={sortedComponents.length ? Math.round(((currentStep + 1) / sortedComponents.length) * 100) : 0}
                         format={() => `${currentStep + 1} / ${sortedComponents.length}`}
                         style={{ marginBottom: '16px' }}
                     />
-                    
+
                     <Text type="secondary">
                         Configure resources step by step in priority order. Fill required fields to proceed.
                     </Text>
                 </div>
 
                 {/* Steps */}
-                <Steps 
-                    current={currentStep} 
+                <Steps
+                    current={currentStep}
                     style={{ marginBottom: '32px' }}
                     size="small"
                     onChange={(newStep) => {
@@ -724,14 +724,14 @@ const DynamicScenarioExecutionRedux: React.FC = () => {
 
                 {/* Navigation */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Button 
+                    <Button
                         icon={<ArrowLeftOutlined />}
                         onClick={handlePrev}
                         disabled={currentStep === 0}
                     >
                         Previous
                     </Button>
-                    
+
                     <Space>
                         <Text type="secondary">
                             Step {currentStep + 1} of {sortedComponents.length}
@@ -747,9 +747,9 @@ const DynamicScenarioExecutionRedux: React.FC = () => {
                             </Tag>
                         )}
                     </Space>
-                    
+
                     {currentStep < sortedComponents.length - 1 ? (
-                        <Button 
+                        <Button
                             type="primary"
                             icon={<ArrowRightOutlined />}
                             onClick={handleNext}

@@ -39,7 +39,7 @@ const ClientDetail: React.FC = () => {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                         <span style={{ display: 'flex', alignItems: 'center' }}>
-                            <svg fill="#056ccd" viewBox="-5.4 -5.4 46.80 46.80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" width="32" height="32" style={{ marginRight: 6 }}>
+                            <svg fill="var(--color-primary)" viewBox="-5.4 -5.4 46.80 46.80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" width="32" height="32" style={{ marginRight: 6 }}>
                                 <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
                                 <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
                                 <g id="SVGRepo_iconCarrier">
@@ -67,24 +67,24 @@ const ClientDetail: React.FC = () => {
                             display: 'flex',
                             alignItems: 'center',
                             gap: 6,
-                            background: dataClient.connected ? '#f6ffed' : '#fff1f0',
-                            color: dataClient.connected ? '#389e0d' : '#ff4d4f',
+                            background: dataClient.connected ? 'var(--color-success-light)' : 'var(--color-danger-light)',
+                            color: dataClient.connected ? 'var(--color-success)' : 'var(--color-danger)',
                             borderRadius: 16,
                             padding: '4px 14px',
                             fontWeight: 700,
                             fontSize: 15,
                             boxShadow: dataClient.connected
-                                ? '0 1px 4px rgba(82,196,26,0.08)'
-                                : '0 1px 4px rgba(255,77,79,0.08)'
+                                ? '0 1px 4px var(--color-success-shadow)'
+                                : '0 1px 4px var(--color-danger-shadow)'
                         }}>
                             <span style={{
                                 display: 'inline-block',
                                 width: 10,
                                 height: 10,
                                 borderRadius: '50%',
-                                background: dataClient.connected ? '#52c41a' : '#ff4d4f',
+                                background: dataClient.connected ? 'var(--color-success)' : 'var(--color-danger)',
                                 marginRight: 6,
-                                boxShadow: dataClient.connected ? '0 0 6px #52c41a' : 'none',
+                                boxShadow: dataClient.connected ? '0 0 6px var(--color-success)' : 'none',
                                 animation: dataClient.connected ? 'pulse 1.2s infinite' : 'none'
                             }} />
                             {dataClient.connected ? 'Live' : 'Offline'}
@@ -121,14 +121,14 @@ const ClientDetail: React.FC = () => {
                                         <Descriptions.Item label="Connect Time">
                                             {dataClient.connect_time && dataClient.connect_time !== "0001-01-01T00:00:00Z" 
                                                 ? DateTimeTool(dataClient.connect_time) 
-                                                : <span style={{ color: '#bfbfbf' }}>Not seen</span>
+                                                : <span style={{ color: 'var(--text-tertiary)' }}>Not seen</span>
                                             }
                                         </Descriptions.Item>
                                         <Descriptions.Item label="Connect Reason">
                                             {dataClient.connect_reason ? (
                                                 <Tag className='auto-width-tag' color="blue">{dataClient.connect_reason}</Tag>
                                             ) : (
-                                                <span style={{ color: '#bfbfbf' }}>Not available</span>
+                                                <span style={{ color: 'var(--text-tertiary)' }}>Not available</span>
                                             )}
                                         </Descriptions.Item>
                                         <Descriptions.Item label="BGP">
@@ -139,14 +139,14 @@ const ClientDetail: React.FC = () => {
                                         <Descriptions.Item label="Disconnect Time">
                                             {dataClient.disconnect_time && dataClient.disconnect_time !== "0001-01-01T00:00:00Z" 
                                                 ? DateTimeTool(dataClient.disconnect_time) 
-                                                : <span style={{ color: '#bfbfbf' }}>Not seen</span>
+                                                : <span style={{ color: 'var(--text-tertiary)' }}>Not seen</span>
                                             }
                                         </Descriptions.Item>
                                         <Descriptions.Item label="Disconnect Reason">
                                             {dataClient.disconnect_reason ? (
                                                 <Tag className='auto-width-tag' color="red">{dataClient.disconnect_reason}</Tag>
                                             ) : (
-                                                <span style={{ color: '#bfbfbf' }}>Not available</span>
+                                                <span style={{ color: 'var(--text-tertiary)' }}>Not available</span>
                                             )}
                                         </Descriptions.Item>
                                         
@@ -175,7 +175,7 @@ const ClientDetail: React.FC = () => {
                                                     {Object.keys(dataClient.metadata).length} items - Click to view
                                                 </Button>
                                             ) : (
-                                                <span style={{ color: '#bfbfbf' }}>No metadata</span>
+                                                <span style={{ color: 'var(--text-tertiary)' }}>No metadata</span>
                                             )}
                                         </Descriptions.Item>
                                     </Descriptions>
@@ -269,8 +269,8 @@ const ClientDetail: React.FC = () => {
                         {Object.entries(dataClient.metadata).map(([key, value]) => (
                             <Col xs={24} sm={12} key={key}>
                                 <div style={{
-                                    background: '#fafafa',
-                                    border: '1px solid #f0f0f0',
+                                    background: 'var(--bg-surface)',
+                                    border: '1px solid var(--border-default)',
                                     borderRadius: 8,
                                     padding: '12px',
                                     height: '100%',
@@ -279,7 +279,7 @@ const ClientDetail: React.FC = () => {
                                 }}>
                                     <div style={{
                                         fontSize: '12px',
-                                        color: '#666',
+                                        color: 'var(--text-secondary)',
                                         fontWeight: 500,
                                         marginBottom: '6px',
                                         textTransform: 'uppercase',

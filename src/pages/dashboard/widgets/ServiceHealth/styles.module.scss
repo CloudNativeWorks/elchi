@@ -54,16 +54,16 @@
   }
 
   &::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.05);
+    background: var(--scrollbar-track);
     border-radius: 3px;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgba(5, 108, 205, 0.3);
+    background: var(--scrollbar-thumb);
     border-radius: 3px;
 
     &:hover {
-      background: rgba(5, 108, 205, 0.5);
+      background: var(--scrollbar-thumb-hover);
     }
   }
 }
@@ -76,14 +76,14 @@
 
 .serviceCard {
   padding: $space-md;
-  background: rgba(0, 0, 0, 0.02);
+  background: var(--bg-hover);
   border-radius: $radius-md;
   border-left: 3px solid;
   transition: all $transition-normal;
   cursor: pointer;
 
   &:hover {
-    background: rgba(0, 0, 0, 0.04);
+    background: var(--bg-active);
     transform: translateX(4px);
   }
 

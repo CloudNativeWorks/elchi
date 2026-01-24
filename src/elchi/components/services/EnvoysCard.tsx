@@ -37,21 +37,21 @@ const getErrorMessage = (error: string): string => {
 // Get resource config for different config dump types (matching registry snapshot icons)
 const getResourceConfig = (type: string) => {
     const configs = {
-        'BootstrapConfigDump': { icon: <CodeOutlined />, color: '#1890ff', name: 'Bootstrap' },
-        'ClustersConfigDump': { icon: <ClusterOutlined />, color: '#1890ff', name: 'Cluster' },
-        'ListenersConfigDump': { icon: <GlobalOutlined />, color: '#52c41a', name: 'Listener' },
-        'RoutesConfigDump': { icon: <ShareAltOutlined />, color: '#722ed1', name: 'Route' },
-        'SecretsConfigDump': { icon: <KeyOutlined />, color: '#eb2f96', name: 'Secret' },
-        'ScopedRoutesConfigDump': { icon: <ShareAltOutlined />, color: '#722ed1', name: 'Scoped Route' },
-        'EndpointsConfigDump': { icon: <AimOutlined />, color: '#fa8c16', name: 'Endpoint' },
-        'ExtensionsConfigDump': { icon: <AppstoreOutlined />, color: '#13c2c2', name: 'Extension' },
-        'RuntimeConfigDump': { icon: <SettingOutlined />, color: '#1890ff', name: 'Runtime' }
+        'BootstrapConfigDump': { icon: <CodeOutlined />, color: 'var(--color-primary)', name: 'Bootstrap' },
+        'ClustersConfigDump': { icon: <ClusterOutlined />, color: 'var(--color-primary)', name: 'Cluster' },
+        'ListenersConfigDump': { icon: <GlobalOutlined />, color: 'var(--color-success)', name: 'Listener' },
+        'RoutesConfigDump': { icon: <ShareAltOutlined />, color: 'var(--color-purple)', name: 'Route' },
+        'SecretsConfigDump': { icon: <KeyOutlined />, color: 'var(--color-pink)', name: 'Secret' },
+        'ScopedRoutesConfigDump': { icon: <ShareAltOutlined />, color: 'var(--color-purple)', name: 'Scoped Route' },
+        'EndpointsConfigDump': { icon: <AimOutlined />, color: 'var(--color-warning)', name: 'Endpoint' },
+        'ExtensionsConfigDump': { icon: <AppstoreOutlined />, color: 'var(--color-cyan)', name: 'Extension' },
+        'RuntimeConfigDump': { icon: <SettingOutlined />, color: 'var(--color-primary)', name: 'Runtime' }
     };
 
     // Extract type from @type field (e.g., "type.googleapis.com/envoy.admin.v3.BootstrapConfigDump" -> "BootstrapConfigDump")
     const extractedType = type.split('.').pop() || type;
 
-    return configs[extractedType] || { icon: <DatabaseOutlined />, color: '#1890ff', name: extractedType };
+    return configs[extractedType] || { icon: <DatabaseOutlined />, color: 'var(--color-primary)', name: extractedType };
 };
 
 const EnvoysCard: React.FC<EnvoysCardProps> = ({ envoys, name, project, version }) => {
@@ -113,14 +113,14 @@ const EnvoysCard: React.FC<EnvoysCardProps> = ({ envoys, name, project, version 
                                     marginLeft: 4,
                                 }}
                             >
-                                Node ID:<span style={{ fontSize: '12px', marginLeft: 4, color: envoy.connected ? '#389e0d' : '#ff4d4f' }}>{envoy.nodeid}</span>
+                                Node ID:<span style={{ fontSize: '12px', marginLeft: 4, color: envoy.connected ? 'var(--color-success)' : 'var(--color-danger)' }}>{envoy.nodeid}</span>
                             </Text>
                         );
                     }
                     return null;
                 })}
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: -4 }}>
-                    <CodeOutlined style={{ fontSize: 16, color: '#1890ff' }} />
+                    <CodeOutlined style={{ fontSize: 16, color: 'var(--color-primary)' }} />
                     <Select
                         style={{ width: 200 }}
                         value={selectedClient}
@@ -247,7 +247,7 @@ const EnvoysCard: React.FC<EnvoysCardProps> = ({ envoys, name, project, version 
                                 left: 0,
                                 right: 0,
                                 bottom: 0,
-                                background: 'rgba(255, 255, 255, 0.4)',
+                                background: 'var(--bg-loading)',
                                 display: 'flex',
                                 justifyContent: 'center',
                                 alignItems: 'center',
@@ -273,8 +273,8 @@ const EnvoysCard: React.FC<EnvoysCardProps> = ({ envoys, name, project, version 
                                     alignItems: 'center',
                                     gap: 12
                                 }}>
-                                    <DatabaseOutlined style={{ fontSize: '18px', color: '#111827' }} />
-                                    <Text strong style={{ color: '#111827', fontSize: '14px' }}>Memory Usage</Text>
+                                    <DatabaseOutlined style={{ fontSize: '18px', color: 'var(--text-primary)' }} />
+                                    <Text strong style={{ color: 'var(--text-primary)', fontSize: '14px' }}>Memory Usage</Text>
                                 </div>
                                 {isErrorResponse(selectedEnvoyData?.Result?.EnvoyAdmin?.body?.memory) ? (
                                     <Alert
@@ -326,8 +326,8 @@ const EnvoysCard: React.FC<EnvoysCardProps> = ({ envoys, name, project, version 
                                     justifyContent: 'space-between'
                                 }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                                        <GlobalOutlined style={{ fontSize: '18px', color: '#111827' }} />
-                                        <Text strong style={{ color: '#111827', fontSize: '14px' }}>Listeners</Text>
+                                        <GlobalOutlined style={{ fontSize: '18px', color: 'var(--text-primary)' }} />
+                                        <Text strong style={{ color: 'var(--text-primary)', fontSize: '14px' }}>Listeners</Text>
                                     </div>
                                     <Badge
                                         count={selectedEnvoyData?.Result?.EnvoyAdmin?.body?.listeners?.listener_statuses?.length || 0}
@@ -348,13 +348,13 @@ const EnvoysCard: React.FC<EnvoysCardProps> = ({ envoys, name, project, version 
                                                     key={index}
                                                     style={{
                                                         padding: '8px',
-                                                        background: '#fafafa',
+                                                        background: 'var(--bg-surface)',
                                                         borderRadius: '4px',
                                                         marginBottom: '8px'
                                                     }}
                                                 >
                                                     <Text strong>{listener.name}</Text>
-                                                    <div style={{ marginTop: 4, fontSize: '12px', color: '#666' }}>
+                                                    <div style={{ marginTop: 4, fontSize: '12px', color: 'var(--text-secondary)' }}>
                                                         {listener.local_address?.socket_address && (
                                                             <div>
                                                                 Address: {listener.local_address.socket_address.address}:{listener.local_address.socket_address.port_value}
@@ -382,8 +382,8 @@ const EnvoysCard: React.FC<EnvoysCardProps> = ({ envoys, name, project, version 
                                     alignItems: 'center',
                                     gap: 12
                                 }}>
-                                    <SettingOutlined style={{ fontSize: '18px', color: '#111827' }} />
-                                    <Text strong style={{ color: '#111827', fontSize: '14px' }}>Runtime</Text>
+                                    <SettingOutlined style={{ fontSize: '18px', color: 'var(--text-primary)' }} />
+                                    <Text strong style={{ color: 'var(--text-primary)', fontSize: '14px' }}>Runtime</Text>
                                 </div>
                                 {isErrorResponse(selectedEnvoyData?.Result?.EnvoyAdmin?.body?.runtime) ? (
                                     <Alert
@@ -399,13 +399,13 @@ const EnvoysCard: React.FC<EnvoysCardProps> = ({ envoys, name, project, version 
                                                     key={index}
                                                     style={{
                                                         padding: '8px',
-                                                        background: '#fafafa',
+                                                        background: 'var(--bg-surface)',
                                                         borderRadius: '4px',
                                                         marginBottom: '8px'
                                                     }}
                                                 >
                                                     <Text strong>{key}</Text>
-                                                    <div style={{ marginTop: 4, fontSize: '12px', color: '#666' }}>
+                                                    <div style={{ marginTop: 4, fontSize: '12px', color: 'var(--text-secondary)' }}>
                                                         Value: {JSON.stringify(value)}
                                                     </div>
                                                 </div>
@@ -428,7 +428,7 @@ const EnvoysCard: React.FC<EnvoysCardProps> = ({ envoys, name, project, version 
                                     label: (
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                             <Text strong>Statistics</Text>
-                                            <Badge count={stats.filter((stat: any) => stat.value > 0).length} style={{ backgroundColor: '#1890ff' }} />
+                                            <Badge count={stats.filter((stat: any) => stat.value > 0).length} style={{ backgroundColor: 'var(--color-primary)' }} />
                                         </div>
                                     ),
                                     children: (
@@ -458,7 +458,7 @@ const EnvoysCard: React.FC<EnvoysCardProps> = ({ envoys, name, project, version 
                                                 display: 'grid',
                                                 gridTemplateColumns: 'repeat(2, 1fr)',
                                                 gap: 16,
-                                                background: '#fafafa',
+                                                background: 'var(--bg-surface)',
                                                 padding: 20,
                                                 borderRadius: 8
                                             }}>
@@ -556,9 +556,9 @@ const EnvoysCard: React.FC<EnvoysCardProps> = ({ envoys, name, project, version 
                                                             {paginatedStats.map((stat: any, idx: number) => (
                                                                 <div key={idx} style={{
                                                                     padding: '16px',
-                                                                    background: '#fff',
+                                                                    background: 'var(--card-bg)',
                                                                     borderRadius: 8,
-                                                                    border: `1px solid ${stat.isError ? '#ffccc7' : '#f0f0f0'}`,
+                                                                    border: `1px solid ${stat.isError ? 'var(--color-danger-light)' : 'var(--border-default)'}`,
                                                                     display: 'flex',
                                                                     justifyContent: 'space-between',
                                                                     alignItems: 'center',
@@ -567,7 +567,7 @@ const EnvoysCard: React.FC<EnvoysCardProps> = ({ envoys, name, project, version 
                                                                 }}>
                                                                     <Text style={{
                                                                         fontSize: '13px',
-                                                                        color: stat.isError ? '#cf1322' : '#666',
+                                                                        color: stat.isError ? 'var(--color-danger)' : 'var(--text-secondary)',
                                                                         maxWidth: '60%',
                                                                         overflow: 'hidden',
                                                                         textOverflow: 'ellipsis',
@@ -638,7 +638,7 @@ const EnvoysCard: React.FC<EnvoysCardProps> = ({ envoys, name, project, version 
                                     ),
                                     children: (
                                         <div style={{
-                                            background: '#fafafa',
+                                            background: 'var(--bg-surface)',
                                             padding: 20,
                                             borderRadius: 8,
                                             maxHeight: '600px',
@@ -652,8 +652,8 @@ const EnvoysCard: React.FC<EnvoysCardProps> = ({ envoys, name, project, version 
                                                         gap: 8,
                                                         marginBottom: 16
                                                     }}>
-                                                        <ClusterOutlined style={{ fontSize: '16px', color: '#52c41a' }} />
-                                                        <span style={{ fontWeight: 600, fontSize: '14px', color: '#2c3e50' }}>Resources by Type</span>
+                                                        <ClusterOutlined style={{ fontSize: '16px', color: 'var(--color-success)' }} />
+                                                        <span style={{ fontWeight: 600, fontSize: '14px', color: 'var(--text-primary)' }}>Resources by Type</span>
                                                     </div>
                                                     {(() => {
                                                         const configDump = selectedEnvoyData.Result.EnvoyAdmin.body.config_dump;
@@ -686,10 +686,10 @@ const EnvoysCard: React.FC<EnvoysCardProps> = ({ envoys, name, project, version 
                                                                     ),
                                                                     children: (
                                                                         <div style={{
-                                                                            background: '#ffffff',
+                                                                            background: 'var(--card-bg)',
                                                                             padding: '20px',
                                                                             borderRadius: '12px',
-                                                                            border: '1px solid #e8f4f8',
+                                                                            border: '1px solid var(--border-default)',
                                                                             boxShadow: '0 2px 8px rgba(24,144,255,0.06)',
                                                                             margin: '8px 0'
                                                                         }}>
@@ -699,7 +699,7 @@ const EnvoysCard: React.FC<EnvoysCardProps> = ({ envoys, name, project, version 
                                                                                 gap: 12,
                                                                                 marginBottom: 16,
                                                                                 paddingBottom: 12,
-                                                                                borderBottom: '2px solid #f0f2f5'
+                                                                                borderBottom: '2px solid var(--border-default)'
                                                                             }}>
                                                                                 <span style={{ color: resourceConfig.color, fontSize: '20px' }}>
                                                                                     {resourceConfig.icon}
@@ -713,10 +713,10 @@ const EnvoysCard: React.FC<EnvoysCardProps> = ({ envoys, name, project, version 
                                                                             </Typography.Text>
 
                                                                             <div style={{
-                                                                                background: '#f6f8fa',
+                                                                                background: 'var(--bg-surface)',
                                                                                 padding: '16px',
                                                                                 borderRadius: '8px',
-                                                                                border: '1px solid #e1e4e8',
+                                                                                border: '1px solid var(--border-default)',
                                                                                 maxHeight: '500px',
                                                                                 overflow: 'auto'
                                                                             }}>

@@ -244,7 +244,7 @@ const Backup: React.FC = () => {
                         <div style={{ marginTop: 12, maxHeight: 300, overflow: 'auto' }}>
                             <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse' }}>
                                 <thead>
-                                    <tr style={{ borderBottom: '1px solid #f0f0f0' }}>
+                                    <tr style={{ borderBottom: '1px solid var(--border-default)' }}>
                                         <th style={{ textAlign: 'left', padding: '8px', fontWeight: 600 }}>Resource Type</th>
                                         <th style={{ textAlign: 'center', padding: '8px', fontWeight: 600 }}>Total</th>
                                         <th style={{ textAlign: 'center', padding: '8px', fontWeight: 600 }}>Created</th>
@@ -256,7 +256,7 @@ const Backup: React.FC = () => {
                                 <tbody>
                                     {Object.entries(data.details).map(([resourceType, stats]: [string, any]) => (
                                         stats.total > 0 && (
-                                            <tr key={resourceType} style={{ borderBottom: '1px solid #f5f5f5' }}>
+                                            <tr key={resourceType} style={{ borderBottom: '1px solid var(--border-light)' }}>
                                                 <td style={{ padding: '6px 8px' }}>
                                                     <Text style={{ fontSize: 12, textTransform: 'capitalize' }}>
                                                         {resourceType.replace(/_/g, ' ')}
@@ -318,7 +318,7 @@ const Backup: React.FC = () => {
     const handleExport = () => {
         confirm({
             title: 'Confirm Backup Export',
-            icon: <ExclamationCircleOutlined style={{ color: '#1890ff' }} />,
+            icon: <ExclamationCircleOutlined style={{ color: 'var(--color-primary)' }} />,
             width: 500,
             content: (
                 <div>
@@ -372,7 +372,7 @@ const Backup: React.FC = () => {
 
         confirm({
             title: 'Confirm Import',
-            icon: <ExclamationCircleOutlined style={{ color: '#ff4d4f' }} />,
+            icon: <ExclamationCircleOutlined style={{ color: 'var(--color-danger)' }} />,
             width: 500,
             content: (
                 <div>
@@ -398,7 +398,7 @@ const Backup: React.FC = () => {
     return (
         <div style={{ width: '100%', padding: '12px' }}>
             <div style={{ marginBottom: '32px' }}>
-                <Title level={3} style={{ margin: '0 0 8px 0', color: '#1f2937' }}>
+                <Title level={3} style={{ margin: '0 0 8px 0', color: 'var(--text-primary)' }}>
                     Backup & Restore
                 </Title>
                 <Text type="secondary">

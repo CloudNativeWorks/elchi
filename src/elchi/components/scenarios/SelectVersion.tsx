@@ -48,12 +48,12 @@ const SelectVersion = ({ open, onVersionSelect, onCancel }: SelectVersionProps):
                 }
             }}
             footer={[
-                <div key={"scenario_select_version_footer"} style={{ 
-                    display: 'flex', 
-                    justifyContent: 'flex-end', 
+                <div key={"scenario_select_version_footer"} style={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
                     gap: 12,
                     paddingTop: 16,
-                    borderTop: '1px solid #f0f0f0',
+                    borderTop: '1px solid var(--border-default)',
                     marginTop: 24
                 }}>
                     <ElchiButton onlyText onClick={onCancel}>Cancel</ElchiButton>
@@ -63,7 +63,7 @@ const SelectVersion = ({ open, onVersionSelect, onCancel }: SelectVersionProps):
         >
             <div style={{ padding: '8px 0' }}>
                 <div style={{ marginBottom: 32 }}>
-                    <Title level={4} style={{ marginBottom: 8, color: '#262626' }}>
+                    <Title level={4} style={{ marginBottom: 8, color: 'var(--text-primary)' }}>
                         Configure Scenario Execution
                     </Title>
                     <Text type="secondary" style={{ fontSize: '14px' }}>
@@ -73,17 +73,17 @@ const SelectVersion = ({ open, onVersionSelect, onCancel }: SelectVersionProps):
 
                 <Space direction="vertical" size="large" style={{ width: '100%' }}>
                     {/* Version Selection */}
-                    <div style={{ 
-                        padding: '20px', 
-                        background: '#fafafa', 
+                    <div style={{
+                        padding: '20px',
+                        background: 'var(--bg-surface)',
                         borderRadius: '8px',
-                        border: '1px solid #f0f0f0'
+                        border: '1px solid var(--border-default)'
                     }}>
-                        <Text strong style={{ 
+                        <Text strong style={{
                             fontSize: '15px',
-                            color: '#262626',
-                            marginBottom: 12, 
-                            display: 'block' 
+                            color: 'var(--text-primary)',
+                            marginBottom: 12,
+                            display: 'block'
                         }}>
                             🚀 Version
                         </Text>
@@ -100,17 +100,17 @@ const SelectVersion = ({ open, onVersionSelect, onCancel }: SelectVersionProps):
                     </div>
 
                     {/* Management Mode */}
-                    <div style={{ 
-                        padding: '20px', 
-                        background: '#fafafa', 
+                    <div style={{
+                        padding: '20px',
+                        background: 'var(--bg-surface)',
                         borderRadius: '8px',
-                        border: '1px solid #f0f0f0'
+                        border: '1px solid var(--border-default)'
                     }}>
-                        <Text strong style={{ 
+                        <Text strong style={{
                             fontSize: '15px',
-                            color: '#262626',
-                            marginBottom: 16, 
-                            display: 'block' 
+                            color: 'var(--text-primary)',
+                            marginBottom: 16,
+                            display: 'block'
                         }}>
                             ⚙️ Management Mode
                         </Text>
@@ -120,21 +120,21 @@ const SelectVersion = ({ open, onVersionSelect, onCancel }: SelectVersionProps):
                             style={{ width: '100%' }}
                         >
                             <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                                <Radio value={true} style={{ 
+                                <Radio value={true} style={{
                                     padding: '12px',
-                                    border: managed === true ? '2px solid #52c41a' : '1px solid #e8e8e8',
+                                    border: managed === true ? '2px solid var(--color-success)' : '1px solid var(--border-default)',
                                     borderRadius: '8px',
-                                    backgroundColor: managed === true ? '#f6ffed' : 'white',
+                                    backgroundColor: managed === true ? 'var(--color-success-light)' : 'var(--card-bg)',
                                     width: '100%',
                                     margin: 0
                                 }}>
                                     <div style={{ paddingLeft: '8px' }}>
-                                        <Text strong style={{ color: '#52c41a', fontSize: '14px' }}>
+                                        <Text strong style={{ color: 'var(--color-success)', fontSize: '14px' }}>
                                             🔧 Managed by Elchi
                                         </Text>
                                         <br />
-                                        <Text type="secondary" style={{ 
-                                            fontSize: '12px', 
+                                        <Text type="secondary" style={{
+                                            fontSize: '12px',
                                             lineHeight: '1.4',
                                             marginTop: '4px'
                                         }}>
@@ -142,21 +142,21 @@ const SelectVersion = ({ open, onVersionSelect, onCancel }: SelectVersionProps):
                                         </Text>
                                     </div>
                                 </Radio>
-                                <Radio value={false} style={{ 
+                                <Radio value={false} style={{
                                     padding: '12px',
-                                    border: managed === false ? '2px solid #1890ff' : '1px solid #e8e8e8',
+                                    border: managed === false ? '2px solid var(--color-primary)' : '1px solid var(--border-default)',
                                     borderRadius: '8px',
-                                    backgroundColor: managed === false ? '#f6ffed' : 'white',
+                                    backgroundColor: managed === false ? 'var(--color-primary-light)' : 'var(--card-bg)',
                                     width: '100%',
                                     margin: 0
                                 }}>
                                     <div style={{ paddingLeft: '8px' }}>
-                                        <Text strong style={{ color: '#1890ff', fontSize: '14px' }}>
+                                        <Text strong style={{ color: 'var(--color-primary)', fontSize: '14px' }}>
                                             📡 Control-Plane Only
                                         </Text>
                                         <br />
-                                        <Text type="secondary" style={{ 
-                                            fontSize: '12px', 
+                                        <Text type="secondary" style={{
+                                            fontSize: '12px',
                                             lineHeight: '1.4',
                                             marginTop: '4px'
                                         }}>

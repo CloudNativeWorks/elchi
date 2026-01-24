@@ -80,11 +80,12 @@ const ComponentVirtualDomains: React.FC<GeneralProps> = ({ veri }) => {
         >
             <Row>
                 <div style={{
-                    background: '#fff',
+                    background: 'var(--card-bg)',
                     padding: '4px 4px 12px 4px',
                     borderRadius: 12,
-                    boxShadow: '0 2px 8px rgba(5,117,230,0.06)',
-                    margin: '4px 0'
+                    boxShadow: 'var(--shadow-sm)',
+                    margin: '4px 0',
+                    border: '1px solid var(--border-default)'
                 }}>
                     <ElchiButton style={{ marginBottom: 10 }} onClick={addResolver} key={`button_${veri.keyPrefix}`} onlyText>Add Resolver</ElchiButton>
 

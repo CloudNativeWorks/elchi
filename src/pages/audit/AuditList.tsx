@@ -189,7 +189,7 @@ const AuditList: React.FC = () => {
             width: '10%',
             render: (username: string, record: AuditLog) => (
                 <Space>
-                    <UserOutlined style={{ color: '#1890ff' }} />
+                    <UserOutlined style={{ color: 'var(--color-primary)' }} />
                     <Space direction="vertical" size="small">
                         <Text strong style={{ fontSize: 12 }}>{username}</Text>
                         <Tag color="blue" style={{ fontSize: 11 }}>{record.user_role}</Tag>
@@ -241,7 +241,7 @@ const AuditList: React.FC = () => {
             render: (_, record: AuditLog) => (
                 <Space direction="vertical" size="small">
                     {getSuccessTag(record.success)}
-                    <Text style={{ fontSize: 11, color: record.response_status >= 400 ? '#ff4d4f' : '#52c41a' }}>
+                    <Text style={{ fontSize: 11, color: record.response_status >= 400 ? 'var(--color-danger)' : 'var(--color-success)' }}>
                         {record.response_status}
                     </Text>
                 </Space>
@@ -255,7 +255,7 @@ const AuditList: React.FC = () => {
             sorter: (a, b) => a.duration_ms - b.duration_ms,
             render: (duration: number) => (
                 <Space>
-                    <ClockCircleOutlined style={{ color: '#faad14' }} />
+                    <ClockCircleOutlined style={{ color: 'var(--color-warning)' }} />
                     <Text style={{ fontSize: 12 }}>{duration}ms</Text>
                 </Space>
             )
@@ -268,7 +268,7 @@ const AuditList: React.FC = () => {
             <div style={{ marginBottom: 16 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                     <Space>
-                        <AuditOutlined style={{ color: '#1890ff', fontSize: 24 }} />
+                        <AuditOutlined style={{ color: 'var(--color-primary)', fontSize: 24 }} />
                         <Title level={4} style={{ margin: 0 }}>Audit Logs</Title>
                     </Space>
                 </div>
@@ -289,10 +289,10 @@ const AuditList: React.FC = () => {
                                 style={{ borderRadius: 8, textAlign: 'center', padding: '8px 0', height: '100%' }}
                                 loading={isStatsLoading}
                             >
-                                <div style={{ fontSize: 20, fontWeight: 600, color: '#1890ff' }}>
+                                <div style={{ fontSize: 20, fontWeight: 600, color: 'var(--color-primary)' }}>
                                     {statsResponse?.data?.total_entries?.toLocaleString() || 0}
                                 </div>
-                                <div style={{ fontSize: 11, color: '#8c8c8c', marginTop: 2 }}>
+                                <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>
                                     <AuditOutlined style={{ marginRight: 3, fontSize: 10 }} />
                                     Total
                                 </div>
@@ -304,10 +304,10 @@ const AuditList: React.FC = () => {
                                 style={{ borderRadius: 8, textAlign: 'center', padding: '8px 0', height: '100%' }}
                                 loading={isStatsLoading}
                             >
-                                <div style={{ fontSize: 20, fontWeight: 600, color: '#52c41a' }}>
+                                <div style={{ fontSize: 20, fontWeight: 600, color: 'var(--color-success)' }}>
                                     {statsResponse?.data ? `${(statsResponse.data.success_rate * 100).toFixed(1)}%` : '0%'}
                                 </div>
-                                <div style={{ fontSize: 11, color: '#8c8c8c', marginTop: 2 }}>
+                                <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>
                                     <CheckCircleOutlined style={{ marginRight: 3, fontSize: 10 }} />
                                     Success
                                 </div>
@@ -319,10 +319,10 @@ const AuditList: React.FC = () => {
                                 style={{ borderRadius: 8, textAlign: 'center', padding: '8px 0', height: '100%' }}
                                 loading={isStatsLoading}
                             >
-                                <div style={{ fontSize: 20, fontWeight: 600, color: '#ff4d4f' }}>
+                                <div style={{ fontSize: 20, fontWeight: 600, color: 'var(--color-danger)' }}>
                                     {statsResponse?.data ? `${(statsResponse.data.error_rate * 100).toFixed(1)}%` : '0%'}
                                 </div>
-                                <div style={{ fontSize: 11, color: '#8c8c8c', marginTop: 2 }}>
+                                <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>
                                     <ExclamationCircleOutlined style={{ marginRight: 3, fontSize: 10 }} />
                                     Error
                                 </div>
@@ -334,10 +334,10 @@ const AuditList: React.FC = () => {
                                 style={{ borderRadius: 8, textAlign: 'center', padding: '8px 0', height: '100%' }}
                                 loading={isStatsLoading}
                             >
-                                <div style={{ fontSize: 20, fontWeight: 600, color: '#faad14' }}>
+                                <div style={{ fontSize: 20, fontWeight: 600, color: 'var(--color-warning)' }}>
                                     {statsResponse?.data?.average_response_ms ? `${Math.round(statsResponse.data.average_response_ms)}ms` : '0ms'}
                                 </div>
-                                <div style={{ fontSize: 11, color: '#8c8c8c', marginTop: 2 }}>
+                                <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>
                                     <ThunderboltOutlined style={{ marginRight: 3, fontSize: 10 }} />
                                     Avg Time
                                 </div>
@@ -355,7 +355,7 @@ const AuditList: React.FC = () => {
                                 style={{ borderRadius: 8, height: '100%' }}
                                 loading={isStatsLoading}
                             >
-                                <div style={{ fontSize: 12, color: '#8c8c8c', marginBottom: 8, fontWeight: 600 }}>
+                                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8, fontWeight: 600 }}>
                                     <UserOutlined style={{ marginRight: 4 }} />
                                     Top Users
                                 </div>
@@ -376,7 +376,7 @@ const AuditList: React.FC = () => {
                                                     justifyContent: 'space-between',
                                                     alignItems: 'center',
                                                     padding: '2px 8px',
-                                                    background: '#f0f8ff',
+                                                    background: 'var(--color-primary-light)',
                                                     borderRadius: 4,
                                                     fontSize: 11
                                                 }}>
@@ -387,7 +387,7 @@ const AuditList: React.FC = () => {
                                                 </div>
                                             ))
                                     ) : (
-                                        <div style={{ textAlign: 'center', color: '#ccc', fontSize: 11, marginTop: 20 }}>
+                                        <div style={{ textAlign: 'center', color: 'var(--text-tertiary)', fontSize: 11, marginTop: 20 }}>
                                             No data available
                                         </div>
                                     )}
@@ -400,7 +400,7 @@ const AuditList: React.FC = () => {
                                 style={{ borderRadius: 8, height: '100%' }}
                                 loading={isStatsLoading}
                             >
-                                <div style={{ fontSize: 12, color: '#8c8c8c', marginBottom: 8, fontWeight: 600 }}>
+                                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8, fontWeight: 600 }}>
                                     <BarChartOutlined style={{ marginRight: 4 }} />
                                     Top Actions
                                 </div>
@@ -421,7 +421,7 @@ const AuditList: React.FC = () => {
                                                     justifyContent: 'space-between',
                                                     alignItems: 'center',
                                                     padding: '2px 8px',
-                                                    background: '#f5f5f5',
+                                                    background: 'var(--bg-hover)',
                                                     borderRadius: 4,
                                                     fontSize: 11
                                                 }}>
@@ -432,7 +432,7 @@ const AuditList: React.FC = () => {
                                                 </div>
                                             ))
                                     ) : (
-                                        <div style={{ textAlign: 'center', color: '#ccc', fontSize: 11, marginTop: 20 }}>
+                                        <div style={{ textAlign: 'center', color: 'var(--text-tertiary)', fontSize: 11, marginTop: 20 }}>
                                             No data available
                                         </div>
                                     )}
@@ -445,7 +445,7 @@ const AuditList: React.FC = () => {
                                 style={{ borderRadius: 8, height: '100%' }}
                                 loading={isStatsLoading}
                             >
-                                <div style={{ fontSize: 12, color: '#8c8c8c', marginBottom: 8, fontWeight: 600 }}>
+                                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8, fontWeight: 600 }}>
                                     <DatabaseOutlined style={{ marginRight: 4 }} />
                                     Top Resources
                                 </div>
@@ -466,7 +466,7 @@ const AuditList: React.FC = () => {
                                                     justifyContent: 'space-between',
                                                     alignItems: 'center',
                                                     padding: '2px 8px',
-                                                    background: '#f9f0ff',
+                                                    background: 'var(--bg-hover)',
                                                     borderRadius: 4,
                                                     fontSize: 11
                                                 }}>
@@ -477,7 +477,7 @@ const AuditList: React.FC = () => {
                                                 </div>
                                             ))
                                     ) : (
-                                        <div style={{ textAlign: 'center', color: '#ccc', fontSize: 11, marginTop: 20 }}>
+                                        <div style={{ textAlign: 'center', color: 'var(--text-tertiary)', fontSize: 11, marginTop: 20 }}>
                                             No data available
                                         </div>
                                     )}
@@ -619,19 +619,19 @@ const AuditList: React.FC = () => {
                                     onClick={applyFilters}
                                     style={{
                                         borderRadius: 6,
-                                        background: 'white',
-                                        border: '1px solid #d9d9d9',
+                                        background: 'var(--bg-surface)',
+                                        border: '1px solid var(--border-default)',
                                         transition: 'all 0.3s ease'
                                     }}
                                     onMouseEnter={(e) => {
-                                        e.currentTarget.style.background = 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)';
-                                        e.currentTarget.style.color = 'white';
-                                        e.currentTarget.style.borderColor = '#056ccd';
+                                        e.currentTarget.style.background = 'var(--gradient-primary)';
+                                        e.currentTarget.style.color = 'var(--text-on-primary)';
+                                        e.currentTarget.style.borderColor = 'var(--color-primary)';
                                     }}
                                     onMouseLeave={(e) => {
-                                        e.currentTarget.style.background = 'white';
-                                        e.currentTarget.style.color = 'rgba(0, 0, 0, 0.88)';
-                                        e.currentTarget.style.borderColor = '#d9d9d9';
+                                        e.currentTarget.style.background = 'var(--bg-surface)';
+                                        e.currentTarget.style.color = 'var(--text-primary)';
+                                        e.currentTarget.style.borderColor = 'var(--border-default)';
                                     }}
                                 >
                                     Search
@@ -655,7 +655,7 @@ const AuditList: React.FC = () => {
             <Card
                 style={{
                     borderRadius: 12,
-                    boxShadow: '0 2px 8px rgba(5,117,230,0.06)',
+                    boxShadow: 'var(--shadow-sm)',
                 }}
                 styles={{
                     body: { padding: 12 }
@@ -687,7 +687,7 @@ const AuditList: React.FC = () => {
                     <div style={{
                         display: 'inline-flex',
                         alignItems: 'center',
-                        color: '#8c8c8c',
+                        color: 'var(--text-secondary)',
                         fontSize: 12,
                         padding: '4px 0',
                         gap: 6

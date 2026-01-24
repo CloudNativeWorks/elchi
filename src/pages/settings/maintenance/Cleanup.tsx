@@ -78,7 +78,7 @@ const Cleanup: React.FC = () => {
                                     <Tag color="blue">{data.mode}</Tag>
                                 </Descriptions.Item>
                                 <Descriptions.Item label="Total Deleted">
-                                    <Text strong style={{ color: '#52c41a' }}>{data.total_deleted}</Text>
+                                    <Text strong style={{ color: 'var(--color-success)' }}>{data.total_deleted}</Text>
                                 </Descriptions.Item>
                             </Descriptions>
                             {data.total_deleted > 0 && (
@@ -118,7 +118,7 @@ const Cleanup: React.FC = () => {
 
         confirm({
             title: 'Confirm Resource Cleanup',
-            icon: <ExclamationCircleOutlined style={{ color: '#ff4d4f' }} />,
+            icon: <ExclamationCircleOutlined style={{ color: 'var(--color-danger)' }} />,
             width: 500,
             content: (
                 <div>
@@ -159,7 +159,7 @@ const Cleanup: React.FC = () => {
     return (
         <div style={{ width: '100%', padding: '12px' }}>
                 <div style={{ marginBottom: '24px' }}>
-                    <Title level={3} style={{ margin: '0 0 8px 0', color: '#1f2937' }}>
+                    <Title level={3} style={{ margin: '0 0 8px 0', color: 'var(--text-primary)' }}>
                         Resource Cleanup
                     </Title>
                     <Text type="secondary">

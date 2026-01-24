@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Col, Collapse, Drawer, Row, Empty } from 'antd';
+import { Button, Col, Collapse, Drawer, Row, Empty, Popconfirm } from 'antd';
 import { compareVeri, memorizeComponent } from "@/hooks/useMemoComponent";
 import { FieldComponent } from "@/elchi/components/common/FormItems";
 import { FieldTypes } from "@/common/statics/general";
@@ -7,7 +7,7 @@ import CommonComponentHeaderValue from "./HeaderValue";
 import { handleChangeResources } from "@/redux/dispatcher";
 import { ActionType, ResourceType } from "@/redux/reducer-helpers/common";
 import { useDispatch } from "react-redux";
-import { DeleteTwoTone, TagsOutlined } from "@ant-design/icons";
+import { DeleteOutlined, TagsOutlined } from "@ant-design/icons";
 import ECard from "@/elchi/components/common/ECard";
 import { EForm } from "@/elchi/components/common/e-components/EForm";
 import ElchiIconButton from "@/elchi/components/common/ElchiIconButton";
@@ -92,8 +92,8 @@ const CommonComponentHeaderValues: React.FC<GeneralProps> = ({ veri }) => {
 
                 {!veri.reduxStore || veri.reduxStore.length === 0 ? (
                     <div style={{
-                        background: 'linear-gradient(135deg, rgba(248, 250, 252, 0.8) 0%, rgba(241, 245, 249, 0.9) 100%)',
-                        border: '2px dashed rgba(148, 163, 184, 0.3)',
+                        background: 'var(--bg-active)',
+                        border: '2px dashed var(--border-default)',
                         borderRadius: 16,
                         padding: '40px 20px',
                         textAlign: 'center',
@@ -102,11 +102,11 @@ const CommonComponentHeaderValues: React.FC<GeneralProps> = ({ veri }) => {
                         transition: 'all 0.3s ease',
                     }}>
                         <Empty
-                            image={<TagsOutlined style={{ fontSize: 48, color: '#94a3b8' }} />}
+                            image={<TagsOutlined style={{ fontSize: 48, color: 'var(--text-secondary)' }} />}
                             description={
                                 <div style={{ marginTop: 16 }}>
                                     <h4 style={{
-                                        color: '#475569',
+                                        color: 'var(--text-primary)',
                                         marginBottom: 8,
                                         fontSize: 16,
                                         fontWeight: 500
@@ -114,7 +114,7 @@ const CommonComponentHeaderValues: React.FC<GeneralProps> = ({ veri }) => {
                                         No Header Values
                                     </h4>
                                     <p style={{
-                                        color: '#64748b',
+                                        color: 'var(--text-secondary)',
                                         margin: 0,
                                         fontSize: 14,
                                         lineHeight: 1.5
@@ -143,30 +143,42 @@ const CommonComponentHeaderValues: React.FC<GeneralProps> = ({ veri }) => {
                                     label: (
                                         <span style={{
                                             fontWeight: 500,
-                                            color: '#1e293b',
+                                            color: 'var(--text-primary)',
                                             fontSize: 14
                                         }}>
                                             {`${index}) ${data?.key || 'Header'}`}
                                         </span>
                                     ),
                                     extra:
-                                        <Button
-                                            key={"btn_" + index.toString()}
-                                            icon={<DeleteTwoTone twoToneColor="#ef4444" />}
-                                            size='small'
-                                            onClick={(e) => { onRemove(e, index) }}
-                                            iconPosition={"end"}
-                                            style={{
-                                                borderRadius: 8,
-                                                border: '1px solid rgba(239, 68, 68, 0.2)',
-                                                background: 'rgba(254, 242, 242, 0.5)',
-                                            }}
-                                        />,
+                                        <Popconfirm
+                                            title="Delete confirmation"
+                                            description="Are you sure you want to delete this item?"
+                                            onConfirm={(e) => { onRemove(e as React.MouseEvent<HTMLElement>, index) }}
+                                            okText="Yes"
+                                            cancelText="No"
+                                            placement="left"
+                                        >
+                                            <Button
+                                                key={"btn_" + index.toString()}
+                                                type="text"
+                                                danger
+                                                icon={<DeleteOutlined style={{ color: 'var(--color-danger)' }} />}
+                                                size='small'
+                                                className="elchi-delete-button"
+                                                onClick={(e) => e.stopPropagation()}
+                                                iconPosition={"end"}
+                                                style={{
+                                                    borderRadius: 8,
+                                                    border: '1px solid var(--color-danger-border)',
+                                                    background: 'var(--color-danger-light)',
+                                                }}
+                                            />
+                                        </Popconfirm>,
                                     style: {
                                         marginBottom: 8,
                                         borderRadius: 12,
-                                        border: '1px solid rgba(226, 232, 240, 0.5)',
-                                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.8) 100%)',
+                                        border: '1px solid var(--border-default)',
+                                        background: 'var(--card-bg)',
                                         backdropFilter: 'blur(10px)',
                                     },
                                     children:

@@ -163,7 +163,7 @@ class ComponentLoadErrorBoundary extends Component<Props, State> {
                                 <Panel header="Error Stack Trace" key="stack">
                                     <Paragraph>
                                         <pre style={{
-                                            background: '#f5f5f5',
+                                            background: 'var(--code-bg)',
                                             padding: '12px',
                                             borderRadius: '4px',
                                             fontSize: '12px',
@@ -177,7 +177,7 @@ class ComponentLoadErrorBoundary extends Component<Props, State> {
                                     <Panel header="Component Stack" key="component">
                                         <Paragraph>
                                             <pre style={{
-                                                background: '#f5f5f5',
+                                                background: 'var(--code-bg)',
                                                 padding: '12px',
                                                 borderRadius: '4px',
                                                 fontSize: '12px',

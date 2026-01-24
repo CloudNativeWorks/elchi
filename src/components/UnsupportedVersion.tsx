@@ -30,8 +30,9 @@ const UnsupportedVersion: React.FC<UnsupportedVersionProps> = ({ version }) => {
             ]}
             style={{
                 padding: '60px 24px',
-                background: '#fafafa',
-                borderRadius: 8
+                background: 'var(--card-bg)',
+                borderRadius: 8,
+                border: '1px solid var(--border-default)'
             }}
         />
     );

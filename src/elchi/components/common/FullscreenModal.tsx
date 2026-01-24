@@ -23,7 +23,7 @@ const FullscreenModal: React.FC<FullscreenModalProps> = ({ open, title, onClose,
                         }}
                         onMouseEnter={(e) => {
                             e.currentTarget.style.transform = 'scale(1.2)';
-                            e.currentTarget.style.color = '#1890ff';
+                            e.currentTarget.style.color = 'var(--color-primary)';
                         }}
                         onMouseLeave={(e) => {
                             e.currentTarget.style.transform = 'scale(1)';

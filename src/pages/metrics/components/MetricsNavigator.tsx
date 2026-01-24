@@ -115,7 +115,7 @@ const MetricsNavigator: React.FC<MetricsNavigatorProps> = ({
             <Drawer
                 title={
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <BarChartOutlined style={{ color: '#1890ff' }} />
+                        <BarChartOutlined style={{ color: 'var(--color-primary)' }} />
                         <span>Metrics Navigator</span>
                         <CountBadge count={totalMetrics} />
                     </div>
@@ -145,30 +145,30 @@ const MetricsNavigator: React.FC<MetricsNavigatorProps> = ({
                         size="large"
                     />
                     {searchText && (
-                        <div style={{ marginTop: '8px', fontSize: '12px', color: '#666' }}>
+                        <div style={{ marginTop: '8px', fontSize: '12px', color: 'var(--text-secondary)' }}>
                             {totalMetrics} metric(s) found
                         </div>
                     )}
                 </SearchContainer>
 
                 {!selectedService ? (
-                    <div style={{ 
-                        padding: '40px 20px', 
-                        textAlign: 'center', 
-                        color: '#999' 
+                    <div style={{
+                        padding: '40px 20px',
+                        textAlign: 'center',
+                        color: 'var(--text-secondary)'
                     }}>
                         <DashboardOutlined style={{ fontSize: '48px', marginBottom: '16px' }} />
                         <div>Please select a service first</div>
                     </div>
                 ) : totalMetrics === 0 ? (
-                    <div style={{ 
-                        padding: '40px 20px', 
-                        textAlign: 'center', 
-                        color: '#999' 
+                    <div style={{
+                        padding: '40px 20px',
+                        textAlign: 'center',
+                        color: 'var(--text-secondary)'
                     }}>
                         <SearchOutlined style={{ fontSize: '48px', marginBottom: '16px' }} />
                         <div>No metrics found</div>
-                        <div style={{ fontSize: '12px', marginTop: '8px' }}>
+                        <div style={{ fontSize: '12px', marginTop: '8px', color: 'var(--text-muted)' }}>
                             Try different search terms
                         </div>
                     </div>
@@ -179,12 +179,12 @@ const MetricsNavigator: React.FC<MetricsNavigatorProps> = ({
                 )}
 
                 <Divider style={{ margin: 0 }} />
-                <div style={{ 
-                    padding: '12px 16px', 
-                    background: '#fafafa', 
+                <div style={{
+                    padding: '12px 16px',
+                    background: 'var(--bg-elevated)',
                     textAlign: 'center',
                     fontSize: '12px',
-                    color: '#999'
+                    color: 'var(--text-secondary)'
                 }}>
                     Click on any metric to navigate
                 </div>

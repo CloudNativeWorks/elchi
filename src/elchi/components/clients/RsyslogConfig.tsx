@@ -268,9 +268,9 @@ const RsyslogConfig: React.FC<RsyslogConfigProps> = ({ clientId, downstreamAddre
             <div style={{
                 marginBottom: 16,
                 padding: '10px 14px',
-                background: '#fafafa',
+                background: 'var(--bg-surface)',
                 borderRadius: 6,
-                border: '1px solid #f0f0f0',
+                border: '1px solid var(--border-default)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between'
@@ -280,8 +280,8 @@ const RsyslogConfig: React.FC<RsyslogConfigProps> = ({ clientId, downstreamAddre
                         width: 7,
                         height: 7,
                         borderRadius: '50%',
-                        background: status?.is_running ? '#52c41a' : '#d9d9d9',
-                        boxShadow: status?.is_running ? '0 0 6px rgba(82, 196, 26, 0.6)' : 'none'
+                        background: status?.is_running ? 'var(--color-success)' : 'var(--text-tertiary)',
+                        boxShadow: status?.is_running ? '0 0 6px var(--color-success)' : 'none'
                     }} />
                     <span style={{ fontSize: 13, fontWeight: 500 }}>
                         {status?.is_running ? 'Running' : 'Stopped'}
@@ -336,10 +336,10 @@ const RsyslogConfig: React.FC<RsyslogConfigProps> = ({ clientId, downstreamAddre
             ) : (
                 <div
                     style={{
-                        background: 'white',
+                        background: 'var(--card-bg)',
                         borderRadius: 8,
                         padding: 16,
-                        border: '1px solid #f0f0f0'
+                        border: '1px solid var(--border-default)'
                     }}
                 >
                     {/* Header */}
@@ -349,7 +349,7 @@ const RsyslogConfig: React.FC<RsyslogConfigProps> = ({ clientId, downstreamAddre
                         alignItems: 'center',
                         marginBottom: 16,
                         paddingBottom: 12,
-                        borderBottom: '1px solid #f0f0f0'
+                        borderBottom: '1px solid var(--border-default)'
                     }}>
                         <span style={{ fontSize: 14, fontWeight: 600 }}>Configuration</span>
                         {!editMode ? (
@@ -386,16 +386,16 @@ const RsyslogConfig: React.FC<RsyslogConfigProps> = ({ clientId, downstreamAddre
                     <div
                         style={{
                             padding: 12,
-                            background: '#fafafa',
+                            background: 'var(--bg-surface)',
                             borderRadius: 6,
-                            border: '1px solid #f0f0f0'
+                            border: '1px solid var(--border-default)'
                         }}
                     >
                         <Space direction="vertical" style={{ width: '100%' }} size={8}>
                             {/* Target */}
                             <Row gutter={12} align="middle">
                                 <Col flex="0 0 100px">
-                                    <span style={{ fontSize: 12, color: '#595959', fontWeight: 500 }}>Target:</span>
+                                    <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 500 }}>Target:</span>
                                 </Col>
                                 <Col flex="1">
                                     {editMode ? (
@@ -415,7 +415,7 @@ const RsyslogConfig: React.FC<RsyslogConfigProps> = ({ clientId, downstreamAddre
                             {/* Port */}
                             <Row gutter={12} align="middle">
                                 <Col flex="0 0 100px">
-                                    <span style={{ fontSize: 12, color: '#595959', fontWeight: 500 }}>Port:</span>
+                                    <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 500 }}>Port:</span>
                                 </Col>
                                 <Col flex="1">
                                     {editMode ? (
@@ -437,7 +437,7 @@ const RsyslogConfig: React.FC<RsyslogConfigProps> = ({ clientId, downstreamAddre
                             {/* Protocol */}
                             <Row gutter={12} align="middle">
                                 <Col flex="0 0 100px">
-                                    <span style={{ fontSize: 12, color: '#595959', fontWeight: 500 }}>Protocol:</span>
+                                    <span style={{ fontSize: 12, color: 'var(--text-secondary)', fontWeight: 500 }}>Protocol:</span>
                                 </Col>
                                 <Col flex="1">
                                     {editMode ? (
@@ -493,8 +493,8 @@ const RsyslogConfig: React.FC<RsyslogConfigProps> = ({ clientId, downstreamAddre
                                     ) : logs.length > 0 ? (
                                         <div
                                             style={{
-                                                background: '#1e1e1e',
-                                                color: '#d4d4d4',
+                                                background: 'var(--terminal-bg)',
+                                                color: 'var(--terminal-text)',
                                                 padding: 12,
                                                 borderRadius: 6,
                                                 fontFamily: 'monospace',

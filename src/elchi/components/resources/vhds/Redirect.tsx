@@ -39,7 +39,7 @@ const ComponentRedirect: React.FC<GeneralProps> = ({ veri }) => {
     ]
 
     return (
-        <Card size='small' title={'Redirect'} styles={{ header: { background: 'white', color: 'black' } }} style={{ marginBottom: 8, width: '100%' }}>
+        <Card size='small' title={'Redirect'} styles={{ header: { background: 'var(--bg-surface)', color: 'var(--text-primary)' } }} style={{ marginBottom: 8, width: '100%' }}>
             <Row>
                 <HorizonTags veri={{
                     tags: vTags.ra?.RedirectAction,

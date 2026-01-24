@@ -70,7 +70,7 @@ const DirectiveSetCard: React.FC<DirectiveSetCardProps> = ({
             <Drawer
                 title={
                     <Space>
-                        <ThunderboltOutlined style={{ color: '#1890ff', fontSize: 20 }} />
+                        <ThunderboltOutlined style={{ color: 'var(--color-primary)', fontSize: 20 }} />
                         <span style={{ fontSize: 18, fontWeight: 600 }}>Quick Add Common Directives</span>
                     </Space>
                 }
@@ -83,9 +83,9 @@ const DirectiveSetCard: React.FC<DirectiveSetCardProps> = ({
                     {COMMON_DIRECTIVES.map(dir => (
                         <div key={dir.key} style={{
                             padding: 16,
-                            background: '#fafafa',
+                            background: 'var(--bg-surface)',
                             borderRadius: 8,
-                            border: '1px solid #e8e8e8'
+                            border: '1px solid var(--border-default)'
                         }}>
                             <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 4 }}>
                                 {dir.label}
@@ -113,33 +113,33 @@ const DirectiveSetCard: React.FC<DirectiveSetCardProps> = ({
             </Drawer>
         <div
             style={{
-                background: 'white',
+                background: 'var(--card-bg)',
                 borderRadius: 12,
-                border: '1px solid #e5e7eb',
-                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                border: '1px solid var(--border-default)',
+                boxShadow: 'var(--shadow-sm)',
                 overflow: 'hidden',
                 marginBottom: 16
             }}
         >
             {/* Header */}
             <div style={{
-                background: '#f9fafb',
-                borderBottom: '1px solid #e5e7eb',
+                background: 'var(--bg-surface)',
+                borderBottom: '1px solid var(--border-default)',
                 padding: '12px 16px',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <Text strong style={{ fontSize: 16, color: '#111827' }}>{setName}</Text>
-                    <Badge count={directives.length} style={{ backgroundColor: '#1890ff' }} />
+                    <Text strong style={{ fontSize: 16, color: 'var(--text-primary)' }}>{setName}</Text>
+                    <Badge count={directives.length} style={{ backgroundColor: 'var(--color-primary)' }} />
                     {isDefault && (
                         <Tag color="green" style={{ fontSize: 12 }}>Default</Tag>
                     )}
                 </div>
                 <Button
                     type="text"
-                    icon={<CloseCircleOutlined style={{ fontSize: 18, color: '#6b7280' }} />}
+                    icon={<CloseCircleOutlined style={{ fontSize: 18, color: 'var(--text-secondary)' }} />}
                     onClick={onRemoveSet}
                     style={{
                         backgroundColor: 'transparent',
@@ -147,14 +147,14 @@ const DirectiveSetCard: React.FC<DirectiveSetCardProps> = ({
                         padding: 4
                     }}
                     onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#ff4d4f';
+                        e.currentTarget.style.backgroundColor = 'var(--color-danger)';
                         const icon = e.currentTarget.querySelector('.anticon') as HTMLElement;
                         if (icon) icon.style.color = '#ffffff';
                     }}
                     onMouseLeave={(e) => {
                         e.currentTarget.style.backgroundColor = 'transparent';
                         const icon = e.currentTarget.querySelector('.anticon') as HTMLElement;
-                        if (icon) icon.style.color = '#6b7280';
+                        if (icon) icon.style.color = 'var(--text-secondary)';
                     }}
                 />
             </div>

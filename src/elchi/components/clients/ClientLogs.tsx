@@ -57,12 +57,12 @@ const ClientLogs: React.FC<ClientLogProps> = ({ clientId }) => {
     const [activeLevels, setActiveLevels] = useState<string[]>([]);
     
     const logLevels = [
-        { key: 'info', label: 'Info', color: '#40a9ff' },
-        { key: 'warning', label: 'Warning', color: '#faad14' },
-        { key: 'error', label: 'Error', color: '#ff4d4f' },
-        { key: 'debug', label: 'Debug', color: '#b37feb' },
-        { key: 'trace', label: 'Trace', color: '#13c2c2' },
-        { key: 'critical', label: 'Critical', color: '#d4380d' },
+        { key: 'info', label: 'Info', color: 'var(--color-info)' },
+        { key: 'warning', label: 'Warning', color: 'var(--color-warning)' },
+        { key: 'error', label: 'Error', color: 'var(--color-danger)' },
+        { key: 'debug', label: 'Debug', color: 'var(--color-purple)' },
+        { key: 'trace', label: 'Trace', color: 'var(--color-cyan)' },
+        { key: 'critical', label: 'Critical', color: 'var(--color-danger-dark)' },
     ];
 
     const toggleLevel = (level: string) => {
@@ -136,14 +136,14 @@ const ClientLogs: React.FC<ClientLogProps> = ({ clientId }) => {
 
     const levelColor = (level: string) => {
         switch ((level || '').toLowerCase()) {
-            case 'error': return '#ff4d4f';
-            case 'warn': return '#faad14';
-            case 'warning': return '#faad14';
-            case 'info': return '#40a9ff';
-            case 'debug': return '#b37feb';
-            case 'trace': return '#13c2c2';
-            case 'critical': return '#d4380d';
-            default: return '#bfbfbf';
+            case 'error': return 'var(--color-danger)';
+            case 'warn': return 'var(--color-warning)';
+            case 'warning': return 'var(--color-warning)';
+            case 'info': return 'var(--color-info)';
+            case 'debug': return 'var(--color-purple)';
+            case 'trace': return 'var(--color-cyan)';
+            case 'critical': return 'var(--color-danger-dark)';
+            default: return 'var(--text-disabled)';
         }
     };
 
@@ -186,20 +186,20 @@ const ClientLogs: React.FC<ClientLogProps> = ({ clientId }) => {
             <div
                 ref={logListRef}
                 style={{
-                    background: '#fff',
+                    background: 'var(--card-bg)',
                     borderRadius: 8,
                     minHeight: 700,
                     maxHeight: 700,
                     overflowY: 'auto',
                     textAlign: 'left',
                     position: 'relative',
-                    border: '1px solid #e8e8e8'
+                    border: '1px solid var(--border-default)'
                 }}
             >
                 {error ? (
                     <Alert type="error" message={error} style={{ margin: 24 }} />
                 ) : filteredLogs.length === 0 && !loading ? (
-                    <div style={{ textAlign: 'center', color: '#888', padding: 48 }}>
+                    <div style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: 48 }}>
                         <div style={{ fontSize: 40, marginBottom: 12 }}>🗒️</div>
                         <div style={{ fontSize: 18, fontWeight: 500 }}>No logs found!</div>
                         <div style={{ fontSize: 14, marginTop: 4 }}>Check your search and filter criteria.</div>
@@ -211,41 +211,41 @@ const ClientLogs: React.FC<ClientLogProps> = ({ clientId }) => {
                             position: 'sticky',
                             top: 0,
                             zIndex: 10,
-                            background: '#f8f9fa',
-                            borderBottom: '2px solid #dee2e6',
+                            background: 'var(--bg-surface)',
+                            borderBottom: '2px solid var(--border-default)',
                             display: 'flex',
                             alignItems: 'center',
                             padding: '12px 16px',
                             fontSize: 12,
                             fontWeight: 600,
-                            color: '#495057',
+                            color: 'var(--text-secondary)',
                             textTransform: 'uppercase',
                             letterSpacing: '0.5px'
                         }}>
                             {/* Line Number Header */}
-                            <div style={{ 
-                                minWidth: 40, 
-                                textAlign: 'right', 
+                            <div style={{
+                                minWidth: 40,
+                                textAlign: 'right',
                                 marginRight: 12,
-                                color: '#6c757d'
+                                color: 'var(--text-tertiary)'
                             }}>
                                 #
                             </div>
 
                             {/* Timestamp Header */}
-                            <div style={{ 
-                                minWidth: 140, 
+                            <div style={{
+                                minWidth: 140,
                                 marginRight: 12,
-                                color: '#495057'
+                                color: 'var(--text-secondary)'
                             }}>
                                 Timestamp
                             </div>
 
                             {/* Level Header */}
-                            <div style={{ 
-                                minWidth: 60, 
+                            <div style={{
+                                minWidth: 60,
                                 marginRight: 12,
-                                color: '#495057'
+                                color: 'var(--text-secondary)'
                             }}>
                                 Level
                             </div>
@@ -254,7 +254,7 @@ const ClientLogs: React.FC<ClientLogProps> = ({ clientId }) => {
                             <div style={{
                                 flex: 1,
                                 paddingLeft: 8,
-                                color: '#495057'
+                                color: 'var(--text-secondary)'
                             }}>
                                 Message
                             </div>
@@ -268,25 +268,25 @@ const ClientLogs: React.FC<ClientLogProps> = ({ clientId }) => {
                                     display: 'flex',
                                     alignItems: 'flex-start',
                                     padding: '8px 16px',
-                                    borderBottom: '1px solid #f0f0f0',
-                                    background: idx % 2 === 0 ? '#fafafa' : '#fff',
+                                    borderBottom: '1px solid var(--border-default)',
+                                    background: idx % 2 === 0 ? 'var(--bg-surface)' : 'var(--card-bg)',
                                     transition: 'background-color 0.15s ease',
                                     cursor: 'pointer',
                                     fontSize: 13
                                 }}
                                 onMouseEnter={(e) => {
-                                    e.currentTarget.style.backgroundColor = '#e6f7ff';
+                                    e.currentTarget.style.backgroundColor = 'var(--bg-hover)';
                                 }}
                                 onMouseLeave={(e) => {
-                                    e.currentTarget.style.backgroundColor = idx % 2 === 0 ? '#fafafa' : '#fff';
+                                    e.currentTarget.style.backgroundColor = idx % 2 === 0 ? 'var(--bg-surface)' : 'var(--card-bg)';
                                 }}
                             >
                                 {/* Line Number */}
-                                <div style={{ 
-                                    minWidth: 40, 
-                                    textAlign: 'right', 
-                                    marginRight: 12, 
-                                    color: '#bfbfbf',
+                                <div style={{
+                                    minWidth: 40,
+                                    textAlign: 'right',
+                                    marginRight: 12,
+                                    color: 'var(--text-tertiary)',
                                     fontSize: 12,
                                     lineHeight: '20px'
                                 }}>
@@ -294,9 +294,9 @@ const ClientLogs: React.FC<ClientLogProps> = ({ clientId }) => {
                                 </div>
 
                                 {/* Timestamp */}
-                                <div style={{ 
-                                    minWidth: 140, 
-                                    color: '#666',
+                                <div style={{
+                                    minWidth: 140,
+                                    color: 'var(--text-secondary)',
                                     fontSize: 12,
                                     marginRight: 12,
                                     lineHeight: '20px'
@@ -329,7 +329,7 @@ const ClientLogs: React.FC<ClientLogProps> = ({ clientId }) => {
                                     fontFamily: "'Fira Code', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace",
                                     fontSize: 12,
                                     lineHeight: '20px',
-                                    color: '#2c3e50',
+                                    color: 'var(--text-primary)',
                                     paddingLeft: 8
                                 }}>
                                     {log.message.split('\n').map((line, i) => {
@@ -352,19 +352,19 @@ const ClientLogs: React.FC<ClientLogProps> = ({ clientId }) => {
                                     
                                     {/* Metadata */}
                                     {log.metadata && Object.keys(log.metadata).length > 0 && (
-                                        <div style={{ 
-                                            fontSize: 11, 
+                                        <div style={{
+                                            fontSize: 11,
                                             marginTop: 4,
                                             padding: '4px 8px',
-                                            background: '#f8f9fa',
+                                            background: 'var(--bg-surface)',
                                             borderRadius: 4,
-                                            borderLeft: '3px solid #13c2c2'
+                                            borderLeft: '3px solid var(--color-cyan)'
                                         }}>
                                             {Object.entries(log.metadata).map(([k, v]) => (
                                                 <span key={k} style={{ marginRight: 12, display: 'inline-block' }}>
-                                                    <span style={{ color: '#13c2c2', fontWeight: 600 }}>{k}</span>
-                                                    <span style={{ color: '#666', margin: '0 4px' }}>=</span>
-                                                    <span style={{ color: '#2c3e50' }}>{String(v)}</span>
+                                                    <span style={{ color: 'var(--color-cyan)', fontWeight: 600 }}>{k}</span>
+                                                    <span style={{ color: 'var(--text-secondary)', margin: '0 4px' }}>=</span>
+                                                    <span style={{ color: 'var(--text-primary)' }}>{String(v)}</span>
                                                 </span>
                                             ))}
                                         </div>
@@ -380,10 +380,10 @@ const ClientLogs: React.FC<ClientLogProps> = ({ clientId }) => {
                         top: '50%',
                         left: '50%',
                         transform: 'translate(-50%, -50%)',
-                        background: 'rgba(255, 255, 255, 0.9)',
+                        background: 'var(--bg-loading)',
                         padding: '20px',
                         borderRadius: '8px',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                        boxShadow: 'var(--shadow-lg)',
                         backdropFilter: 'blur(2px)'
                     }}>
                         <Spin size="large" />

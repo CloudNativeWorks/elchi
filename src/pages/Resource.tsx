@@ -263,25 +263,26 @@ const Resource: React.FC = () => {
                     GType={GType}
                 />
             ) : componentError ? (
-                <div style={{ 
-                    padding: '40px 20px', 
+                <div style={{
+                    padding: '40px 20px',
                     textAlign: 'center',
-                    background: '#fff',
+                    background: 'var(--card-bg)',
                     borderRadius: '8px',
                     margin: '20px',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                    boxShadow: 'var(--shadow-md)',
+                    border: '1px solid var(--border-default)'
                 }}>
-                    <h3 style={{ color: '#ff4d4f', marginBottom: '16px' }}>Component Loading Failed</h3>
-                    <p style={{ color: '#666', marginBottom: '20px' }}>{componentError}</p>
+                    <h3 style={{ color: 'var(--color-danger)', marginBottom: '16px' }}>Component Loading Failed</h3>
+                    <p style={{ color: 'var(--text-secondary)', marginBottom: '20px' }}>{componentError}</p>
                     {retryCount > 0 && (
-                        <p style={{ color: '#faad14', fontSize: '14px', marginBottom: '20px' }}>
+                        <p style={{ color: 'var(--color-warning)', fontSize: '14px', marginBottom: '20px' }}>
                             Retry attempts: {retryCount}/3
                         </p>
                     )}
                     <button 
                         onClick={() => retryLoad(GType.module)}
                         style={{
-                            background: '#1890ff',
+                            background: 'var(--color-primary)',
                             color: 'white',
                             border: 'none',
                             padding: '8px 16px',

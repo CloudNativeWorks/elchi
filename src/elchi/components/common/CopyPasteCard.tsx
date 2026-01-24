@@ -1,5 +1,5 @@
 import React, { ReactNode, useState } from 'react';
-import { Card, Dropdown, message } from 'antd';
+import { Card, Dropdown, message, Button } from 'antd';
 import { FullscreenOutlined } from '@ant-design/icons';
 import { CopySVG, CollapseSVG, ExpandSVG, SnippetSVG } from '@/assets/svg/icons';
 import { CopyPaste, cpItems } from '@/utils/copy-paste-tool';
@@ -60,42 +60,24 @@ const CCard: React.FC<CustomCardProps> = ({ children, reduxStore, title, ctype, 
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                         {/* Copy/Paste Menu */}
                         <Dropdown menu={{ items: cpItems, onClick: (e) => onCopyPaste(e) }} trigger={['click']}>
-                            <div style={{ marginTop: 5 }}>
+                            <span style={{ display: 'inline-flex', cursor: 'pointer' }}>
                                 <CopySVG />
-                            </div>
+                            </span>
                         </Dropdown>
 
                         {/* Snippet Button */}
                         {version && (
-                            <div style={{ display: 'inline-block', marginTop: 5 }}>
-                                <SnippetSVG onClick={() => setSnippetDrawerOpen(true)} />
-                            </div>
+                            <SnippetSVG onClick={() => setSnippetDrawerOpen(true)} />
                         )}
 
                         {/* Fullscreen Button */}
-                        <div
-                            style={{
-                                display: 'inline-block',
-                                marginTop: 5,
-                                cursor: 'pointer',
-                                transition: 'all 0.3s ease'
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.transform = 'scale(1.2)';
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.transform = 'scale(1)';
-                            }}
+                        <Button
+                            className="ADDSVGContainer"
+                            onClick={toggleFullscreen}
+                            title="Toggle Fullscreen"
                         >
-                            <FullscreenOutlined
-                                onClick={toggleFullscreen}
-                                style={{
-                                    fontSize: 14,
-                                    color: '#fff',
-                                    filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))'
-                                }}
-                            />
-                        </div>
+                            <FullscreenOutlined style={{ fontSize: 13 }} />
+                        </Button>
 
                         {/* Collapse/Expand */}
                         {expanded ? <CollapseSVG onClick={toggleExpand} /> : <ExpandSVG onClick={toggleExpand} />}
@@ -113,7 +95,7 @@ const CCard: React.FC<CustomCardProps> = ({ children, reduxStore, title, ctype, 
                     children
                 )}
             </Card >
-            
+
             {/* Snippet Drawer */}
             {version && (
                 <SnippetDrawer

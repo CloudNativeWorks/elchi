@@ -9,7 +9,7 @@
   background: $bg-surface;
   border-radius: $radius-lg;
   padding: $space-lg;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-sm);
 }
 
 .header {
@@ -55,9 +55,9 @@
   justify-content: center;
   gap: $space-sm;
   padding: $space-lg;
-  background: linear-gradient(135deg, rgba(10, 127, 218, 0.05) 0%, rgba(0, 198, 251, 0.05) 100%);
+  background: linear-gradient(135deg, var(--color-primary-bg) 0%, var(--color-primary-bg) 100%);
   border-radius: $radius-lg;
-  border: 1px solid rgba(10, 127, 218, 0.2);
+  border: 1px solid var(--color-primary-border);
   transition: all $transition-normal;
   overflow: hidden;
   text-align: center;
@@ -77,9 +77,9 @@
 
   &:hover {
     transform: translateY(-4px);
-    border-color: rgba(10, 127, 218, 0.4);
-    box-shadow: 0 8px 32px rgba(10, 127, 218, 0.2);
-    background: linear-gradient(135deg, rgba(10, 127, 218, 0.1) 0%, rgba(0, 198, 251, 0.1) 100%);
+    border-color: var(--color-primary);
+    box-shadow: 0 8px 32px var(--shadow-primary-color);
+    background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary-light) 100%);
 
     &::before {
       opacity: 1;

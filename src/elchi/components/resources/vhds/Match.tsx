@@ -83,7 +83,7 @@ const ComponentRouteMatch: React.FC<GeneralProps> = ({ veri }) => {
     ]
 
     return (
-        <Card size='small' title={'Match'} styles={{ header: { background: 'white', color: 'black' } }} style={{ marginBottom: 8, width: '100%' }}>
+        <Card size='small' title={'Match'} styles={{ header: { background: 'var(--bg-surface)', color: 'var(--text-primary)' } }} style={{ marginBottom: 8, width: '100%' }}>
             <HorizonTags veri={{
                 tags: vTags.rm?.RouteMatch,
                 selectedTags: selectedTags,

@@ -158,7 +158,7 @@ const BGPRoutesContent: React.FC<BGPRoutesContentProps> = ({ clientId }) => {
                             <div>
                                 <Text strong>{uniquePeers[0] || 'Local'}</Text>
                                 {uniquePeers.length > 1 && (
-                                    <div style={{ fontSize: 11, color: '#666' }}>
+                                    <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
                                         +{uniquePeers.length - 1} more
                                     </div>
                                 )}
@@ -179,7 +179,7 @@ const BGPRoutesContent: React.FC<BGPRoutesContentProps> = ({ clientId }) => {
                     <div>
                         <Text>{nextHop.ip}</Text>
                         {nextHop.hostname && (
-                            <div style={{ fontSize: 12, color: '#666' }}>
+                            <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>
                                 {nextHop.hostname}
                             </div>
                         )}
@@ -334,9 +334,9 @@ const BGPRoutesContent: React.FC<BGPRoutesContentProps> = ({ clientId }) => {
                                     {path.nexthops.map((nh, nhIndex) => (
                                         <div key={nhIndex} style={{
                                             padding: '8px 12px',
-                                            background: '#f8f9fa',
+                                            background: 'var(--bg-elevated)',
                                             borderRadius: 6,
-                                            border: '1px solid #e9ecef'
+                                            border: '1px solid var(--border-default)'
                                         }}>
                                             <Space>
                                                 <Text strong>{nh.ip}</Text>
@@ -406,7 +406,7 @@ const BGPRoutesContent: React.FC<BGPRoutesContentProps> = ({ clientId }) => {
             children: (
                 <Card style={{ borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
                     {routesInfo && (
-                        <div style={{ marginBottom: 16, padding: '12px 16px', background: '#f8f9fa', borderRadius: 8 }}>
+                        <div style={{ marginBottom: 16, padding: '12px 16px', background: 'var(--bg-elevated)', borderRadius: 8 }}>
                             <Space size="large">
                                 <Text><strong>Total Routes:</strong> {routesInfo.totalReceived}</Text>
                                 <Text><strong>Total Paths:</strong> {routesInfo.totalPaths}</Text>

@@ -73,26 +73,27 @@ const AddRoutingPolicyCard: React.FC<AddRoutingPolicyCardProps> = ({ routingTabl
     };
 
     return (
-        <div style={{ 
-            width: '100%', 
-            background: '#fff', 
-            borderRadius: 14, 
-            padding: '20px', 
-            marginTop: 0, 
-            marginLeft: 0, 
+        <div style={{
+            width: '100%',
+            background: 'var(--card-bg)',
+            borderRadius: 14,
+            padding: '20px',
+            marginTop: 0,
+            marginLeft: 0,
             minWidth: 0,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+            boxShadow: 'var(--shadow-sm)',
+            border: '1px solid var(--border-default)'
         }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
                 <Title level={5} style={{ margin: 0 }}>Add Routing Policy</Title>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <span style={{ fontSize: 14, color: '#666' }}>Single</span>
+                    <span style={{ fontSize: 14, color: 'var(--text-tertiary)' }}>Single</span>
                     <Switch 
                         checked={isMultipleMode}
                         onChange={handleModeChange}
                         size="small"
                     />
-                    <span style={{ fontSize: 14, color: '#666' }}>Multiple</span>
+                    <span style={{ fontSize: 14, color: 'var(--text-tertiary)' }}>Multiple</span>
                 </div>
             </div>
             <Divider style={{ marginBottom: 20, marginTop: -12 }} />
@@ -232,8 +233,8 @@ const AddRoutingPolicyCard: React.FC<AddRoutingPolicyCardProps> = ({ routingTabl
                             width: '100%', 
                             marginBottom: 16,
                             borderStyle: 'dashed',
-                            borderColor: '#1890ff',
-                            color: '#1890ff'
+                            borderColor: 'var(--color-primary)',
+                            color: 'var(--color-primary)'
                         }}
                     >
                         Add Another Policy
@@ -248,11 +249,11 @@ const AddRoutingPolicyCard: React.FC<AddRoutingPolicyCardProps> = ({ routingTabl
                     onClick={handleFinish}
                     disabled={!policies.some(p => p.from && p.table)}
                     style={{
-                        background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
-                        color: '#fff',
+                        background: 'var(--gradient-primary)',
+                        color: 'var(--text-on-primary)',
                         border: 'none',
                         fontWeight: 500,
-                        boxShadow: '0 2px 8px rgba(0,198,251,0.10)',
+                        boxShadow: 'var(--shadow-primary)',
                         transition: 'all 0.2s',
                     }}
                     className="modern-add-btn"

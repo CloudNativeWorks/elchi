@@ -335,22 +335,22 @@ const CertificateDetail: React.FC = () => {
       {!isCreateMode && isPolling && (
         <div
           style={{
-            background: 'white',
+            background: 'var(--card-bg)',
             borderRadius: 12,
-            border: '1px solid #e5e7eb',
-            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+            border: '1px solid var(--border-default)',
+            boxShadow: 'var(--shadow-sm)',
             padding: '24px',
             marginBottom: 16,
           }}
         >
           <Space direction="vertical" style={{ width: '100%' }} size="large">
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <SyncOutlined spin style={{ fontSize: 20, color: '#1890ff' }} />
+              <SyncOutlined spin style={{ fontSize: 20, color: 'var(--color-primary)' }} />
               <div>
                 <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 4 }}>
                   {certificate?.status === 'renewal_pending' ? 'Certificate Renewal in Progress' : 'DNS Verification in Progress'}
                 </div>
-                <div style={{ fontSize: 12, color: '#666' }}>
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
                   {certificate?.status === 'renewal_pending'
                     ? (jobStatus?.metadata?.acme?.dns_provider
                       ? `Renewing with ${jobStatus.metadata.acme.dns_provider} DNS provider...`
@@ -371,7 +371,7 @@ const CertificateDetail: React.FC = () => {
               }}
             />
 
-            <div style={{ fontSize: 12, color: '#666' }}>
+            <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
               Job ID: <code>{activeJobId}</code>
             </div>
           </Space>
@@ -410,10 +410,10 @@ const CertificateDetail: React.FC = () => {
       {shouldShowDnsVerification && challengesLoading && (
         <div
           style={{
-            background: 'white',
+            background: 'var(--card-bg)',
             borderRadius: 12,
-            border: '1px solid #e5e7eb',
-            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+            border: '1px solid var(--border-default)',
+            boxShadow: 'var(--shadow-sm)',
             padding: '24px',
             marginBottom: 16,
             textAlign: 'center',
@@ -422,7 +422,7 @@ const CertificateDetail: React.FC = () => {
           <Spin size="large">
             <div style={{ padding: '50px' }} />
           </Spin>
-          <div style={{ marginTop: 16, color: '#666' }}>Loading DNS challenges...</div>
+          <div style={{ marginTop: 16, color: 'var(--text-secondary)' }}>Loading DNS challenges...</div>
         </div>
       )}
 
@@ -440,24 +440,24 @@ const CertificateDetail: React.FC = () => {
       {isCreateMode ? (
         <div
           style={{
-            background: 'white',
+            background: 'var(--card-bg)',
             borderRadius: 12,
-            border: '1px solid #e5e7eb',
-            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+            border: '1px solid var(--border-default)',
+            boxShadow: 'var(--shadow-sm)',
             overflow: 'hidden',
             marginBottom: 16
           }}
         >
           {/* Header */}
           <div style={{
-            background: '#f9fafb',
-            borderBottom: '1px solid #e5e7eb',
+            background: 'var(--bg-surface)',
+            borderBottom: '1px solid var(--border-default)',
             padding: '12px 16px',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center'
           }}>
-            <span style={{ fontSize: 16, fontWeight: 600, color: '#111827' }}>Certificate Configuration</span>
+            <span style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)' }}>Certificate Configuration</span>
           </div>
 
           {/* Body */}
@@ -471,24 +471,24 @@ const CertificateDetail: React.FC = () => {
         certificate && (
           <div
             style={{
-              background: 'white',
+              background: 'var(--card-bg)',
               borderRadius: 12,
-              border: '1px solid #e5e7eb',
-              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+              border: '1px solid var(--border-default)',
+              boxShadow: 'var(--shadow-sm)',
               overflow: 'hidden',
               marginBottom: 16
             }}
           >
             {/* Header */}
             <div style={{
-              background: '#f9fafb',
-              borderBottom: '1px solid #e5e7eb',
+              background: 'var(--bg-surface)',
+              borderBottom: '1px solid var(--border-default)',
               padding: '12px 16px',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center'
             }}>
-              <span style={{ fontSize: 16, fontWeight: 600, color: '#111827' }}>Certificate Information</span>
+              <span style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)' }}>Certificate Information</span>
               <Space>
                 <Button
                   icon={<PlusOutlined />}
@@ -558,7 +558,7 @@ const CertificateDetail: React.FC = () => {
                       <Tag icon={<WarningOutlined />} color="warning">
                         Account Deleted
                       </Tag>
-                      <span style={{ color: '#999', fontSize: 12 }}>
+                      <span style={{ color: 'var(--text-tertiary)', fontSize: 12 }}>
                         (Deleted on {new Date(certificate.acme.account_deleted_at!).toLocaleDateString()})
                       </span>
                     </Space>
@@ -567,7 +567,7 @@ const CertificateDetail: React.FC = () => {
                   <>
                     <Descriptions.Item label="ACME Account" span={2}>
                       <Space>
-                        <SafetyCertificateOutlined style={{ color: '#1890ff' }} />
+                        <SafetyCertificateOutlined style={{ color: 'var(--color-primary)' }} />
                         <strong>{acmeAccount.name}</strong>
                         <Tag color={acmeAccount.status === 'active' || acmeAccount.status === 'registered' ? 'green' : 'red'}>
                           {acmeAccount.status}
@@ -665,7 +665,7 @@ const CertificateDetail: React.FC = () => {
             }))}
         />
         {certificate && (
-          <div style={{ marginTop: 12, fontSize: 12, color: '#666' }}>
+          <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-secondary)' }}>
             <strong>Current versions:</strong> {certificate.secret_versions.join(', ')}
           </div>
         )}

@@ -31,7 +31,7 @@ const FormattingPreviewModal: React.FC<FormattingPreviewModalProps> = ({
         <Modal
             title={
                 <Space>
-                    <WarningOutlined style={{ color: '#faad14' }} />
+                    <WarningOutlined style={{ color: 'var(--color-warning)' }} />
                     <span>Directive Auto-Formatting</span>
                 </Space>
             }
@@ -63,34 +63,36 @@ const FormattingPreviewModal: React.FC<FormattingPreviewModalProps> = ({
                         </div>
 
                         <div>
-                            <Text strong style={{ fontSize: 14, color: '#ff4d4f' }}>Before:</Text>
+                            <Text strong style={{ fontSize: 14, color: 'var(--color-danger)' }}>Before:</Text>
                             <pre style={{
-                                background: '#fff1f0',
-                                border: '1px solid #ffccc7',
+                                background: 'var(--color-danger-bg)',
+                                border: '1px solid var(--color-danger-border)',
                                 padding: 12,
                                 borderRadius: 4,
                                 marginTop: 8,
                                 whiteSpace: 'pre-wrap',
                                 wordBreak: 'break-word',
                                 fontFamily: 'monospace',
-                                fontSize: 12
+                                fontSize: 12,
+                                color: 'var(--text-primary)'
                             }}>
                                 {formatResult.original}
                             </pre>
                         </div>
 
                         <div>
-                            <Text strong style={{ fontSize: 14, color: '#52c41a' }}>After:</Text>
+                            <Text strong style={{ fontSize: 14, color: 'var(--color-success)' }}>After:</Text>
                             <pre style={{
-                                background: '#f6ffed',
-                                border: '1px solid #b7eb8f',
+                                background: 'var(--color-success-light)',
+                                border: '1px solid var(--color-success-border)',
                                 padding: 12,
                                 borderRadius: 4,
                                 marginTop: 8,
                                 whiteSpace: 'pre-wrap',
                                 wordBreak: 'break-word',
                                 fontFamily: 'monospace',
-                                fontSize: 12
+                                fontSize: 12,
+                                color: 'var(--text-primary)'
                             }}>
                                 {formatResult.formatted}
                             </pre>

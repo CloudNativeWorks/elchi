@@ -209,7 +209,7 @@ const NetworkConfigurationForm: React.FC<NetworkConfigurationFormProps> = ({
                             </div>
                         )}
 
-                        <Text style={{ fontSize: '12px', color: '#666' }}>
+                        <Text style={{ fontSize: '12px', color: 'var(--text-tertiary)' }}>
                             {safetyMode
                                 ? 'Test mode applies changes temporarily and automatically rolls back if connection is lost.'
                                 : 'Direct mode applies changes immediately without rollback protection.'
@@ -221,13 +221,13 @@ const NetworkConfigurationForm: React.FC<NetworkConfigurationFormProps> = ({
                 {/* Interface Configuration */}
                 <Card title="Interface Configuration" size="small" style={{ marginBottom: 16 }}>
                     {Object.keys(interfaces).length === 0 ? (
-                        <div style={{ textAlign: 'center', padding: '20px 0', color: '#999' }}>
+                        <div style={{ textAlign: 'center', padding: '20px 0', color: 'var(--text-tertiary)' }}>
                             <Text>No interfaces configured. Click "Add Interface" to get started.</Text>
                         </div>
                     ) : (
                         <Space direction="vertical" style={{ width: '100%' }} size="middle">
                             {Object.entries(interfaces).map(([name, config]) => (
-                                <Card key={name} size="small" title={name} style={{ backgroundColor: '#fafafa' }}>
+                                <Card key={name} size="small" title={name} style={{ backgroundColor: 'var(--bg-elevated)' }}>
                                     <Space direction="vertical" style={{ width: '100%' }}>
                                         <div>
                                             <Text>DHCP4: </Text>

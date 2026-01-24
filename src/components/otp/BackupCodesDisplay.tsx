@@ -61,15 +61,15 @@ export const BackupCodesDisplay: React.FC<BackupCodesDisplayProps> = ({ codes, u
         <>
             <Card
                 style={{
-                    background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-                    border: '1px solid #e8edf2',
+                    background: 'var(--card-bg)',
+                    border: '1px solid var(--border-default)',
                     borderRadius: 12
                 }}
             >
                 <Space direction="vertical" style={{ width: '100%' }} size="middle">
                     <div style={{ textAlign: 'center' }}>
-                        <Title level={4} style={{ margin: 0 }}>
-                            <WarningOutlined style={{ color: '#faad14', marginRight: 8 }} />
+                        <Title level={4} style={{ margin: 0, color: 'var(--text-primary)' }}>
+                            <WarningOutlined style={{ color: 'var(--color-warning)', marginRight: 8 }} />
                             Save Your Backup Codes
                         </Title>
                         <Text type="secondary" style={{ fontSize: 13 }}>
@@ -97,8 +97,8 @@ export const BackupCodesDisplay: React.FC<BackupCodesDisplayProps> = ({ codes, u
                                     <div
                                         style={{
                                             padding: '10px 12px',
-                                            background: '#fff',
-                                            border: '1px solid #e8edf2',
+                                            background: 'var(--card-bg)',
+                                            border: '1px solid var(--border-default)',
                                             borderRadius: 8,
                                             fontFamily: 'monospace',
                                             fontSize: 14,
@@ -120,7 +120,7 @@ export const BackupCodesDisplay: React.FC<BackupCodesDisplayProps> = ({ codes, u
                             icon={<DownloadOutlined />}
                             onClick={handleDownloadPDF}
                             style={{
-                                background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                                background: 'var(--gradient-primary)',
                                 border: 'none'
                             }}
                         >

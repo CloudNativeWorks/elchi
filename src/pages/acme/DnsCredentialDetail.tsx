@@ -183,24 +183,24 @@ const DnsCredentialDetail: React.FC = () => {
 
       <div
         style={{
-          background: 'white',
+          background: 'var(--card-bg)',
           borderRadius: 12,
-          border: '1px solid #e5e7eb',
-          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+          border: '1px solid var(--border-default)',
+          boxShadow: 'var(--shadow-sm)',
           overflow: 'hidden',
           marginBottom: 16
         }}
       >
         {/* Header */}
         <div style={{
-          background: '#f9fafb',
-          borderBottom: '1px solid #e5e7eb',
+          background: 'var(--bg-surface)',
+          borderBottom: '1px solid var(--border-default)',
           padding: '12px 16px',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center'
         }}>
-          <span style={{ fontSize: 16, fontWeight: 600, color: '#111827' }}>
+          <span style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)' }}>
             {isCreateMode ? 'DNS Credential Configuration' : 'DNS Credential Information'}
           </span>
         </div>
@@ -253,8 +253,8 @@ const DnsCredentialDetail: React.FC = () => {
                 </Descriptions.Item>
               </Descriptions>
 
-              <div style={{ marginTop: 16, padding: 12, background: '#f5f5f5', borderRadius: 8 }}>
-                <p style={{ margin: 0, fontSize: 12, color: '#666' }}>
+              <div style={{ marginTop: 16, padding: 12, background: 'var(--bg-surface)', borderRadius: 8 }}>
+                <p style={{ margin: 0, fontSize: 12, color: 'var(--text-secondary)' }}>
                   <strong>Security Note:</strong> Credentials are encrypted and cannot be viewed for security
                   reasons. To update credentials, please delete this credential and create a new one.
                 </p>

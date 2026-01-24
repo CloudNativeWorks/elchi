@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { 
-    Button, Input, Select, Card, Space, 
+import {
+    Button, Input, Select, Card, Space,
     Typography, Divider, Switch, InputNumber
 } from 'antd';
 import { CheckOutlined, CloseOutlined, PlusOutlined } from '@ant-design/icons';
@@ -23,11 +23,11 @@ interface PolicyForm {
     interface: string;
 }
 
-const ModernAddRoutingPolicyCard: React.FC<ModernAddRoutingPolicyCardProps> = ({ 
+const ModernAddRoutingPolicyCard: React.FC<ModernAddRoutingPolicyCardProps> = ({
     interfaces,
-    routingTables, 
-    onCancel, 
-    onSave 
+    routingTables,
+    onCancel,
+    onSave
 }) => {
     const [isMultipleMode, setIsMultipleMode] = useState(false);
     const [policies, setPolicies] = useState<PolicyForm[]>([
@@ -35,8 +35,8 @@ const ModernAddRoutingPolicyCard: React.FC<ModernAddRoutingPolicyCardProps> = ({
     ]);
 
     const handleAddPolicy = () => {
-        setPolicies([...policies, { 
-            from: '', to: '', table: '', priority: '100', interface: '' 
+        setPolicies([...policies, {
+            from: '', to: '', table: '', priority: '100', interface: ''
         }]);
     };
 
@@ -55,8 +55,8 @@ const ModernAddRoutingPolicyCard: React.FC<ModernAddRoutingPolicyCardProps> = ({
     const handleModeChange = (checked: boolean) => {
         setIsMultipleMode(checked);
         if (!checked) {
-            setPolicies([policies[0] || { 
-                from: '', to: '', table: '', priority: '100', interface: '' 
+            setPolicies([policies[0] || {
+                from: '', to: '', table: '', priority: '100', interface: ''
             }]);
         }
     };
@@ -96,20 +96,21 @@ const ModernAddRoutingPolicyCard: React.FC<ModernAddRoutingPolicyCardProps> = ({
     };
 
     const renderPolicyForm = (policy: PolicyForm, index: number) => (
-        <Card 
+        <Card
             key={index}
             size="small"
-            style={{ 
+            style={{
                 marginBottom: isMultipleMode ? 16 : 0,
-                border: '1px solid #f0f0f0',
-                borderRadius: 8
+                border: '1px solid var(--border-default)',
+                borderRadius: 8,
+                background: 'var(--card-bg)'
             }}
             title={isMultipleMode ? (
                 <Space>
-                    <span>Policy {index + 1}</span>
+                    <span style={{ color: 'var(--text-primary)' }}>Policy {index + 1}</span>
                     {policies.length > 1 && (
-                        <Button 
-                            type="text" 
+                        <Button
+                            type="text"
                             size="small"
                             danger
                             onClick={() => handleRemovePolicy(index)}
@@ -122,19 +123,19 @@ const ModernAddRoutingPolicyCard: React.FC<ModernAddRoutingPolicyCardProps> = ({
         >
             {/* Routing Policy Configuration */}
             <div style={{ marginBottom: 16 }}>
-                <Text strong style={{ fontSize: 13, color: '#666' }}>Routing Policy Configuration</Text>
+                <Text strong style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Routing Policy Configuration</Text>
             </div>
-            
+
             {/* First row: 3 columns */}
-            <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: '1fr 1fr 1fr', 
+            <div style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr 1fr',
                 gap: 16,
                 marginBottom: 16
             }}>
                 <div>
                     <div style={{ marginBottom: 8 }}>
-                        <Text strong style={{ fontSize: 13, color: '#262626' }}>From (Optional)</Text>
+                        <Text strong style={{ fontSize: 13, color: 'var(--text-primary)' }}>From (Optional)</Text>
                         <br />
                         <Text type="secondary" style={{ fontSize: 11 }}>Source network in CIDR format</Text>
                     </div>
@@ -148,7 +149,7 @@ const ModernAddRoutingPolicyCard: React.FC<ModernAddRoutingPolicyCardProps> = ({
 
                 <div>
                     <div style={{ marginBottom: 8 }}>
-                        <Text strong style={{ fontSize: 13, color: '#262626' }}>To (Optional)</Text>
+                        <Text strong style={{ fontSize: 13, color: 'var(--text-primary)' }}>To (Optional)</Text>
                         <br />
                         <Text type="secondary" style={{ fontSize: 11 }}>Destination network in CIDR format</Text>
                     </div>
@@ -162,8 +163,8 @@ const ModernAddRoutingPolicyCard: React.FC<ModernAddRoutingPolicyCardProps> = ({
 
                 <div>
                     <div style={{ marginBottom: 8 }}>
-                        <Text strong style={{ fontSize: 13, color: '#262626' }}>
-                            Table <span style={{ color: '#ff4d4f' }}>*</span>
+                        <Text strong style={{ fontSize: 13, color: 'var(--text-primary)' }}>
+                            Table <span style={{ color: 'var(--color-danger)' }}>*</span>
                         </Text>
                         <br />
                         <Text type="secondary" style={{ fontSize: 11 }}>Routing table for this policy</Text>
@@ -179,16 +180,16 @@ const ModernAddRoutingPolicyCard: React.FC<ModernAddRoutingPolicyCardProps> = ({
             </div>
 
             {/* Second row: Interface + Priority */}
-            <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: '1fr 1fr 1fr', 
+            <div style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr 1fr 1fr',
                 gap: 16,
                 marginBottom: 20
             }}>
                 <div>
                     <div style={{ marginBottom: 8 }}>
-                        <Text strong style={{ fontSize: 13, color: '#262626' }}>
-                            Interface <span style={{ color: '#ff4d4f' }}>*</span>
+                        <Text strong style={{ fontSize: 13, color: 'var(--text-primary)' }}>
+                            Interface <span style={{ color: 'var(--color-danger)' }}>*</span>
                         </Text>
                         <br />
                         <Text type="secondary" style={{ fontSize: 11 }}>Network interface for this policy</Text>
@@ -204,7 +205,7 @@ const ModernAddRoutingPolicyCard: React.FC<ModernAddRoutingPolicyCardProps> = ({
 
                 <div>
                     <div style={{ marginBottom: 8 }}>
-                        <Text strong style={{ fontSize: 13, color: '#262626' }}>Priority</Text>
+                        <Text strong style={{ fontSize: 13, color: 'var(--text-primary)' }}>Priority</Text>
                         <br />
                         <Text type="secondary" style={{ fontSize: 11 }}>Lower number = higher priority</Text>
                     </div>
@@ -226,30 +227,31 @@ const ModernAddRoutingPolicyCard: React.FC<ModernAddRoutingPolicyCardProps> = ({
 
     return (
         <Card
-            style={{ 
-                width: '100%', 
+            style={{
+                width: '100%',
                 borderRadius: 12,
-                boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
-                border: 'none'
+                boxShadow: 'var(--shadow-lg)',
+                border: '1px solid var(--border-default)',
+                background: 'var(--card-bg)'
             }}
             styles={{ body: { padding: '24px' } }}
         >
             {/* Header */}
-            <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'space-between', 
-                marginBottom: 20 
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: 20
             }}>
                 <div>
-                    <Title level={4} style={{ margin: 0 }}>Add Routing Policy</Title>
-                    <Text type="secondary" style={{ fontSize: 13 }}>
+                    <Title level={4} style={{ margin: 0, color: 'var(--text-primary)' }}>Add Routing Policy</Title>
+                    <Text type="secondary" style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
                         Configure policy-based routing rules
                     </Text>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <Text style={{ fontSize: 13, color: '#666' }}>Multiple policies</Text>
-                    <Switch 
+                    <Text style={{ fontSize: 13, color: 'var(--text-secondary)' }}>Multiple policies</Text>
+                    <Switch
                         checked={isMultipleMode}
                         onChange={handleModeChange}
                         size="small"
@@ -262,18 +264,18 @@ const ModernAddRoutingPolicyCard: React.FC<ModernAddRoutingPolicyCardProps> = ({
             {/* Policy Forms */}
             <div style={{ marginBottom: 24 }}>
                 {policies.map((policy, index) => renderPolicyForm(policy, index))}
-                
+
                 {isMultipleMode && (
                     <Button
                         type="dashed"
                         icon={<PlusOutlined />}
                         onClick={handleAddPolicy}
-                        style={{ 
-                            width: '100%', 
+                        style={{
+                            width: '100%',
                             height: 40,
                             borderRadius: 8,
-                            borderColor: '#1677ff',
-                            color: '#1677ff'
+                            borderColor: 'var(--color-primary)',
+                            color: 'var(--color-primary)'
                         }}
                     >
                         Add Another Policy
@@ -282,11 +284,11 @@ const ModernAddRoutingPolicyCard: React.FC<ModernAddRoutingPolicyCardProps> = ({
             </div>
 
             {/* Footer */}
-            <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
+            <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
                 alignItems: 'center',
-                borderTop: '1px solid #f0f0f0',
+                borderTop: '1px solid var(--border-default)',
                 paddingTop: 20
             }}>
                 <div>
@@ -295,20 +297,20 @@ const ModernAddRoutingPolicyCard: React.FC<ModernAddRoutingPolicyCardProps> = ({
                     </Text>
                 </div>
                 <Space>
-                    <Button 
+                    <Button
                         onClick={onCancel}
                         icon={<CloseOutlined />}
                         style={{ borderRadius: 6 }}
                     >
                         Cancel
                     </Button>
-                    <Button 
+                    <Button
                         type="primary"
                         onClick={handleFinish}
                         icon={<CheckOutlined />}
-                        style={{ 
+                        style={{
                             borderRadius: 6,
-                            background: 'linear-gradient(90deg, #1677ff, #00c6fb)'
+                            background: 'var(--gradient-primary)'
                         }}
                     >
                         Add {policies.length > 1 ? `${policies.length} Policies` : 'Policy'}

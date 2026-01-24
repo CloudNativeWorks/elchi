@@ -42,14 +42,14 @@ const ResourceDrawer: React.FC<ResourceDrawerProps> = ({ visible, onClose, messa
             background: token.blue1,
         },
         'my-drawer-mask': {
-            boxShadow: `inset 0 0 15px #fff`,
+            boxShadow: `inset 0 0 15px var(--shadow-color)`,
         },
         'my-drawer-header': headerStyle,
         'my-drawer-footer': {
             color: token.colorPrimary,
         },
         'my-drawer-content': {
-            borderLeft: '2px dotted #333',
+            borderLeft: '2px dotted var(--border-default)',
         },
     }));
 
@@ -68,7 +68,7 @@ const ResourceDrawer: React.FC<ResourceDrawerProps> = ({ visible, onClose, messa
             backdropFilter: 'blur(10px)',
         },
         content: {
-            boxShadow: '-10px 0 10px #666',
+            boxShadow: 'var(--shadow-lg)',
         },
         header: {
             ...headerStyle,

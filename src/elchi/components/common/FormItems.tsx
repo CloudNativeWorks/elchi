@@ -144,7 +144,7 @@ const FormItem = ({ veri }: RenderFormItemProps) => {
                             <div>
                                 <span>{filter.name}</span>
                                 <br />
-                                <small style={{ color: '#888' }}>{filter.gtype}</small>
+                                <small style={{ color: 'var(--text-tertiary)' }}>{filter.gtype}</small>
                             </div>
                         </Select.Option>
                     ))}
@@ -173,7 +173,7 @@ const FormItem = ({ veri }: RenderFormItemProps) => {
                     max={4294967295}
                     style={{ width: "100%" }}
                     type="number"
-                    suffix="second"
+                    addonAfter="second"
                     value={veri.value as number}
                     placeholder={veri.placeholder}
                     disabled={veri.disabled}
@@ -215,7 +215,7 @@ const FormItem = ({ veri }: RenderFormItemProps) => {
             break;
         case FieldTypes.ArrayIcon:
             component =
-                <Button 
+                <Button
                     type="text"
                     onClick={veri.drawerShow}
                     style={{
@@ -243,14 +243,14 @@ const FormItem = ({ veri }: RenderFormItemProps) => {
                         e.currentTarget.style.borderColor = 'rgba(5, 117, 230, 0.2)';
                     }}
                 >
-                    <IconBracet 
+                    <IconBracet
                         className="bang_Icon"
                         width="14"
                         height="14"
                         fill="#056ccd"
                     />
-                    {veri.condition && 
-                        <div 
+                    {veri.condition &&
+                        <div
                             style={{
                                 position: 'absolute',
                                 top: -2,

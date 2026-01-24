@@ -152,7 +152,7 @@ export const OTPSetupModal: React.FC<OTPSetupModalProps> = ({
                                 htmlType="submit"
                                 loading={isLoading}
                                 style={{
-                                    background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                                    background: 'var(--gradient-primary)',
                                     border: 'none'
                                 }}
                             >
@@ -175,7 +175,7 @@ export const OTPSetupModal: React.FC<OTPSetupModalProps> = ({
                             onClick={handleNext}
                             size="large"
                             style={{
-                                background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                                background: 'var(--gradient-primary)',
                                 border: 'none'
                             }}
                         >
@@ -189,9 +189,9 @@ export const OTPSetupModal: React.FC<OTPSetupModalProps> = ({
             {currentStep === 'verify' && (
                 <Space direction="vertical" style={{ width: '100%' }} size="large">
                     <div style={{ textAlign: 'center' }}>
-                        <SafetyOutlined style={{ fontSize: 48, color: '#056ccd', marginBottom: 16 }} />
+                        <SafetyOutlined style={{ fontSize: 48, color: 'var(--color-primary)', marginBottom: 16 }} />
                         <h3>Verify Your Setup</h3>
-                        <p style={{ color: '#64748b' }}>
+                        <p style={{ color: 'var(--text-secondary)' }}>
                             Open your authenticator app and enter the 6-digit code to complete setup
                         </p>
                     </div>
@@ -208,7 +208,7 @@ export const OTPSetupModal: React.FC<OTPSetupModalProps> = ({
             {currentStep === 'complete' && (
                 <Result
                     status="success"
-                    icon={<CheckCircleOutlined style={{ color: '#52c41a' }} />}
+                    icon={<CheckCircleOutlined style={{ color: 'var(--color-success)' }} />}
                     title="2FA Enabled Successfully!"
                     subTitle="Your account is now protected with two-factor authentication. You'll need your authenticator app to login from now on."
                     extra={[
@@ -218,7 +218,7 @@ export const OTPSetupModal: React.FC<OTPSetupModalProps> = ({
                             onClick={handleComplete}
                             size="large"
                             style={{
-                                background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                                background: 'var(--gradient-primary)',
                                 border: 'none'
                             }}
                         >

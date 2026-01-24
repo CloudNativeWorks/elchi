@@ -354,7 +354,7 @@ const BGPNeighborsContent: React.FC<BGPNeighborsContentProps> = ({ clientId }) =
                     icon={<PlusOutlined />}
                     onClick={handleAdd}
                     style={{
-                        background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                        background: 'var(--gradient-primary)',
                         border: 'none',
                         borderRadius: 8
                     }}
@@ -372,7 +372,7 @@ const BGPNeighborsContent: React.FC<BGPNeighborsContentProps> = ({ clientId }) =
                 </Button>
             </div>
 
-            <Card style={{ borderRadius: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+            <Card style={{ borderRadius: 12, boxShadow: 'var(--shadow-sm)' }}>
                 <Table
                     dataSource={neighbors}
                     columns={columns}

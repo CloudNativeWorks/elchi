@@ -120,7 +120,7 @@ const FlowInner: React.FC<DependencyFlowGraphProps & { onNodeSelect: (node: Reso
         setTimeout(() => {
             import('html-to-image').then(({ toPng }) => {
                 toPng(reactFlowWrapper, {
-                    backgroundColor: '#f8fafc',
+                    backgroundColor: 'var(--dependency-bg, #f8fafc)',
                     width: imageWidth,
                     height: imageHeight,
                     pixelRatio: 3, // High quality: 3x pixel density
@@ -174,7 +174,7 @@ const FlowInner: React.FC<DependencyFlowGraphProps & { onNodeSelect: (node: Reso
             }}
             proOptions={{ hideAttribution: true }}
         >
-            <Background color="#e2e8f0" gap={16} size={1} />
+            <Background color="var(--dependency-grid, #e2e8f0)" gap={16} size={1} />
             <Controls position="bottom-left">
                 <ControlButton onClick={handleDownload} title="Download as PNG image">
                     <DownloadOutlined style={{ fontSize: '16px' }} />

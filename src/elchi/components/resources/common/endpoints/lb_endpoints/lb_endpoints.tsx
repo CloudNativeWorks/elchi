@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Col, Row, message, Form, Drawer, Button, Modal, InputNumber, Select, Input, Table, Space } from "antd";
+import { Col, Row, message, Form, Drawer, Button, Modal, InputNumber, Select, Input, Table, Space, Popconfirm } from "antd";
 import { getIPAddresses } from "@/utils/ip-addresses";
 import { checkIfExists, makeInitialEndpoints } from "./helpers";
 import { navigateCases } from "@/elchi/helpers/navigate-cases";
@@ -9,7 +9,7 @@ import type { ColumnsType } from 'antd/es/table';
 import { handleChangeResources } from "@/redux/dispatcher";
 import { memorizeComponent, compareVeri } from "@/hooks/useMemoComponent";
 import { ResourceAction } from "@/redux/reducers/slice";
-import { DeleteTwoTone, InboxOutlined } from '@ant-design/icons';
+import { DeleteOutlined, InboxOutlined } from '@ant-design/icons';
 import ComponentLBEndpoint from "./lb_endpoint";
 import ElchiButton from "@/elchi/components/common/ElchiButton";
 import { showErrorNotification, showWarningNotification, showSuccessNotification } from '@/common/notificationHandler';
@@ -71,13 +71,31 @@ const LBEndpointsComponent: React.FC<GeneralProps> = ({ veri }) => {
             width: "20%",
             key: 'x',
             render: (_, __, index) =>
-                <Button
-                    icon={<DeleteTwoTone twoToneColor="#eb2f96" />}
-                    size='small'
-                    onClick={(e) => handleDelete(e, index)}
-                    style={{ marginRight: 8 }}
-                    iconPosition={"end"}
-                />,
+                <Popconfirm
+                    title="Delete confirmation"
+                    description="Are you sure you want to delete this item?"
+                    onConfirm={(e) => handleDelete(e as React.MouseEvent<HTMLElement>, index)}
+                    okText="Yes"
+                    cancelText="No"
+                    placement="left"
+                >
+                    <Button
+                        type="text"
+                        danger
+                        icon={<DeleteOutlined style={{ color: 'var(--color-danger)' }} />}
+                        size='small'
+                        className="elchi-delete-button"
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: 'var(--color-danger-light)',
+                            border: '1px solid var(--color-danger-border)',
+                            borderRadius: '6px'
+                        }}
+                    />
+                </Popconfirm>,
         },
     ];
 
@@ -258,11 +276,12 @@ const LBEndpointsComponent: React.FC<GeneralProps> = ({ veri }) => {
             >
                 <Row>
                     <div style={{
-                        background: '#fff',
+                        background: 'var(--card-bg)',
                         padding: '12px 12px 24px 12px',
                         borderRadius: 12,
-                        boxShadow: '0 2px 8px rgba(5,117,230,0.06)',
-                        margin: '4px 0'
+                        boxShadow: 'var(--shadow-sm)',
+                        margin: '4px 0',
+                        border: '1px solid var(--border-default)'
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
                             <ElchiButton onClick={() => setState((prevState) => ({ ...prevState, modal: true }))} onlyText>Add Endpoint</ElchiButton>

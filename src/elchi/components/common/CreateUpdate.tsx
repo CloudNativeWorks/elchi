@@ -203,7 +203,7 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
         try {
             // First save the bootstrap
             await handleResource("put", "save");
-            
+
             // Then send UPDATE_BOOTSTRAP command
             await operationsMutate.mutateAsync({
                 data: {
@@ -217,7 +217,7 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
                 project,
                 version: options.envoyVersion
             });
-            
+
             // Don't show extra success message - global notification will handle it
         } catch (error) {
             console.error('Save & Send failed:', error);
@@ -313,9 +313,10 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
 
     const menuStyle = {
         height: "auto",
-        background: "white",
-        ShadowRoot: "1px 1px 1px 1px #1990FF",
-        border: "0.5px solid #1990FF",
+        background: "var(--card-bg)",
+        boxShadow: "var(--shadow-lg)",
+        border: "1px solid var(--border-default)",
+        borderRadius: 8,
     };
 
     return (
@@ -334,7 +335,7 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
                                 size='large'
                                 loading={loading}
                                 style={{
-                                    background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                                    background: 'var(--gradient-primary)',
                                     border: 'none',
                                     color: '#fff',
                                     fontWeight: 600,
@@ -342,7 +343,7 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
                                     borderRadius: 10,
                                     padding: '0 24px',
                                     height: 40,
-                                    boxShadow: '0 4px 16px 0 rgba(5,117,230,0.10)',
+                                    boxShadow: 'var(--shadow-sm)',
                                     display: 'flex',
                                     alignItems: 'center',
                                     gap: 10,
@@ -362,7 +363,7 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
                             icon={<SaveOutlined />}
                             onClick={() => handleResource("post", "create")}
                             style={{
-                                background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                                background: 'var(--gradient-primary)',
                                 border: 'none',
                                 color: '#fff',
                                 fontWeight: 600,
@@ -370,7 +371,7 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
                                 borderRadius: 10,
                                 padding: '0 24px',
                                 height: 40,
-                                boxShadow: '0 4px 16px 0 rgba(5,117,230,0.10)',
+                                boxShadow: 'var(--shadow-sm)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: 10,
@@ -380,14 +381,14 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
                             Create
                         </Button>
                     }
-                    <Divider style={{ height: "auto", color: "#1990FF" }} type="vertical" />
+                    <Divider style={{ height: "auto", color: "var(--color-primary)" }} type="vertical" />
 
                     <Button
                         className='modern-add-btn'
                         size='large'
                         onClick={goBack}
                         style={{
-                            background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                            background: 'var(--gradient-primary)',
                             border: 'none',
                             color: '#fff',
                             fontWeight: 600,
@@ -395,7 +396,7 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
                             borderRadius: 10,
                             padding: '0 24px',
                             height: 40,
-                            boxShadow: '0 4px 16px 0 rgba(5,117,230,0.10)',
+                            boxShadow: 'var(--shadow-sm)',
                             display: 'flex',
                             alignItems: 'center',
                             gap: 10,
@@ -442,7 +443,7 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
                     />
                 </Spin>
                 {!isLoadingIPs && clientIPs.length === 0 && (
-                    <div style={{ marginTop: 16, color: '#ff4d4f' }}>
+                    <div style={{ marginTop: 16, color: 'var(--color-danger)' }}>
                         No downstream IP addresses found for this service.
                     </div>
                 )}

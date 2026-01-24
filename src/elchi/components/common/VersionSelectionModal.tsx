@@ -30,14 +30,27 @@ const VersionSelectionModal: React.FC<VersionSelectionModalProps> = ({
 }) => {
     return (
         <Modal
-            title={title}
+            title={<span style={{ color: 'var(--text-primary)' }}>{title}</span>}
             open={visible}
             onCancel={onClose}
             footer={null}
             width={500}
+            styles={{
+                header: {
+                    background: 'transparent',
+                    borderBottom: '1px solid var(--border-default)',
+                    paddingBottom: 12
+                },
+                body: {
+                    background: 'var(--card-bg)'
+                },
+                content: {
+                    background: 'var(--card-bg)'
+                }
+            }}
         >
             <div style={{ marginBottom: 16 }}>
-                <p style={{ fontSize: 14, color: '#595959', marginBottom: 16 }}>
+                <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 16 }}>
                     Resource <b>{resourceName}</b> has multiple versions. Please select one:
                 </p>
             </div>
@@ -50,14 +63,15 @@ const VersionSelectionModal: React.FC<VersionSelectionModalProps> = ({
                         key={item.id}
                         style={{
                             cursor: 'pointer',
-                            transition: 'background 0.2s'
+                            transition: 'background 0.2s',
+                            background: 'var(--bg-surface)'
                         }}
                         onClick={() => onSelect(item.version, item.id)}
                         onMouseEnter={(e) => {
-                            e.currentTarget.style.background = '#f5f5f5';
+                            e.currentTarget.style.background = 'var(--bg-hover)';
                         }}
                         onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'white';
+                            e.currentTarget.style.background = 'var(--bg-surface)';
                         }}
                     >
                         <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
@@ -65,7 +79,7 @@ const VersionSelectionModal: React.FC<VersionSelectionModalProps> = ({
                                 {item.version}
                             </Tag>
                             {action !== 'upgrade' && (
-                                <div style={{ fontSize: 11, color: '#8c8c8c' }}>
+                                <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
                                     Updated: {new Date(item.updated_at).toLocaleDateString()}
                                 </div>
                             )}

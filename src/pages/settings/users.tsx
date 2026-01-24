@@ -242,7 +242,8 @@ const Users: React.FC = () => {
                 <Card
                     style={{
                         borderRadius: '12px',
-                        border: '1px solid #e1e5e9',
+                        border: '1px solid var(--border-default)',
+                        background: 'var(--card-bg)',
                         marginBottom: 16,
                         margin: '4px 0 16px 0'
                     }}
@@ -263,7 +264,7 @@ const Users: React.FC = () => {
                                     <SafetyOutlined style={{ color: 'white', fontSize: '18px' }} />
                                 </div>
                                 <div>
-                                    <Text style={{ fontSize: '15px', fontWeight: 'bold', color: '#1f2937' }}>
+                                    <Text style={{ fontSize: '15px', fontWeight: 'bold', color: 'var(--text-primary)' }}>
                                         Two-Factor Authentication (2FA)
                                     </Text>
                                     <br />
@@ -280,13 +281,13 @@ const Users: React.FC = () => {
                                 justifyContent: 'space-between',
                                 alignItems: 'center',
                                 padding: '10px 14px',
-                                background: otpEnforced ? '#f6ffed' : '#fafafa',
+                                background: otpEnforced ? 'var(--color-success-light)' : 'var(--bg-surface)',
                                 borderRadius: '8px',
-                                border: `1px solid ${otpEnforced ? '#b7eb8f' : '#d9d9d9'}`
+                                border: `1px solid ${otpEnforced ? 'var(--color-success)' : 'var(--border-default)'}`
                             }}>
                                 <Space direction="vertical" size={2}>
                                     <Space size={6}>
-                                        <LockOutlined style={{ color: otpEnforced ? '#52c41a' : '#8c8c8c', fontSize: 14 }} />
+                                        <LockOutlined style={{ color: otpEnforced ? 'var(--color-success)' : 'var(--text-secondary)', fontSize: 14 }} />
                                         <Text strong style={{ fontSize: '13px' }}>
                                             Enforce 2FA for all users
                                         </Text>
@@ -340,11 +341,12 @@ const Users: React.FC = () => {
             )}
 
             <div style={{
-                background: '#fff',
+                background: 'var(--card-bg)',
                 padding: '12px 12px 24px 12px',
                 borderRadius: 12,
-                boxShadow: '0 2px 8px rgba(5,117,230,0.06)',
-                margin: '4px 0'
+                boxShadow: 'var(--shadow-sm)',
+                margin: '4px 0',
+                border: '1px solid var(--border-default)'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: 16, justifyContent: 'space-between' }}>
                     <NavLink style={{ display: 'inline-block' }} to={"/settings/create/user"}>
@@ -381,7 +383,7 @@ const Users: React.FC = () => {
                     <div style={{
                         display: 'inline-flex',
                         alignItems: 'center',
-                        color: '#8c8c8c',
+                        color: 'var(--text-secondary)',
                         fontSize: 12,
                         padding: '4px 0',
                         gap: 6
@@ -399,7 +401,7 @@ const Users: React.FC = () => {
                 <Modal
                     title={
                         <span>
-                            <ExclamationCircleFilled style={{ color: '#faad14', marginRight: '8px' }} />
+                            <ExclamationCircleFilled style={{ color: 'var(--color-warning)', marginRight: '8px' }} />
                             Are you sure you want to delete this user?
                         </span>
                     }

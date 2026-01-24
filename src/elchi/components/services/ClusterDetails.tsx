@@ -310,9 +310,9 @@ const ClusterDetails: React.FC<ClusterDetailsProps> = ({ name, project, version,
                                         }}>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: '300px' }}>
                                                 {isHealthy ? (
-                                                    <CheckCircleOutlined style={{ color: '#52c41a', fontSize: 13 }} />
+                                                    <CheckCircleOutlined style={{ color: 'var(--color-success)', fontSize: 13 }} />
                                                 ) : (
-                                                    <WarningOutlined style={{ color: '#ff4d4f', fontSize: 13 }} />
+                                                    <WarningOutlined style={{ color: 'var(--color-danger)', fontSize: 13 }} />
                                                 )}
                                                 <Text strong style={{ fontSize: '13px' }}>{host.hostname || address}</Text>
                                                 <Badge 
@@ -358,7 +358,7 @@ const ClusterDetails: React.FC<ClusterDetailsProps> = ({ name, project, version,
                                                         <div style={{ display: 'flex', alignItems: 'center' }}>
                                                             <Text strong style={{ 
                                                                 fontSize: '12px',
-                                                                color: '#ff4d4f'
+                                                                color: 'var(--color-danger)'
                                                             }}>
                                                                 {host.stats?.find((s: any) => s.name === 'rq_error')?.value || 0}
                                                             </Text>
@@ -396,7 +396,7 @@ const ClusterDetails: React.FC<ClusterDetailsProps> = ({ name, project, version,
                                             gridTemplateColumns: 'repeat(2, 1fr)',
                                             gap: 8,
                                             padding: '8px 24px',
-                                            background: '#fafafa',
+                                            background: 'var(--bg-surface)',
                                             borderRadius: 6
                                         }}>
                                             {pairs.map((pair, pairIdx) => (
@@ -404,14 +404,14 @@ const ClusterDetails: React.FC<ClusterDetailsProps> = ({ name, project, version,
                                                     {pair.map((stat: any, statIdx: number) => {
                                                         const value = parseInt(stat.value || '0');
                                                         return (
-                                                            <div key={statIdx} style={{ 
+                                                            <div key={statIdx} style={{
                                                                 display: 'flex',
                                                                 justifyContent: 'space-between',
                                                                 alignItems: 'center',
                                                                 padding: '8px 12px',
-                                                                background: '#fff',
+                                                                background: 'var(--card-bg)',
                                                                 borderRadius: 6,
-                                                                border: '1px solid #f0f0f0'
+                                                                border: '1px solid var(--border-default)'
                                                             }}>
                                                                 <Text type="secondary" style={{ fontSize: '13px' }}>
                                                                     {metricLabels[stat.name]}:
@@ -461,14 +461,14 @@ const ClusterDetails: React.FC<ClusterDetailsProps> = ({ name, project, version,
 
     if (initialLoading) {
         return (
-            <div style={{ 
-                display: 'flex', 
-                justifyContent: 'center', 
+            <div style={{
+                display: 'flex',
+                justifyContent: 'center',
                 alignItems: 'center',
                 padding: '40px',
-                background: '#fff',
+                background: 'var(--card-bg)',
                 borderRadius: 8,
-                boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                boxShadow: 'var(--shadow-sm)'
             }}>
                 <Spin size="large" />
             </div>
@@ -514,7 +514,7 @@ const ClusterDetails: React.FC<ClusterDetailsProps> = ({ name, project, version,
                 gap: 16
             }}>
                 <Input
-                    prefix={<SearchOutlined style={{ color: '#8c8c8c' }} />}
+                    prefix={<SearchOutlined style={{ color: 'var(--text-secondary)' }} />}
                     placeholder="Search cluster name or IP address"
                     style={{ width: 300 }}
                     value={searchText}
@@ -523,7 +523,7 @@ const ClusterDetails: React.FC<ClusterDetailsProps> = ({ name, project, version,
                     disabled={!selectedClientData}
                 />
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                    <DatabaseOutlined style={{ fontSize: 16, color: '#1890ff' }} />
+                    <DatabaseOutlined style={{ fontSize: 16, color: 'var(--color-primary)' }} />
                     <Select
                         style={{ width: 200 }}
                         value={selectedClient}
@@ -586,13 +586,13 @@ const ClusterDetails: React.FC<ClusterDetailsProps> = ({ name, project, version,
                     }}
                 />
                 {(manualRefreshLoading || (loading && selectedClientData)) && (
-                    <div style={{ 
+                    <div style={{
                         position: 'absolute',
                         top: 0,
                         left: 0,
                         right: 0,
                         bottom: 0,
-                        background: 'rgba(255, 255, 255, 0.4)',
+                        background: 'var(--bg-loading)',
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',

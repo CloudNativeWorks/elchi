@@ -109,8 +109,8 @@ const Group: React.FC = () => {
             <div style={{ marginBottom: 24 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
                     <Space>
-                        <TeamOutlined style={{ color: '#1890ff', fontSize: 24 }} />
-                        <Title level={4} style={{ margin: 0 }}>
+                        <TeamOutlined style={{ color: 'var(--color-primary)', fontSize: 24 }} />
+                        <Title level={4} style={{ margin: 0, color: 'var(--text-primary)' }}>
                             {isCreatePage ? 'Create Group' : 'Group Details'}
                         </Title>
                     </Space>
@@ -123,7 +123,7 @@ const Group: React.FC = () => {
                         Back
                     </ElchiButton>
                 </div>
-                <Text type="secondary">
+                <Text style={{ color: 'var(--text-secondary)' }}>
                     {isCreatePage
                         ? 'Create a new user group with member management and resource permissions.'
                         : 'Manage group settings, members, and resource permissions.'
@@ -135,7 +135,9 @@ const Group: React.FC = () => {
             <Card
                 style={{
                     borderRadius: 12,
-                    boxShadow: '0 2px 8px rgba(5,117,230,0.06)',
+                    boxShadow: 'var(--shadow-sm)',
+                    background: 'var(--card-bg)',
+                    border: '1px solid var(--border-default)'
                 }}
                 styles={{
                     body: { padding: '32px' }
@@ -149,7 +151,7 @@ const Group: React.FC = () => {
                 >
                     {/* Basic Information Section */}
                     <div style={{ marginBottom: 32 }}>
-                        <Title level={5} style={{ marginBottom: 20, color: '#1890ff', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Title level={5} style={{ marginBottom: 20, color: 'var(--color-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
                             <TeamOutlined />
                             Group Information
                         </Title>
@@ -160,7 +162,7 @@ const Group: React.FC = () => {
                             style={{ maxWidth: 400 }}
                         >
                             <Input
-                                prefix={<TeamOutlined style={{ color: '#bfbfbf' }} />}
+                                prefix={<TeamOutlined style={{ color: 'var(--text-tertiary)' }} />}
                                 placeholder="Enter group name"
                                 disabled={!isCreatePage}
                                 size="large"
@@ -170,15 +172,15 @@ const Group: React.FC = () => {
 
                     {/* Members Section */}
                     <div style={{ marginBottom: 32 }}>
-                        <Title level={5} style={{ marginBottom: 20, color: '#1890ff', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Title level={5} style={{ marginBottom: 20, color: 'var(--color-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
                             <UserOutlined />
                             Group Members
                         </Title>
 
                         <Card
                             style={{
-                                background: '#fafafa',
-                                border: '1px solid #e8f4ff',
+                                background: 'var(--bg-body)',
+                                border: '1px solid var(--border-default)',
                                 borderRadius: 8,
                                 margin: 0
                             }}
@@ -190,19 +192,19 @@ const Group: React.FC = () => {
                             <div style={{ marginBottom: 24 }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                        <UserOutlined />
-                                        <Text strong style={{ fontSize: 14 }}>Member Management</Text>
+                                        <UserOutlined style={{ color: 'var(--text-primary)' }} />
+                                        <Text strong style={{ fontSize: 14, color: 'var(--text-primary)' }}>Member Management</Text>
                                     </div>
                                     <Badge
                                         count={`${(targetKeys || []).length}/${(dataSource || []).length}`}
                                         style={{
-                                            backgroundColor: (targetKeys || []).length > 0 ? '#52c41a' : '#d9d9d9',
-                                            color: (targetKeys || []).length > 0 ? '#fff' : '#666'
+                                            backgroundColor: (targetKeys || []).length > 0 ? 'var(--color-success)' : 'var(--bg-disabled)',
+                                            color: (targetKeys || []).length > 0 ? 'var(--text-inverse)' : 'var(--text-secondary)'
                                         }}
                                     />
                                 </div>
 
-                                <Text type="secondary" style={{ fontSize: 12 }}>
+                                <Text style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
                                     Select users to add to this group. Group members inherit all group permissions automatically.
                                 </Text>
                             </div>
@@ -212,8 +214,8 @@ const Group: React.FC = () => {
                             {/* Members Transfer */}
                             <div>
                                 <div style={{ marginBottom: 16 }}>
-                                    <Text strong style={{ fontSize: 14 }}>User Assignment</Text>
-                                    <Text type="secondary" style={{ fontSize: 12, display: 'block', marginTop: 4 }}>
+                                    <Text strong style={{ fontSize: 14, color: 'var(--text-primary)' }}>User Assignment</Text>
+                                    <Text style={{ fontSize: 12, display: 'block', marginTop: 4, color: 'var(--text-secondary)' }}>
                                         Assign users to this group for resource access management
                                     </Text>
                                 </div>
@@ -226,8 +228,8 @@ const Group: React.FC = () => {
                                         onChange={handleChange}
                                         render={item => (
                                             <div style={{ padding: '4px 0' }}>
-                                                <div style={{ fontWeight: 500, fontSize: 13 }}>{item.title}</div>
-                                                <div style={{ fontSize: 11, color: '#999' }}>{item.description}</div>
+                                                <div style={{ fontWeight: 500, fontSize: 13, color: 'var(--text-primary)' }}>{item.title}</div>
+                                                <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{item.description}</div>
                                             </div>
                                         )}
                                         listStyle={{
@@ -253,11 +255,11 @@ const Group: React.FC = () => {
                                 <div style={{
                                     marginTop: 16,
                                     padding: '12px 16px',
-                                    background: '#e6f7ff',
-                                    border: '1px solid #91d5ff',
+                                    background: 'var(--color-primary-light)',
+                                    border: '1px solid var(--color-info-border)',
                                     borderRadius: 6
                                 }}>
-                                    <Text style={{ fontSize: 12, color: '#1890ff' }}>
+                                    <Text style={{ fontSize: 12, color: 'var(--color-primary)' }}>
                                         <strong>Summary:</strong> {(targetKeys || []).length} user{(targetKeys || []).length !== 1 ? 's' : ''} will be added to this group and inherit group permissions.
                                     </Text>
                                 </div>
@@ -267,12 +269,12 @@ const Group: React.FC = () => {
 
                     {/* Permissions Section */}
                     <div style={{ marginBottom: 32 }}>
-                        <Title level={5} style={{ marginBottom: 20, color: '#1890ff', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Title level={5} style={{ marginBottom: 20, color: 'var(--color-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
                             <SettingOutlined />
                             Group Permissions
                         </Title>
                         <div style={{ marginBottom: 16 }}>
-                            <Text type="secondary" style={{ fontSize: 13 }}>
+                            <Text style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
                                 Configure resource permissions that will be inherited by all group members.
                             </Text>
                         </div>
@@ -290,7 +292,7 @@ const Group: React.FC = () => {
                         justifyContent: 'flex-end',
                         gap: 12,
                         paddingTop: 24,
-                        borderTop: '1px solid #f0f0f0'
+                        borderTop: '1px solid var(--border-default)'
                     }}>
                         <ElchiButton
                             type="default"

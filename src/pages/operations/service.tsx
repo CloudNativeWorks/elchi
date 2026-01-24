@@ -234,7 +234,7 @@ const Service: React.FC = () => {
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
                             <span style={{ display: 'flex', alignItems: 'center' }}>
-                                <svg fill="#056ccd" viewBox="-3.6 -3.6 31.20 31.20" xmlns="http://www.w3.org/2000/svg" width="32" height="32" style={{ marginRight: 6 }}>
+                                <svg fill="var(--color-primary)" viewBox="-3.6 -3.6 31.20 31.20" xmlns="http://www.w3.org/2000/svg" width="32" height="32" style={{ marginRight: 6 }}>
                                     <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
                                     <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
                                     <g id="SVGRepo_iconCarrier">
@@ -253,28 +253,28 @@ const Service: React.FC = () => {
                         </div>
                         {enhancedErrors.length > 0 && (
                             <Tooltip title="Click to view configuration errors">
-                                <Tag 
+                                <Tag
                                     color={activeErrors.length > 0 ? "error" : "success"}
-                                    style={{ 
-                                        cursor: 'pointer', 
+                                    style={{
+                                        cursor: 'pointer',
                                         margin: 0,
                                         transition: 'all 0.2s ease',
-                                        boxShadow: activeErrors.length > 0 
-                                            ? '0 2px 4px rgba(255,77,79,0.2)' 
-                                            : '0 2px 4px rgba(82,196,26,0.2)'
+                                        boxShadow: activeErrors.length > 0
+                                            ? 'var(--color-danger-shadow)'
+                                            : 'var(--color-success-shadow)'
                                     }}
                                     onClick={handleErrorIconClick}
                                     onMouseEnter={(e) => {
                                         e.currentTarget.style.transform = 'scale(1.05)';
                                         e.currentTarget.style.boxShadow = activeErrors.length > 0
-                                            ? '0 4px 8px rgba(255,77,79,0.3)'
-                                            : '0 4px 8px rgba(82,196,26,0.3)';
+                                            ? 'var(--color-danger-shadow)'
+                                            : 'var(--color-success-shadow)';
                                     }}
                                     onMouseLeave={(e) => {
                                         e.currentTarget.style.transform = 'scale(1)';
-                                        e.currentTarget.style.boxShadow = activeErrors.length > 0 
-                                            ? '0 2px 4px rgba(255,77,79,0.2)' 
-                                            : '0 2px 4px rgba(82,196,26,0.2)';
+                                        e.currentTarget.style.boxShadow = activeErrors.length > 0
+                                            ? 'var(--color-danger-shadow)'
+                                            : 'var(--color-success-shadow)';
                                     }}
                                 >
                                     <Space size={4}>
@@ -285,7 +285,7 @@ const Service: React.FC = () => {
                                         )}
                                         <span>
                                             {activeErrors.length > 0 && (
-                                                <span style={{ color: '#cf1322' }}>
+                                                <span style={{ color: 'var(--color-danger)' }}>
                                                     {activeErrors.length} Active{activeErrors.length > 1 ? '' : ''}
                                                 </span>
                                             )}
@@ -293,7 +293,7 @@ const Service: React.FC = () => {
                                                 <span style={{ margin: '0 4px' }}>|</span>
                                             )}
                                             {resolvedErrors.length > 0 && (
-                                                <span style={{ color: '#52c41a' }}>
+                                                <span style={{ color: 'var(--color-success)' }}>
                                                     {resolvedErrors.length} Resolved
                                                 </span>
                                             )}
@@ -391,7 +391,7 @@ const Service: React.FC = () => {
             <Drawer
                 title={
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <WarningOutlined style={{ color: '#ff4d4f' }} />
+                        <WarningOutlined style={{ color: 'var(--color-danger)' }} />
                         <span>Configuration Errors</span>
                         <Tag color="error">{enhancedErrors.length}</Tag>
                     </div>
@@ -415,20 +415,20 @@ const Service: React.FC = () => {
                             const isResolved = error.status === 'resolved';
                             const isActive = error.status === 'active';
                             const isSelected = isActive ? state.selectedErrorIds.includes(error.id) : state.selectedResolvedErrorIds.includes(error.id);
-                            const borderColor = isResolved ? '#52c41a' : (error.severity === 'critical' ? '#ff4d4f' : '#faad14');
+                            const borderColor = isResolved ? 'var(--color-success)' : (error.severity === 'critical' ? 'var(--color-danger)' : 'var(--color-warning)');
                             const tagColor = isResolved ? 'success' : (error.severity === 'critical' ? 'error' : 'warning');
-                            const textColor = isResolved ? '#52c41a' : (error.severity === 'critical' ? '#cf1322' : '#d46b08');
+                            const textColor = isResolved ? 'var(--color-success)' : (error.severity === 'critical' ? 'var(--color-danger)' : 'var(--color-warning)');
                             const statusTagColor = isResolved ? 'success' : 'processing';
                             
                             return (
                                 <div
                                     key={error.id || index}
                                     style={{
-                                        background: '#fff',
+                                        background: 'var(--card-bg)',
                                         border: `1px solid ${borderColor}`,
                                         borderRadius: 8,
                                         padding: 16,
-                                        boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                                        boxShadow: 'var(--shadow-sm)',
                                         position: 'relative'
                                     }}
                                 >
@@ -453,8 +453,8 @@ const Service: React.FC = () => {
                                         </div>
                                     </div>
                                     
-                                    <div style={{ marginBottom: 12, padding: '8px 12px', background: '#fafafa', borderRadius: 6 }}>
-                                        <Typography.Text style={{ fontSize: 12, color: '#666', fontFamily: 'monospace' }}>
+                                    <div style={{ marginBottom: 12, padding: '8px 12px', background: 'var(--bg-surface)', borderRadius: 6 }}>
+                                        <Typography.Text style={{ fontSize: 12, color: 'var(--text-secondary)', fontFamily: 'monospace' }}>
                                             {error.message}
                                         </Typography.Text>
                                     </div>
@@ -462,46 +462,46 @@ const Service: React.FC = () => {
                                     <div style={{
                                         marginBottom: 12,
                                         padding: 12,
-                                        background: 'linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%)',
-                                        border: '1px solid #e8e8e8',
+                                        background: 'var(--bg-surface)',
+                                        border: '1px solid var(--border-default)',
                                         borderRadius: 8,
                                         fontSize: 12,
                                         boxShadow: '0 2px 4px rgba(0,0,0,0.02)'
                                     }}>
                                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                                            <span style={{ color: '#1890ff', fontWeight: 600, fontSize: 13 }}>{error.resourceName}</span>
-                                            <span style={{ color: '#ff4d4f', fontSize: 11, fontWeight: 600 }}>
+                                            <span style={{ color: 'var(--color-primary)', fontWeight: 600, fontSize: 13 }}>{error.resourceName}</span>
+                                            <span style={{ color: 'var(--color-danger)', fontSize: 11, fontWeight: 600 }}>
                                                 {error.occurrenceCount} occurrence{error.occurrenceCount > 1 ? 's' : ''}
                                             </span>
                                         </div>
                                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, fontSize: 11 }}>
                                             <div>
-                                                <div style={{ color: '#999', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 2 }}>Type</div>
+                                                <div style={{ color: 'var(--text-tertiary)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 2 }}>Type</div>
                                                 <Tooltip title={error.resourceType}>
-                                                    <div style={{ color: '#595959', fontWeight: 500, cursor: 'help', fontFamily: 'monospace', lineHeight: 1.3 }}>
+                                                    <div style={{ color: 'var(--text-secondary)', fontWeight: 500, cursor: 'help', fontFamily: 'monospace', lineHeight: 1.3 }}>
                                                         {error.resourceType?.substring(0, 30)}
                                                         {error.resourceType?.length > 30 && '...'}
                                                     </div>
                                                 </Tooltip>
                                             </div>
                                             <div>
-                                                <div style={{ color: '#999', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 2 }}>First Seen</div>
-                                                <div style={{ color: '#52c41a', fontWeight: 600, lineHeight: 1.3 }}>
+                                                <div style={{ color: 'var(--text-tertiary)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 2 }}>First Seen</div>
+                                                <div style={{ color: 'var(--color-success)', fontWeight: 600, lineHeight: 1.3 }}>
                                                     {new Date(error.firstOccurred).toLocaleString()}
                                                 </div>
                                             </div>
                                             <div>
-                                                <div style={{ color: '#999', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 2 }}>Node ID</div>
+                                                <div style={{ color: 'var(--text-tertiary)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 2 }}>Node ID</div>
                                                 <Tooltip title={error.nodeId}>
-                                                    <div style={{ color: '#595959', fontWeight: 500, cursor: 'help', fontFamily: 'monospace', lineHeight: 1.3 }}>
+                                                    <div style={{ color: 'var(--text-secondary)', fontWeight: 500, cursor: 'help', fontFamily: 'monospace', lineHeight: 1.3 }}>
                                                         {error.nodeId?.substring(0, 30)}
                                                         {error.nodeId?.length > 30 && '...'}
                                                     </div>
                                                 </Tooltip>
                                             </div>
                                             <div>
-                                                <div style={{ color: '#999', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 2 }}>Last Seen</div>
-                                                <div style={{ color: '#722ed1', fontWeight: 600, lineHeight: 1.3 }}>
+                                                <div style={{ color: 'var(--text-tertiary)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: 2 }}>Last Seen</div>
+                                                <div style={{ color: 'var(--color-purple)', fontWeight: 600, lineHeight: 1.3 }}>
                                                     {new Date(error.lastOccurred).toLocaleString()}
                                                 </div>
                                             </div>
@@ -510,13 +510,13 @@ const Service: React.FC = () => {
                                     
                                     {error.suggestedFix && (
                                         <div style={{
-                                            background: '#f6ffed',
-                                            border: '1px solid #b7eb8f',
+                                            background: 'var(--color-success-light)',
+                                            border: '1px solid var(--color-success)',
                                             borderRadius: 6,
                                             padding: 8,
                                             marginTop: 8
                                         }}>
-                                            <Typography.Text style={{ fontSize: 11, color: '#389e0d' }}>
+                                            <Typography.Text style={{ fontSize: 11, color: 'var(--color-success)' }}>
                                                 💡 {error.suggestedFix}
                                             </Typography.Text>
                                         </div>
@@ -535,9 +535,9 @@ const Service: React.FC = () => {
                                             justifyContent: 'space-between',
                                             marginBottom: 12,
                                             padding: '12px 16px',
-                                            background: '#fafafa',
+                                            background: 'var(--bg-surface)',
                                             borderRadius: 8,
-                                            border: '1px solid #f0f0f0'
+                                            border: '1px solid var(--border-default)'
                                         }}>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -546,8 +546,8 @@ const Service: React.FC = () => {
                                                         indeterminate={state.selectedErrorIds.length > 0 && state.selectedErrorIds.length < activeErrors.length}
                                                         onChange={(e) => handleSelectAllErrors(activeErrors, e.target.checked)}
                                                     />
-                                                    <WarningOutlined style={{ color: '#ff4d4f' }} />
-                                                    <span style={{ fontWeight: 600, color: '#ff4d4f' }}>
+                                                    <WarningOutlined style={{ color: 'var(--color-danger)' }} />
+                                                    <span style={{ fontWeight: 600, color: 'var(--color-danger)' }}>
                                                         Active Errors ({activeErrors.length})
                                                     </span>
                                                 </div>
@@ -572,20 +572,20 @@ const Service: React.FC = () => {
                                                             icon={<DeleteOutlined />}
                                                             loading={errorActionLoading}
                                                             style={{
-                                                                background: '#fff1f0',
-                                                                borderColor: '#ff4d4f',
-                                                                color: '#ff4d4f',
+                                                                background: 'var(--color-danger-light)',
+                                                                borderColor: 'var(--color-danger)',
+                                                                color: 'var(--color-danger)',
                                                                 height: 24,
                                                                 transition: 'all 0.2s ease'
                                                             }}
                                                             onMouseEnter={(e) => {
-                                                                e.currentTarget.style.background = '#ff4d4f';
+                                                                e.currentTarget.style.background = 'var(--color-danger)';
                                                                 e.currentTarget.style.color = '#fff';
                                                                 e.currentTarget.style.transform = 'scale(1.05)';
                                                             }}
                                                             onMouseLeave={(e) => {
-                                                                e.currentTarget.style.background = '#fff1f0';
-                                                                e.currentTarget.style.color = '#ff4d4f';
+                                                                e.currentTarget.style.background = 'var(--color-danger-light)';
+                                                                e.currentTarget.style.color = 'var(--color-danger)';
                                                                 e.currentTarget.style.transform = 'scale(1)';
                                                             }}
                                                         >
@@ -605,20 +605,20 @@ const Service: React.FC = () => {
                                                             icon={<CheckCircleOutlined />}
                                                             loading={errorActionLoading}
                                                             style={{
-                                                                background: '#f6ffed',
-                                                                borderColor: '#52c41a',
-                                                                color: '#52c41a',
+                                                                background: 'var(--color-success-light)',
+                                                                borderColor: 'var(--color-success)',
+                                                                color: 'var(--color-success)',
                                                                 height: 24,
                                                                 transition: 'all 0.2s ease'
                                                             }}
                                                             onMouseEnter={(e) => {
-                                                                e.currentTarget.style.background = '#52c41a';
+                                                                e.currentTarget.style.background = 'var(--color-success)';
                                                                 e.currentTarget.style.color = '#fff';
                                                                 e.currentTarget.style.transform = 'scale(1.05)';
                                                             }}
                                                             onMouseLeave={(e) => {
-                                                                e.currentTarget.style.background = '#f6ffed';
-                                                                e.currentTarget.style.color = '#52c41a';
+                                                                e.currentTarget.style.background = 'var(--color-success-light)';
+                                                                e.currentTarget.style.color = 'var(--color-success)';
                                                                 e.currentTarget.style.transform = 'scale(1)';
                                                             }}
                                                         >
@@ -636,8 +636,8 @@ const Service: React.FC = () => {
                                                 key: 'active',
                                                 label: (
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                                        <WarningOutlined style={{ color: '#ff4d4f' }} />
-                                                        <span style={{ fontWeight: 600, color: '#ff4d4f' }}>
+                                                        <WarningOutlined style={{ color: 'var(--color-danger)' }} />
+                                                        <span style={{ fontWeight: 600, color: 'var(--color-danger)' }}>
                                                             View Details
                                                         </span>
                                                     </div>
@@ -660,9 +660,9 @@ const Service: React.FC = () => {
                                             justifyContent: 'space-between',
                                             marginBottom: 12,
                                             padding: '12px 16px',
-                                            background: '#f6ffed',
+                                            background: 'var(--color-success-light)',
                                             borderRadius: 8,
-                                            border: '1px solid #b7eb8f'
+                                            border: '1px solid var(--color-success)'
                                         }}>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -671,8 +671,8 @@ const Service: React.FC = () => {
                                                         indeterminate={state.selectedResolvedErrorIds.length > 0 && state.selectedResolvedErrorIds.length < resolvedErrors.length}
                                                         onChange={(e) => handleSelectAllResolvedErrors(resolvedErrors, e.target.checked)}
                                                     />
-                                                    <CheckCircleOutlined style={{ color: '#52c41a' }} />
-                                                    <span style={{ fontWeight: 600, color: '#52c41a' }}>
+                                                    <CheckCircleOutlined style={{ color: 'var(--color-success)' }} />
+                                                    <span style={{ fontWeight: 600, color: 'var(--color-success)' }}>
                                                         Resolved Errors ({resolvedErrors.length})
                                                     </span>
                                                 </div>
@@ -696,20 +696,20 @@ const Service: React.FC = () => {
                                                         icon={<DeleteOutlined />}
                                                         loading={errorActionLoading}
                                                         style={{
-                                                            background: '#fff1f0',
-                                                            borderColor: '#ff4d4f',
-                                                            color: '#ff4d4f',
+                                                            background: 'var(--color-danger-light)',
+                                                            borderColor: 'var(--color-danger)',
+                                                            color: 'var(--color-danger)',
                                                             height: 24,
                                                             transition: 'all 0.2s ease'
                                                         }}
                                                         onMouseEnter={(e) => {
-                                                            e.currentTarget.style.background = '#ff4d4f';
+                                                            e.currentTarget.style.background = 'var(--color-danger)';
                                                             e.currentTarget.style.color = '#fff';
                                                             e.currentTarget.style.transform = 'scale(1.05)';
                                                         }}
                                                         onMouseLeave={(e) => {
-                                                            e.currentTarget.style.background = '#fff1f0';
-                                                            e.currentTarget.style.color = '#ff4d4f';
+                                                            e.currentTarget.style.background = 'var(--color-danger-light)';
+                                                            e.currentTarget.style.color = 'var(--color-danger)';
                                                             e.currentTarget.style.transform = 'scale(1)';
                                                         }}
                                                     >
@@ -725,8 +725,8 @@ const Service: React.FC = () => {
                                                 key: 'resolved',
                                                 label: (
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                                        <CheckCircleOutlined style={{ color: '#52c41a' }} />
-                                                        <span style={{ fontWeight: 600, color: '#52c41a' }}>
+                                                        <CheckCircleOutlined style={{ color: 'var(--color-success)' }} />
+                                                        <span style={{ fontWeight: 600, color: 'var(--color-success)' }}>
                                                             View Details
                                                         </span>
                                                     </div>

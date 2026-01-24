@@ -44,13 +44,13 @@ const RenderLoading: React.FC<RenderLoadingProps> = memo(({ checkPage, isLoading
                 left: 0,
                 right: 0,
                 height: 3,
-                background: 'rgba(0,0,0,0.05)',
+                background: 'var(--bg-hover)',
                 zIndex: 1000,
                 overflow: 'hidden'
             }}>
                 <div style={{
                     height: '100%',
-                    background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                    background: 'var(--gradient-primary)',
                     borderRadius: '0 2px 2px 0',
                     animation: 'progressFill 600ms cubic-bezier(0.4, 0, 0.2, 1) forwards',
                     transform: 'translateX(-100%)'
@@ -59,63 +59,63 @@ const RenderLoading: React.FC<RenderLoadingProps> = memo(({ checkPage, isLoading
             
             <style>{`
                 @keyframes progressFill {
-                    0% { 
+                    0% {
                         transform: translateX(-100%);
                     }
-                    100% { 
+                    100% {
                         transform: translateX(0%);
                     }
                 }
                 @keyframes smoothFadeIn {
-                    0% { 
-                        opacity: 0; 
+                    0% {
+                        opacity: 0;
                         transform: translateY(20px) scale(0.95);
                         filter: blur(5px);
                     }
-                    100% { 
-                        opacity: 1; 
+                    100% {
+                        opacity: 1;
                         transform: translateY(0) scale(1);
                         filter: blur(0px);
                     }
                 }
-                
+
                 @keyframes smoothPulse {
-                    0%, 100% { 
+                    0%, 100% {
                         opacity: 1;
                         transform: scale(1);
                     }
-                    50% { 
+                    50% {
                         opacity: 0.7;
                         transform: scale(1.02);
                     }
                 }
-                
+
                 @keyframes smoothWave {
-                    0% { 
+                    0% {
                         transform: translateX(-100%);
                         opacity: 0;
                     }
                     50% {
                         opacity: 1;
                     }
-                    100% { 
+                    100% {
                         transform: translateX(300%);
                         opacity: 0;
                     }
                 }
-                
+
                 .smooth-skeleton {
                     position: relative;
                     overflow: hidden;
-                    background: linear-gradient(90deg, 
-                        rgba(240, 242, 247, 0.8) 0%, 
-                        rgba(255, 255, 255, 0.9) 50%, 
+                    background: var(--skeleton-gradient, linear-gradient(90deg,
+                        rgba(240, 242, 247, 0.8) 0%,
+                        rgba(255, 255, 255, 0.9) 50%,
                         rgba(240, 242, 247, 0.8) 100%
-                    );
+                    ));
                     border-radius: 8px;
                     animation: smoothPulse 2s ease-in-out infinite;
                 }
-                
+
                 .smooth-skeleton::before {
                     content: '';
                     position: absolute;
@@ -123,26 +123,26 @@ const RenderLoading: React.FC<RenderLoadingProps> = memo(({ checkPage, isLoading
                     left: -100%;
                     width: 100%;
                     height: 100%;
-                    background: linear-gradient(90deg, 
-                        transparent 0%, 
-                        rgba(255,255,255,0.6) 50%, 
+                    background: var(--skeleton-shimmer, linear-gradient(90deg,
+                        transparent 0%,
+                        rgba(255,255,255,0.6) 50%,
                         transparent 100%
-                    );
+                    ));
                     animation: smoothWave 3s ease-in-out infinite;
                 }
-                
+
                 .loading-card {
-                    background: rgba(255, 255, 255, 0.9);
-                    border: 1px solid rgba(240, 242, 247, 0.8);
+                    background: var(--loading-card-bg, rgba(255, 255, 255, 0.9));
+                    border: 1px solid var(--loading-card-border, rgba(240, 242, 247, 0.8));
                     border-radius: 16px;
                     backdrop-filter: blur(20px);
-                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.04);
+                    box-shadow: var(--loading-card-shadow, 0 8px 32px rgba(0, 0, 0, 0.04));
                     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                 }
-                
+
                 .loading-card:hover {
                     transform: translateY(-2px);
-                    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+                    box-shadow: var(--loading-card-shadow-hover, 0 12px 40px rgba(0, 0, 0, 0.08));
                 }
             `}</style>
             

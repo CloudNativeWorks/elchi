@@ -39,7 +39,7 @@ export const getCollapseItems = (veriler: CollapseItemsProps[]) => {
 
             items.push({
                 key: veri.componentName + i.toString(),
-                label: <div style={{ color: 'white', fontWeight: 'bold' }}>{veri.componentName}</div>,
+                label: <div style={{ color: 'var(--text-on-primary)', fontWeight: 'bold' }}>{veri.componentName}</div>,
                 children: (
                     <veri.component veri={finVeri} />
                 )

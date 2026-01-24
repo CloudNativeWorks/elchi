@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Col, Collapse, Divider, Row, Table } from 'antd';
+import { Button, Col, Collapse, Divider, Row, Table, Popconfirm } from 'antd';
 import { useDispatch } from "react-redux";
 import { memorizeComponent, compareVeri } from "@/hooks/useMemoComponent";
 import { ActionType, ResourceType } from "@/redux/reducer-helpers/common";
@@ -16,7 +16,7 @@ import { getCollapseItems } from "@/elchi/components/common/CollapseItems";
 import { FieldConfigType, getFieldValue, matchesEndOrStartOf } from "@/utils/tools";
 import { navigateCases } from "@/elchi/helpers/navigate-cases";
 import { toJSON } from "@/elchi/helpers/to-json";
-import { DeleteTwoTone, InboxOutlined } from '@ant-design/icons';
+import { DeleteOutlined, InboxOutlined } from '@ant-design/icons';
 import CCard from "@/elchi/components/common/CopyPasteCard";
 import CommonComponentHeaderOptions from "../common/HeaderOptions/HeaderOptions";
 import ComponentRouteMatch from './Match';
@@ -107,13 +107,31 @@ const VhdsRoutesComponent: React.FC<GeneralProps> = ({ veri }) => {
             width: "10%",
             key: 'x',
             render: (_, __, index) =>
-                <Button
-                    icon={<DeleteTwoTone twoToneColor="#eb2f96" />}
-                    size='small'
-                    onClick={(e) => handleDeleteRedux({ event: e, index: index })}
-                    style={{ marginRight: 8 }}
-                    iconPosition={"end"}
-                />,
+                <Popconfirm
+                    title="Delete confirmation"
+                    description="Are you sure you want to delete this item?"
+                    onConfirm={(e) => handleDeleteRedux({ event: e as React.MouseEvent<HTMLElement>, index: index })}
+                    okText="Yes"
+                    cancelText="No"
+                    placement="left"
+                >
+                    <Button
+                        type="text"
+                        danger
+                        icon={<DeleteOutlined style={{ color: 'var(--color-danger)' }} />}
+                        size='small'
+                        className="elchi-delete-button"
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: 'var(--color-danger-light)',
+                            border: '1px solid var(--color-danger-border)',
+                            borderRadius: '6px'
+                        }}
+                    />
+                </Popconfirm>,
         },
     ];
 
@@ -155,11 +173,12 @@ const VhdsRoutesComponent: React.FC<GeneralProps> = ({ veri }) => {
     return (
         <CCard reduxStore={veri.reduxStore} toJSON={vModels.r?.Route.toJSON} keys={veri.keyPrefix} Paste={handleChangeRedux} version={veri.version} ctype="routes" title="Routes">
             <div style={{
-                background: '#fff',
+                background: 'var(--card-bg)',
                 padding: '4px 4px 12px 4px',
                 borderRadius: 12,
-                boxShadow: '0 2px 8px rgba(5,117,230,0.06)',
-                margin: '4px 0'
+                boxShadow: 'var(--shadow-sm)',
+                margin: '4px 0',
+                border: '1px solid var(--border-default)'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
                     <ElchiIconButton onClick={() => addRoute()} />
@@ -271,7 +290,7 @@ const expandedRowRender = ({
                     accordion
                     bordered={false}
                     size="small"
-                    style={{ width: "100%", marginBottom: 10, background: "linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)" }}
+                    style={{ width: "100%", marginBottom: 10, background: "var(--gradient-primary)" }}
                     items={getCollapseItems([
                         {
                             reduxStore: data.match,

@@ -695,10 +695,10 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
 
     const getStatusColor = useCallback((status: string) => {
         switch (status) {
-            case 'healthy': return '#52c41a';
-            case 'warning': return '#faad14';
-            case 'critical': return '#ff4d4f';
-            default: return '#d9d9d9';
+            case 'healthy': return 'var(--color-success)';
+            case 'warning': return 'var(--color-warning)';
+            case 'critical': return 'var(--color-danger)';
+            default: return 'var(--border-default)';
         }
     }, []);
 
@@ -724,11 +724,11 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
     }) => (
         <Card
             style={{
-                background: 'rgba(255, 255, 255, 0.9)',
+                background: 'var(--traffic-card-bg)',
                 backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
+                border: '1px solid var(--traffic-card-border)',
                 borderRadius: 16,
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+                boxShadow: 'var(--shadow-md)',
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 height: 230,
                 position: 'relative',
@@ -736,11 +736,11 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
             }}
             onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-4px)';
-                e.currentTarget.style.boxShadow = '0 16px 48px rgba(0, 0, 0, 0.15)';
+                e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
             }}
             onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.1)';
+                e.currentTarget.style.boxShadow = 'var(--shadow-md)';
             }}
         >
             {/* Gradient overlay */}
@@ -774,14 +774,14 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                     justifyContent: 'center',
                     color: 'white',
                     fontSize: 16,
-                    boxShadow: '0 4px 16px rgba(5, 108, 205, 0.3)'
+                    boxShadow: '0 4px 16px var(--shadow-primary)'
                 }}>
                     {icon}
                 </div>
                 <Text style={{
                     fontSize: 14,
                     fontWeight: 700,
-                    color: '#1e293b',
+                    color: 'var(--text-primary)',
                     textTransform: 'uppercase',
                     letterSpacing: '0.5px'
                 }}>
@@ -801,7 +801,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                     }}>
                         <Text style={{
                             fontSize: 12,
-                            color: '#64748b',
+                            color: 'var(--text-secondary)',
                             fontWeight: 500
                         }}>
                             {metric.label}
@@ -809,7 +809,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
                             {metric.customRenderer ? (
                                 <div style={{
-                                    color: metric.color || '#1e293b'
+                                    color: metric.color || 'var(--text-primary)'
                                 }}>
                                     {metric.customRenderer(metric.value)}
                                 </div>
@@ -818,7 +818,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                                     <Text style={{
                                         fontSize: 16,
                                         fontWeight: 700,
-                                        color: metric.color || '#1e293b'
+                                        color: metric.color || 'var(--text-primary)'
                                     }}>
                                         <PersistentCountUp
                                             id={`metric-${index}-${metric.label}`}
@@ -830,7 +830,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                                     {metric.suffix && (
                                         <Text style={{
                                             fontSize: 11,
-                                            color: '#64748b',
+                                            color: 'var(--text-secondary)',
                                             fontWeight: 500
                                         }}>
                                             {metric.suffix}
@@ -865,11 +865,11 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
     }) => (
         <Card
             style={{
-                background: 'rgba(255, 255, 255, 0.95)',
+                background: 'var(--traffic-card-bg)',
                 backdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
+                border: '1px solid var(--traffic-card-border)',
                 borderRadius: 20,
-                boxShadow: '0 12px 40px rgba(0, 0, 0, 0.12)',
+                boxShadow: 'var(--shadow-lg)',
                 transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                 height: 90,
                 position: 'relative',
@@ -877,11 +877,11 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
             }}
             onMouseEnter={(e) => {
                 e.currentTarget.style.transform = 'translateY(-6px) scale(1.02)';
-                e.currentTarget.style.boxShadow = '0 20px 60px rgba(0, 0, 0, 0.2)';
+                e.currentTarget.style.boxShadow = 'var(--shadow-xl)';
             }}
             onMouseLeave={(e) => {
                 e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                e.currentTarget.style.boxShadow = '0 12px 40px rgba(0, 0, 0, 0.12)';
+                e.currentTarget.style.boxShadow = 'var(--shadow-lg)';
             }}
         >
             <div style={{
@@ -902,14 +902,14 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                     justifyContent: 'center',
                     color: 'white',
                     fontSize: 20,
-                    boxShadow: '0 8px 24px rgba(5, 108, 205, 0.4)'
+                    boxShadow: '0 8px 24px var(--shadow-primary)'
                 }}>
                     {icon}
                 </div>
                 <div style={{ flex: 1 }}>
                     <Text style={{
                         fontSize: 11,
-                        color: '#64748b',
+                        color: 'var(--text-secondary)',
                         textTransform: 'uppercase',
                         letterSpacing: '0.6px',
                         fontWeight: 600,
@@ -922,7 +922,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         <Text style={{
                             fontSize: 28,
                             fontWeight: 800,
-                            color: '#1e293b',
+                            color: 'var(--text-primary)',
                             lineHeight: 1
                         }}>
                             <PersistentCountUp
@@ -935,7 +935,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         {suffix && (
                             <Text style={{
                                 fontSize: 14,
-                                color: '#64748b',
+                                color: 'var(--text-secondary)',
                                 fontWeight: 600
                             }}>
                                 {suffix}
@@ -955,31 +955,31 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                             onShowList();
                         }}
                         style={{
-                            color: '#64748b',
-                            border: '1px solid #e5e7eb',
+                            color: 'var(--text-secondary)',
+                            border: '1px solid var(--border-default)',
                             borderRadius: 8,
                             width: 32,
                             height: 32,
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            background: '#ffffff',
+                            background: 'var(--bg-surface)',
                             transition: 'all 0.3s ease',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                            boxShadow: 'var(--shadow-sm)'
                         }}
                         onMouseEnter={(e) => {
                             e.currentTarget.style.background = gradient;
                             e.currentTarget.style.color = 'white';
                             e.currentTarget.style.borderColor = 'transparent';
                             e.currentTarget.style.transform = 'scale(1.1)';
-                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(5, 108, 205, 0.3)';
+                            e.currentTarget.style.boxShadow = '0 4px 12px var(--shadow-primary)';
                         }}
                         onMouseLeave={(e) => {
-                            e.currentTarget.style.background = '#ffffff';
-                            e.currentTarget.style.color = '#64748b';
-                            e.currentTarget.style.borderColor = '#e5e7eb';
+                            e.currentTarget.style.background = 'var(--bg-surface)';
+                            e.currentTarget.style.color = 'var(--text-secondary)';
+                            e.currentTarget.style.borderColor = 'var(--border-default)';
                             e.currentTarget.style.transform = 'scale(1)';
-                            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                            e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
                         }}
                     />
                 )}
@@ -989,7 +989,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
 
     return (
         <div style={{
-            background: 'linear-gradient(90deg, rgba(5, 108, 205, 0.8) 0%, rgba(0, 198, 251, 0.6) 50%)',
+            background: 'var(--gradient-primary)',
             borderRadius: 24,
             padding: 24,
             marginBottom: 0,
@@ -1003,7 +1003,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                 left: -100,
                 width: 300,
                 height: 300,
-                background: 'radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%)',
+                background: 'radial-gradient(circle, var(--glass-white-light) 0%, transparent 70%)',
                 borderRadius: '50%',
                 animation: 'float 6s ease-in-out infinite'
             }} />
@@ -1013,7 +1013,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                 right: -150,
                 width: 400,
                 height: 400,
-                background: 'radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 70%)',
+                background: 'radial-gradient(circle, var(--glass-white-lighter) 0%, transparent 70%)',
                 borderRadius: '50%',
                 animation: 'float 8s ease-in-out infinite reverse'
             }} />
@@ -1032,15 +1032,15 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         width: 48,
                         height: 48,
                         borderRadius: 16,
-                        background: 'rgba(255, 255, 255, 0.15)',
+                        background: 'var(--glass-white-medium)',
                         backdropFilter: 'blur(20px)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         color: 'white',
                         fontSize: 20,
-                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                        boxShadow: '0 4px 16px rgba(5, 108, 205, 0.3)'
+                        border: '1px solid var(--glass-border)',
+                        boxShadow: '0 4px 16px var(--shadow-primary-color-hover)'
                     }}>
                         <DashboardOutlined />
                     </div>
@@ -1050,12 +1050,12 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                             color: 'white',
                             fontWeight: 800,
                             fontSize: 28,
-                            textShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                            textShadow: '0 2px 4px var(--shadow-text)'
                         }}>
                             Traffic Overview
                         </Title>
                         <Text style={{
-                            color: 'rgba(255, 255, 255, 0.8)',
+                            color: 'var(--text-on-gradient)',
                             fontSize: 14,
                             fontWeight: 500
                         }}>
@@ -1065,11 +1065,11 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                     {loading && (
                         <div style={{
                             padding: '8px 16px',
-                            background: 'rgba(255, 255, 255, 0.08)',
+                            background: 'var(--glass-white-light)',
                             borderRadius: 12,
                             backdropFilter: 'blur(10px)',
-                            border: '1px solid rgba(255, 255, 255, 0.1)',
-                            boxShadow: '0 2px 8px rgba(5, 108, 205, 0.2)'
+                            border: '1px solid var(--glass-border)',
+                            boxShadow: '0 2px 8px var(--shadow-primary-color)'
                         }}>
                             <Spin size="small" style={{ color: 'white' }} />
                         </div>
@@ -1090,22 +1090,22 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         fontSize: 14,
                         padding: '12px 20px',
                         height: 'auto',
-                        background: 'rgba(255, 255, 255, 0.08)',
+                        background: 'var(--glass-white-light)',
                         backdropFilter: 'blur(20px)',
-                        border: '1px solid rgba(255, 255, 255, 0.15)',
+                        border: '1px solid var(--glass-white-medium)',
                         borderRadius: 12,
                         transition: 'all 0.3s ease',
-                        boxShadow: '0 4px 16px rgba(5, 108, 205, 0.2)'
+                        boxShadow: '0 4px 16px var(--shadow-primary-color)'
                     }}
                     onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+                        e.currentTarget.style.background = 'var(--glass-white-medium)';
                         e.currentTarget.style.transform = 'translateY(-2px)';
-                        e.currentTarget.style.boxShadow = '0 6px 20px rgba(5, 108, 205, 0.3)';
+                        e.currentTarget.style.boxShadow = '0 6px 20px var(--shadow-primary-color-hover)';
                     }}
                     onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
+                        e.currentTarget.style.background = 'var(--glass-white-light)';
                         e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.boxShadow = '0 4px 16px rgba(5, 108, 205, 0.2)';
+                        e.currentTarget.style.boxShadow = '0 4px 16px var(--shadow-primary-color)';
                     }}
                 >
                     Refresh
@@ -1119,7 +1119,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         title="Requests"
                         value={stats.totalRequests}
                         icon={<ThunderboltOutlined />}
-                        gradient="linear-gradient(135deg, #056ccd 0%, #0369a1 100%)"
+                        gradient="linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%)"
                         formatter={formatNumber}
                         suffix="/s"
                         onShowList={() => showDetailModal('requests')}
@@ -1130,7 +1130,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         title="Total Connections"
                         value={stats.downstreamConnections + stats.upstreamConnections}
                         icon={<LinkOutlined />}
-                        gradient="linear-gradient(135deg, #00c6fb 0%, #06b6d4 100%)"
+                        gradient="linear-gradient(135deg, var(--color-accent) 0%, var(--color-cyan) 100%)"
                         formatter={formatNumber}
                         onShowList={() => showDetailModal('connections')}
                     />
@@ -1140,7 +1140,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         title="Total Traffic"
                         value={stats.incomingTraffic + stats.outgoingTraffic}
                         icon={<SwapOutlined />}
-                        gradient="linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%)"
+                        gradient="linear-gradient(135deg, var(--color-sky) 0%, var(--color-sky-light) 100%)"
                         formatter={formatBytes}
                         suffix="/s"
                         onShowList={() => showDetailModal('traffic')}
@@ -1155,19 +1155,19 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                     <GroupedMetricCard
                         title="Errors & Health"
                         icon={<ThunderboltOutlined />}
-                        gradient="linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)"
+                        gradient="linear-gradient(135deg, var(--color-warning) 0%, var(--color-danger) 100%)"
                         metrics={[
                             {
                                 label: '4xx Errors',
                                 value: stats.http4xxErrors,
                                 suffix: '/s',
-                                color: '#f59e0b'
+                                color: 'var(--color-warning)'
                             },
                             {
                                 label: '5xx Errors',
                                 value: stats.http5xxErrors,
                                 suffix: '/s',
-                                color: '#ef4444'
+                                color: 'var(--color-danger)'
                             },
                             {
                                 label: 'Server Health',
@@ -1179,7 +1179,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                                         <span>{val.toFixed(0)}%</span>
                                         <span style={{
                                             fontSize: '10px',
-                                            color: '#9ca3af',
+                                            color: 'var(--text-tertiary)',
                                             fontWeight: 400,
                                             marginTop: '2px'
                                         }}>
@@ -1200,23 +1200,23 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                     <GroupedMetricCard
                         title="Connections"
                         icon={<LinkOutlined />}
-                        gradient="linear-gradient(135deg, #0369a1 0%, #0284c7 100%)"
+                        gradient="linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-sky) 100%)"
                         metrics={[
                             {
                                 label: 'Downstream',
                                 value: stats.downstreamConnections,
-                                color: '#0369a1'
+                                color: 'var(--color-primary-dark)'
                             },
                             {
                                 label: 'Upstream',
                                 value: stats.upstreamConnections,
-                                color: '#0ea5e9'
+                                color: 'var(--color-sky-light)'
                             },
                             {
                                 label: 'Destroyed',
                                 value: stats.downstreamDestroyedFromRemote,
                                 suffix: '/s',
-                                color: '#f59e0b'
+                                color: 'var(--color-warning)'
                             }
                         ]}
                     />
@@ -1227,26 +1227,26 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                     <GroupedMetricCard
                         title="Traffic"
                         icon={<SwapOutlined />}
-                        gradient="linear-gradient(135deg, #0891b2 0%, #06b6d4 100%)"
+                        gradient="linear-gradient(135deg, var(--color-teal) 0%, var(--color-cyan) 100%)"
                         metrics={[
                             {
                                 label: 'Incoming',
                                 value: stats.incomingTraffic,
                                 formatter: formatBytes,
                                 suffix: '/s',
-                                color: '#0891b2'
+                                color: 'var(--color-teal)'
                             },
                             {
                                 label: 'Outgoing',
                                 value: stats.outgoingTraffic,
                                 formatter: formatBytes,
                                 suffix: '/s',
-                                color: '#0284c7'
+                                color: 'var(--color-sky)'
                             },
                             {
                                 label: 'Active Listeners',
                                 value: stats.activeListeners,
-                                color: '#00c6fb'
+                                color: 'var(--color-accent)'
                             }
                         ]}
                     />
@@ -1267,7 +1267,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         <Space>
                             <Input
                                 placeholder="Search..."
-                                prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />}
+                                prefix={<SearchOutlined style={{ color: 'var(--text-tertiary)' }} />}
                                 value={searchText}
                                 onChange={(e) => setSearchText(e.target.value)}
                                 style={{
@@ -1300,7 +1300,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                 {modalLoading ? (
                     <div style={{ textAlign: 'center', padding: 40 }}>
                         <Spin size="large" />
-                        <Text style={{ display: 'block', marginTop: 16, color: '#64748b' }}>
+                        <Text style={{ display: 'block', marginTop: 16, color: 'var(--text-secondary)' }}>
                             Loading domain metrics...
                         </Text>
                     </div>
@@ -1310,7 +1310,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                             <div style={{
                                 textAlign: 'center',
                                 padding: 40,
-                                color: '#8c8c8c'
+                                color: 'var(--text-secondary)'
                             }}>
                                 <SearchOutlined style={{ fontSize: 32, marginBottom: 16 }} />
                                 <div style={{ fontSize: 16, marginBottom: 8 }}>No domains found</div>
@@ -1330,12 +1330,12 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                                     <div
                                         key={item.domain}
                                         style={{
-                                            background: 'white',
-                                            border: '1px solid #f0f0f0',
+                                            background: 'var(--card-bg)',
+                                            border: '1px solid var(--border-default)',
                                             borderRadius: 8,
                                             padding: 12,
                                             transition: 'all 0.2s ease',
-                                            boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                                            boxShadow: '0 1px 3px var(--shadow-card-item)',
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'space-between'
@@ -1343,12 +1343,12 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                                         onMouseEnter={(e) => {
                                             e.currentTarget.style.borderColor = getStatusColor(item.status);
                                             e.currentTarget.style.transform = 'translateY(-1px)';
-                                            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.12)';
+                                            e.currentTarget.style.boxShadow = '0 4px 12px var(--shadow-card-item-hover)';
                                         }}
                                         onMouseLeave={(e) => {
-                                            e.currentTarget.style.borderColor = '#f0f0f0';
+                                            e.currentTarget.style.borderColor = 'var(--border-default)';
                                             e.currentTarget.style.transform = 'translateY(0)';
-                                            e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.08)';
+                                            e.currentTarget.style.boxShadow = '0 1px 3px var(--shadow-card-item)';
                                         }}
                                     >
                                         {/* Left: Domain name and status */}
@@ -1372,7 +1372,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                                                 style={{
                                                     fontSize: 13,
                                                     fontFamily: 'Monaco, Consolas, monospace',
-                                                    color: '#1a1a1a'
+                                                    color: 'var(--text-primary)'
                                                 }}
                                             >
                                                 {item.domain}
@@ -1395,20 +1395,20 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                                             {modalTitle.includes('Request') && (
                                                 <>
                                                     <div style={{ minWidth: 60, textAlign: 'center' }}>
-                                                        <Text style={{ fontSize: 10, color: '#8c8c8c', display: 'block' }}>REQ/S</Text>
-                                                        <Text strong style={{ color: '#056ccd', fontSize: 14 }}>
+                                                        <Text style={{ fontSize: 10, color: 'var(--text-secondary)', display: 'block' }}>REQ/S</Text>
+                                                        <Text strong style={{ color: 'var(--color-primary)', fontSize: 14 }}>
                                                             {formatNumber(item.requests)}
                                                         </Text>
                                                     </div>
                                                     <div style={{ minWidth: 50, textAlign: 'center' }}>
-                                                        <Text style={{ fontSize: 10, color: '#8c8c8c', display: 'block' }}>4XX</Text>
-                                                        <Text strong style={{ color: '#f59e0b', fontSize: 14 }}>
+                                                        <Text style={{ fontSize: 10, color: 'var(--text-secondary)', display: 'block' }}>4XX</Text>
+                                                        <Text strong style={{ color: 'var(--color-warning)', fontSize: 14 }}>
                                                             {formatNumber(item.errors4xx)}
                                                         </Text>
                                                     </div>
                                                     <div style={{ minWidth: 50, textAlign: 'center' }}>
-                                                        <Text style={{ fontSize: 10, color: '#8c8c8c', display: 'block' }}>5XX</Text>
-                                                        <Text strong style={{ color: '#ef4444', fontSize: 14 }}>
+                                                        <Text style={{ fontSize: 10, color: 'var(--text-secondary)', display: 'block' }}>5XX</Text>
+                                                        <Text strong style={{ color: 'var(--color-danger)', fontSize: 14 }}>
                                                             {formatNumber(item.errors5xx)}
                                                         </Text>
                                                     </div>
@@ -1416,8 +1416,8 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                                             )}
                                             {modalTitle.includes('Connection') && (
                                                 <div style={{ minWidth: 70, textAlign: 'center' }}>
-                                                    <Text style={{ fontSize: 10, color: '#8c8c8c', display: 'block' }}>ACTIVE</Text>
-                                                    <Text strong style={{ color: '#00c6fb', fontSize: 14 }}>
+                                                    <Text style={{ fontSize: 10, color: 'var(--text-secondary)', display: 'block' }}>ACTIVE</Text>
+                                                    <Text strong style={{ color: 'var(--color-accent)', fontSize: 14 }}>
                                                         {formatNumber(item.connections)}
                                                     </Text>
                                                 </div>
@@ -1425,14 +1425,14 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                                             {modalTitle.includes('Traffic') && (
                                                 <>
                                                     <div style={{ minWidth: 80, textAlign: 'center' }}>
-                                                        <Text style={{ fontSize: 10, color: '#8c8c8c', display: 'block' }}>IN/S</Text>
-                                                        <Text strong style={{ color: '#0891b2', fontSize: 12 }}>
+                                                        <Text style={{ fontSize: 10, color: 'var(--text-secondary)', display: 'block' }}>IN/S</Text>
+                                                        <Text strong style={{ color: 'var(--color-teal)', fontSize: 12 }}>
                                                             {formatBytes(item.incomingBytes)}
                                                         </Text>
                                                     </div>
                                                     <div style={{ minWidth: 80, textAlign: 'center' }}>
-                                                        <Text style={{ fontSize: 10, color: '#8c8c8c', display: 'block' }}>OUT/S</Text>
-                                                        <Text strong style={{ color: '#0284c7', fontSize: 12 }}>
+                                                        <Text style={{ fontSize: 10, color: 'var(--text-secondary)', display: 'block' }}>OUT/S</Text>
+                                                        <Text strong style={{ color: 'var(--color-sky)', fontSize: 12 }}>
                                                             {formatBytes(item.outgoingBytes)}
                                                         </Text>
                                                     </div>

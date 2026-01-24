@@ -70,7 +70,7 @@ const GraphControls: React.FC<GraphControlsProps> = ({ onLayoutChange }) => {
             {onLayoutChange && (
                 <>
                     <Divider style={{ margin: '4px 0' }} />
-                    <div style={{ fontSize: '11px', fontWeight: 600, color: '#64748b' }}>
+                    <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-secondary)' }}>
                         Layout Direction
                     </div>
                     <Space size="small" wrap>

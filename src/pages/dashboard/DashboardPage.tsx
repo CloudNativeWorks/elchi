@@ -12,6 +12,7 @@ import { ChartsSection } from './sections/ChartsSection';
 import { MetricsSection } from './sections/MetricsSection';
 import { QuickStatsSection } from './sections/QuickStatsSection';
 import { AdvancedSection } from './sections/AdvancedSection';
+import { GSLBSection } from './sections/GSLBSection';
 import { ResourcesOverview } from './widgets/ResourcesOverview';
 import { useDashboardData } from './hooks/useDashboardData';
 import { DashboardRefreshProvider } from './context/DashboardRefreshContext';
@@ -59,6 +60,9 @@ export const DashboardPage: React.FC = () => {
 
           {/* Analytics Section with WAF Security and Service Health */}
           <AnalyticsSection />
+
+          {/* GSLB Health Check Statistics */}
+          <GSLBSection />
 
           {/* NEW: Request Rate Timeline Chart */}
           <ChartsSection />

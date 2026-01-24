@@ -1,8 +1,8 @@
 body {
     padding: 0 0 0 0;
-    background-color: #fafafa;
+    background-color: var(--bg-body);
     letter-spacing: -0.3px;
-    color: rgba(0, 0, 0, 0.65);
+    color: var(--text-primary);
     font-size: 14px;
     line-height: 1.6;
     font-weight: 400;
@@ -43,8 +43,8 @@ span[id*="lastpass"] {
 }
 
 /* Additional password manager icon hiding */
-input.no-password-manager + div[style*="background-image"],
-input.no-password-manager ~ div[data-lastpass-icon-root] {
+input.no-password-manager+div[style*="background-image"],
+input.no-password-manager~div[data-lastpass-icon-root] {
     display: none !important;
     visibility: hidden !important;
     opacity: 0 !important;
@@ -99,17 +99,32 @@ com-1password-button {
     }
 }
 
+.elchi-delete-button {
+    transition: all 0.2s ease-in-out !important;
+}
+
+.elchi-delete-button:hover {
+    background-color: var(--color-danger) !important;
+    border-color: var(--color-danger) !important;
+    transform: scale(1.05);
+    box-shadow: 0 2px 8px var(--color-danger-shadow) !important;
+}
+
+.elchi-delete-button:hover .anticon {
+    color: #fff !important;
+}
+
 .App {
     text-align: left;
 }
 
 .add-icon-shadow {
-    filter: drop-shadow(0 0 8px #056ccd) drop-shadow(0 2px 8px #0008);
+    filter: drop-shadow(0 0 8px var(--color-primary)) drop-shadow(0 2px 8px #0008);
 }
 
 .service-name-cell {
     position: relative;
-    background: #f0f7ff;
+    background: var(--color-primary-light);
     border-radius: 6px;
     overflow: hidden;
 }
@@ -121,7 +136,7 @@ com-1password-button {
     bottom: 0;
     width: 100%;
     height: 3px;
-    background: linear-gradient(90deg, #056ccd 0%, #00c6fb 100%);
+    background: var(--gradient-primary);
     border-bottom-left-radius: 6px;
     border-bottom-right-radius: 6px;
 }
@@ -137,35 +152,35 @@ com-1password-button {
 .modern-add-btn:hover {
     filter: brightness(1.08) drop-shadow(0 2px 8px #00c6fb55);
     transform: translateY(-1px) scale(1.03);
-    background: linear-gradient(90deg, #00c6fb 0%, #056ccd 100%);
+    background: var(--gradient-primary-reverse);
 }
 
 .modern-add-icon-btn:hover {
-    background: linear-gradient(90deg, #056ccd 0%, #00c6fb 100%) !important;
+    background: var(--gradient-primary) !important;
     transform: scale(1.20) !important;
     box-shadow: 0 4px 16px 0 rgba(5, 117, 230, 0.18) !important;
 }
 
 .modern-add-icon-btn-info:hover {
-    background: linear-gradient(90deg, #056ccd 0%, #00c6fb 100%) !important;
+    background: var(--gradient-primary) !important;
     transform: scale(1.08) !important;
     box-shadow: 0 4px 16px 0 rgba(5, 117, 230, 0.18) !important;
 }
 
 .custom-steps .ant-steps-item-process .ant-steps-item-icon {
-    background: linear-gradient(90deg, #056ccd 0%, #00c6fb 100%);
-    color: #fff !important;
+    background: var(--gradient-primary);
+    color: var(--text-inverse) !important;
     box-shadow: 0 4px 16px 0 rgba(5, 117, 230, 0.18);
 }
 
 .ant-switch-checked {
-    background: linear-gradient(90deg, #056ccd 0%, #00c6fb 100%) !important;
+    background: var(--gradient-primary) !important;
     border-color: transparent !important;
 }
 
 .ant-card-head {
-    background: linear-gradient(90deg, #056ccd 0%, #00c6fb 100%) !important;
-    color: #fff !important;
+    background: var(--gradient-primary) !important;
+    color: var(--text-inverse) !important;
 }
 
 .ant-card-head {
@@ -180,20 +195,20 @@ com-1password-button {
 }
 
 .ant-collapse .ant-collapse-arrow {
-    color: #fff !important;
+    color: var(--text-inverse) !important;
 }
 
 .ecard-collapse-icon {
     cursor: pointer;
-    color: #fff;
+    color: var(--text-inverse);
     background: transparent;
     border-radius: 50%;
     transition: background 0.2s, color 0.2s;
 }
 
 .ecard-collapse-icon:hover {
-    background: #fff;
-    color: #000;
+    background: var(--bg-surface);
+    color: var(--text-primary);
 }
 
 
@@ -204,28 +219,33 @@ com-1password-button {
     cursor: pointer;
     border: unset;
     padding: 0;
-    background-color: unset;
-    color: #fff;
-    stroke: #fff;
-    fill: #fff;
+    background-color: rgba(255, 255, 255, 0.08) !important;
+    color: var(--text-inverse);
+    stroke: var(--text-inverse);
+    fill: var(--text-inverse);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: all 0.3s ease;
 }
 
 .ADDSVGContainer:hover path {
-    stroke: #056ccd;
-    fill: #056ccd;
+    stroke: var(--color-primary);
+    fill: var(--color-primary);
 }
 
 .ADDSVGContainer:hover circle {
-    fill: #056ccd;
+    fill: var(--color-primary);
 }
 
 .ADDSVGContainer:active path {
-    stroke: #056ccd;
-    fill: #056ccd;
+    stroke: var(--color-primary);
+    fill: var(--color-primary);
 }
 
 .ADDSVGContainer:active circle {
-    fill: #056ccd;
+    fill: var(--color-primary);
 }
 
 .header-control {
@@ -248,12 +268,12 @@ com-1password-button {
     min-height: 38px;
     padding: 0 12px;
     font-size: 14px;
-    color: rgb(255, 252, 231);
-    background: #1990FF;
+    color: var(--text-inverse);
+    background: var(--color-primary);
 }
 
 .main-header {
-    background-color: #056ccd;
+    background-color: var(--header-bg);
     padding: 0 0px;
     display: flex;
     justify-content: space-between;
@@ -297,7 +317,7 @@ com-1password-button {
 }
 
 /* Alternative approach - add margin to last child */
-.main-content .ant-layout-content > *:last-child {
+.main-content .ant-layout-content>*:last-child {
     margin-bottom: 40px !important;
 }
 
@@ -349,7 +369,7 @@ com-1password-button {
 
     width: 250px;
     transition: all 0.3s ease;
-    background-color: #fff;
+    background-color: var(--sidenav-bg);
 }
 
 @media (max-width: 768px) {
@@ -367,7 +387,7 @@ com-1password-button {
 
 .menu-item-header {
     padding: 10px 5px !important;
-    color: #727272;
+    color: var(--text-secondary);
     font-weight: 700;
     font-size: 13px;
     text-transform: uppercase;
@@ -399,13 +419,34 @@ com-1password-button {
     margin-right: 11px;
 }
 
-.ant-layout-sider-collapsed .menu-item-header {
-    display: none;
+.ant-layout-sider-collapsed .menu-item-header,
+.ant-layout-sider-collapsed .ant-menu-item.menu-item-header,
+.ant-layout-sider-collapsed li.ant-menu-item.menu-item-header {
+    display: none !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    visibility: hidden !important;
+    overflow: hidden !important;
+    line-height: 0 !important;
+    font-size: 0 !important;
+    opacity: 0 !important;
+}
+
+.ant-layout-sider-collapsed .menu-item-header::before,
+.ant-layout-sider-collapsed .ant-menu-item.menu-item-header::before,
+.ant-layout-sider-collapsed li.ant-menu-item.menu-item-header::before {
+    display: none !important;
+    content: none !important;
 }
 
 .ant-layout-sider-collapsed .ant-menu-item .ant-menu-item-icon :active,
 .ant-layout-sider-collapsed .ant-menu-item .ant-menu-item-icon {
     display: flex;
+    flex-direction: column-reverse;
     justify-content: center;
 }
 
@@ -441,19 +482,21 @@ com-1password-button {
 }
 
 .ant-card.criclebox {
-    box-shadow: 0px 20px 27px #0000000d;
+    box-shadow: var(--card-shadow);
     border-radius: 12px;
     width: calc(20% - 10px);
     margin-right: 10px;
     margin-bottom: 10px;
+    background: var(--card-bg);
 }
 
 .ant-card.criclebox2 {
-    box-shadow: 0px 20px 27px #0000000d;
+    box-shadow: var(--card-shadow);
     border-radius: 12px;
     width: calc(100% - 10px);
     margin-right: 10px;
     margin-bottom: 10px;
+    background: var(--card-bg);
 }
 
 .ant-menu-inline-collapsed .ant-menu-submenu-vertical .ant-menu-submenu-title {
@@ -499,8 +542,8 @@ com-1password-button {
 }
 
 .infos-button {
-    background-color: white;
-    border: 1px solid #056ccd;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--color-primary);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -517,19 +560,20 @@ com-1password-button {
 }
 
 .infos-button:hover {
-    background-color: #056ccd;
-    border-color: #056ccd;
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
 }
 
 .infos-button:hover .infos-icon {
-    fill: white;
-    stroke: white;
+    fill: var(--text-inverse);
+    stroke: var(--text-inverse);
 }
 
 .only-one-button {
     display: flex;
     align-items: center;
-    flex: 1 1 auto;
+    flex: 1;
+    min-width: 0;
     max-width: 100%;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -545,7 +589,10 @@ com-1password-button {
     padding: 0;
     margin: 0;
     cursor: pointer;
-    display: inline;
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
 }
 
 .norm-button {
@@ -554,7 +601,10 @@ com-1password-button {
     padding: 0;
     margin: 0;
     cursor: pointer;
-    display: inline;
+    display: flex;
+    align-items: center;
+    flex: 1;
+    min-width: 0;
     font-family: sans-serif;
 }
 
@@ -599,7 +649,7 @@ com-1password-button {
     :global(.ant-radio-button-wrapper::before) {
         display: none !important;
     }
-} 
+}
 
 
 
@@ -611,7 +661,7 @@ com-1password-button {
     padding: 6px 14px;
     font-size: 13px;
     font-weight: 500;
-    color: #64748b;
+    color: var(--text-secondary);
     border-radius: 8px;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     white-space: nowrap;
@@ -621,14 +671,14 @@ com-1password-button {
 
 .tabLabel svg {
     transition: all 0.2s ease;
-    color: #94a3b8;
+    color: var(--text-tertiary);
 }
 
 
 
 .tabLabel:hover svg {
     transform: translateY(-1px);
-    color: #0ea5e9;
+    color: var(--color-primary);
 }
 
 .ant-tabs {
@@ -652,7 +702,7 @@ com-1password-button {
     padding: 6px 14px !important;
     font-size: 13px !important;
     font-weight: 500 !important;
-    color: #64748b !important;
+    color: var(--text-secondary) !important;
     border-radius: 8px !important;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
     white-space: nowrap !important;
@@ -666,16 +716,16 @@ com-1password-button {
 }
 
 .ant-tabs .ant-tabs-tab:not(.ant-tabs-tab-active):hover .ant-tabs-tab-btn {
-    color: #0ea5e9 !important;
-    background: #f8fafc !important;
+    color: var(--color-primary) !important;
+    background: var(--bg-hover) !important;
 }
 
 .ant-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
-    color: #0284c7 !important;
-    background: linear-gradient(to right, #f0f9ff, #e0f2fe) !important;
-    box-shadow: 
+    color: var(--color-primary) !important;
+    background: var(--sidenav-active) !important;
+    box-shadow:
         0 3px 10px rgba(14, 165, 233, 0.1) !important;
-    border-left: 3px solid #0284c7 !important;
+    border-left: 3px solid var(--color-primary) !important;
     padding-left: 16px !important;
     margin-left: 2px !important;
     font-weight: 600 !important;
@@ -683,10 +733,10 @@ com-1password-button {
 
 .ant-tabs .ant-tabs-nav {
     margin-bottom: 12px !important;
-    background: #ffffff !important;
+    background: var(--bg-surface) !important;
     border-radius: 10px !important;
     padding: 4px !important;
-    border: 1px solid #e2e8f0 !important;
+    border: 1px solid var(--border-default) !important;
     min-height: unset !important;
 }
 
@@ -699,7 +749,7 @@ com-1password-button {
 }
 
 .ant-tabs .ant-tabs-nav-list {
-    background: #f8fafc !important;
+    background: var(--bg-body) !important;
     padding: 4px !important;
     border-radius: 8px !important;
     box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.03) !important;
@@ -717,91 +767,90 @@ com-1password-button {
 .tabContainer .ant-tabs-tab .ant-tabs-tab-btn {
     padding: 6px 14px !important;
     font-size: 13px !important;
-    color: #64748b !important;
+    color: var(--text-secondary) !important;
 }
 
 .tabContainer .ant-tabs-tab-active .ant-tabs-tab-btn {
-    color: #0284c7 !important;
-    background: linear-gradient(to right, #f0f9ff, #e0f2fe) !important;
-    border-left: 3px solid #0284c7 !important;
+    color: var(--color-primary) !important;
+    background: var(--sidenav-active) !important;
+    border-left: 3px solid var(--color-primary) !important;
 }
 
 .tabContainer.ant-tabs .ant-tabs-tab:not(.ant-tabs-tab-active):hover .ant-tabs-tab-btn {
-    color: #0ea5e9 !important;
-    background: #f8fafc !important;
+    color: var(--color-primary) !important;
+    background: var(--bg-hover) !important;
 }
 
 .tabContainer.ant-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
-    color: #0284c7 !important;
-    background: linear-gradient(to right, #f0f9ff, #e0f2fe) !important;
-    box-shadow: 
-        0 3px 10px rgba(14, 165, 233, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.9) !important;
-    border-left: 3px solid #0284c7 !important;
+    color: var(--color-primary) !important;
+    background: var(--sidenav-active) !important;
+    box-shadow:
+        0 3px 10px rgba(14, 165, 233, 0.1) !important;
+    border-left: 3px solid var(--color-primary) !important;
     padding-left: 16px !important;
     margin-left: 2px !important;
     font-weight: 600 !important;
 }
 
 .tabContainer.ant-tabs .ant-tabs-tab-active:hover .ant-tabs-tab-btn {
-    background: linear-gradient(to right, #f0f9ff, #e0f2fe) !important;
+    background: var(--sidenav-active) !important;
 }
 
 .ant-collapse-ghost {
     background: transparent !important;
 }
 
-.ant-collapse-ghost > .ant-collapse-item {
+.ant-collapse-ghost>.ant-collapse-item {
     margin-bottom: 4px;
-    background: #fff;
+    background: var(--bg-surface);
     border-radius: 6px;
-    border: 1px solid #f0f0f0 !important;
+    border: 1px solid var(--border-default) !important;
 }
 
-.ant-collapse-ghost > .ant-collapse-item > .ant-collapse-header {
+.ant-collapse-ghost>.ant-collapse-item>.ant-collapse-header {
     padding: 4px 12px !important;
     align-items: center !important;
     display: flex !important;
-    border-bottom: 1px solid #f0f0f0 !important;
+    border-bottom: 1px solid var(--border-default) !important;
 }
 
-.ant-collapse-ghost > .ant-collapse-item > .ant-collapse-header .ant-collapse-expand-icon {
+.ant-collapse-ghost>.ant-collapse-item>.ant-collapse-header .ant-collapse-expand-icon {
     padding-right: 8px !important;
     margin: 0 !important;
 }
 
-.ant-collapse-ghost > .ant-collapse-item > .ant-collapse-header .anticon {
+.ant-collapse-ghost>.ant-collapse-item>.ant-collapse-header .anticon {
     font-size: 14px !important;
-    color: rgba(0, 0, 0, 0.88) !important;
+    color: var(--text-primary) !important;
     display: inline-flex !important;
     align-items: center !important;
 }
 
-.ant-collapse-ghost > .ant-collapse-item > .ant-collapse-content {
-    background: #fff;
+.ant-collapse-ghost>.ant-collapse-item>.ant-collapse-content {
+    background: var(--bg-surface);
     border-top: none !important;
 }
 
-.ant-collapse-ghost > .ant-collapse-item.ant-collapse-item-active {
-    border-bottom: 1px solid #f0f0f0 !important;
+.ant-collapse-ghost>.ant-collapse-item.ant-collapse-item-active {
+    border-bottom: 1px solid var(--border-default) !important;
 }
 
 /* Modern Error Notification Styles - Glass Morphism */
 .modern-error-notification {
-    background: linear-gradient(135deg, 
-        rgba(255, 240, 245, 0.9) 0%,
-        rgba(255, 245, 248, 0.85) 100%) !important;
+    background: linear-gradient(135deg,
+            var(--color-danger-light) 0%,
+            var(--bg-glass) 100%) !important;
     backdrop-filter: blur(16px) saturate(150%) !important;
-    border: 1px solid rgba(255, 182, 193, 0.3) !important;
-    border-left: 4px solid #ff4757 !important;
+    border: 1px solid var(--color-danger-border) !important;
+    border-left: 4px solid var(--color-danger) !important;
     border-radius: 12px !important;
-    box-shadow: 
-        0 8px 32px rgba(255, 71, 87, 0.1),
+    box-shadow:
+        0 8px 32px var(--color-danger-shadow),
         0 4px 16px rgba(0, 0, 0, 0.05),
-        inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+        inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
     overflow: hidden !important;
     animation: slideInGlass 0.5s ease-out !important;
-    margin: 8px !important;
+    margin: 0 8px 0 8px !important;
     position: relative !important;
     min-width: 500px !important;
     max-width: 600px !important;
@@ -813,20 +862,36 @@ com-1password-button {
     box-shadow: none !important;
     border: none !important;
     padding: 0 !important;
-    margin: 0 !important;
+    margin-bottom: 0 !important;
 }
 
 /* Remove container backgrounds */
 .ant-notification {
     background: transparent !important;
+    gap: 16px !important;
+    display: flex !important;
+    flex-direction: column !important;
 }
 
 .ant-notification .ant-notification-notice {
-    margin-bottom: 16px !important;
+    margin-bottom: 0 !important;
 }
 
-.modern-error-notification.ant-notification-notice-wrapper {
+.ant-notification-stack {
+    gap: 16px !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.ant-notification-stack .ant-notification-notice {
+    margin-bottom: 0 !important;
+}
+
+.modern-error-notification.ant-notification-notice-wrapper,
+.modern-warning-notification.ant-notification-notice-wrapper,
+.modern-success-notification.ant-notification-notice-wrapper {
     background: transparent !important;
+    margin: 0 !important;
 }
 
 .modern-error-notification .ant-notification-notice-content {
@@ -848,16 +913,16 @@ com-1password-button {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, 
-        rgba(255, 255, 255, 0.2) 0%,
-        rgba(255, 182, 193, 0.1) 50%,
-        rgba(255, 255, 255, 0.1) 100%);
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.2) 0%,
+            rgba(255, 182, 193, 0.1) 50%,
+            rgba(255, 255, 255, 0.1) 100%);
     z-index: 1;
     pointer-events: none;
 }
 
 /* Header row with icon + title */
-.modern-error-notification .ant-notification-notice-content > .ant-notification-notice-with-icon-title {
+.modern-error-notification .ant-notification-notice-content>.ant-notification-notice-with-icon-title {
     display: flex !important;
     align-items: center !important;
     margin-bottom: 0px !important;
@@ -866,9 +931,9 @@ com-1password-button {
 .modern-error-notification .ant-notification-notice-icon {
     margin-right: 8px !important;
     font-size: 16px !important;
-    color: #ff4757 !important;
+    color: var(--color-danger) !important;
     margin-top: 0px !important;
-    filter: drop-shadow(0 2px 4px rgba(255, 71, 87, 0.2)) !important;
+    filter: drop-shadow(0 2px 4px var(--color-danger-shadow)) !important;
     position: relative !important;
     z-index: 3 !important;
     flex-shrink: 0 !important;
@@ -882,10 +947,10 @@ com-1password-button {
 .modern-error-notification .ant-notification-notice-message {
     font-size: 14px !important;
     font-weight: 600 !important;
-    color: #2d1b1b !important;
+    color: var(--text-primary) !important;
     margin-bottom: 4px !important;
     letter-spacing: -0.2px !important;
-    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5) !important;
+    text-shadow: none !important;
     position: relative !important;
     z-index: 3 !important;
     line-height: 16px !important;
@@ -896,13 +961,13 @@ com-1password-button {
 
 .modern-error-notification .ant-notification-notice-description {
     font-size: 12px !important;
-    color: #5a3a3a !important;
+    color: var(--text-primary) !important;
     line-height: 1.3 !important;
     font-weight: 400 !important;
     margin: 0 !important;
     margin-left: 2px !important;
     margin-top: -10px !important;
-    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3) !important;
+    text-shadow: none !important;
     position: relative !important;
     z-index: 3 !important;
 }
@@ -917,10 +982,10 @@ com-1password-button {
 .modern-error-notification .ant-notification-notice-close {
     right: 10px !important;
     top: 10px !important;
-    color: rgba(93, 58, 58, 0.6) !important;
+    color: var(--text-secondary) !important;
     font-size: 14px !important;
     transition: all 0.2s ease !important;
-    background: rgba(255, 255, 255, 0.2) !important;
+    background: var(--glass-white-light) !important;
     border-radius: 50% !important;
     width: 22px !important;
     height: 22px !important;
@@ -933,10 +998,10 @@ com-1password-button {
 }
 
 .modern-error-notification .ant-notification-notice-close:hover {
-    color: #ff4757 !important;
-    background: rgba(255, 255, 255, 0.4) !important;
+    color: var(--color-danger) !important;
+    background: var(--glass-white-medium) !important;
     transform: scale(1.1) !important;
-    box-shadow: 0 2px 8px rgba(255, 71, 87, 0.2) !important;
+    box-shadow: 0 2px 8px var(--shadow-danger-color) !important;
 }
 
 @keyframes slideInGlass {
@@ -945,11 +1010,13 @@ com-1password-button {
         transform: translateX(100%) scale(0.95);
         backdrop-filter: blur(0px);
     }
+
     50% {
         opacity: 0.7;
         transform: translateX(-5%) scale(1.02);
         backdrop-filter: blur(8px);
     }
+
     100% {
         opacity: 1;
         transform: translateX(0) scale(1);
@@ -959,20 +1026,20 @@ com-1password-button {
 
 /* Modern Warning Notification Styles */
 .modern-warning-notification {
-    background: linear-gradient(135deg, 
-        rgba(255, 248, 220, 0.9) 0%,
-        rgba(255, 251, 235, 0.85) 100%) !important;
+    background: linear-gradient(135deg,
+            var(--color-warning-light) 0%,
+            var(--bg-glass) 100%) !important;
     backdrop-filter: blur(16px) saturate(150%) !important;
-    border: 1px solid rgba(255, 193, 7, 0.3) !important;
-    border-left: 4px solid #faad14 !important;
+    border: 1px solid var(--color-warning-border) !important;
+    border-left: 4px solid var(--color-warning) !important;
     border-radius: 12px !important;
-    box-shadow: 
-        0 8px 32px rgba(250, 173, 20, 0.1),
+    box-shadow:
+        0 8px 32px var(--color-warning-shadow),
         0 4px 16px rgba(0, 0, 0, 0.05),
-        inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+        inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
     overflow: hidden !important;
     animation: slideInGlass 0.5s ease-out !important;
-    margin: 8px !important;
+    margin: 0 8px 0 8px !important;
     position: relative !important;
     min-width: 500px !important;
     max-width: 600px !important;
@@ -997,10 +1064,10 @@ com-1password-button {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, 
-        rgba(255, 255, 255, 0.2) 0%,
-        rgba(255, 193, 7, 0.1) 50%,
-        rgba(255, 255, 255, 0.1) 100%);
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.05) 0%,
+            rgba(255, 193, 7, 0.05) 50%,
+            rgba(255, 255, 255, 0.02) 100%);
     z-index: 1;
     pointer-events: none;
 }
@@ -1008,9 +1075,9 @@ com-1password-button {
 .modern-warning-notification .ant-notification-notice-icon {
     margin-right: 8px !important;
     font-size: 16px !important;
-    color: #faad14 !important;
+    color: var(--color-warning) !important;
     margin-top: 0px !important;
-    filter: drop-shadow(0 2px 4px rgba(250, 173, 20, 0.2)) !important;
+    filter: drop-shadow(0 2px 4px var(--color-warning-shadow)) !important;
     position: relative !important;
     z-index: 3 !important;
     flex-shrink: 0 !important;
@@ -1024,10 +1091,10 @@ com-1password-button {
 .modern-warning-notification .ant-notification-notice-message {
     font-size: 14px !important;
     font-weight: 600 !important;
-    color: #8b4513 !important;
+    color: var(--text-primary) !important;
     margin-bottom: 4px !important;
     letter-spacing: -0.2px !important;
-    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5) !important;
+    text-shadow: none !important;
     position: relative !important;
     z-index: 3 !important;
     line-height: 16px !important;
@@ -1038,12 +1105,12 @@ com-1password-button {
 
 .modern-warning-notification .ant-notification-notice-description {
     font-size: 12px !important;
-    color: #a0622d !important;
+    color: var(--text-secondary) !important;
     line-height: 1.3 !important;
     font-weight: 400 !important;
     margin: 0 !important;
     margin-left: 22px !important;
-    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3) !important;
+    text-shadow: none !important;
     position: relative !important;
     z-index: 3 !important;
 }
@@ -1058,10 +1125,10 @@ com-1password-button {
 .modern-warning-notification .ant-notification-notice-close {
     right: 10px !important;
     top: 10px !important;
-    color: rgba(139, 69, 19, 0.6) !important;
+    color: var(--text-secondary) !important;
     font-size: 14px !important;
     transition: all 0.2s ease !important;
-    background: rgba(255, 255, 255, 0.2) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
     border-radius: 50% !important;
     width: 22px !important;
     height: 22px !important;
@@ -1074,28 +1141,28 @@ com-1password-button {
 }
 
 .modern-warning-notification .ant-notification-notice-close:hover {
-    color: #faad14 !important;
-    background: rgba(255, 255, 255, 0.4) !important;
+    color: var(--color-warning) !important;
+    background: rgba(255, 255, 255, 0.2) !important;
     transform: scale(1.1) !important;
-    box-shadow: 0 2px 8px rgba(250, 173, 20, 0.2) !important;
+    box-shadow: 0 2px 8px var(--color-warning-shadow) !important;
 }
 
 /* Modern Success Notification Styles */
 .modern-success-notification {
-    background: linear-gradient(135deg, 
-        rgba(246, 255, 237, 0.9) 0%,
-        rgba(251, 255, 248, 0.85) 100%) !important;
+    background: linear-gradient(135deg,
+            var(--color-success-light) 0%,
+            var(--bg-glass) 100%) !important;
     backdrop-filter: blur(16px) saturate(150%) !important;
-    border: 1px solid rgba(82, 196, 26, 0.3) !important;
-    border-left: 4px solid #52c41a !important;
+    border: 1px solid var(--color-success-border) !important;
+    border-left: 4px solid var(--color-success) !important;
     border-radius: 12px !important;
-    box-shadow: 
-        0 8px 32px rgba(82, 196, 26, 0.1),
+    box-shadow:
+        0 8px 32px var(--color-success-shadow),
         0 4px 16px rgba(0, 0, 0, 0.05),
-        inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+        inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
     overflow: hidden !important;
     animation: slideInGlass 0.5s ease-out !important;
-    margin: 8px !important;
+    margin: 0 8px 0 8px !important;
     position: relative !important;
     min-width: 500px !important;
     max-width: 600px !important;
@@ -1120,16 +1187,16 @@ com-1password-button {
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, 
-        rgba(255, 255, 255, 0.2) 0%,
-        rgba(82, 196, 26, 0.1) 50%,
-        rgba(255, 255, 255, 0.1) 100%);
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.05) 0%,
+            rgba(82, 196, 26, 0.05) 50%,
+            rgba(255, 255, 255, 0.02) 100%);
     z-index: 1;
     pointer-events: none;
 }
 
 /* Header row with icon + title */
-.modern-success-notification .ant-notification-notice-content > .ant-notification-notice-with-icon-title {
+.modern-success-notification .ant-notification-notice-content>.ant-notification-notice-with-icon-title {
     display: flex !important;
     align-items: center !important;
     margin-bottom: 0px !important;
@@ -1138,9 +1205,9 @@ com-1password-button {
 .modern-success-notification .ant-notification-notice-icon {
     margin-right: 8px !important;
     font-size: 16px !important;
-    color: #52c41a !important;
+    color: var(--color-success) !important;
     margin-top: 0px !important;
-    filter: drop-shadow(0 2px 4px rgba(82, 196, 26, 0.2)) !important;
+    filter: drop-shadow(0 2px 4px var(--color-success-shadow)) !important;
     position: relative !important;
     z-index: 3 !important;
     flex-shrink: 0 !important;
@@ -1154,10 +1221,10 @@ com-1password-button {
 .modern-success-notification .ant-notification-notice-message {
     font-size: 14px !important;
     font-weight: 600 !important;
-    color: #237804 !important;
+    color: var(--text-primary) !important;
     margin-bottom: 4px !important;
     letter-spacing: -0.2px !important;
-    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5) !important;
+    text-shadow: none !important;
     position: relative !important;
     z-index: 3 !important;
     line-height: 16px !important;
@@ -1168,13 +1235,13 @@ com-1password-button {
 
 .modern-success-notification .ant-notification-notice-description {
     font-size: 12px !important;
-    color: #389e0d !important;
+    color: var(--text-secondary) !important;
     line-height: 1.3 !important;
     font-weight: 400 !important;
     margin: 0 !important;
     margin-left: 2px !important;
     margin-top: -10px !important;
-    text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3) !important;
+    text-shadow: none !important;
     position: relative !important;
     z-index: 3 !important;
 }
@@ -1189,10 +1256,10 @@ com-1password-button {
 .modern-success-notification .ant-notification-notice-close {
     right: 10px !important;
     top: 10px !important;
-    color: rgba(35, 120, 4, 0.6) !important;
+    color: var(--text-secondary) !important;
     font-size: 14px !important;
     transition: all 0.2s ease !important;
-    background: rgba(255, 255, 255, 0.2) !important;
+    background: rgba(255, 255, 255, 0.1) !important;
     border-radius: 50% !important;
     width: 22px !important;
     height: 22px !important;
@@ -1205,19 +1272,19 @@ com-1password-button {
 }
 
 .modern-success-notification .ant-notification-notice-close:hover {
-    color: #52c41a !important;
-    background: rgba(255, 255, 255, 0.4) !important;
+    color: var(--color-success) !important;
+    background: rgba(255, 255, 255, 0.2) !important;
     transform: scale(1.1) !important;
-    box-shadow: 0 2px 8px rgba(82, 196, 26, 0.2) !important;
+    box-shadow: 0 2px 8px var(--color-success-shadow) !important;
 }
 
 /* Success and other notification types */
 .ant-notification-notice {
-    background: rgba(255, 255, 255, 0.95) !important;
+    background: var(--bg-glass) !important;
     backdrop-filter: blur(12px) !important;
-    border: none !important;
+    border: 1px solid var(--border-default) !important;
     border-radius: 8px !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08) !important;
+    box-shadow: var(--shadow-lg) !important;
     animation: slideInSmooth 0.4s ease-out !important;
 }
 

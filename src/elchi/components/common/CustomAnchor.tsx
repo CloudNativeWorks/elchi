@@ -229,16 +229,22 @@ const CustomAnchor = ({
                     }
                 }}
 
-                style={{ cursor: 'pointer', display: 'inline-block' }}
+                style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
-                <VerticalAlignMiddleOutlined style={{ marginRight: 5 }} />
+                <VerticalAlignMiddleOutlined />
+            </div>
+        );
+
+        const prefixHandle = (
+            <div style={{ width: '14px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', marginRight: '4px' }}>
+                {isChecked ? hashLink : null}
             </div>
         );
 
         if (isOnlyOne(orginTag, onlyOneTag, selectedTags)) {
             component = (
                 <div className='arc-div-style' onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}>
-                    {isChecked ? hashLink : <div style={{ marginRight: 5, width: "1em" }} />}
+                    {prefixHandle}
                     <button
                         className='only-one-button'
                         onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}
@@ -261,7 +267,7 @@ const CustomAnchor = ({
                                 />
                             }>
                             <Tag
-                                className="ellipsis-tag unsopperted-tags">
+                                className="ellipsis-tag unsupported-tags">
                                 <span>{prettyTag(tag)}</span>
                             </Tag>
                         </Popover>
@@ -278,14 +284,14 @@ const CustomAnchor = ({
             if (required?.includes(tag)) {
                 component = (
                     <div className='elipsis-tag-main' onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}>
-                        {isChecked ? hashLink : <div style={{ marginRight: 5, width: "1em" }} />}
+                        {prefixHandle}
                         <button
                             className='elipsis-tag-span point-button'
                             onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}
                         >
                             <Badge
                                 status={isChecked ? undefined : "processing"}
-                                color="linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)"
+                                color="var(--color-primary)"
                                 dot
                                 className='elipsis-tag-badge'
                                 offset={[-3, 4]}
@@ -312,13 +318,13 @@ const CustomAnchor = ({
             } else if (isDeprecated) {
                 component = (
                     <div className='arc-div-style' onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}>
-                        {isChecked ? hashLink : <div style={{ marginRight: 5, width: "1em" }} />}
+                        {prefixHandle}
                         <button
                             className='elipsis-tag-span point-button'
                             onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}
                         >
                             <Badge
-                                count={<WarningOutlined style={{ color: '#E9D502' }} />}
+                                count={<WarningOutlined style={{ color: 'var(--color-warning)' }} />}
                                 className='elipsis-tag-badge'
                                 offset={[-9, 9]}
                                 key={tag + index?.toString()}
@@ -345,7 +351,7 @@ const CustomAnchor = ({
             } else {
                 component = (
                     <div className='arc-div-style' onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}>
-                        {isChecked ? hashLink : <div style={{ marginRight: 5, width: "1em" }} />}
+                        {prefixHandle}
                         <button
                             className='elipsis-tag-span norm-button'
                             onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}

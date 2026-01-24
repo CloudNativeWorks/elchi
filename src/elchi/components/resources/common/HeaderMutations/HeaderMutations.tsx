@@ -1,13 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Col, Tabs } from 'antd';
-import { useDispatch } from "react-redux";
-import { ActionType, ResourceType } from "@/redux/reducer-helpers/common";
-import { handleChangeResources } from "@/redux/dispatcher";
 import { compareVeri, memorizeComponent } from "@/hooks/useMemoComponent";
 import { ByteToObj } from "@/utils/typed-config-op";
 import useTabManager from "@/hooks/useTabManager";
 import ECard from "@/elchi/components/common/ECard";
-import CommonComponentHeaderMutationRules from "../HeaderMutationRules/HeaderMutationRules";
+import CommonComponentHeaderMutation from "./HeaderMutation";
 
 
 type GeneralProps = {
@@ -23,7 +20,6 @@ type GeneralProps = {
 };
 
 const CommonComponentHeaderMutations: React.FC<GeneralProps> = ({ veri }) => {
-    const dispatch = useDispatch();
     const [rState, setRState] = useState<any>()
     const { state, onChangeTabs, addTab } = useTabManager({
         initialActiveTab: "0",
@@ -54,7 +50,7 @@ const CommonComponentHeaderMutations: React.FC<GeneralProps> = ({ veri }) => {
                         forceRender: true,
                         children: (
                             <Col md={24}>
-                                <CommonComponentHeaderMutationRules
+                                <CommonComponentHeaderMutation
                                     veri={{
                                         version: veri.version,
                                         reduxStore: data,

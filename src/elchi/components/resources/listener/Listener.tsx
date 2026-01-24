@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '@redux/store';
-import { Divider, Table, Button, Tag } from 'antd';
+import { Divider, Table, Button, Tag, Popconfirm } from 'antd';
 import { HeadOfResource } from '@/elchi/components/common/HeadOfResources';
 import { ActionType, ResourceType } from '@/redux/reducer-helpers/common';
 import { handleChangeResources } from '@/redux/dispatcher';
@@ -12,7 +12,7 @@ import { ColumnsType } from 'antd/es/table';
 import { navigateCases } from '@/elchi/helpers/navigate-cases';
 import { deleteMatchedConfigDiscovery } from './helpers';
 import { ResourceAction } from '@/redux/reducers/slice';
-import { DeleteTwoTone, InboxOutlined } from '@ant-design/icons';
+import { DeleteOutlined, InboxOutlined } from '@ant-design/icons';
 import { useGTypeFields } from '@/hooks/useGtypes';
 import { GTypes } from '@/common/statics/gtypes';
 import { modtag_listener } from './_modtag_';
@@ -80,12 +80,12 @@ const ListenerComponent: React.FC<GeneralProps> = ({ veri }) => {
                 setInitialLength(0);
                 return;
             }
-            
+
             if (initialLength === 0 && reduxStore.length > 0 && !wasReset) {
                 setInitialLength(reduxStore.length);
                 return;
             }
-            
+
             const currentNames = reduxStore.map((value, index) => ({ name: value?.name as string, index })).filter(item => item.name);
             const freezedNames = currentNames
                 .filter(item => {
@@ -93,7 +93,7 @@ const ListenerComponent: React.FC<GeneralProps> = ({ veri }) => {
                     return shouldFreeze;
                 })
                 .map(item => item.name);
-            
+
             setState(prevState => ({
                 ...prevState,
                 freezedNames: freezedNames
@@ -107,11 +107,11 @@ const ListenerComponent: React.FC<GeneralProps> = ({ veri }) => {
         if (event) {
             event.stopPropagation();
         }
-        
+
         if (index !== undefined && index < initialLength) {
             setInitialLength(prev => prev - 1);
         }
-        
+
         const fullKey = `${index}`;
         handleChangeResources({ version: veri.version, type: ActionType.Delete, keys: fullKey, resourceType: ResourceType.Resource }, dispatch, ResourceAction);
         deleteMatchedConfigDiscovery(reduxStore[index].name as string, configDiscoveryReduxStore, veri.version, dispatch)
@@ -153,7 +153,7 @@ const ListenerComponent: React.FC<GeneralProps> = ({ veri }) => {
             title: 'Address',
             width: '20%',
             key: 'gtype',
-            render: (_, record) => { return veri.managed ? <Tag style={{ backgroundColor: '#00c6fb', color: '#fff' }} className='auto-width-tag'>Managed by Service</Tag> : navigateCases(record, 'address.address.socket_address.address') }
+            render: (_, record) => { return veri.managed ? <Tag style={{ background: 'var(--gradient-primary)', color: '#fff', border: 'none' }} className='auto-width-tag'>Managed by Service</Tag> : navigateCases(record, 'address.address.socket_address.address') }
         },
         {
             title: 'Port',
@@ -166,13 +166,31 @@ const ListenerComponent: React.FC<GeneralProps> = ({ veri }) => {
             width: '10%',
             key: 'x',
             render: (_, __, index) =>
-                <Button
-                    icon={<DeleteTwoTone twoToneColor="#eb2f96" />}
-                    size='small'
-                    onClick={(e) => handleDeleteRedux({ event: e, index: index })}
-                    style={{ marginRight: 8 }}
-                    iconPosition={"end"}
-                />,
+                <Popconfirm
+                    title="Delete confirmation"
+                    description="Are you sure you want to delete this item?"
+                    onConfirm={(e) => handleDeleteRedux({ event: e as React.MouseEvent<HTMLElement>, index: index })}
+                    okText="Yes"
+                    cancelText="No"
+                    placement="left"
+                >
+                    <Button
+                        type="text"
+                        danger
+                        icon={<DeleteOutlined style={{ color: 'var(--color-danger)' }} />}
+                        size='small'
+                        className="elchi-delete-button"
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: 'var(--color-danger-light)',
+                            border: '1px solid var(--color-danger-border)',
+                            borderRadius: '6px'
+                        }}
+                    />
+                </Popconfirm>,
         },
     ];
 
@@ -206,24 +224,25 @@ const ListenerComponent: React.FC<GeneralProps> = ({ veri }) => {
             <Divider type='horizontal' orientation='left' orientationMargin='0'>Listeners</Divider>
 
             <div style={{
-                background: '#fff',
+                background: 'var(--card-bg)',
                 padding: '12px 12px 24px 12px',
                 borderRadius: 12,
-                boxShadow: '0 2px 8px rgba(5,117,230,0.06)',
-                margin: '4px 0'
+                boxShadow: 'var(--shadow-sm)',
+                margin: '4px 0',
+                border: '1px solid var(--border-default)'
             }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                     <ElchiIconButton onClick={() => addListener()} />
                     {clientIPs && clientIPs.length > 0 && (
-                        <div style={{ 
-                            fontSize: '12px', 
-                            color: '#666',
+                        <div style={{
+                            fontSize: '12px',
+                            color: 'var(--text-secondary)',
                             fontWeight: 500,
                             display: 'flex',
                             alignItems: 'center',
                             gap: '8px'
                         }}>
-                            <span style={{ color: '#1890ff' }}>Service IPs:</span>
+                            <span style={{ color: 'var(--color-primary)' }}>Service IPs:</span>
                             <span>{clientIPs.join(', ')}</span>
                         </div>
                     )}

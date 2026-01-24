@@ -41,7 +41,7 @@ export const useDirectiveManager = ({ directiveSets, onDirectiveSetsChange }: Us
 
         message.success({
             content: 'Directive added successfully!',
-            icon: <CheckOutlined style={{ color: '#52c41a' }} />
+            icon: <CheckOutlined style={{ color: 'var(--color-success)' }} />
         });
 
         return true;
@@ -80,7 +80,7 @@ export const useDirectiveManager = ({ directiveSets, onDirectiveSetsChange }: Us
 
         message.success({
             content: 'Directive removed successfully!',
-            icon: <CheckOutlined style={{ color: '#52c41a' }} />
+            icon: <CheckOutlined style={{ color: 'var(--color-success)' }} />
         });
     };
 
@@ -152,7 +152,7 @@ export const useDirectiveManager = ({ directiveSets, onDirectiveSetsChange }: Us
 
         message.success({
             content: 'Directive updated successfully!',
-            icon: <CheckOutlined style={{ color: '#52c41a' }} />
+            icon: <CheckOutlined style={{ color: 'var(--color-success)' }} />
         });
     };
 
@@ -182,7 +182,7 @@ export const useDirectiveManager = ({ directiveSets, onDirectiveSetsChange }: Us
         const isFile = includeDirective.startsWith('Include @owasp_crs/');
         message.success({
             content: isFile ? 'File added successfully!' : 'Rule added successfully!',
-            icon: <CheckOutlined style={{ color: '#52c41a' }} />
+            icon: <CheckOutlined style={{ color: 'var(--color-success)' }} />
         });
     };
 

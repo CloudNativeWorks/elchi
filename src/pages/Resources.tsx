@@ -38,20 +38,20 @@ const Resources: React.FC = () => {
     // Get the icon based on resource type - matching Sidenav icons
     const getResourceIcon = () => {
         const iconMap = {
-            'listeners': <GlobalOutlined style={{ color: '#1890ff', fontSize: 24 }} />,
-            'routes': <ShareAltOutlined style={{ color: '#52c41a', fontSize: 24 }} />,
-            'virtual_hosts': <CloudOutlined style={{ color: '#722ed1', fontSize: 24 }} />,
-            'clusters': <ClusterOutlined style={{ color: '#fa8c16', fontSize: 24 }} />,
-            'endpoints': <AimOutlined style={{ color: '#13c2c2', fontSize: 24 }} />,
-            'tls': <SafetyOutlined style={{ color: '#fa541c', fontSize: 24 }} />,
-            'secrets': <KeyOutlined style={{ color: '#f5222d', fontSize: 24 }} />,
-            'filter': <FilterOutlined style={{ color: '#eb2f96', fontSize: 24 }} />,
-            'filters': <FilterOutlined style={{ color: '#eb2f96', fontSize: 24 }} />,
-            'extension': <AppstoreOutlined style={{ color: '#faad14', fontSize: 24 }} />,
-            'extensions': <AppstoreOutlined style={{ color: '#faad14', fontSize: 24 }} />,
-            'bootstrap': <CodeOutlined style={{ color: '#096dd9', fontSize: 24 }} />
+            'listeners': <GlobalOutlined style={{ color: 'var(--color-primary)', fontSize: 24 }} />,
+            'routes': <ShareAltOutlined style={{ color: 'var(--color-success)', fontSize: 24 }} />,
+            'virtual_hosts': <CloudOutlined style={{ color: 'var(--color-purple)', fontSize: 24 }} />,
+            'clusters': <ClusterOutlined style={{ color: 'var(--color-warning)', fontSize: 24 }} />,
+            'endpoints': <AimOutlined style={{ color: 'var(--color-cyan)', fontSize: 24 }} />,
+            'tls': <SafetyOutlined style={{ color: 'var(--color-danger)', fontSize: 24 }} />,
+            'secrets': <KeyOutlined style={{ color: 'var(--color-danger)', fontSize: 24 }} />,
+            'filter': <FilterOutlined style={{ color: 'var(--color-pink)', fontSize: 24 }} />,
+            'filters': <FilterOutlined style={{ color: 'var(--color-pink)', fontSize: 24 }} />,
+            'extension': <AppstoreOutlined style={{ color: 'var(--color-warning)', fontSize: 24 }} />,
+            'extensions': <AppstoreOutlined style={{ color: 'var(--color-warning)', fontSize: 24 }} />,
+            'bootstrap': <CodeOutlined style={{ color: 'var(--color-primary)', fontSize: 24 }} />
         };
-        return iconMap[resourceStatic.collection] || <AppstoreOutlined style={{ color: '#1890ff', fontSize: 24 }} />;
+        return iconMap[resourceStatic.collection] || <AppstoreOutlined style={{ color: 'var(--color-primary)', fontSize: 24 }} />;
     };
 
     const getResourceDescription = () => {
@@ -208,19 +208,20 @@ const Resources: React.FC = () => {
                                     onClick={applyFilters}
                                     style={{
                                         borderRadius: 6,
-                                        background: 'white',
-                                        border: '1px solid #d9d9d9',
+                                        background: 'var(--bg-surface)',
+                                        border: '1px solid var(--border-default)',
+                                        color: 'var(--text-primary)',
                                         transition: 'all 0.3s ease'
                                     }}
                                     onMouseEnter={(e) => {
-                                        e.currentTarget.style.background = 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)';
+                                        e.currentTarget.style.background = 'var(--gradient-primary)';
                                         e.currentTarget.style.color = 'white';
-                                        e.currentTarget.style.borderColor = '#056ccd';
+                                        e.currentTarget.style.borderColor = 'var(--color-primary)';
                                     }}
                                     onMouseLeave={(e) => {
-                                        e.currentTarget.style.background = 'white';
-                                        e.currentTarget.style.color = 'rgba(0, 0, 0, 0.88)';
-                                        e.currentTarget.style.borderColor = '#d9d9d9';
+                                        e.currentTarget.style.background = 'var(--bg-surface)';
+                                        e.currentTarget.style.color = 'var(--text-primary)';
+                                        e.currentTarget.style.borderColor = 'var(--border-default)';
                                     }}
                                 >
                                     Search

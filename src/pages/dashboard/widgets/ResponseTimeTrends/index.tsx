@@ -16,6 +16,7 @@ import { useProjectVariable } from '@/hooks/useProjectVariable';
 import { useDashboardRefresh } from '../../context/DashboardRefreshContext';
 import { api } from '@/common/api';
 import { formatMilliseconds } from '../../utils/formatters';
+import { useChartTheme } from '@/utils/chartTheme';
 import styles from './styles.module.scss';
 
 echarts.use([LineChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer]);
@@ -30,6 +31,7 @@ const PERCENTILES = [
 export const ResponseTimeTrends: React.FC = () => {
   const projectContext = useProjectVariable();
   const { refreshTrigger } = useDashboardRefresh();
+  const { options: themeOptions } = useChartTheme();
   const project = typeof projectContext === 'string' ? projectContext : projectContext.project;
   const [percentile, setPercentile] = useState(0.95);
   const [chartData, setChartData] = useState<any[]>([]);
@@ -79,9 +81,11 @@ export const ResponseTimeTrends: React.FC = () => {
   }, [fetchData, refreshTrigger]);
 
   const chartOptions = {
+    ...themeOptions,
     animation: true,
     animationDuration: 300,
     tooltip: {
+      ...themeOptions.tooltip,
       trigger: 'axis',
       formatter: (params: any) => {
         const time = new Date(params[0].value[0] * 1000).toLocaleString();
@@ -93,13 +97,21 @@ export const ResponseTimeTrends: React.FC = () => {
       },
     },
     legend: {
+      ...themeOptions.legend,
       show: true,
       bottom: 0,
       type: 'scroll',
     },
-    grid: { left: '3%', right: '4%', bottom: '60px', top: '10px' },
-    xAxis: { type: 'time' },
-    yAxis: { type: 'value', axisLabel: { formatter: (v: number) => formatMilliseconds(v, 0) } },
+    grid: { ...themeOptions.grid, left: '3%', right: '4%', bottom: '60px', top: '10px' },
+    xAxis: { ...themeOptions.xAxis, type: 'time' },
+    yAxis: {
+      ...themeOptions.yAxis,
+      type: 'value',
+      axisLabel: {
+        ...themeOptions.yAxis?.axisLabel,
+        formatter: (v: number) => formatMilliseconds(v, 0)
+      }
+    },
     series: chartData.map((s) => ({
       name: s.metric.envoy_cluster_name || 'Unknown',
       type: 'line',

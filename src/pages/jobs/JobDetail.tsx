@@ -38,6 +38,8 @@ const JobDetail: React.FC = () => {
   const [job, setJob] = useState<BackgroundJob | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(false);
 
+  // Note: Using CSS variables for dark mode support
+
   const loadJob = useCallback(async () => {
     if (!jobId) return;
     const jobData = await getJob(jobId);
@@ -66,12 +68,12 @@ const JobDetail: React.FC = () => {
 
   const getStatusIcon = (status: JobStatus) => {
     const icons = {
-      PENDING: <ClockCircleOutlined style={{ color: '#1677ff' }} />,
-      CLAIMED: <PlayCircleOutlined style={{ color: '#faad14' }} />,
-      RUNNING: <PlayCircleOutlined style={{ color: '#52c41a' }} />,
-      COMPLETED: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
-      FAILED: <CloseCircleOutlined style={{ color: '#ff4d4f' }} />,
-      NO_WORK_NEEDED: <CheckCircleOutlined style={{ color: '#8c8c8c' }} />
+      PENDING: <ClockCircleOutlined style={{ color: 'var(--color-primary)' }} />,
+      CLAIMED: <PlayCircleOutlined style={{ color: 'var(--color-warning)' }} />,
+      RUNNING: <PlayCircleOutlined style={{ color: 'var(--color-success)' }} />,
+      COMPLETED: <CheckCircleOutlined style={{ color: 'var(--color-success)' }} />,
+      FAILED: <CloseCircleOutlined style={{ color: 'var(--color-danger)' }} />,
+      NO_WORK_NEEDED: <CheckCircleOutlined style={{ color: 'var(--text-secondary)' }} />
     };
     return icons[status] || icons.PENDING;
   };
@@ -143,7 +145,7 @@ const JobDetail: React.FC = () => {
       dataIndex: 'node_id',
       key: 'node_id',
       render: (nodeId: string) => (
-        <Text style={{ fontSize: 11, color: '#666' }}>{nodeId}</Text>
+        <Text style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{nodeId}</Text>
       ),
     },
     {
@@ -202,8 +204,8 @@ const JobDetail: React.FC = () => {
             <div className="spinner" style={{
               width: 40,
               height: 40,
-              border: '4px solid #f0f0f0',
-              borderTop: '4px solid #1890ff',
+              border: '4px solid var(--border-default)',
+              borderTop: '4px solid var(--color-primary)',
               borderRadius: '50%',
               animation: 'spin 1s linear infinite',
               margin: '0 auto'
@@ -229,14 +231,15 @@ const JobDetail: React.FC = () => {
   const hasFailedSnapshots = job.execution_details?.processed_snapshots?.some(s => s.poke_status === 'FAILED');
 
   return (
-    <div style={{ padding: '0px', background: '#f5f7fa', minHeight: '100vh' }}>
+    <div style={{ padding: '0px', background: 'var(--bg-body)', minHeight: '100vh' }}>
       {/* Modern Header */}
       <div style={{
-        background: 'white',
+        background: 'var(--card-bg)',
         borderRadius: 16,
         padding: '20px 24px',
         marginBottom: 24,
-        boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+        boxShadow: 'var(--shadow-sm)',
+        border: '1px solid var(--border-default)'
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
@@ -250,7 +253,7 @@ const JobDetail: React.FC = () => {
             <div style={{
               width: 1,
               height: 24,
-              background: '#e8e8e8'
+              background: 'var(--border-default)'
             }} />
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               {getStatusIcon(job.status)}
@@ -303,8 +306,9 @@ const JobDetail: React.FC = () => {
             style={{
               borderRadius: 16,
               marginBottom: 24,
-              border: 'none',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+              border: '1px solid var(--border-default)',
+              boxShadow: 'var(--shadow-sm)',
+              background: 'var(--card-bg)'
             }}
           >
             <div style={{ marginBottom: 20 }}>
@@ -340,7 +344,7 @@ const JobDetail: React.FC = () => {
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <Text type="secondary" style={{ fontSize: 12 }}>Completion</Text>
-                    <div style={{ fontSize: 32, fontWeight: 600, color: job.progress.percentage === 100 ? '#52c41a' : '#1890ff' }}>
+                    <div style={{ fontSize: 32, fontWeight: 600, color: job.progress.percentage === 100 ? 'var(--color-success)' : 'var(--color-primary)' }}>
                       {job.progress.percentage}%
                     </div>
                   </div>
@@ -348,8 +352,8 @@ const JobDetail: React.FC = () => {
                 <Progress
                   percent={job.progress.percentage}
                   strokeColor={{
-                    '0%': job.status === 'FAILED' ? '#ff4d4f' : '#108ee9',
-                    '100%': job.status === 'FAILED' ? '#ff7875' : '#87d068',
+                    '0%': job.status === 'FAILED' ? 'var(--color-danger)' : 'var(--color-primary)',
+                    '100%': job.status === 'FAILED' ? 'var(--color-danger-light-text)' : 'var(--color-success)',
                   }}
                   size="default"
                   status={job.status === 'FAILED' ? 'exception' : isActive ? 'active' : 'success'}
@@ -360,14 +364,14 @@ const JobDetail: React.FC = () => {
                 <Row gutter={16}>
                   <Col span={8}>
                     <div style={{
-                      background: 'linear-gradient(135deg, #667eea15 0%, #764ba215 100%)',
+                      background: 'var(--color-purple-light)',
                       borderRadius: 12,
                       padding: 16,
                       textAlign: 'center',
-                      border: '1px solid #f0f0f0'
+                      border: '1px solid var(--border-default)'
                     }}>
-                      <ClockCircleOutlined style={{ fontSize: 20, color: '#722ed1', marginBottom: 8 }} />
-                      <div style={{ fontSize: 16, fontWeight: 600, color: '#722ed1' }}>
+                      <ClockCircleOutlined style={{ fontSize: 20, color: 'var(--color-purple)', marginBottom: 8 }} />
+                      <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-purple)' }}>
                         {job.started_at ? dayjs(job.started_at).format('HH:mm:ss') : '-'}
                       </div>
                       <Text type="secondary" style={{ fontSize: 11 }}>Started At</Text>
@@ -375,14 +379,14 @@ const JobDetail: React.FC = () => {
                   </Col>
                   <Col span={8}>
                     <div style={{
-                      background: 'linear-gradient(135deg, #108ee915 0%, #87d06815 100%)',
+                      background: 'var(--color-info-light)',
                       borderRadius: 12,
                       padding: 16,
                       textAlign: 'center',
-                      border: '1px solid #f0f0f0'
+                      border: '1px solid var(--border-default)'
                     }}>
-                      <PlayCircleOutlined style={{ fontSize: 20, color: '#1890ff', marginBottom: 8 }} />
-                      <div style={{ fontSize: 16, fontWeight: 600, color: '#1890ff' }}>
+                      <PlayCircleOutlined style={{ fontSize: 20, color: 'var(--color-primary)', marginBottom: 8 }} />
+                      <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-primary)' }}>
                         {formatDuration(job.started_at, job.completed_at)}
                       </div>
                       <Text type="secondary" style={{ fontSize: 11 }}>Duration</Text>
@@ -391,25 +395,25 @@ const JobDetail: React.FC = () => {
                   <Col span={8}>
                     <div style={{
                       background: job.completed_at ?
-                        'linear-gradient(135deg, #52c41a15 0%, #95de6415 100%)' :
-                        'linear-gradient(135deg, #ffa94015 0%, #ffec3d15 100%)',
+                        'var(--color-success-light)' :
+                        'var(--color-warning-light)',
                       borderRadius: 12,
                       padding: 16,
                       textAlign: 'center',
-                      border: '1px solid #f0f0f0'
+                      border: '1px solid var(--border-default)'
                     }}>
                       {job.completed_at ? (
                         <>
-                          <CheckCircleOutlined style={{ fontSize: 20, color: '#52c41a', marginBottom: 8 }} />
-                          <div style={{ fontSize: 16, fontWeight: 600, color: '#52c41a' }}>
+                          <CheckCircleOutlined style={{ fontSize: 20, color: 'var(--color-success)', marginBottom: 8 }} />
+                          <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-success)' }}>
                             {dayjs(job.completed_at).format('HH:mm:ss')}
                           </div>
                           <Text type="secondary" style={{ fontSize: 11 }}>Completed At</Text>
                         </>
                       ) : (
                         <>
-                          <ClockCircleOutlined style={{ fontSize: 20, color: '#ffa940', marginBottom: 8 }} />
-                          <div style={{ fontSize: 16, fontWeight: 600, color: '#ffa940' }}>
+                          <ClockCircleOutlined style={{ fontSize: 20, color: 'var(--color-warning)', marginBottom: 8 }} />
+                          <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--color-warning)' }}>
                             Running
                           </div>
                           <Text type="secondary" style={{ fontSize: 11 }}>In Progress</Text>
@@ -436,8 +440,9 @@ const JobDetail: React.FC = () => {
             style={{
               borderRadius: 16,
               marginBottom: 24,
-              border: 'none',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+              border: '1px solid var(--border-default)',
+              boxShadow: 'var(--shadow-sm)',
+              background: 'var(--card-bg)'
             }}
           >
             <div style={{ marginBottom: 20 }}>
@@ -453,7 +458,7 @@ const JobDetail: React.FC = () => {
                     <div style={{ marginTop: 4 }}>
                       <Text strong style={{ fontSize: 14 }}>{job.metadata.source_resource.name}</Text>
                       <div>
-                        <Text style={{ fontSize: 12, color: '#8c8c8c' }}>
+                        <Text style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
                           {job.metadata.source_resource.collection} • {job.metadata.source_resource.action}
                         </Text>
                       </div>
@@ -465,13 +470,13 @@ const JobDetail: React.FC = () => {
                 <div style={{ marginBottom: 16 }}>
                   <Text type="secondary" style={{ fontSize: 12 }}>Triggered By</Text>
                   <div style={{ marginTop: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <UserOutlined style={{ color: '#8c8c8c' }} />
+                    <UserOutlined style={{ color: 'var(--text-secondary)' }} />
                     <div>
                       <Text strong style={{ fontSize: 14 }}>
                         {job.metadata.trigger_user.display_name || job.metadata.trigger_user.username}
                       </Text>
                       <div>
-                        <Text style={{ fontSize: 12, color: '#8c8c8c' }}>
+                        <Text style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
                           {job.metadata.trigger_user.role}
                         </Text>
                       </div>
@@ -534,7 +539,7 @@ const JobDetail: React.FC = () => {
                         <Tag className='auto-width-tag' color="blue" style={{ borderRadius: 6, fontSize: 13 }}>
                           {job.version}
                         </Tag>
-                        <span style={{ color: '#8c8c8c' }}>→</span>
+                        <span style={{ color: 'var(--text-secondary)' }}>→</span>
                         <Tag className='auto-width-tag' color="green" style={{ borderRadius: 6, fontSize: 13 }}>
                           {job.metadata.upgrade_config.target_version}
                         </Tag>
@@ -655,8 +660,9 @@ const JobDetail: React.FC = () => {
             style={{
               borderRadius: 16,
               marginBottom: 24,
-              border: 'none',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+              border: '1px solid var(--border-default)',
+              boxShadow: 'var(--shadow-sm)',
+              background: 'var(--card-bg)'
             }}
           >
             <div style={{ marginBottom: 20 }}>
@@ -670,11 +676,12 @@ const JobDetail: React.FC = () => {
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 padding: '12px 16px',
-                background: '#fafafa',
-                borderRadius: 12
+                background: 'var(--bg-surface)',
+                borderRadius: 12,
+                border: '1px solid var(--border-default)'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <FileTextOutlined style={{ color: '#1890ff' }} />
+                  <FileTextOutlined style={{ color: 'var(--color-primary)' }} />
                   <Text style={{ fontSize: 13 }}>
                     {job.type === 'WAF_PROPAGATION' ? 'Total Wasm Filters' :
                       job.type === 'RESOURCE_UPGRADE' || job.type === 'RESOURCE_UPGRADE(DRY)' ? 'Total Listeners' :
@@ -689,39 +696,42 @@ const JobDetail: React.FC = () => {
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 padding: '12px 16px',
-                background: '#f6ffed',
-                borderRadius: 12
+                background: 'var(--color-success-light)',
+                borderRadius: 12,
+                border: '1px solid var(--color-success-border)'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <CheckCircleOutlined style={{ color: '#52c41a' }} />
+                  <CheckCircleOutlined style={{ color: 'var(--color-success)' }} />
                   <Text style={{ fontSize: 13 }}>Completed</Text>
                 </div>
-                <Text strong style={{ fontSize: 16, color: '#52c41a' }}>{job.progress.completed}</Text>
+                <Text strong style={{ fontSize: 16, color: 'var(--color-success)' }}>{job.progress.completed}</Text>
               </div>
               <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 padding: '12px 16px',
-                background: '#fff2e8',
-                borderRadius: 12
+                background: 'var(--color-danger-light)',
+                borderRadius: 12,
+                border: '1px solid var(--color-danger-border)'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <CloseCircleOutlined style={{ color: '#ff4d4f' }} />
+                  <CloseCircleOutlined style={{ color: 'var(--color-danger)' }} />
                   <Text style={{ fontSize: 13 }}>Failed</Text>
                 </div>
-                <Text strong style={{ fontSize: 16, color: '#ff4d4f' }}>{job.progress.failed}</Text>
+                <Text strong style={{ fontSize: 16, color: 'var(--color-danger)' }}>{job.progress.failed}</Text>
               </div>
               <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 padding: '12px 16px',
-                background: '#e6f7ff',
-                borderRadius: 12
+                background: 'var(--color-info-light)',
+                borderRadius: 12,
+                border: '1px solid var(--color-info-border)'
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <ClockCircleOutlined style={{ color: '#1890ff' }} />
+                  <ClockCircleOutlined style={{ color: 'var(--color-primary)' }} />
                   <Text style={{ fontSize: 13 }}>Analysis Time</Text>
                 </div>
                 <Text strong style={{ fontSize: 16 }}>{job.metadata.analysis_duration_ms} ms</Text>
@@ -734,8 +744,9 @@ const JobDetail: React.FC = () => {
             style={{
               borderRadius: 16,
               marginBottom: 24,
-              border: 'none',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+              border: '1px solid var(--border-default)',
+              boxShadow: 'var(--shadow-sm)',
+              background: 'var(--card-bg)'
             }}
           >
             <div style={{ marginBottom: 20 }}>
@@ -802,8 +813,9 @@ const JobDetail: React.FC = () => {
               style={{
                 borderRadius: 16,
                 marginBottom: 24,
-                border: 'none',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                border: '1px solid var(--border-default)',
+                boxShadow: 'var(--shadow-sm)',
+                background: 'var(--card-bg)'
               }}
             >
               <div style={{ marginBottom: 20 }}>
@@ -868,8 +880,9 @@ const JobDetail: React.FC = () => {
               style={{
                 marginBottom: 24,
                 borderRadius: 16,
-                border: 'none',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                border: '1px solid var(--border-default)',
+                boxShadow: 'var(--shadow-sm)',
+                background: 'var(--card-bg)'
               }}
             >
               <div style={{ marginBottom: 20 }}>
@@ -909,9 +922,9 @@ const JobDetail: React.FC = () => {
             style={{
               marginTop: 0,
               borderRadius: 16,
-              border: 'none',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-              background: 'white',
+              border: '1px solid var(--border-default)',
+              boxShadow: 'var(--shadow-sm)',
+              background: 'var(--card-bg)',
               padding: 24
             }}
           >
@@ -936,13 +949,13 @@ const JobDetail: React.FC = () => {
             <Row gutter={16}>
               <Col span={8}>
                 <div style={{
-                  background: 'linear-gradient(135deg, #1890ff15 0%, #096dd915 100%)',
+                  background: 'var(--color-info-light)',
                   borderRadius: 12,
                   padding: 16,
                   textAlign: 'center',
-                  border: '1px solid #f0f0f0'
+                  border: '1px solid var(--border-default)'
                 }}>
-                  <div style={{ fontSize: 24, fontWeight: 600, color: '#1890ff', marginBottom: 4 }}>
+                  <div style={{ fontSize: 24, fontWeight: 600, color: 'var(--color-primary)', marginBottom: 4 }}>
                     {job.metadata.upgrade_config.analysis.upstream_dependencies}
                   </div>
                   <Text type="secondary" style={{ fontSize: 11 }}>Total Dependencies</Text>
@@ -950,13 +963,13 @@ const JobDetail: React.FC = () => {
               </Col>
               <Col span={8}>
                 <div style={{
-                  background: 'linear-gradient(135deg, #52c41a15 0%, #95de6415 100%)',
+                  background: 'var(--color-success-light)',
                   borderRadius: 12,
                   padding: 16,
                   textAlign: 'center',
-                  border: '1px solid #f0f0f0'
+                  border: '1px solid var(--border-default)'
                 }}>
-                  <div style={{ fontSize: 24, fontWeight: 600, color: '#52c41a', marginBottom: 4 }}>
+                  <div style={{ fontSize: 24, fontWeight: 600, color: 'var(--color-success)', marginBottom: 4 }}>
                     {job.metadata.upgrade_config.analysis.existing_in_target}
                   </div>
                   <Text type="secondary" style={{ fontSize: 11 }}>Already Exist</Text>
@@ -964,13 +977,13 @@ const JobDetail: React.FC = () => {
               </Col>
               <Col span={8}>
                 <div style={{
-                  background: 'linear-gradient(135deg, #fa8c1615 0%, #ffa94015 100%)',
+                  background: 'var(--color-warning-light)',
                   borderRadius: 12,
                   padding: 16,
                   textAlign: 'center',
-                  border: '1px solid #f0f0f0'
+                  border: '1px solid var(--border-default)'
                 }}>
-                  <div style={{ fontSize: 24, fontWeight: 600, color: '#fa8c16', marginBottom: 4 }}>
+                  <div style={{ fontSize: 24, fontWeight: 600, color: 'var(--color-warning)', marginBottom: 4 }}>
                     {job.metadata.upgrade_config.analysis.missing_in_target}
                   </div>
                   <Text type="secondary" style={{ fontSize: 11 }}>Need to Create</Text>
@@ -988,9 +1001,9 @@ const JobDetail: React.FC = () => {
             style={{
               marginTop: 24,
               borderRadius: 16,
-              border: 'none',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-              background: 'white',
+              border: '1px solid var(--border-default)',
+              boxShadow: 'var(--shadow-sm)',
+              background: 'var(--card-bg)',
               padding: 24
             }}
           >
@@ -1006,16 +1019,16 @@ const JobDetail: React.FC = () => {
                 style={{
                   marginBottom: idx < job.metadata.upgrade_config.analysis.listener_details.length - 1 ? 16 : 0,
                   borderRadius: 8,
-                  border: '1px solid #f0f0f0',
-                  background: '#fafafa',
+                  border: '1px solid var(--border-default)',
+                  background: 'var(--bg-surface)',
                   overflow: 'hidden'
                 }}
               >
                 {/* Title Section */}
                 <div style={{
                   padding: '12px 16px',
-                  borderBottom: '1px solid #f0f0f0',
-                  background: 'white',
+                  borderBottom: '1px solid var(--border-default)',
+                  background: 'var(--card-bg)',
                   display: 'flex',
                   alignItems: 'center',
                   gap: 8,
@@ -1046,7 +1059,7 @@ const JobDetail: React.FC = () => {
                   )}
                 </div>
                 {/* Content Section */}
-                <div style={{ padding: 16, background: 'white' }}>
+                <div style={{ padding: 16, background: 'var(--card-bg)' }}>
                   <Row gutter={16}>
                     {/* Missing Resources */}
                     {listener.missing_resources && listener.missing_resources.length > 0 && (
@@ -1060,8 +1073,8 @@ const JobDetail: React.FC = () => {
                               <div
                                 key={resIdx}
                                 style={{
-                                  background: '#fff7e6',
-                                  border: '1px solid #ffd591',
+                                  background: 'var(--color-warning-light)',
+                                  border: '1px solid var(--color-warning-border)',
                                   borderRadius: 6,
                                   padding: 8,
                                   marginBottom: 6
@@ -1092,8 +1105,8 @@ const JobDetail: React.FC = () => {
                               <div
                                 key={resIdx}
                                 style={{
-                                  background: '#f6ffed',
-                                  border: '1px solid #b7eb8f',
+                                  background: 'var(--color-success-light)',
+                                  border: '1px solid var(--color-success-border)',
                                   borderRadius: 6,
                                   padding: 8,
                                   marginBottom: 6
@@ -1126,9 +1139,9 @@ const JobDetail: React.FC = () => {
             style={{
               marginTop: 24,
               borderRadius: 16,
-              border: 'none',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-              background: 'white',
+              border: '1px solid var(--border-default)',
+              boxShadow: 'var(--shadow-sm)',
+              background: 'var(--card-bg)',
               padding: 24
             }}
           >
@@ -1155,9 +1168,9 @@ const JobDetail: React.FC = () => {
             style={{
               marginTop: 24,
               borderRadius: 16,
-              border: 'none',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-              background: 'white',
+              border: '1px solid var(--border-default)',
+              boxShadow: 'var(--shadow-sm)',
+              background: 'var(--card-bg)',
               padding: 24
             }}
           >
@@ -1184,9 +1197,9 @@ const JobDetail: React.FC = () => {
             style={{
               marginTop: 24,
               borderRadius: 16,
-              border: 'none',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-              background: 'white',
+              border: '1px solid var(--border-default)',
+              boxShadow: 'var(--shadow-sm)',
+              background: 'var(--card-bg)',
               padding: 24
             }}
           >
@@ -1206,8 +1219,8 @@ const JobDetail: React.FC = () => {
                       key={idx}
                       style={{
                         padding: '6px 8px',
-                        background: '#fff2f0',
-                        border: '1px solid #ffccc7',
+                        background: 'var(--color-danger-light)',
+                        border: '1px solid var(--color-danger-border)',
                         borderRadius: 4,
                         marginBottom: idx < job.metadata.upgrade_config.analysis.incompatible_clients.length - 1 ? 6 : 0,
                         fontSize: 12,
@@ -1232,9 +1245,9 @@ const JobDetail: React.FC = () => {
             style={{
               marginTop: 24,
               borderRadius: 16,
-              border: 'none',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-              background: 'white',
+              border: '1px solid var(--border-default)',
+              boxShadow: 'var(--shadow-sm)',
+              background: 'var(--card-bg)',
               padding: 24
             }}
           >
@@ -1248,8 +1261,8 @@ const JobDetail: React.FC = () => {
                 <div
                   key={idx}
                   style={{
-                    background: response.success ? '#f6ffed' : '#fff2f0',
-                    border: response.success ? '1px solid #b7eb8f' : '1px solid #ffccc7',
+                    background: response.success ? 'var(--color-success-light)' : 'var(--color-danger-light)',
+                    border: response.success ? '1px solid var(--color-success-border)' : '1px solid var(--color-danger-border)',
                     borderRadius: 8,
                     padding: 12
                   }}
@@ -1272,7 +1285,7 @@ const JobDetail: React.FC = () => {
 
                   {response.result?.upgradelistener && (
                     <div style={{
-                      background: 'white',
+                      background: 'var(--card-bg)',
                       borderRadius: 6,
                       padding: 10,
                       fontSize: 12,
@@ -1317,9 +1330,9 @@ const JobDetail: React.FC = () => {
             style={{
               marginTop: 24,
               borderRadius: 16,
-              border: 'none',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-              background: 'white',
+              border: '1px solid var(--border-default)',
+              boxShadow: 'var(--shadow-sm)',
+              background: 'var(--card-bg)',
               padding: 24
             }}
           >
@@ -1337,16 +1350,16 @@ const JobDetail: React.FC = () => {
             <div style={{
               maxHeight: 400,
               overflow: 'auto',
-              border: '1px solid #f0f0f0',
+              border: '1px solid var(--border-default)',
               borderRadius: 8,
-              background: 'white'
+              background: 'var(--card-bg)'
             }}>
               <Row gutter={8} style={{ padding: 12 }}>
                 {job.metadata.upgrade_config.created_resources.map((resource: any, idx: number) => (
                   <Col span={12} key={idx} style={{ marginBottom: 8 }}>
                     <div style={{
-                      background: resource.skipped ? '#f5f5f5' : '#f6ffed',
-                      border: resource.skipped ? '1px solid #d9d9d9' : '1px solid #b7eb8f',
+                      background: resource.skipped ? 'var(--bg-surface)' : 'var(--color-success-light)',
+                      border: resource.skipped ? '1px solid var(--border-default)' : '1px solid var(--color-success-border)',
                       borderRadius: 6,
                       padding: 10
                     }}>
@@ -1382,8 +1395,8 @@ const JobDetail: React.FC = () => {
           style={{
             marginTop: 24,
             borderRadius: 16,
-            border: 'none',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+            border: '1px solid var(--border-default)',
+            boxShadow: 'var(--shadow-sm)'
           }}
         >
           <div style={{ marginBottom: 20 }}>
@@ -1498,8 +1511,8 @@ const JobDetail: React.FC = () => {
           style={{
             marginTop: 24,
             borderRadius: 16,
-            border: 'none',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+            border: '1px solid var(--border-default)',
+            boxShadow: 'var(--shadow-sm)'
           }}
         >
           <div style={{ marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

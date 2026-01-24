@@ -155,7 +155,7 @@ const TemplateBuilderModal: React.FC<TemplateBuilderModalProps> = ({
         <Modal
             title={
                 <Space>
-                    <ThunderboltOutlined style={{ color: '#1890ff' }} />
+                    <ThunderboltOutlined style={{ color: 'var(--color-primary)' }} />
                     <span>Directive Template Builder</span>
                 </Space>
             }

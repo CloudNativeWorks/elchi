@@ -51,7 +51,7 @@ const User: React.FC = () => {
     const handleResetOTP = () => {
         modal.confirm({
             title: 'Reset User 2FA?',
-            icon: <ExclamationCircleOutlined style={{ color: '#ff4d4f' }} />,
+            icon: <ExclamationCircleOutlined style={{ color: 'var(--color-danger)' }} />,
             content: (
                 <div>
                     <p>This will reset the 2FA configuration for user <strong>{dataUser?.username}</strong>.</p>
@@ -61,7 +61,7 @@ const User: React.FC = () => {
                         <li>All backup codes will be invalidated</li>
                         <li>User must set up 2FA again on next login (if enforced)</li>
                     </ul>
-                    <p style={{ marginTop: 12, color: '#8c8c8c' }}>
+                    <p style={{ marginTop: 12, color: 'var(--text-tertiary)' }}>
                         Use this only in emergency situations (e.g., user lost access to authenticator).
                     </p>
                 </div>
@@ -189,13 +189,13 @@ const User: React.FC = () => {
             <div style={{ marginBottom: 24 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
                     <Space>
-                        <UserOutlined style={{ color: '#1890ff', fontSize: 24 }} />
-                        <Title level={4} style={{ margin: 0 }}>
+                        <UserOutlined style={{ color: 'var(--color-primary)', fontSize: 24 }} />
+                        <Title level={4} style={{ margin: 0, color: 'var(--text-primary)' }}>
                             {isCreatePage ? 'Create User' : 'User Details'}
                         </Title>
                         {!isCreatePage && dataUser?.auth_type && (
-                            <Tag 
-                                icon={<SafetyOutlined />} 
+                            <Tag
+                                icon={<SafetyOutlined />}
                                 color={dataUser.auth_type === 'ldap' ? 'cyan' : 'geekblue'}
                             >
                                 {dataUser.auth_type.toUpperCase()}
@@ -211,7 +211,7 @@ const User: React.FC = () => {
                         Back
                     </ElchiButton>
                 </div>
-                <Text type="secondary">
+                <Text style={{ color: 'var(--text-secondary)' }}>
                     {isCreatePage
                         ? 'Create a new user account with role-based permissions and access controls.'
                         : 'Manage user account settings, roles, and permissions.'
@@ -223,7 +223,9 @@ const User: React.FC = () => {
             <Card
                 style={{
                     borderRadius: 12,
-                    boxShadow: '0 2px 8px rgba(5,117,230,0.06)',
+                    boxShadow: 'var(--shadow-sm)',
+                    background: 'var(--card-bg)',
+                    border: '1px solid var(--border-default)'
                 }}
                 styles={{
                     body: { padding: '32px' }
@@ -245,7 +247,7 @@ const User: React.FC = () => {
                     </div>
                     {/* Basic Information Section */}
                     <div style={{ marginBottom: 32 }}>
-                        <Title level={5} style={{ marginBottom: 20, color: '#1890ff', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Title level={5} style={{ marginBottom: 20, color: 'var(--color-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
                             <UserOutlined />
                             Basic Information
                         </Title>
@@ -257,7 +259,7 @@ const User: React.FC = () => {
                                     rules={[{ required: true, message: 'User name is required!' }]}
                                 >
                                     <Input
-                                        prefix={<UserOutlined style={{ color: '#bfbfbf' }} />}
+                                        prefix={<UserOutlined style={{ color: 'var(--text-tertiary)' }} />}
                                         placeholder="Enter username"
                                         autoComplete="new-password"
                                         autoCorrect="off"
@@ -288,7 +290,7 @@ const User: React.FC = () => {
                                     hasFeedback
                                 >
                                     <Input
-                                        prefix={<MailOutlined style={{ color: '#bfbfbf' }} />}
+                                        prefix={<MailOutlined style={{ color: 'var(--text-tertiary)' }} />}
                                         placeholder="Enter email address"
                                         autoComplete="new-password"
                                         autoCorrect="off"
@@ -316,7 +318,7 @@ const User: React.FC = () => {
 
                     {/* Security Section */}
                     <div style={{ marginBottom: 32 }}>
-                        <Title level={5} style={{ marginBottom: 20, color: '#1890ff', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Title level={5} style={{ marginBottom: 20, color: 'var(--color-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
                             <KeyOutlined />
                             Security
                         </Title>
@@ -372,7 +374,7 @@ const User: React.FC = () => {
                                     ]}
                                 >
                                     <Input.Password
-                                        prefix={<KeyOutlined style={{ color: '#bfbfbf' }} />}
+                                        prefix={<KeyOutlined style={{ color: 'var(--text-tertiary)' }} />}
                                         placeholder={dataUser?.auth_type === 'ldap' ? "LDAP users authenticate via LDAP server" : "Min 12 chars, 1 uppercase, 1 lowercase, 1 number, 1 special (@$!%*?&)"}
                                         autoComplete="new-password"
                                         autoCorrect="off"
@@ -426,7 +428,7 @@ const User: React.FC = () => {
                                     ]}
                                 >
                                     <Input.Password
-                                        prefix={<KeyOutlined style={{ color: '#bfbfbf' }} />}
+                                        prefix={<KeyOutlined style={{ color: 'var(--text-tertiary)' }} />}
                                         placeholder={dataUser?.auth_type === 'ldap' ? "LDAP users authenticate via LDAP server" : "Confirm password"}
                                         autoComplete="new-password"
                                         autoCorrect="off"
@@ -454,25 +456,25 @@ const User: React.FC = () => {
                             <div style={{
                                 marginTop: 24,
                                 padding: 16,
-                                background: '#fff7e6',
-                                border: '1px solid #ffd591',
+                                background: 'var(--color-warning-light)',
+                                border: '1px solid var(--color-warning-border)',
                                 borderRadius: 8
                             }}>
                                 <Space direction="vertical" size={8} style={{ width: '100%' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                        <SafetyOutlined style={{ color: '#fa8c16', fontSize: 16 }} />
-                                        <Text strong style={{ fontSize: 14 }}>Two-Factor Authentication Status</Text>
+                                        <SafetyOutlined style={{ color: 'var(--color-warning)', fontSize: 16 }} />
+                                        <Text strong style={{ fontSize: 14, color: 'var(--text-primary)' }}>Two-Factor Authentication Status</Text>
                                     </div>
                                     <div style={{ marginLeft: 24 }}>
                                         <Space direction="vertical" size={4}>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                                <span style={{ color: '#52c41a', fontSize: 16 }}>●</span>
-                                                <Text style={{ fontSize: 13 }}>2FA is enabled for this user</Text>
+                                                <span style={{ color: 'var(--color-success)', fontSize: 16 }}>●</span>
+                                                <Text style={{ fontSize: 13, color: 'var(--text-primary)' }}>2FA is enabled for this user</Text>
                                             </div>
                                             {dataUser?.otp_verified && (
                                                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                                    <span style={{ color: '#52c41a', fontSize: 16 }}>●</span>
-                                                    <Text style={{ fontSize: 13 }}>Authenticator verified</Text>
+                                                    <span style={{ color: 'var(--color-success)', fontSize: 16 }}>●</span>
+                                                    <Text style={{ fontSize: 13, color: 'var(--text-primary)' }}>Authenticator verified</Text>
                                                 </div>
                                             )}
                                         </Space>
@@ -489,7 +491,7 @@ const User: React.FC = () => {
                                         >
                                             Reset 2FA (Emergency)
                                         </ElchiButton>
-                                        <Text type="secondary" style={{ fontSize: 12, marginLeft: 12 }}>
+                                        <Text style={{ fontSize: 12, marginLeft: 12, color: 'var(--text-secondary)' }}>
                                             Use only when user has lost access to authenticator
                                         </Text>
                                     </div>
@@ -499,7 +501,7 @@ const User: React.FC = () => {
                     </div>
                     {/* Role & Permissions Section */}
                     <div style={{ marginBottom: 32 }}>
-                        <Title level={5} style={{ marginBottom: 20, color: '#1890ff', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Title level={5} style={{ marginBottom: 20, color: 'var(--color-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
                             <TeamOutlined />
                             Role & Groups
                         </Title>
@@ -558,7 +560,7 @@ const User: React.FC = () => {
                                 </Form.Item>
                             </Col>
                         </Row>
-                        
+
                         {/* Role Permissions Info */}
                         <div style={{ marginTop: 20 }}>
                             <Alert
@@ -617,7 +619,7 @@ const User: React.FC = () => {
                                             ]}
                                             style={{ marginTop: 8 }}
                                         />
-                                        <Text type="secondary" style={{ fontSize: '12px', marginTop: 8, display: 'block' }}>
+                                        <Text style={{ fontSize: '12px', marginTop: 8, display: 'block', color: 'var(--text-secondary)' }}>
                                             🟨 Editor role has limited permissions for Client Management
                                         </Text>
                                     </div>
@@ -630,7 +632,7 @@ const User: React.FC = () => {
 
                     {/* Project & Settings Section */}
                     <div style={{ marginBottom: 32 }}>
-                        <Title level={5} style={{ marginBottom: 20, color: '#1890ff', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Title level={5} style={{ marginBottom: 20, color: 'var(--color-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
                             <ProjectOutlined />
                             Project & Settings
                         </Title>
@@ -661,7 +663,7 @@ const User: React.FC = () => {
                                     initialValue={isCreatePage ? true : undefined}
                                     preserve={false}
                                 >
-                                    <Switch 
+                                    <Switch
                                         checkedChildren="Active"
                                         unCheckedChildren="Inactive"
                                     />
@@ -672,7 +674,7 @@ const User: React.FC = () => {
                     {/* Permissions Section */}
                     {username !== 'admin' && (
                         <div style={{ marginBottom: 32 }}>
-                            <Title level={5} style={{ marginBottom: 20, color: '#1890ff', display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <Title level={5} style={{ marginBottom: 20, color: 'var(--color-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
                                 <SettingOutlined />
                                 Permissions
                             </Title>
@@ -691,7 +693,7 @@ const User: React.FC = () => {
                         justifyContent: 'flex-end',
                         gap: 12,
                         paddingTop: 24,
-                        borderTop: '1px solid #f0f0f0'
+                        borderTop: '1px solid var(--border-default)'
                     }}>
                         <ElchiButton
                             type="default"

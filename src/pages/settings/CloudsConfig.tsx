@@ -183,7 +183,7 @@ const CloudsConfig: React.FC = () => {
                     <div style={{ flex: 1 }}>
                         <div style={{ marginBottom: 16 }}>
                             <Space align="center" style={{ marginBottom: 8 }}>
-                                <CloudOutlined style={{ fontSize: 20, color: '#1890ff' }} />
+                                <CloudOutlined style={{ fontSize: 20, color: 'var(--color-primary)' }} />
                                 <Text strong style={{ fontSize: 16 }} copyable={{ text: name }}>{name}</Text>
                                 <Tag color="blue">
                                     {providers.find(p => p.value === config.provider)?.label || config.provider}
@@ -419,7 +419,7 @@ const CloudsConfig: React.FC = () => {
                 <div style={{ marginBottom: 24 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                         <Space>
-                            <CloudOutlined style={{ fontSize: 24, color: '#1890ff' }} />
+                            <CloudOutlined style={{ fontSize: 24, color: 'var(--color-primary)' }} />
                             <Title level={4} style={{ margin: 0 }}>Cloud Configurations</Title>
                             <Tag color="blue">{cloudEntries.length} configured</Tag>
                         </Space>

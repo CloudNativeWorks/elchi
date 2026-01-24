@@ -25,12 +25,13 @@ const AddBGPNetworkCard: React.FC<AddBGPNetworkCardProps> = ({ onCancel, onSubmi
     };
 
     return (
-        <div style={{ 
-            width: '100%', 
-            background: '#fff', 
-            borderRadius: 14, 
-            padding: '20px', 
-            boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+        <div style={{
+            width: '100%',
+            background: 'var(--card-bg)',
+            borderRadius: 14,
+            padding: '20px',
+            boxShadow: 'var(--shadow-sm)',
+            border: '1px solid var(--border-default)'
         }}>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 18 }}>
                 <Title level={5} style={{ margin: 0 }}>Add BGP Network</Title>
@@ -89,10 +90,10 @@ const AddBGPNetworkCard: React.FC<AddBGPNetworkCardProps> = ({ onCancel, onSubmi
                         htmlType="submit"
                         icon={<CheckOutlined />}
                         style={{
-                            background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                            background: 'var(--gradient-primary)',
                             border: 'none',
                             fontWeight: 500,
-                            boxShadow: '0 2px 8px rgba(0,198,251,0.10)',
+                            boxShadow: 'var(--shadow-primary)',
                         }}
                     >
                         Add Network

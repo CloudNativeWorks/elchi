@@ -98,7 +98,7 @@
       transition: all $transition-fast;
 
       &:hover {
-        background: rgba(0, 0, 0, 0.05);
+        background: var(--bg-hover);
         color: $color-primary;
       }
 
@@ -150,7 +150,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--bg-loading);
   backdrop-filter: blur(4px);
   border-radius: inherit;
   z-index: 100;
@@ -331,32 +331,32 @@
   letter-spacing: 0.5px;
 
   &.healthy {
-    background: rgba(16, 185, 129, 0.1);
+    background: var(--color-success-light);
     color: $color-success;
   }
 
   &.degraded {
-    background: rgba(245, 158, 11, 0.1);
+    background: var(--color-warning-light);
     color: $color-warning;
   }
 
   &.down {
-    background: rgba(239, 68, 68, 0.1);
+    background: var(--color-danger-light);
     color: $color-danger;
   }
 
   &.critical {
-    background: rgba(239, 68, 68, 0.1);
+    background: var(--color-danger-light);
     color: $color-danger;
   }
 
   &.warning {
-    background: rgba(245, 158, 11, 0.1);
+    background: var(--color-warning-light);
     color: $color-warning;
   }
 
   &.info {
-    background: rgba(6, 182, 212, 0.1);
+    background: var(--color-info-light);
     color: $color-info;
   }
 
@@ -393,9 +393,9 @@
 .skeleton {
   background: linear-gradient(
     90deg,
-    rgba(0, 0, 0, 0.06) 0%,
-    rgba(0, 0, 0, 0.1) 50%,
-    rgba(0, 0, 0, 0.06) 100%
+    var(--bg-hover) 0%,
+    var(--bg-active) 50%,
+    var(--bg-hover) 100%
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;

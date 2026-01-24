@@ -52,7 +52,7 @@ const DirectiveList: React.FC<DirectiveListProps> = ({
         <div style={{
             maxHeight: 400,
             overflowY: 'auto',
-            border: '1px solid #d9d9d9',
+            border: '1px solid var(--border-default)',
             borderRadius: 4
         }}>
             <List
@@ -72,7 +72,7 @@ const DirectiveList: React.FC<DirectiveListProps> = ({
                                         size="small"
                                         icon={<CheckOutlined />}
                                         onClick={onSaveEdit}
-                                        style={{ color: '#52c41a' }}
+                                        style={{ color: 'var(--color-success)' }}
                                     />,
                                     <Button
                                         key="cancel"
@@ -143,7 +143,8 @@ const DirectiveList: React.FC<DirectiveListProps> = ({
                                             fontSize: 12,
                                             whiteSpace: 'pre-wrap',
                                             wordBreak: 'break-word',
-                                            background: '#f5f5f5',
+                                            background: 'var(--code-bg)',
+                                            color: 'var(--code-text)',
                                             padding: 8,
                                             borderRadius: 4
                                         }}>

@@ -2,31 +2,32 @@ import React from "react";
 import { Menu, Select } from "antd";
 import { NavLink, useLocation } from "react-router-dom";
 import {
-    HomeOutlined,
-    RocketOutlined,
-    GlobalOutlined,
-    ShareAltOutlined,
-    CloudOutlined,
-    ClusterOutlined,
-    AimOutlined,
-    SafetyOutlined,
-    SafetyCertificateOutlined,
-    KeyOutlined,
-    FilterOutlined,
-    AppstoreOutlined,
-    DashboardOutlined,
-    FileTextOutlined,
-    SettingOutlined,
-    UserOutlined,
-    BarChartOutlined,
-    CloudServerOutlined,
-    CodeOutlined,
-    ApiOutlined,
-    RadarChartOutlined,
-    RobotOutlined,
-    ScheduleOutlined,
-    DatabaseOutlined,
-    AuditOutlined
+	HomeOutlined,
+	RocketOutlined,
+	GlobalOutlined,
+	ShareAltOutlined,
+	CloudOutlined,
+	ClusterOutlined,
+	AimOutlined,
+	SafetyOutlined,
+	SafetyCertificateOutlined,
+	KeyOutlined,
+	FilterOutlined,
+	AppstoreOutlined,
+	DashboardOutlined,
+	FileTextOutlined,
+	SettingOutlined,
+	UserOutlined,
+	BarChartOutlined,
+	CloudServerOutlined,
+	CodeOutlined,
+	ApiOutlined,
+	RadarChartOutlined,
+	RobotOutlined,
+	ScheduleOutlined,
+	DatabaseOutlined,
+	AuditOutlined,
+	FireOutlined
 } from '@ant-design/icons';
 import { useProjectVariable } from "@/hooks/useProjectVariable";
 import { UserDetail } from "@/common/types";
@@ -150,8 +151,14 @@ const menuConfig = [
 	{
 		key: "/waf",
 		to: "/waf",
-		icon: "SafetyOutlined",
+		icon: "FireOutlined",
 		label: "WAF",
+	},
+	{
+		key: "/gslb",
+		to: "/gslb",
+		icon: "GlobalOutlined",
+		label: "GSLB",
 	},
 	{
 		key: "/acme",
@@ -229,6 +236,7 @@ const iconMap = {
 	ScheduleOutlined: ScheduleOutlined,
 	DatabaseOutlined: DatabaseOutlined,
 	AuditOutlined: AuditOutlined,
+	FireOutlined: FireOutlined,
 };
 
 function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
@@ -240,28 +248,28 @@ function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
 		if (path === "/" || path === "") {
 			return "/home";
 		}
-		
+
 		// Special case: both /quick_start and /scenarios should activate scenarios button
 		if (path.startsWith("/quick_start") || path.startsWith("/scenarios")) {
 			return "/scenarios";
 		}
-		
+
 		let bestMatch = "";
 		menuConfig.forEach((item) => {
 			if (item.key === "/home" && (path === "/" || path === "")) {
 				bestMatch = "/home";
 				return;
 			}
-			
+
 			if (path.startsWith(item.key) && item.key.length > bestMatch.length && item.key !== "/home") {
 				bestMatch = item.key;
 			}
 		});
-		
+
 		if (!bestMatch && (path === "/" || path === "")) {
 			bestMatch = "/home";
 		}
-		
+
 		return bestMatch;
 	};
 
@@ -276,6 +284,11 @@ function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
 			const isActive = page.startsWith(item.key.replace("/", ""));
 			const itemStyle = isActive ? { background: color } : {};
 			const itemClassName = `icon ${isActive ? 'active' : ''}`;
+
+			// Hide menu headers when collapsed
+			if (collapsed && item.className === 'menu-item-header') {
+				return null;
+			}
 
 			if (item.key.startsWith("/settings") && !["owner", "admin"].includes(userDetail.role)) {
 				return null;
@@ -315,9 +328,9 @@ function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
 
 	return (
 		<div style={{
-			background: '#fff',
+			background: 'var(--sidenav-bg)',
 			borderRadius: 0,
-			boxShadow: collapsed ? '0 -4px 12px rgba(0, 0, 0, 0.1)' : 'none',
+			boxShadow: 'none',
 			padding: collapsed ? '4px 0' : '10px 0 10px 0',
 			margin: 0,
 			minHeight: '100vh',
@@ -336,7 +349,7 @@ function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
 						title="Project"
 						placeholder="Project"
 						optionFilterProp="label"
-						style={{ width: "100%", paddingRight: 0, borderRadius: 10, background: '#fff', boxShadow: '0 2px 8px 0 rgba(24,144,255,0.04)' }}
+						style={{ width: "100%", paddingRight: 0, borderRadius: 10, background: 'var(--sidenav-bg)', boxShadow: 'var(--shadow-sm)' }}
 						value={project}
 						onChange={(value) => { setProject(value) }}
 						options={[
@@ -407,7 +420,7 @@ function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
 					border-radius: 0 !important;
 					width: 18px !important;
 					height: 18px !important;
-					color: #2c3e50 !important;
+					color: var(--sidenav-text) !important;
 				}
 				/* Maximum specificity for collapsed icons */
 				div.ant-menu.ant-menu-inline.ant-menu-collapsed li.ant-menu-item span.icon {
@@ -422,12 +435,12 @@ function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
 					border-radius: 0 !important;
 					width: 18px !important;
 					height: 18px !important;
-					color: #2c3e50 !important;
+					color: var(--sidenav-text) !important;
 					display: flex !important;
 				}
 				.ant-menu.ant-menu-inline.ant-menu-collapsed .ant-menu-item-selected {
-					background: linear-gradient(90deg, #056ccd 0%, #00c6fb 100%) !important;
-					box-shadow: 0 2px 8px rgba(5, 108, 205, 0.3) !important;
+					background: var(--gradient-primary) !important;
+					box-shadow: var(--shadow-sm) !important;
 					margin-right: 0 !important;
 					width: 40px !important;
 					max-width: 40px !important;
@@ -436,8 +449,8 @@ function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
 				}
 				/* Maximum specificity for collapsed selected items */
 				div.ant-menu.ant-menu-inline.ant-menu-collapsed li.ant-menu-item.ant-menu-item-selected {
-					background: linear-gradient(90deg, #056ccd 0%, #00c6fb 100%) !important;
-					box-shadow: 0 2px 8px rgba(5, 108, 205, 0.3) !important;
+					background: var(--gradient-primary) !important;
+					box-shadow: var(--shadow-sm) !important;
 					margin-right: 0 !important;
 					width: 40px !important;
 					max-width: 40px !important;
@@ -497,7 +510,7 @@ function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
 					font-size: 18px !important;
 					width: 18px !important;
 					height: 18px !important;
-					color: #2c3e50 !important;
+					color: var(--sidenav-text) !important;
 					background: transparent !important;
 					padding: 0 !important;
 					margin: 0 !important;
@@ -556,7 +569,7 @@ function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
 					margin: 0 4px 12px 4px !important;
 					justify-content: flex-start !important;
 					align-items: center !important;
-					background: linear-gradient(90deg, #056ccd 0%, #00c6fb 100%) !important;
+					background: var(--gradient-primary) !important;
 					border-radius: 8px !important;
 					display: flex !important;
 					flex-direction: column !important;
@@ -587,10 +600,10 @@ function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
 				}
 
 				.ant-menu-item-selected {
-					background: linear-gradient(90deg, #056ccd 0%, #00c6fb 100%) !important;
+					background: var(--gradient-primary) !important;
 					color: white !important;
 					font-weight: 600 !important;
-					box-shadow: 0 4px 12px rgba(5, 108, 205, 0.3) !important;
+					box-shadow: var(--shadow-md) !important;
 					transform: translateX(4px) !important;
 					z-index: 1 !important;
 					opacity: 1 !important;
@@ -601,10 +614,10 @@ function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
 				}
 
 				.ant-menu-item:hover:not(.ant-menu-item-selected):not(.menu-item-header) {
-					background: linear-gradient(90deg, #056ccd 0%, #00c6fb 100%) !important;
+					background: var(--gradient-primary) !important;
 					color: white !important;
 					transform: translateX(2px) !important;
-					box-shadow: 0 2px 8px rgba(5, 108, 205, 0.3) !important;
+					box-shadow: var(--shadow-sm) !important;
 					z-index: 0 !important;
 					opacity: 1 !important;
 					visibility: visible !important;
@@ -615,7 +628,7 @@ function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
 
 				.ant-menu-item:not(.ant-menu-item-selected):not(:hover) {
 					background: transparent !important;
-					color: #2c3e50 !important;
+					color: var(--sidenav-text) !important;
 					transform: translateX(0) !important;
 					box-shadow: none !important;
 					opacity: 1 !important;
@@ -626,7 +639,7 @@ function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
 				}
 				.ant-menu-item.menu-item-header:hover {
 					background: transparent !important;
-					color: #8b9dc3 !important;
+					color: var(--text-tertiary) !important;
 					transform: translateX(0) !important;
 					box-shadow: none !important;
 					cursor: default !important;
@@ -645,7 +658,7 @@ function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
 					margin-right: 10px;
 					transition: background 0.3s ease, color 0.3s ease, padding 0.3s ease !important;
 					position: relative !important;
-					color: #2c3e50 !important;
+					color: var(--sidenav-text) !important;
 					background: transparent !important;
 					padding: 0 !important;
 					border-radius: 0 !important;
@@ -666,7 +679,7 @@ function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
 					backdrop-filter: blur(10px) !important;
 				}
 				.ant-menu-item:not(.ant-menu-item-selected):not(:hover) .icon {
-					color: #2c3e50 !important;
+					color: var(--sidenav-text) !important;
 					background: transparent !important;
 					padding: 0 !important;
 					border-radius: 0 !important;
@@ -680,7 +693,7 @@ function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
 					padding: 0;
 					transition: color 0.3s ease, font-weight 0.3s ease !important;
 					position: relative !important;
-					color: #2c3e50 !important;
+					color: var(--sidenav-text) !important;
 				}
 				.ant-menu-item-selected .menu-label {
 					font-weight: 600 !important;
@@ -690,7 +703,7 @@ function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
 					color: white !important;
 				}
 				.ant-menu-item:not(.ant-menu-item-selected):not(:hover) .menu-label {
-					color: #2c3e50 !important;
+					color: var(--sidenav-text) !important;
 					font-weight: 500 !important;
 				}
 				.ant-menu-submenu-title, .ant-menu-submenu .menu-label {
@@ -698,7 +711,7 @@ function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
 				}
 				.menu-item-header {
 					font-size: 11px !important;
-					color: #8b9dc3 !important;
+					color: var(--text-tertiary) !important;
 					font-weight: 600 !important;
 					margin: 20px 0 8px 12px !important;
 					letter-spacing: 1px !important;
@@ -713,8 +726,33 @@ function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
 					transform: translateY(-50%);
 					width: 3px;
 					height: 3px;
-					background: linear-gradient(90deg, #056ccd 0%, #00c6fb 100%);
+					background: var(--gradient-primary);
 					border-radius: 50%;
+				}
+				/* Collapsed state - hide menu headers completely */
+				.ant-menu-inline-collapsed .menu-item-header,
+				.ant-menu-inline-collapsed .ant-menu-item.menu-item-header,
+				.ant-menu-collapsed .menu-item-header,
+				.ant-menu-collapsed .ant-menu-item.menu-item-header {
+					display: none !important;
+					height: 0 !important;
+					min-height: 0 !important;
+					max-height: 0 !important;
+					margin: 0 !important;
+					padding: 0 !important;
+					border: none !important;
+					visibility: hidden !important;
+					overflow: hidden !important;
+					line-height: 0 !important;
+					font-size: 0 !important;
+					opacity: 0 !important;
+				}
+				.ant-menu-inline-collapsed .menu-item-header::before,
+				.ant-menu-inline-collapsed .ant-menu-item.menu-item-header::before,
+				.ant-menu-collapsed .menu-item-header::before,
+				.ant-menu-collapsed .ant-menu-item.menu-item-header::before {
+					display: none !important;
+					content: none !important;
 				}
 			`}</style>
 		</div>

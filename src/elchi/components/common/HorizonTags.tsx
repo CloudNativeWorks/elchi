@@ -133,7 +133,7 @@ const MemorizedHorizonTags = ({ veri }: FormItemProps) => {
                 component = (
                     <Badge
                         status={isChecked ? undefined : "processing"}
-                        color="linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)"
+                        color="var(--color-primary)"
                         dot
                         offset={[-7, 3]} key={tag + veri.index?.toString()}>
                         {component}

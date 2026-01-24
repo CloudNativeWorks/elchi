@@ -123,17 +123,18 @@ export const tokenizeDirective = (directive: string): SyntaxToken[] => {
 
 /**
  * Get color for token type
+ * Uses CSS variables for theme-aware colors where possible
  */
 export const getTokenColor = (type: SyntaxToken['type']): string => {
     const colors: Record<SyntaxToken['type'], string> = {
-        keyword: '#1890ff',      // Blue
-        operator: '#52c41a',     // Green
-        action: '#fa8c16',       // Orange
-        string: '#eb2f96',       // Pink
-        number: '#722ed1',       // Purple
-        variable: '#13c2c2',     // Cyan
-        id: '#1890ff',           // Blue (for IDs)
-        default: '#000000'       // Black
+        keyword: 'var(--color-primary, #1890ff)',      // Blue
+        operator: 'var(--color-success, #52c41a)',     // Green
+        action: 'var(--color-warning, #fa8c16)',       // Orange
+        string: 'var(--color-pink, #eb2f96)',          // Pink
+        number: 'var(--color-purple, #722ed1)',        // Purple
+        variable: 'var(--color-info, #13c2c2)',        // Cyan
+        id: 'var(--color-primary, #1890ff)',           // Blue (for IDs)
+        default: 'var(--text-primary, #000000)'        // Theme-aware default
     };
 
     return colors[type];

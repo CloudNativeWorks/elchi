@@ -38,14 +38,14 @@ const LogToolbar: React.FC<LogToolbarProps> = ({
     };
 
     return (
-        <div style={{ 
-            display: 'flex', 
+        <div style={{
+            display: 'flex',
             alignItems: 'center',
             gap: 12,
             padding: 12,
-            background: '#fafafa',
+            background: 'var(--bg-surface)',
             borderRadius: 8,
-            border: '1px solid #e8e8e8',
+            border: '1px solid var(--border-default)',
             flexWrap: 'wrap'
         }}>
             {/* Search Input */}

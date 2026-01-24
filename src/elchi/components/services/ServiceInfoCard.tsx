@@ -25,7 +25,7 @@ const ServiceInfoCard: React.FC<ServiceInfoCardProps> = ({ clientId }) => {
         return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 200 }}><span>Initializing...</span></div>;
     }
     if (error || !dataServices) {
-        return <div style={{ color: '#ff4d4f', textAlign: 'center', margin: 32 }}>No services found for this client.</div>;
+        return <div style={{ color: 'var(--color-danger)', textAlign: 'center', margin: 32 }}>No services found for this client.</div>;
     }
 
     let filteredServices = Array.isArray(dataServices)
@@ -74,7 +74,7 @@ const ServiceInfoCard: React.FC<ServiceInfoCardProps> = ({ clientId }) => {
     ];
 
     return (
-        <div style={{ background: '#fff', borderRadius: 8,  padding: 0 }}>
+        <div style={{ background: 'var(--card-bg)', borderRadius: 8, padding: 0, border: 'none' }}>
             <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Title level={4} style={{ margin: 0 }}>Services</Title>
                 <Input.Search
@@ -99,7 +99,7 @@ const ServiceInfoCard: React.FC<ServiceInfoCardProps> = ({ clientId }) => {
                             style: { cursor: 'pointer' }
                         })}
                         locale={{
-                            emptyText: <span style={{ color: '#bfbfbf' }}>No managed services for this client.</span>
+                            emptyText: <span style={{ color: 'var(--text-tertiary)' }}>No managed services for this client.</span>
                         }}
                         style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
                     />

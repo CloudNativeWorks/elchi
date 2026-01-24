@@ -40,7 +40,7 @@ const InfoBar: React.FC<InfoContainerProps> = ({ Infos }) => {
                                 title={Info.title}
                                 onClick={() => handleOpenModal(Info.info_type, Info.data)}
                                 style={{
-                                    background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                                    background: 'var(--gradient-primary)',
                                     border: 'none',
                                     color: '#fff',
                                     fontWeight: 500,
@@ -49,7 +49,7 @@ const InfoBar: React.FC<InfoContainerProps> = ({ Infos }) => {
                                     padding: '0 8px',
                                     height: 24,
                                     minWidth: 28,
-                                    boxShadow: '0 2px 8px 0 rgba(5,117,230,0.10)',
+                                    boxShadow: 'var(--shadow-sm)',
                                     display: 'flex',
                                     alignItems: 'center',
                                     gap: 6,

@@ -76,20 +76,20 @@ const ServiceLogToolbar: React.FC<ServiceLogToolbarProps> = ({
     };
 
     return (
-        <div style={{ 
-            display: 'flex', 
+        <div style={{
+            display: 'flex',
             flexDirection: 'column',
             gap: 12,
             padding: 16,
-            background: '#fafafa',
+            background: 'var(--card-bg)',
             borderRadius: 8,
-            border: '1px solid #e8e8e8'
+            border: '1px solid var(--border-default)'
         }}>
             {/* First Row - Log Type, Service and Search */}
-            <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: 12, 
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 12,
                 flexWrap: 'wrap'
             }}>
                 {onLogTypeChange && (
@@ -139,11 +139,11 @@ const ServiceLogToolbar: React.FC<ServiceLogToolbarProps> = ({
             </div>
 
             {/* Second Row - Component filter and action buttons on same line */}
-            <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
                 justifyContent: 'space-between',
-                gap: 12, 
+                gap: 12,
                 flexWrap: 'wrap'
             }}>
                 {/* Left side - Component filter */}
@@ -167,7 +167,7 @@ const ServiceLogToolbar: React.FC<ServiceLogToolbarProps> = ({
                             />
                         </div>
                     )}
-                    
+
                     <div style={{ minWidth: 200, maxWidth: 400 }}>
                         <Select
                             mode="multiple"
@@ -232,9 +232,9 @@ const ServiceLogToolbar: React.FC<ServiceLogToolbarProps> = ({
                             loading={aiAnalysisLoading}
                             size="middle"
                             style={{
-                                background: 'linear-gradient(90deg, #722ed1 0%, #1890ff 100%)',
+                                background: 'linear-gradient(90deg, var(--color-purple) 0%, var(--color-primary) 100%)',
                                 border: 'none',
-                                boxShadow: '0 2px 4px rgba(114, 46, 209, 0.3)',
+                                boxShadow: 'var(--shadow-sm)',
                                 color: 'white'
                             }}
                         >

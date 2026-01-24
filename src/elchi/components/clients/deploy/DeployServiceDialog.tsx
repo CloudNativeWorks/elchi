@@ -264,7 +264,7 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
         // Show confirmation dialog
         modal.confirm({
             title: 'Confirm Redeploy',
-            icon: <ExclamationCircleOutlined style={{ color: '#1890ff' }} />,
+            icon: <ExclamationCircleOutlined style={{ color: 'var(--color-primary)' }} />,
             content: (
                 <div>
                     <p>Are you sure you want to redeploy the service to <Text strong>{client.name}</Text>?</p>
@@ -517,8 +517,8 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                             alignItems: 'center',
                             gap: 8
                         }}>
-                            <DeployLineIcon style={{ width: 20, height: 20, color: '#262626' }} />
-                            <span style={{ fontSize: 16, fontWeight: 600, color: '#262626' }}>
+                            <DeployLineIcon style={{ width: 20, height: 20, color: 'var(--text-primary)' }} />
+                            <span style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-primary)' }}>
                                 Manage Service
                             </span>
                         </div>
@@ -527,7 +527,7 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                             alignItems: 'center',
                             gap: 12
                         }}>
-                            <span style={{ fontSize: 14, color: '#262626' }}>Active Mode:</span>
+                            <span style={{ fontSize: 14, color: 'var(--text-primary)' }}>Active Mode:</span>
                             <div style={{ display: 'flex', gap: 8 }}>
                                 <Button
                                     onClick={() => setAction(OperationsType.DEPLOY)}
@@ -535,9 +535,9 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                                         display: 'flex',
                                         alignItems: 'center',
                                         padding: '4px 16px',
-                                        background: action === OperationsType.DEPLOY ? '#e6f4ff' : '#fff',
-                                        borderColor: action === OperationsType.DEPLOY ? '#1890ff' : '#d9d9d9',
-                                        color: action === OperationsType.DEPLOY ? '#1890ff' : '#595959',
+                                        background: action === OperationsType.DEPLOY ? 'var(--color-primary-light)' : 'var(--card-bg)',
+                                        borderColor: action === OperationsType.DEPLOY ? 'var(--color-primary)' : 'var(--border-default)',
+                                        color: action === OperationsType.DEPLOY ? 'var(--color-primary)' : 'var(--text-secondary)',
                                         borderRadius: '6px 0 0 6px'
                                     }}
                                 >
@@ -550,9 +550,9 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                                         display: 'flex',
                                         alignItems: 'center',
                                         padding: '4px 16px',
-                                        background: action === OperationsType.UNDEPLOY ? '#fff1f0' : '#fff',
-                                        borderColor: action === OperationsType.UNDEPLOY ? '#ff4d4f' : '#d9d9d9',
-                                        color: action === OperationsType.UNDEPLOY ? '#ff4d4f' : '#595959',
+                                        background: action === OperationsType.UNDEPLOY ? 'var(--color-danger-light)' : 'var(--card-bg)',
+                                        borderColor: action === OperationsType.UNDEPLOY ? 'var(--color-danger)' : 'var(--border-default)',
+                                        color: action === OperationsType.UNDEPLOY ? 'var(--color-danger)' : 'var(--text-secondary)',
                                         borderRadius: '0 6px 6px 0',
                                         marginLeft: '-1px'
                                     }}
@@ -570,14 +570,14 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                         justifyContent: 'space-between',
                         alignItems: 'center',
                         padding: '20px 24px',
-                        background: 'linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%)',
-                        borderTop: '1px solid #f0f0f0',
+                        background: 'var(--bg-surface)',
+                        borderTop: '1px solid var(--border-default)',
                         borderRadius: '0 0 12px 12px',
                         margin: '-24px -24px 0 -24px'
                     }}>
-                        <div style={{ color: '#666', fontSize: 13, fontWeight: 500 }}>
+                        <div style={{ color: 'var(--text-secondary)', fontSize: 13, fontWeight: 500 }}>
                             {selectedRowKeys.length > 0 ? (
-                                <span style={{ color: '#1890ff' }}>
+                                <span style={{ color: 'var(--color-primary)' }}>
                                     <strong>{selectedRowKeys.length}</strong> client{selectedRowKeys.length > 1 ? 's' : ''} selected
                                 </span>
                             ) : (
@@ -601,21 +601,21 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                                     fontWeight: 600,
                                     letterSpacing: '0.2px',
                                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                    background: 'linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%)',
-                                    boxShadow: '0 4px 12px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2)',
-                                    color: '#595959',
+                                    background: 'var(--btn-secondary-bg)',
+                                    boxShadow: 'var(--shadow-sm)',
+                                    color: 'var(--text-secondary)',
                                     overflow: 'hidden',
                                     outline: 'none'
                                 }}
                                 onMouseEnter={e => {
                                     e.currentTarget.style.transform = 'translateY(-1px) scale(1.02)';
-                                    e.currentTarget.style.boxShadow = '0 6px 18px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.25)';
-                                    e.currentTarget.style.background = 'linear-gradient(135deg, #e8e8e8 0%, #d9d9d9 100%)';
+                                    e.currentTarget.style.boxShadow = 'var(--shadow-md)';
+                                    e.currentTarget.style.background = 'var(--btn-secondary-hover-bg)';
                                 }}
                                 onMouseLeave={e => {
                                     e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.2)';
-                                    e.currentTarget.style.background = 'linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%)';
+                                    e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
+                                    e.currentTarget.style.background = 'var(--btn-secondary-bg)';
                                 }}
                                 onMouseDown={e => {
                                     e.currentTarget.style.transform = 'translateY(0) scale(0.98)';
@@ -720,7 +720,7 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                     />
                 )}
                 <div style={{
-                    background: '#fafafa',
+                    background: 'var(--bg-surface)',
                     borderRadius: 10,
                     marginBottom: 10,
                     maxWidth: '100%',
@@ -730,7 +730,7 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                 }}>
                     <div style={{
                         fontSize: 13,
-                        color: '#666',
+                        color: 'var(--text-secondary)',
                         marginBottom: 12,
                         padding: '16px 16px 0'
                     }}>
@@ -847,7 +847,7 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
             <Modal
                 title={
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <ExclamationCircleOutlined style={{ color: '#ff4d4f', fontSize: 20 }} />
+                        <ExclamationCircleOutlined style={{ color: 'var(--color-danger)', fontSize: 20 }} />
                         <span>Confirm Service Removal</span>
                     </div>
                 }
@@ -867,14 +867,14 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                 width={500}
             >
                 <div style={{ marginTop: 16 }}>
-                    <p style={{ marginBottom: 16, color: '#262626', fontSize: 14 }}>
+                    <p style={{ marginBottom: 16, color: 'var(--text-primary)', fontSize: 14 }}>
                         This service will be removed from the following <strong>{selectedRowKeys.length}</strong> client{selectedRowKeys.length > 1 ? 's' : ''}:
                     </p>
                     <div style={{
                         maxHeight: 200,
                         overflowY: 'auto',
-                        background: '#fafafa',
-                        border: '1px solid #f0f0f0',
+                        background: 'var(--bg-surface)',
+                        border: '1px solid var(--border-default)',
                         borderRadius: 6,
                         padding: 12
                     }}>
@@ -887,8 +887,8 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                                     gap: 8,
                                     marginBottom: index === selectedRowKeys.length - 1 ? 0 : 8,
                                     padding: '6px 8px',
-                                    background: '#fff',
-                                    border: '1px solid #e9ecef',
+                                    background: 'var(--card-bg)',
+                                    border: '1px solid var(--border-default)',
                                     borderRadius: 4,
                                     fontSize: 13
                                 }}>
@@ -897,10 +897,10 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                                         width: 6,
                                         height: 6,
                                         borderRadius: '50%',
-                                        background: '#ff4d4f'
+                                        background: 'var(--color-danger)'
                                     }} />
                                     <span style={{ fontWeight: 500 }}>{client?.name || clientId}</span>
-                                    <span style={{ color: '#8c8c8c', fontSize: 11, marginLeft: 'auto' }}>
+                                    <span style={{ color: 'var(--text-tertiary)', fontSize: 11, marginLeft: 'auto' }}>
                                         {client?.hostname}
                                     </span>
                                 </div>
@@ -910,11 +910,11 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                     <div style={{
                         marginTop: 16,
                         padding: 12,
-                        background: '#fff2f0',
-                        border: '1px solid #ffccc7',
+                        background: 'var(--color-danger-light)',
+                        border: '1px solid var(--color-danger-border)',
                         borderRadius: 6
                     }}>
-                        <p style={{ margin: 0, color: '#ff4d4f', fontSize: 13, fontWeight: 500 }}>
+                        <p style={{ margin: 0, color: 'var(--color-danger)', fontSize: 13, fontWeight: 500 }}>
                             ⚠️ This action cannot be undone. Are you sure you want to continue?
                         </p>
                     </div>
@@ -925,7 +925,7 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
             <Modal
                 title={
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <ExclamationCircleOutlined style={{ color: '#faad14', fontSize: 20 }} />
+                        <ExclamationCircleOutlined style={{ color: 'var(--color-warning)' }} />
                         <span>OpenStack Connection Warning</span>
                     </div>
                 }
@@ -947,20 +947,20 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                 <div style={{ marginTop: 16 }}>
                     <div style={{
                         padding: 16,
-                        background: '#fff7e6',
-                        border: '1px solid #ffd591',
+                        background: 'var(--color-warning-light)',
+                        border: '1px solid var(--color-warning-border)',
                         borderRadius: 8,
                         marginBottom: 16
                     }}>
-                        <div style={{ color: '#d46b08', fontWeight: 600, marginBottom: 8 }}>
+                        <div style={{ color: 'var(--color-warning-dark)', fontWeight: 600, marginBottom: 8 }}>
                             ⚠️ OpenStack Connection Problem
                         </div>
-                        <p style={{ margin: 0, color: '#8c4100', fontSize: 14 }}>
+                        <p style={{ margin: 0, color: 'var(--color-warning-dark)', fontSize: 14 }}>
                             Cannot connect to OpenStack, so IP addresses cannot be cleaned from OpenStack infrastructure.
                         </p>
                     </div>
 
-                    <p style={{ marginBottom: 16, color: '#262626', fontSize: 14 }}>
+                    <p style={{ marginBottom: 16, color: 'var(--text-primary)', fontSize: 14 }}>
                         Selected OpenStack clients have interface connection errors.
                         Service will be removed but <strong>IP addresses cannot be cleaned from OpenStack</strong>.
                     </p>
@@ -968,8 +968,8 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                     <div style={{
                         maxHeight: 150,
                         overflowY: 'auto',
-                        background: '#fafafa',
-                        border: '1px solid #f0f0f0',
+                        background: 'var(--bg-surface)',
+                        border: '1px solid var(--border-default)',
                         borderRadius: 6,
                         padding: 12
                     }}>
@@ -987,8 +987,8 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                                     gap: 8,
                                     marginBottom: 8,
                                     padding: '6px 8px',
-                                    background: '#fff',
-                                    border: '1px solid #e9ecef',
+                                    background: 'var(--card-bg)',
+                                    border: '1px solid var(--border-default)',
                                     borderRadius: 4,
                                     fontSize: 13
                                 }}>
@@ -997,10 +997,10 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                                         width: 6,
                                         height: 6,
                                         borderRadius: '50%',
-                                        background: '#faad14'
+                                        background: 'var(--color-warning)'
                                     }} />
                                     <span style={{ fontWeight: 500 }}>{client?.name || clientId}</span>
-                                    <span style={{ color: '#8c8c8c', fontSize: 11, marginLeft: 'auto' }}>
+                                    <span style={{ color: 'var(--text-tertiary)', fontSize: 11, marginLeft: 'auto' }}>
                                         OpenStack Error
                                     </span>
                                 </div>
@@ -1011,11 +1011,11 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                     <div style={{
                         marginTop: 16,
                         padding: 12,
-                        background: '#fff2f0',
-                        border: '1px solid #ffccc7',
+                        background: 'var(--color-danger-light)',
+                        border: '1px solid var(--color-danger-border)',
                         borderRadius: 6
                     }}>
-                        <p style={{ margin: 0, color: '#cf1322', fontSize: 13, fontWeight: 500 }}>
+                        <p style={{ margin: 0, color: 'var(--color-danger)', fontSize: 13, fontWeight: 500 }}>
                             ⚠️ Do you still want to remove the service anyway?
                         </p>
                     </div>

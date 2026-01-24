@@ -89,7 +89,6 @@ export const modtag_load_assignment = [
 export const modtag_us_cluster: TagsType = {
     "Cluster": [
         "transport_socket_matches",
-        "typed_dns_resolver_config",
         "lb_subset_config",
         "metadata",
         "filters",

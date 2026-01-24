@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { Layout, App as AntdApp } from "antd";
+import { MenuFoldOutlined, MenuUnfoldOutlined } from "@ant-design/icons";
 import Sidenav from "./Sidenav";
 import Header from "./Header";
 import { DecodeToken } from "@utils/tools";
@@ -9,7 +10,7 @@ import BreadCrumb from "./BreadCrumb";
 
 const { Header: AntHeader, Content, Sider } = Layout;
 function Main() {
-	const sidenavColor = "#1890ff"
+	const sidenavColor = "var(--color-primary)"
 	const location = useLocation();
 	const userDetail = DecodeToken(Cookies.get('bb_token'))
 	const { notification } = AntdApp.useApp();
@@ -70,41 +71,48 @@ function Main() {
 							collapsed={collapsed}
 							onCollapse={(value) => setCollapsed(value)}
 							trigger={
-								<div style={{
-									position: 'absolute',
-									bottom: 16,
-									left: '50%',
-									transform: 'translateX(-50%)',
-									width: 32,
-									height: 32,
-									background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
-									borderRadius: '20%',
-									display: 'flex',
-									alignItems: 'center',
-									justifyContent: 'center',
-									cursor: 'pointer',
-									boxShadow: '0 2px 8px rgba(5, 108, 205, 0.3), 0 -4px 12px rgba(0, 0, 0, 0.1)',
-									transition: 'all 0.3s ease',
-									zIndex: 9999,
-								}}
-								onMouseEnter={(e) => {
-									e.currentTarget.style.transform = 'translateX(-50%) scale(1.1)';
-									e.currentTarget.style.boxShadow = '0 4px 12px rgba(5, 108, 205, 0.4), 0 -6px 16px rgba(0, 0, 0, 0.15)';
-								}}
-								onMouseLeave={(e) => {
-									e.currentTarget.style.transform = 'translateX(-50%) scale(1)';
-									e.currentTarget.style.boxShadow = '0 2px 8px rgba(5, 108, 205, 0.3), 0 -4px 12px rgba(0, 0, 0, 0.1)';
-								}}
+								<div
+									className="sidebar-collapse-trigger"
+									style={{
+										position: 'absolute',
+										bottom: 20,
+										left: '50%',
+										transform: 'translateX(-50%)',
+										width: 36,
+										height: 36,
+										background: 'var(--gradient-primary)',
+										borderRadius: '10px',
+										display: 'flex',
+										alignItems: 'center',
+										justifyContent: 'center',
+										cursor: 'pointer',
+										boxShadow: '0 4px 12px var(--shadow-color)',
+										transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
+										zIndex: 9999,
+										border: 'none',
+									}}
+									onMouseEnter={(e) => {
+										e.currentTarget.style.transform = 'translateX(-50%) scale(1.08)';
+										e.currentTarget.style.boxShadow = '0 6px 20px var(--shadow-color)';
+									}}
+									onMouseLeave={(e) => {
+										e.currentTarget.style.transform = 'translateX(-50%) scale(1)';
+										e.currentTarget.style.boxShadow = '0 4px 12px var(--shadow-color)';
+									}}
 								>
-									<div style={{
-										width: 12,
-										height: 12,
-										border: '2px solid white',
-										borderTop: 'none',
-										borderRight: 'none',
-										transform: collapsed ? 'rotate(-135deg)' : 'rotate(45deg)',
-										transition: 'transform 0.3s ease',
-									}} />
+									{collapsed ? (
+										<MenuUnfoldOutlined style={{
+											color: 'white',
+											fontSize: 16,
+											transition: 'transform 0.3s ease'
+										}} />
+									) : (
+										<MenuFoldOutlined style={{
+											color: 'white',
+											fontSize: 16,
+											transition: 'transform 0.3s ease'
+										}} />
+									)}
 								</div>
 							}
 							className="main-menu"

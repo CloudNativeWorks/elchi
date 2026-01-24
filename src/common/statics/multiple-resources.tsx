@@ -55,6 +55,15 @@ export const multipleResource: Record<string, { name: string, defaultValue: stri
             { value: "envoy.extensions.compression.zstd.compressor.v3.Zstd", label: "Zstd" },
         ]
     },
+    "extension/dns-resolver/DnsResolver": {
+        name: "DNS Resolver",
+        defaultValue: "envoy.extensions.network.dns_resolver.apple.v3.AppleDnsResolverConfig",
+        options: [
+            { value: "envoy.extensions.network.dns_resolver.apple.v3.AppleDnsResolverConfig", label: "Apple" },
+            { value: "envoy.extensions.network.dns_resolver.cares.v3.CaresDnsResolverConfig", label: "C-Ares" },
+            { value: "envoy.extensions.network.dns_resolver.getaddrinfo.v3.GetAddrInfoDnsResolverConfig", label: "GetAddrInfo" },
+        ]
+    },
     "filters/http/lua/Luas": {
         name: "Lua",
         defaultValue: "envoy.extensions.filters.http.lua.v3.Lua",

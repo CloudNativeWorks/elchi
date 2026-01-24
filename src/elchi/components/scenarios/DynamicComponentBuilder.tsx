@@ -108,7 +108,7 @@ const SortableComponent: React.FC<SortableComponentProps> = ({
     const availableFieldsCount = componentDefinition?.available_fields.length || 0;
     const requiredFieldsCount = componentDefinition?.available_fields.filter(field => field.required_for_creation).length || 0;
     const completionPercent = availableFieldsCount > 0 ? Math.round((selectedFieldsCount / availableFieldsCount) * 100) : 0;
-    
+
     // Component is valid if it has no required fields OR has configured fields
     const isComponentValid = requiredFieldsCount === 0 || selectedFieldsCount > 0;
     const relationships = getRelationships ? getRelationships(component) : { dependencies: [], dependents: [] };
@@ -132,8 +132,8 @@ const SortableComponent: React.FC<SortableComponentProps> = ({
                 style={{
                     marginBottom: '12px',
                     borderRadius: '12px',
-                    boxShadow: isDragging ? '0 8px 24px rgba(0,0,0,0.15)' : '0 2px 8px rgba(0,0,0,0.06)',
-                    border: '1px solid #f0f0f0',
+                    boxShadow: isDragging ? '0 8px 24px var(--shadow-primary)' : '0 2px 8px var(--shadow-sm)',
+                    border: '1px solid var(--border-default)',
                     overflow: 'hidden',
                     transition: 'all 0.3s ease'
                 }}
@@ -210,7 +210,7 @@ const SortableComponent: React.FC<SortableComponentProps> = ({
                                                 }}
                                             >
                                                 {component.name}
-                                                <EditOutlined style={{ fontSize: '14px', color: '#999' }} />
+                                                <EditOutlined style={{ fontSize: '14px', color: 'var(--text-secondary)' }} />
                                             </Typography.Title>
                                         )}
                                         <Tag color="purple" className="auto-width-tag" style={{ fontSize: '11px' }}>
@@ -225,12 +225,12 @@ const SortableComponent: React.FC<SortableComponentProps> = ({
                                 {/* Progress Bar */}
                                 <div style={{ marginBottom: '12px' }}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                                        <Typography.Text style={{ fontSize: '12px', color: '#666' }}>
+                                        <Typography.Text style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
                                             Field Configuration
                                         </Typography.Text>
-                                        <Typography.Text style={{ fontSize: '12px', fontWeight: 'bold', color: isComponentValid ? '#52c41a' : (requiredFieldsCount === 0 ? '#52c41a' : '#1890ff') }}>
-                                            {requiredFieldsCount === 0 ? 
-                                                `${selectedFieldsCount}/${availableFieldsCount} fields (no required)` : 
+                                        <Typography.Text style={{ fontSize: '12px', fontWeight: 'bold', color: isComponentValid ? 'var(--color-success)' : (requiredFieldsCount === 0 ? 'var(--color-success)' : 'var(--color-primary)') }}>
+                                            {requiredFieldsCount === 0 ?
+                                                `${selectedFieldsCount}/${availableFieldsCount} fields (no required)` :
                                                 `${selectedFieldsCount}/${availableFieldsCount} fields`
                                             }
                                         </Typography.Text>
@@ -238,7 +238,7 @@ const SortableComponent: React.FC<SortableComponentProps> = ({
                                     <Progress
                                         percent={requiredFieldsCount === 0 ? 100 : completionPercent}
                                         size="small"
-                                        strokeColor={isComponentValid ? '#52c41a' : '#ff4d4f'}
+                                        strokeColor={isComponentValid ? 'var(--color-success)' : 'var(--color-danger)'}
                                         showInfo={false}
                                     />
                                 </div>
@@ -248,8 +248,8 @@ const SortableComponent: React.FC<SortableComponentProps> = ({
                                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                                         {relationships.dependencies.length > 0 && (
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                                <LinkOutlined style={{ fontSize: '12px', color: '#fa8c16' }} />
-                                                <Typography.Text style={{ fontSize: '11px', color: '#666' }}>
+                                                <LinkOutlined style={{ fontSize: '12px', color: 'var(--color-warning)' }} />
+                                                <Typography.Text style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
                                                     Requires:
                                                 </Typography.Text>
                                                 {relationships.dependencies.map(dep => (
@@ -261,8 +261,8 @@ const SortableComponent: React.FC<SortableComponentProps> = ({
                                         )}
                                         {relationships.dependents.length > 0 && (
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                                <BranchesOutlined style={{ fontSize: '12px', color: '#1890ff' }} />
-                                                <Typography.Text style={{ fontSize: '11px', color: '#666' }}>
+                                                <BranchesOutlined style={{ fontSize: '12px', color: 'var(--color-primary)' }} />
+                                                <Typography.Text style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
                                                     Used by:
                                                 </Typography.Text>
                                                 {relationships.dependents.map(dep => (
@@ -285,8 +285,8 @@ const SortableComponent: React.FC<SortableComponentProps> = ({
                                         icon={<SettingOutlined />}
                                         onClick={() => onConfigureFields(index)}
                                         style={{
-                                            background: isComponentValid ? '#52c41a' : '#ff4d4f',
-                                            borderColor: isComponentValid ? '#52c41a' : '#ff4d4f'
+                                            background: isComponentValid ? 'var(--color-success)' : 'var(--color-danger)',
+                                            borderColor: isComponentValid ? 'var(--color-success)' : 'var(--color-danger)'
                                         }}
                                     />
                                 </Tooltip>
@@ -483,7 +483,7 @@ const DynamicComponentBuilder: React.FC<DynamicComponentBuilderProps> = ({
                 const bPriority = b.priority || 999;
                 return aPriority - bPriority;
             });
-            
+
             setComponents(updatedComponents);
             setIsAddDrawerVisible(false);
             setSelectedComponentTypes([]);
@@ -627,15 +627,15 @@ const DynamicComponentBuilder: React.FC<DynamicComponentBuilderProps> = ({
         // Validate that components with required fields have at least one field selected
         const componentsWithoutFields = components.filter(c => {
             if (c.selected_fields.length > 0) return false; // Has fields configured
-            
+
             // Check if this component has any required fields
             const componentDef = getComponentDefinition(c.type);
             if (!componentDef) return false; // No definition found, skip validation
-            
+
             const hasRequiredFields = componentDef.available_fields.some(field => field.required_for_creation);
             return hasRequiredFields; // Only flag components that have required fields but no configured fields
         });
-        
+
         if (componentsWithoutFields.length > 0) {
             showWarningNotification(`Please configure required fields for: ${componentsWithoutFields.map(c => c.name).join(', ')}`);
             return;
@@ -662,7 +662,7 @@ const DynamicComponentBuilder: React.FC<DynamicComponentBuilderProps> = ({
                 if (targetField) {
                     // Check if the target component has this field selected
                     const selectedField = comp.selected_fields.find(sf => sf.field_name === field.connected!.field_name);
-                    
+
                     // Resolve the field value - same logic as ArrayFieldItem.tsx
                     let fieldValue;
                     if (selectedField?.value !== undefined && selectedField.value !== null) {
@@ -671,7 +671,7 @@ const DynamicComponentBuilder: React.FC<DynamicComponentBuilderProps> = ({
                         // For use_component_name fields or when no value is set, use component name
                         fieldValue = comp.name;
                     }
-                    
+
                     // Show option if field is selected OR if it's a use_component_name field
                     if (selectedField || targetField.use_component_name) {
                         options.push({
@@ -855,17 +855,17 @@ const DynamicComponentBuilder: React.FC<DynamicComponentBuilderProps> = ({
                         <div style={{ maxHeight: 'calc(100vh - 200px)', overflowY: 'auto' }}>
                             {(() => {
                                 if (!componentCatalogData?.components) return null;
-                                
+
                                 // Group components by collection
                                 const groupedComponents = componentCatalogData.components.reduce((acc, componentDef) => {
                                     let collectionKey = componentDef.collection || 'other';
-                                    
+
                                     // Main Resources: listeners, clusters, routes, secrets, endpoints, virtual_hosts
                                     const mainResourceCollections = ['listeners', 'clusters', 'routes', 'secrets', 'endpoints', 'virtual_hosts'];
                                     if (mainResourceCollections.includes(collectionKey)) {
                                         collectionKey = 'main_resources';
                                     }
-                                    
+
                                     // Handle filters collection special cases
                                     if (collectionKey === 'filters') {
                                         if (componentDef.canonical_name?.startsWith('envoy.filters.http')) {
@@ -874,14 +874,14 @@ const DynamicComponentBuilder: React.FC<DynamicComponentBuilderProps> = ({
                                             collectionKey = 'network_filters';
                                         }
                                     }
-                                    
+
                                     if (!acc[collectionKey]) {
                                         acc[collectionKey] = [];
                                     }
                                     acc[collectionKey].push(componentDef);
                                     return acc;
                                 }, {} as Record<string, any[]>);
-                                
+
                                 // Define collection display names and order
                                 const collectionOrder = ['main_resources', 'http_filters', 'network_filters', 'extensions', 'other'];
                                 const collectionNames = {
@@ -891,26 +891,26 @@ const DynamicComponentBuilder: React.FC<DynamicComponentBuilderProps> = ({
                                     extensions: 'Extensions',
                                     other: 'Other'
                                 };
-                                
+
                                 // Sort collections by defined order
                                 const orderedCollections = collectionOrder.filter(collection => groupedComponents[collection]);
                                 const remainingCollections = Object.keys(groupedComponents).filter(collection => !collectionOrder.includes(collection));
                                 const finalCollectionOrder = [...orderedCollections, ...remainingCollections];
-                                
+
                                 return finalCollectionOrder.map(collection => {
                                     const components = groupedComponents[collection].sort((a, b) => (a.priority || 999) - (b.priority || 999));
                                     const collectionTitle = collectionNames[collection as keyof typeof collectionNames] || collection;
-                                    
+
                                     return (
                                         <div key={collection} style={{ marginBottom: '16px' }}>
-                                            <Typography.Text 
-                                                strong 
-                                                style={{ 
-                                                    fontSize: '14px', 
-                                                    color: '#1890ff',
+                                            <Typography.Text
+                                                strong
+                                                style={{
+                                                    fontSize: '14px',
+                                                    color: 'var(--color-primary)',
                                                     display: 'block',
                                                     marginBottom: '8px',
-                                                    borderBottom: '1px solid #f0f0f0',
+                                                    borderBottom: '1px solid var(--border-default)',
                                                     paddingBottom: '4px'
                                                 }}
                                             >
@@ -920,7 +920,7 @@ const DynamicComponentBuilder: React.FC<DynamicComponentBuilderProps> = ({
                                                 const isSelected = selectedComponentTypes.includes(componentDef.name);
                                                 const isAlreadyAdded = components.some(c => c.type === componentDef.name);
                                                 const isDisabled = isAlreadyAdded;
-                                                
+
                                                 return (
                                                     <Card
                                                         key={componentDef.name}
@@ -928,14 +928,14 @@ const DynamicComponentBuilder: React.FC<DynamicComponentBuilderProps> = ({
                                                         style={{
                                                             marginBottom: '6px',
                                                             cursor: isDisabled ? 'not-allowed' : 'pointer',
-                                                            border: isSelected ? '1px solid #1890ff' : '1px solid #f0f0f0',
-                                                            backgroundColor: isDisabled ? '#f5f5f5' : (isSelected ? '#f0f8ff' : 'white'),
+                                                            border: isSelected ? '1px solid var(--color-primary)' : '1px solid var(--border-light)',
+                                                            backgroundColor: isDisabled ? 'var(--bg-disabled)' : (isSelected ? 'var(--color-primary-light)' : 'var(--card-bg)'),
                                                             opacity: isDisabled ? 0.6 : 1,
                                                             transition: 'all 0.2s ease'
                                                         }}
                                                         onClick={() => {
                                                             if (isDisabled) return;
-                                                            
+
                                                             if (isSelected) {
                                                                 setSelectedComponentTypes(selectedComponentTypes.filter(t => t !== componentDef.name));
                                                             } else {
@@ -951,13 +951,13 @@ const DynamicComponentBuilder: React.FC<DynamicComponentBuilderProps> = ({
                                                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                                                             <div style={{ flex: 1 }}>
                                                                 <Space size="small">
-                                                                    <Checkbox 
-                                                                        checked={isSelected} 
+                                                                    <Checkbox
+                                                                        checked={isSelected}
                                                                         disabled={isDisabled}
                                                                     />
-                                                                    <Typography.Text 
+                                                                    <Typography.Text
                                                                         strong
-                                                                        style={{ 
+                                                                        style={{
                                                                             color: isDisabled ? '#999' : 'inherit',
                                                                             fontSize: '13px'
                                                                         }}
@@ -971,13 +971,13 @@ const DynamicComponentBuilder: React.FC<DynamicComponentBuilderProps> = ({
                                                                     )}
                                                                 </Space>
                                                                 <Tooltip title={componentDef.description}>
-                                                                    <Typography.Text 
-                                                                        type="secondary" 
-                                                                        style={{ 
-                                                                            display: 'block', 
-                                                                            fontSize: '11px', 
+                                                                    <Typography.Text
+                                                                        type="secondary"
+                                                                        style={{
+                                                                            display: 'block',
+                                                                            fontSize: '11px',
                                                                             marginTop: '2px',
-                                                                            color: isDisabled ? '#999' : 'inherit',
+                                                                            color: isDisabled ? 'var(--text-disabled)' : 'var(--text-secondary)',
                                                                             overflow: 'hidden',
                                                                             textOverflow: 'ellipsis',
                                                                             whiteSpace: 'nowrap'
@@ -988,7 +988,7 @@ const DynamicComponentBuilder: React.FC<DynamicComponentBuilderProps> = ({
                                                                 </Tooltip>
                                                             </div>
                                                             {isSelected && !isDisabled && (
-                                                                <CheckOutlined style={{ color: '#1890ff', fontSize: '16px' }} />
+                                                                <CheckOutlined style={{ color: 'var(--color-primary)', fontSize: '16px' }} />
                                                             )}
                                                         </div>
                                                     </Card>
@@ -1038,16 +1038,16 @@ const DynamicComponentBuilder: React.FC<DynamicComponentBuilderProps> = ({
                 {configuringIndex >= 0 && (
                     <div style={{ padding: '24px 0' }}>
                         <div style={{
-                            background: 'linear-gradient(135deg, #056ccd 0%, #00c6fb 100%)',
+                            background: 'var(--gradient-primary)',
                             borderRadius: '12px',
                             padding: '20px',
                             marginBottom: '24px',
-                            color: 'white'
+                            color: 'var(--text-on-primary)'
                         }}>
-                            <Typography.Title level={4} style={{ color: 'white', margin: '0 0 8px 0' }}>
+                            <Typography.Title level={4} style={{ color: 'var(--text-on-primary)', margin: '0 0 8px 0' }}>
                                 Field Configuration
                             </Typography.Title>
-                            <Text style={{ color: 'rgba(255,255,255,0.9)' }}>
+                            <Text style={{ color: 'var(--text-on-primary)', opacity: 0.9 }}>
                                 Select the fields you want to include in this component and configure their properties.
                             </Text>
                         </div>
@@ -1078,11 +1078,12 @@ const DynamicComponentBuilder: React.FC<DynamicComponentBuilderProps> = ({
                                                 key={field.name}
                                                 size="small"
                                                 style={{
-                                                    border: '1px solid #f0f0f0',
+                                                    border: '1px solid var(--border-default)',
                                                     borderRadius: '12px',
                                                     transition: 'all 0.3s ease',
                                                     boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-                                                    marginBottom: '12px'
+                                                    marginBottom: '12px',
+                                                    backgroundColor: 'var(--card-bg)'
                                                 }}
                                                 styles={{ body: { padding: '16px' } }}
                                             >
@@ -1100,7 +1101,7 @@ const DynamicComponentBuilder: React.FC<DynamicComponentBuilderProps> = ({
                                                     {/* Field Info */}
                                                     <div style={{ flex: 1 }}>
                                                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                                                            <Typography.Text strong style={{ fontSize: '15px', color: '#1f2937' }}>
+                                                            <Typography.Text strong style={{ fontSize: '15px', color: 'var(--text-primary)' }}>
                                                                 {field.label}
                                                             </Typography.Text>
                                                             <Tag color="blue" className="auto-width-tag">
@@ -1129,7 +1130,7 @@ const DynamicComponentBuilder: React.FC<DynamicComponentBuilderProps> = ({
 
                                                         {/* Default Value */}
                                                         {field.default_value !== undefined && !['object', 'nested_choice', 'conditional'].includes(field.type) && !field.connected && !field.has_metadata && (field.type !== 'array' || isSimpleStringArray(field)) && (
-                                                            <Typography.Text style={{ fontSize: '12px', color: '#6b7280' }}>
+                                                            <Typography.Text style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
                                                                 Default: <Typography.Text code style={{ fontSize: '11px' }}>{String(field.default_value)}</Typography.Text>
                                                             </Typography.Text>
                                                         )}
@@ -1156,7 +1157,7 @@ const DynamicComponentBuilder: React.FC<DynamicComponentBuilderProps> = ({
                                                             {({ getFieldValue }) => {
                                                                 const isFieldSelected = getFieldValue(field.name);
                                                                 if (!isFieldSelected) return null;
-                                                                
+
                                                                 // Don't show value input for complex field types or connected fields
                                                                 // Exception: simple arrays (like domains) should show tags input
                                                                 const allowSimpleArray = isSimpleStringArray(field);
@@ -1234,13 +1235,13 @@ const DynamicComponentBuilder: React.FC<DynamicComponentBuilderProps> = ({
 
                                                         {/* Connected field status */}
                                                         {field.connected && (
-                                                            <div style={{ fontSize: '11px', color: '#6b7280', textAlign: 'right' }}>
+                                                            <div style={{ fontSize: '11px', color: 'var(--text-secondary)', textAlign: 'right' }}>
                                                                 {getConnectedFieldOptions(field).length > 0 ? (
-                                                                    <span style={{ color: '#10b981' }}>
+                                                                    <span style={{ color: 'var(--color-success)' }}>
                                                                         <CheckCircleOutlined /> {getConnectedFieldOptions(field).length} available
                                                                     </span>
                                                                 ) : (
-                                                                    <span style={{ color: '#f59e0b' }}>
+                                                                    <span style={{ color: 'var(--color-warning)' }}>
                                                                         Needs {field.connected.component_types.join('/')}
                                                                     </span>
                                                                 )}

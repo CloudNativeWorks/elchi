@@ -136,7 +136,7 @@ export const FilterDrawer = ({ setOpen, open, dataQuery, extensions, addFilter, 
                             <div>
                                 <span>{filter.name}</span>
                                 <br />
-                                <small style={{ color: '#888' }}>{filter.gtype.replace('envoy.', '')}</small>
+                                <small style={{ color: 'var(--text-tertiary)' }}>{filter.gtype.replace('envoy.', '')}</small>
                             </div>
                         </Select.Option>
                     ))}

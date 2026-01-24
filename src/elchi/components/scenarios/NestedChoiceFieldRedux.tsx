@@ -30,7 +30,7 @@ const NestedChoiceFieldRedux: React.FC<NestedChoiceFieldReduxProps> = React.memo
     // Redux state
     const selectedVersion = useSelector(selectSelectedVersion);
     const project = useSelector(selectProject);
-    
+
     const [selectedChoice, setSelectedChoice] = useState<string>(() => {
         const initialChoice = value?.nested_selection?.selected_choice || field.nested_config?.default_choice || '';
         return initialChoice;
@@ -38,7 +38,7 @@ const NestedChoiceFieldRedux: React.FC<NestedChoiceFieldReduxProps> = React.memo
     const [loadingApi, setLoadingApi] = useState<Set<string>>(new Set());
 
     // Find the selected choice configuration
-    const selectedChoiceConfig = useMemo(() => 
+    const selectedChoiceConfig = useMemo(() =>
         field.nested_config?.choices?.find(choice => choice.value === selectedChoice),
         [field.nested_config?.choices, selectedChoice]
     );
@@ -46,7 +46,7 @@ const NestedChoiceFieldRedux: React.FC<NestedChoiceFieldReduxProps> = React.memo
     // Load API data for choices that have api_endpoint
     const loadApiData = useCallback(async (choice: ConditionalChoice, searchQuery: string = '') => {
         if (!choice.api_endpoint) return;
-        
+
         // Check if already loading using functional state update
         let shouldLoad = false;
         setLoadingApi(prev => {
@@ -56,9 +56,9 @@ const NestedChoiceFieldRedux: React.FC<NestedChoiceFieldReduxProps> = React.memo
             shouldLoad = true;
             return new Set([...prev, choice.value]);
         });
-        
+
         if (!shouldLoad) return;
-        
+
         try {
             const url = new URL(choice.api_endpoint, window.location.origin);
             if (selectedVersion) {
@@ -68,7 +68,7 @@ const NestedChoiceFieldRedux: React.FC<NestedChoiceFieldReduxProps> = React.memo
                 url.searchParams.set('project', project);
             }
             url.searchParams.set('search', searchQuery);
-            
+
             await api.get(url.pathname + url.search);
         } catch (error) {
             console.error(`Failed to load API data for choice ${choice.value}:`, error);
@@ -97,36 +97,36 @@ const NestedChoiceFieldRedux: React.FC<NestedChoiceFieldReduxProps> = React.memo
                 selected_choice: selectedChoice,
                 sub_fields: []
             };
-            
+
             const newValue: SelectedField = {
                 field_name: field.name,
                 required: value?.required || false,
                 nested_selection: newSelection
             };
-            
+
             onChange(newValue);
         }
     }, [selectedChoice, value, field.name, onChange]); // Run when these change
 
     // Handle choice selection
     const handleChoiceChange = (choiceValue: string) => {
-        
+
         setSelectedChoice(choiceValue);
-        
+
         // Clear sub-field values when switching choices
         const newSelection: NestedFieldSelection = {
             selected_choice: choiceValue,
             sub_fields: []
         };
-        
+
         const newValue: SelectedField = {
             field_name: field.name,
             required: value?.required || false,
             nested_selection: newSelection
         };
-        
+
         onChange(newValue);
-        
+
         // Load API data for new choice if needed
         const newChoiceConfig = field.nested_config?.choices?.find(c => c.value === choiceValue);
         if (newChoiceConfig?.api_endpoint) {
@@ -141,7 +141,7 @@ const NestedChoiceFieldRedux: React.FC<NestedChoiceFieldReduxProps> = React.memo
     // Render sub-fields - memoized to prevent recreation
     const renderedSubFields = useMemo(() => {
         if (!selectedChoiceConfig?.sub_fields) return null;
-        
+
         return selectedChoiceConfig.sub_fields.map(subField => (
             <div key={subField.name}>
                 <FieldInputRedux
@@ -167,7 +167,7 @@ const NestedChoiceFieldRedux: React.FC<NestedChoiceFieldReduxProps> = React.memo
     }
 
     return (
-        <Card 
+        <Card
             size="small"
             title={<span>{field.label}</span>}
             style={{ marginBottom: '16px' }}
@@ -177,7 +177,7 @@ const NestedChoiceFieldRedux: React.FC<NestedChoiceFieldReduxProps> = React.memo
                     {field.description}
                 </Text>
             )}
-            
+
             {/* Choice Selection */}
             <div style={{ marginBottom: '16px' }}>
                 <Text strong style={{ fontSize: '13px', display: 'block', marginBottom: '8px' }}>
@@ -193,14 +193,14 @@ const NestedChoiceFieldRedux: React.FC<NestedChoiceFieldReduxProps> = React.memo
                     <Space direction="vertical" style={{ width: '100%' }}>
                         {field.nested_config.choices.map(choice => (
                             <div key={choice.value} style={{ width: '100%' }}>
-                                <Radio 
+                                <Radio
                                     value={choice.value}
-                                    style={{ 
+                                    style={{
                                         width: '100%',
                                         padding: '8px',
                                         borderRadius: '4px',
-                                        border: selectedChoice === choice.value ? '1px solid #1890ff' : '1px solid transparent',
-                                        backgroundColor: selectedChoice === choice.value ? '#f6ffed' : 'transparent'
+                                        border: selectedChoice === choice.value ? '1px solid var(--color-primary)' : '1px solid transparent',
+                                        backgroundColor: selectedChoice === choice.value ? 'var(--color-primary-light)' : 'transparent'
                                     }}
                                 >
                                     <div>
@@ -227,11 +227,11 @@ const NestedChoiceFieldRedux: React.FC<NestedChoiceFieldReduxProps> = React.memo
 
             {/* Sub-fields for selected choice */}
             {selectedChoiceConfig && selectedChoiceConfig.sub_fields && selectedChoiceConfig.sub_fields.length > 0 && (
-                <Card 
-                    size="small" 
+                <Card
+                    size="small"
                     type="inner"
                     title={<span>{selectedChoiceConfig.label} Configuration</span>}
-                    style={{ backgroundColor: '#fafafa' }}
+                    style={{ backgroundColor: 'var(--bg-body)' }}
                 >
                     <Space direction="vertical" style={{ width: '100%' }} size="middle">
                         {renderedSubFields}

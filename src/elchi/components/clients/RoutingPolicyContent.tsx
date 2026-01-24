@@ -204,7 +204,7 @@ const RoutingPolicyContent: React.FC<RoutingPolicyContentProps> = ({ clientId, p
     ];
 
     const expandedRowRender = (record: any) => (
-        <div style={{ padding: '16px 0', background: '#fafafa' }}>
+        <div style={{ padding: '16px 0', background: 'var(--bg-surface)' }}>
             <Descriptions size="small" column={2} bordered>
                 <Descriptions.Item label="Priority">
                     <Text style={{ fontFamily: 'monospace' }}>
@@ -268,11 +268,11 @@ const RoutingPolicyContent: React.FC<RoutingPolicyContentProps> = ({ clientId, p
                     icon={<PlusOutlined />}
                     onClick={handleAddPolicy}
                     style={{
-                        background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
+                        background: 'var(--gradient-primary)',
                         border: 'none',
                         borderRadius: 8,
                         fontWeight: 500,
-                        boxShadow: '0 2px 8px rgba(0,198,251,0.10)',
+                        boxShadow: '0 2px 8px var(--shadow-primary)',
                     }}
                     className="modern-add-btn"
                     loading={actionLoading}
@@ -294,9 +294,10 @@ const RoutingPolicyContent: React.FC<RoutingPolicyContentProps> = ({ clientId, p
                     rowExpandable: () => true, // All rows can be expanded
                 }}
                 style={{
-                    background: '#fff',
+                    background: 'var(--card-bg)',
                     borderRadius: 12,
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+                    boxShadow: 'var(--shadow-sm)',
+                    border: '1px solid var(--border-default)'
                 }}
             />
         </div>

@@ -109,7 +109,6 @@ export const modtag_us_bootstrap: TagsType = {
         'layered_runtime',
         'use_tcp_for_dns_lookups', // deprecated
         'dns_resolution_config',
-        'typed_dns_resolver_config',
         'bootstrap_extensions',
         'fatal_actions',
         'config_sources',
@@ -172,7 +171,6 @@ export const modtag_us_bootstrap: TagsType = {
         "dns_resolvers",
         "use_tcp_for_dns_lookups",
         "dns_resolution_config",
-        "typed_dns_resolver_config",
         "wait_for_warm_on_init",
         "outlier_detection",
         "cleanup_interval",

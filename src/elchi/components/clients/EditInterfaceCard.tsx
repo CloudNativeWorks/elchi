@@ -157,13 +157,14 @@ const EditInterfaceCard: React.FC<EditInterfaceCardProps> = ({
     return (
         <div style={{
             width: '100%',
-            background: '#fff',
+            background: 'var(--card-bg)',
             borderRadius: 14,
             padding: '20px',
             marginTop: 0,
             marginLeft: 0,
             minWidth: 0,
-            boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+            boxShadow: 'var(--shadow-sm)',
+            border: '1px solid var(--border-default)'
         }}>
             <div style={{ display: 'flex', alignItems: 'center', marginBottom: 18 }}>
                 <Title level={5} style={{ margin: 0 }}>Edit Interface: {entry.name}</Title>
@@ -247,11 +248,11 @@ const EditInterfaceCard: React.FC<EditInterfaceCardProps> = ({
                         icon={<CheckOutlined />}
                         loading={loading}
                         style={{
-                            background: 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)',
-                            color: '#fff',
+                            background: 'var(--gradient-primary)',
+                            color: 'var(--text-on-primary)',
                             border: 'none',
                             fontWeight: 500,
-                            boxShadow: '0 2px 8px rgba(0,198,251,0.10)',
+                            boxShadow: 'var(--shadow-primary)',
                             transition: 'all 0.2s',
                         }}
                         className="modern-add-btn"

@@ -54,10 +54,10 @@ const ScenarioDashboard: React.FC = () => {
     const [showImportModal, setShowImportModal] = useState(false);
     const [importFile, setImportFile] = useState<File | null>(null);
     const [conflictAction, setConflictAction] = useState<'skip' | 'overwrite' | 'rename'>('skip');
-    
-    const { 
-        useGetScenarios, 
-        useDeleteScenario, 
+
+    const {
+        useGetScenarios,
+        useDeleteScenario,
         useCreateScenario,
         useExportScenarios,
         useImportScenarios
@@ -72,17 +72,17 @@ const ScenarioDashboard: React.FC = () => {
     // Filter scenarios based on search and type
     const filteredScenarios = React.useMemo(() => {
         if (!scenariosData?.scenarios) return [];
-        
+
         return scenariosData.scenarios.filter(scenario => {
-            const matchesSearch = searchText === '' || 
+            const matchesSearch = searchText === '' ||
                 scenario.name.toLowerCase().includes(searchText.toLowerCase()) ||
                 scenario.description.toLowerCase().includes(searchText.toLowerCase()) ||
                 scenario.scenario_id.toLowerCase().includes(searchText.toLowerCase());
-            
+
             const matchesType = filterType === 'all' ||
                 (filterType === 'default' && scenario.is_default) ||
                 (filterType === 'custom' && !scenario.is_default);
-            
+
             return matchesSearch && matchesType;
         });
     }, [scenariosData?.scenarios, searchText, filterType]);
@@ -90,17 +90,17 @@ const ScenarioDashboard: React.FC = () => {
     // Fetch usernames for custom scenarios
     useEffect(() => {
         if (!scenariosData?.scenarios) return;
-        
+
         const fetchUsernames = async () => {
             const customScenarios = scenariosData.scenarios.filter(s => !s.is_default);
             const uniqueUserIds = [...new Set(customScenarios.map(s => s.created_by))];
-            
+
             for (const userId of uniqueUserIds) {
                 // Skip if already fetched or currently fetching
                 if (usernames[userId] || loadingUsernames.has(userId)) continue;
-                
+
                 setLoadingUsernames(prev => new Set([...prev, userId]));
-                
+
                 try {
                     const response = await api.get(`/api/v3/setting/users/${userId}`);
                     if (response.data?.data?.username) {
@@ -125,7 +125,7 @@ const ScenarioDashboard: React.FC = () => {
                 }
             }
         };
-        
+
         fetchUsernames();
     }, [scenariosData?.scenarios, usernames, loadingUsernames]);
 
@@ -190,10 +190,10 @@ const ScenarioDashboard: React.FC = () => {
 
             // Create and download JSON file
             const dataStr = JSON.stringify(result, null, 2);
-            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
-            
+            const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+
             const exportFileDefaultName = `scenario-${scenario.name}-${new Date().toISOString().split('T')[0]}.json`;
-            
+
             const linkElement = document.createElement('a');
             linkElement.setAttribute('href', dataUri);
             linkElement.setAttribute('download', exportFileDefaultName);
@@ -218,7 +218,7 @@ const ScenarioDashboard: React.FC = () => {
             // Export format: { data: { scenarios: [...], exported_by, exported_at, version, count }, message }
             let scenarios;
             let version;
-            
+
             if (importData.data && importData.data.scenarios && Array.isArray(importData.data.scenarios)) {
                 scenarios = importData.data.scenarios;
                 version = importData.data.version;
@@ -246,20 +246,20 @@ const ScenarioDashboard: React.FC = () => {
                     title: '✅ Import Completed Successfully',
                     content: (
                         <div>
-                            <div style={{ 
+                            <div style={{
                                 marginBottom: 20,
                                 padding: '12px 16px',
-                                background: '#f6ffed',
-                                border: '1px solid #b7eb8f',
+                                background: 'var(--color-success-light)',
+                                border: '1px solid var(--color-success-border)',
                                 borderRadius: '6px'
                             }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
                                     <span><strong>📥 Imported:</strong></span>
-                                    <span style={{ color: '#52c41a', fontWeight: 'bold' }}>{result.imported}</span>
+                                    <span style={{ color: 'var(--color-success)', fontWeight: 'bold' }}>{result.imported}</span>
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
                                     <span><strong>⏭️ Skipped:</strong></span>
-                                    <span style={{ color: '#faad14', fontWeight: 'bold' }}>{result.skipped}</span>
+                                    <span style={{ color: 'var(--color-warning)', fontWeight: 'bold' }}>{result.skipped}</span>
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                     <span><strong>👤 Imported by:</strong></span>
@@ -269,7 +269,7 @@ const ScenarioDashboard: React.FC = () => {
 
                             {result.conflicts && result.conflicts.length > 0 && (
                                 <div>
-                                    <h4 style={{ marginBottom: 12, color: '#1890ff' }}>
+                                    <h4 style={{ marginBottom: 12, color: 'var(--color-primary)' }}>
                                         🔄 Conflict Resolutions ({result.conflicts.length})
                                     </h4>
                                     <div style={{ maxHeight: 200, overflowY: 'auto' }}>
@@ -277,27 +277,26 @@ const ScenarioDashboard: React.FC = () => {
                                             <div key={index} style={{
                                                 marginBottom: 12,
                                                 padding: '8px 12px',
-                                                background: '#fafafa',
-                                                border: '1px solid #d9d9d9',
+                                                background: 'var(--bg-body)',
+                                                border: '1px solid var(--border-default)',
                                                 borderRadius: '4px',
-                                                borderLeft: `4px solid ${
-                                                    conflict.action === 'skipped' ? '#faad14' :
-                                                    conflict.action === 'overwritten' ? '#ff4d4f' : 
-                                                    '#52c41a'
-                                                }`
+                                                borderLeft: `4px solid ${conflict.action === 'skipped' ? 'var(--color-warning)' :
+                                                        conflict.action === 'overwritten' ? 'var(--color-danger)' :
+                                                            'var(--color-success)'
+                                                    }`
                                             }}>
                                                 <div style={{ fontWeight: 'bold', marginBottom: 4 }}>
                                                     📄 {conflict.import_name}
                                                 </div>
-                                                <div style={{ fontSize: '12px', color: '#666' }}>
+                                                <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
                                                     Scenario ID: {conflict.scenario_id}
                                                 </div>
-                                                <div style={{ 
-                                                    marginTop: 4, 
+                                                <div style={{
+                                                    marginTop: 4,
                                                     fontSize: '13px',
-                                                    color: conflict.action === 'skipped' ? '#faad14' :
-                                                          conflict.action === 'overwritten' ? '#ff4d4f' : 
-                                                          '#52c41a',
+                                                    color: conflict.action === 'skipped' ? 'var(--color-warning)' :
+                                                        conflict.action === 'overwritten' ? 'var(--color-danger)' :
+                                                            'var(--color-success)',
                                                     fontWeight: 'bold'
                                                 }}>
                                                     {conflict.action === 'skipped' && '⏭️ SKIPPED - Existing scenario preserved'}
@@ -418,13 +417,13 @@ const ScenarioDashboard: React.FC = () => {
                         Scenarios
                     </Title>
                     <Space>
-                        <ElchiButton 
+                        <ElchiButton
                             icon={<ImportOutlined />}
                             onClick={() => setShowImportModal(true)}
                         >
                             Import Scenarios
                         </ElchiButton>
-                        <ElchiButton 
+                        <ElchiButton
                             icon={<PlusOutlined />}
                             onClick={() => navigate('/scenarios/create')}
                         >
@@ -432,7 +431,7 @@ const ScenarioDashboard: React.FC = () => {
                         </ElchiButton>
                     </Space>
                 </div>
-                
+
                 <Text type="secondary">
                     Manage and execute proxy configuration scenarios. Create custom scenarios or use built-in templates.
                 </Text>
@@ -475,7 +474,7 @@ const ScenarioDashboard: React.FC = () => {
 
             {/* Scenarios Grid */}
             {filteredScenarios.length === 0 ? (
-                <Empty 
+                <Empty
                     description="No scenarios found"
                     image={Empty.PRESENTED_IMAGE_SIMPLE}
                 >
@@ -491,15 +490,15 @@ const ScenarioDashboard: React.FC = () => {
                         <Col xs={24} sm={12} lg={8} key={scenario.id}>
                             <Card
                                 hoverable
-                                style={{ 
-                                    height: '100%', 
-                                    display: 'flex', 
+                                style={{
+                                    height: '100%',
+                                    display: 'flex',
                                     flexDirection: 'column',
                                 }}
-                                styles={{ 
+                                styles={{
                                     body: {
-                                        flex: 1, 
-                                        display: 'flex', 
+                                        flex: 1,
+                                        display: 'flex',
                                         flexDirection: 'column',
                                         padding: '16px',
                                         paddingBottom: '0'
@@ -511,9 +510,9 @@ const ScenarioDashboard: React.FC = () => {
                                     }
                                 }}
                             >
-                                <div style={{ 
-                                    height: '100%', 
-                                    display: 'flex', 
+                                <div style={{
+                                    height: '100%',
+                                    display: 'flex',
                                     flexDirection: 'column',
                                     justifyContent: 'space-between'
                                 }}>
@@ -542,16 +541,16 @@ const ScenarioDashboard: React.FC = () => {
                                         </div>
 
                                         {/* Description */}
-                                        <Paragraph 
+                                        <Paragraph
                                             ellipsis={{ rows: 3, tooltip: scenario.description }}
-                                            style={{ marginBottom: '16px', color: '#666' }}
+                                            style={{ marginBottom: '16px', color: 'var(--text-secondary)' }}
                                         >
                                             {scenario.description}
                                         </Paragraph>
 
                                         {/* Components */}
                                         <div style={{ marginBottom: '16px' }}>
-                                            <Text strong style={{ fontSize: '12px', color: '#333' }}>
+                                            <Text strong style={{ fontSize: '12px', color: 'var(--text-primary)' }}>
                                                 Components ({scenario.components.length}):
                                             </Text>
                                             <div style={{ marginTop: '8px' }}>
@@ -568,22 +567,22 @@ const ScenarioDashboard: React.FC = () => {
                                     </div>
 
                                     {/* Footer - always at bottom */}
-                                    <div style={{ 
-                                        display: 'flex', 
-                                        justifyContent: 'space-between', 
+                                    <div style={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
                                         alignItems: 'center',
-                                        borderTop: '1px solid #f0f0f0',
+                                        borderTop: '1px solid var(--border-light)',
                                         paddingTop: '12px',
                                         marginTop: '12px'
                                     }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                            <UserOutlined style={{ fontSize: '12px', color: '#999' }} />
+                                            <UserOutlined style={{ fontSize: '12px', color: 'var(--text-tertiary)' }} />
                                             <Text type="secondary" style={{ fontSize: '11px' }}>
                                                 {scenario.is_default ? 'System' : (usernames[scenario.created_by] || scenario.created_by)}
                                             </Text>
                                         </div>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                            <CalendarOutlined style={{ fontSize: '12px', color: '#999' }} />
+                                            <CalendarOutlined style={{ fontSize: '12px', color: 'var(--text-tertiary)' }} />
                                             <Text type="secondary" style={{ fontSize: '11px' }}>
                                                 {formatDate(scenario.created_at)}
                                             </Text>
@@ -591,17 +590,17 @@ const ScenarioDashboard: React.FC = () => {
                                     </div>
 
                                     {/* Action Buttons */}
-                                    <div style={{ 
+                                    <div style={{
                                         display: 'flex',
                                         gap: '8px',
                                         marginTop: '16px',
                                         padding: '12px 0',
-                                        borderTop: '1px solid #f0f0f0'
+                                        borderTop: '1px solid var(--border-light)'
                                     }}>
                                         <ElchiButton
                                             icon={<PlayCircleOutlined />}
                                             onClick={() => handleExecuteScenario(scenario)}
-                                            style={{ 
+                                            style={{
                                                 flex: 1,
                                                 height: '36px'
                                             }}
@@ -613,9 +612,9 @@ const ScenarioDashboard: React.FC = () => {
                                             trigger={['click']}
                                             placement="bottomRight"
                                         >
-                                            <Button 
+                                            <Button
                                                 icon={<MoreOutlined />}
-                                                style={{ 
+                                                style={{
                                                     width: '36px',
                                                     height: '36px',
                                                     padding: 0,
@@ -678,7 +677,7 @@ const ScenarioDashboard: React.FC = () => {
                         </p>
                     </Upload.Dragger>
                     {importFile && (
-                        <Text style={{ color: '#52c41a', marginTop: 8, display: 'block' }}>
+                        <Text style={{ color: 'var(--color-success)', marginTop: 8, display: 'block' }}>
                             ✓ Selected: {importFile.name}
                         </Text>
                     )}
@@ -693,17 +692,17 @@ const ScenarioDashboard: React.FC = () => {
                             onChange={setConflictAction}
                             style={{ width: '100%', marginTop: 8 }}
                             options={[
-                                { 
-                                    value: 'skip', 
-                                    label: 'Skip - Keep existing scenario, skip imported one' 
+                                {
+                                    value: 'skip',
+                                    label: 'Skip - Keep existing scenario, skip imported one'
                                 },
-                                { 
-                                    value: 'overwrite', 
-                                    label: 'Overwrite - Replace existing with imported scenario' 
+                                {
+                                    value: 'overwrite',
+                                    label: 'Overwrite - Replace existing with imported scenario'
                                 },
-                                { 
-                                    value: 'rename', 
-                                    label: 'Rename - Import with new name (adds "(Imported)" suffix)' 
+                                {
+                                    value: 'rename',
+                                    label: 'Rename - Import with new name (adds "(Imported)" suffix)'
                                 }
                             ]}
                         />
