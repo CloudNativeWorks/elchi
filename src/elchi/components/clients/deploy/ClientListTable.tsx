@@ -149,24 +149,47 @@ export function ClientListTable({
             title: 'Name',
             dataIndex: 'name',
             key: 'name',
-            render: (text: string, record: any) => (
-                <div>
-                    <div style={{
-                        fontWeight: 500,
-                        color: 'var(--text-primary)',
-                        fontSize: 14
-                    }}>
-                        {text}
+            render: (text: string, record: any) => {
+                const isDeployed = existingClients.some(ec => ec.client_id === record.client_id);
+                return (
+                    <div>
+                        <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 8
+                        }}>
+                            <span style={{
+                                fontWeight: 500,
+                                color: 'var(--text-primary)',
+                                fontSize: 14
+                            }}>
+                                {text}
+                            </span>
+                            {isDeployed && (
+                                <Tag
+                                    color="green"
+                                    style={{
+                                        margin: 0,
+                                        fontSize: 10,
+                                        lineHeight: '16px',
+                                        padding: '0 6px',
+                                        borderRadius: 4
+                                    }}
+                                >
+                                    Deployed
+                                </Tag>
+                            )}
+                        </div>
+                        <div style={{
+                            fontSize: 11,
+                            color: 'var(--text-tertiary)',
+                            marginTop: 2
+                        }}>
+                            {record.client_id}
+                        </div>
                     </div>
-                    <div style={{
-                        fontSize: 11,
-                        color: 'var(--text-tertiary)',
-                        marginTop: 2
-                    }}>
-                        {record.client_id}
-                    </div>
-                </div>
-            )
+                );
+            }
         },
         {
             title: 'Status',
@@ -587,7 +610,7 @@ export function ClientListTable({
                 );
             }
         }] : [])
-    ], [downstreamAddresses, onAddressChange, disabledAddressEdit, clientVersions, serviceVersion, actionType, isOpenStackProvider, interfaceData, interfaceLoading, selectedInterfaces, handleInterfaceChange, selectedIpModes, handleIpModeChange, interfaceErrors, onRedeploy, existingClients, selectedIpModes]);
+    ], [downstreamAddresses, onAddressChange, disabledAddressEdit, clientVersions, serviceVersion, actionType, isOpenStackProvider, interfaceData, interfaceLoading, selectedInterfaces, handleInterfaceChange, selectedIpModes, handleIpModeChange, interfaceErrors, onRedeploy, existingClients]);
 
     const sortedData = useMemo(() => {
         if (!clients) return [];

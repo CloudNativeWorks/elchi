@@ -36,8 +36,8 @@ const SubnetCard: React.FC<SubnetCardProps> = ({ subnet, index, clientId, osUuid
 
     return (
         <div style={{
-            background: 'linear-gradient(135deg, #f1f3f4 0%, #e8eaed 100%)',
-            border: '1px solid #dadce0',
+            background: 'var(--bg-elevated)',
+            border: '1px solid var(--border-default)',
             borderRadius: 6,
             padding: 10
         }}>
@@ -95,7 +95,7 @@ const SubnetCard: React.FC<SubnetCardProps> = ({ subnet, index, clientId, osUuid
 
             {/* Available IPs Section */}
             {showAvailableIPs && (
-                <div style={{ marginTop: 8, padding: '8px', background: 'rgba(255,255,255,0.7)', borderRadius: 4 }}>
+                <div style={{ marginTop: 8, padding: '8px', background: 'var(--bg-surface)', borderRadius: 4, border: '1px solid var(--border-default)' }}>
                     {loadingIPs ? (
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                             <Spin size="small" />
@@ -207,7 +207,7 @@ const SubnetCard: React.FC<SubnetCardProps> = ({ subnet, index, clientId, osUuid
                                             {(showAllUsed ? availableIPsData.used_ips : availableIPsData.used_ips.slice(0, 100))
                                                 .map((ip, idx) => (
                                                     <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                                        <Text code style={{ fontSize: 10, color: '#ff7875' }}>
+                                                        <Text code style={{ fontSize: 10, color: 'var(--color-danger-light-text)' }}>
                                                             {ip}
                                                         </Text>
                                                         <Button
@@ -249,7 +249,7 @@ const SubnetCard: React.FC<SubnetCardProps> = ({ subnet, index, clientId, osUuid
                             )}
                         </div>
                     ) : (
-                        <Text style={{ fontSize: 11, color: '#ff4d4f' }}>Failed to load IP information</Text>
+                        <Text style={{ fontSize: 11, color: 'var(--color-danger)' }}>Failed to load IP information</Text>
                     )}
                 </div>
             )}
@@ -361,8 +361,8 @@ const OpenStackNetworkDetails: React.FC<OpenStackNetworkDetailsProps> = ({
         <div style={{ height: '100%', overflowY: 'auto', padding: 0 }}>
             {/* Network Details */}
             <div style={{
-                background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
-                border: '1px solid #dee2e6',
+                background: 'var(--bg-elevated)',
+                border: '1px solid var(--border-default)',
                 borderRadius: 8,
                 padding: 12,
                 marginBottom: 12
@@ -414,7 +414,7 @@ const OpenStackNetworkDetails: React.FC<OpenStackNetworkDetailsProps> = ({
                     )}
                 </div>
                 {network.dns_domain && (
-                    <div style={{ marginTop: 8, padding: '4px 8px', background: 'rgba(255,255,255,0.8)', borderRadius: 4 }}>
+                    <div style={{ marginTop: 8, padding: '4px 8px', background: 'var(--bg-surface)', borderRadius: 4, border: '1px solid var(--border-default)' }}>
                         <Text style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>DNS: </Text>
                         <Text code style={{ fontSize: 11 }}>{network.dns_domain}</Text>
                     </div>
