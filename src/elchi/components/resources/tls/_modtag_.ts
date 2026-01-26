@@ -54,14 +54,6 @@ export const modtag_proxy_protocol_upstream_transport = [
     },
 ];
 
-export const modtag_raw_buffer_transport = [
-    {
-        alias: 'rbt',
-        relativePath: 'envoy/extensions/transport_sockets/raw_buffer/v3/raw_buffer',
-        names: ['RawBuffer', 'RawBuffer_SingleFields'],
-    },
-];
-
 export const modtag_proxy_protocol_config = [
     {
         alias: 'ppc',

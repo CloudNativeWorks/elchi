@@ -109,11 +109,3 @@ export const useTheme = (): ThemeContextType => {
   }
   return context;
 };
-
-// Hook for components that only need to know if dark mode is active
-export const useIsDark = (): boolean => {
-  const { isDark } = useTheme();
-  return isDark;
-};
-
-export default ThemeContext;
