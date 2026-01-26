@@ -69,6 +69,7 @@ export const transformApiDataToFlowData = (
                 link: nodeData.link || '',
                 version: nodeData.version,
                 first: nodeData.first || false,
+                count: nodeData.count,
             },
         });
     });

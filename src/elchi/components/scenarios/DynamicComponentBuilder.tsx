@@ -958,7 +958,7 @@ const DynamicComponentBuilder: React.FC<DynamicComponentBuilderProps> = ({
                                                                     <Typography.Text
                                                                         strong
                                                                         style={{
-                                                                            color: isDisabled ? '#999' : 'inherit',
+                                                                            color: isDisabled ? 'var(--text-disabled)' : 'inherit',
                                                                             fontSize: '13px'
                                                                         }}
                                                                     >

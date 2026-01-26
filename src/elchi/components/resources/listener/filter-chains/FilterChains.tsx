@@ -202,6 +202,7 @@ const ComponentFilterChain: React.FC<GeneralProps> = ({ veri }) => {
                                             reduxStore: data?.transport_socket,
                                             gtype: 'envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext',
                                             prettyName: 'Downstream',
+                                            direction: 'downstream',
                                             id: `transport_socket_${index}`
                                         }}
                                     />

@@ -604,7 +604,7 @@ const MetricChart: React.FC<ExtendedChartProps> = ({ data, title, metricConfig, 
                                 style={{ height }}
                                 notMerge={false}
                                 lazyUpdate={true}
-                                theme="light"
+                                theme={isDark ? "dark" : "light"}
                                 onEvents={{
                                     'mouseover': (params: any) => {
                                         if (params.componentType === 'series') {
@@ -694,7 +694,7 @@ const MetricChart: React.FC<ExtendedChartProps> = ({ data, title, metricConfig, 
                             style={{ height: '100%', width: '100%' }}
                             notMerge={false}
                             lazyUpdate={true}
-                            theme="light"
+                            theme={isDark ? "dark" : "light"}
                             onEvents={{
                                 'mouseover': (params: any) => {
                                     if (params.componentType === 'series') {

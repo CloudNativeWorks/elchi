@@ -27,10 +27,12 @@ import {
 	ScheduleOutlined,
 	DatabaseOutlined,
 	AuditOutlined,
-	FireOutlined
+	FireOutlined,
+	SwapOutlined
 } from '@ant-design/icons';
 import { useProjectVariable } from "@/hooks/useProjectVariable";
 import { UserDetail } from "@/common/types";
+import { useTheme } from "@/contexts/ThemeContext";
 
 
 type defaultProps = {
@@ -89,10 +91,10 @@ const menuConfig = [
 		label: "Endpoint",
 	},
 	{
-		key: "/resource/tls",
-		to: "/resource/tls",
-		icon: "SafetyOutlined",
-		label: "TLS",
+		key: "/resource/transport-socket",
+		to: "/resource/transport-socket",
+		icon: "SwapOutlined",
+		label: "Transport Socket",
 	},
 	{
 		key: "/resource/secret",
@@ -237,12 +239,14 @@ const iconMap = {
 	DatabaseOutlined: DatabaseOutlined,
 	AuditOutlined: AuditOutlined,
 	FireOutlined: FireOutlined,
+	SwapOutlined: SwapOutlined,
 };
 
 function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
 	const { pathname } = useLocation();
 	const page = pathname.replace("/", "");
 	const { project, setProject } = useProjectVariable();
+	const { isDark } = useTheme();
 
 	const findBestMatchKey = (path: string) => {
 		if (path === "/" || path === "") {
@@ -364,13 +368,13 @@ function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
 			}
 			<Menu
 				mode="inline"
-				theme="light"
+				theme={isDark ? "dark" : "light"}
 				items={createMenuItemsFromJson(menuConfig)}
 				selectedKeys={[selectedKey]}
-				key={"menu"}
+				key={`menu-${isDark ? 'dark' : 'light'}`}
 				defaultSelectedKeys={['/home']}
 				style={{
-					background: 'transparent',
+					background: 'var(--sidenav-bg)',
 					border: 'none',
 					fontWeight: 600,
 					fontSize: 15,
@@ -380,6 +384,35 @@ function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
 				}}
 			/>
 			<style>{`
+				/* Disable Ant Design Menu transition for instant theme switch */
+				.ant-menu,
+				.ant-menu-item,
+				.ant-menu-submenu,
+				.ant-menu-submenu-title {
+					transition: none !important;
+				}
+				/* Force menu background to use CSS variables */
+				.main-menu,
+				.main-menu .ant-menu,
+				.main-menu .ant-menu-root,
+				.main-menu .ant-menu-inline,
+				.main-menu .ant-menu-light,
+				.main-menu .ant-menu-dark,
+				.main-menu .ant-menu-sub {
+					background: var(--sidenav-bg) !important;
+					background-color: var(--sidenav-bg) !important;
+				}
+				.main-menu .ant-menu-item,
+				.main-menu .ant-menu-submenu-title {
+					color: var(--sidenav-text) !important;
+				}
+				.main-menu .ant-menu-item a {
+					color: var(--sidenav-text) !important;
+				}
+				.main-menu .ant-menu-item:hover,
+				.main-menu .ant-menu-submenu-title:hover {
+					background: var(--sidenav-hover) !important;
+				}
 				.ant-menu,
 				.ant-menu * {
 					font-family: 'Inter', 'Roboto', 'Segoe UI', 'SF Pro Display', 'Arial', sans-serif !important;

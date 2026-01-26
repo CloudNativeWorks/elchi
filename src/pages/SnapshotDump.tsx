@@ -30,7 +30,7 @@ const SnapshotDump: React.FC = () => {
             </Button>
             <JsonView
                 src={dataQuery}
-                style={{ width: '100%', minHeight: '100px', background: '#e6f7fc', padding: '10px' }}
+                style={{ width: '100%', minHeight: '100px', background: 'var(--bg-elevated)', padding: '10px' }}
                 theme="winter-is-coming"
                 collapsed={isCollapsed}
             />

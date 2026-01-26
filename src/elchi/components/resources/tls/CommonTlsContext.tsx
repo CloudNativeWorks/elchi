@@ -51,7 +51,7 @@ const ComponentCommonTlsContext: React.FC<GeneralProps> = ({ veri }) => {
     ]
 
     return (
-        <ECard 
+        <ECard
             title={"Common TLS Context"}
             reduxStore={veri.reduxStore}
             ctype="common_tls_context"
@@ -86,7 +86,7 @@ const ComponentCommonTlsContext: React.FC<GeneralProps> = ({ veri }) => {
                     Component={ComponentTlsParams}
                     componentProps={{
                         version: veri.version,
-                        keyPrefix: 'common_tls_context.tls_params',
+                        keyPrefix: `${veri.keyPrefix}.tls_params`,
                         reduxStore: veri.reduxStore?.tls_params,
                         tagPrefix: 'tls_params',
                         tagMatchPrefix: 'DownstreamTlsContext.common_tls_context.tls_params',

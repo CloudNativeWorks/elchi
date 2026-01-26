@@ -137,7 +137,7 @@ const Permission: React.FC<GeneralProps> = ({ kind, userOrGroupID, onPermissions
                         count={`${selectedCount}/${totalCount}`} 
                         style={{ 
                             backgroundColor: selectedCount > 0 ? 'var(--color-success)' : 'var(--text-disabled)',
-                            color: selectedCount > 0 ? '#fff' : '#666'
+                            color: selectedCount > 0 ? '#fff' : 'var(--text-disabled)'
                         }} 
                     />
                 </div>

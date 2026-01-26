@@ -65,9 +65,6 @@ const TagComponent: React.FC<TagProps> = ({
             key={`${tag}${index?.toString()}`}
             checked={isChecked}
             style={{
-                background: isChecked ? 'linear-gradient(90deg, #056ccd 0%, #00c6fb 100%)' : undefined,
-                color: isChecked ? '#fff' : undefined,
-                border: undefined,
                 fontWeight: isChecked ? 550 : 500,
                 transition: 'all 0.18s'
             }}

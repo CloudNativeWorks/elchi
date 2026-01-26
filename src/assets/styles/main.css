@@ -190,7 +190,7 @@ body {
     border-radius: 6px;
     justify-content: center;
     align-items: center;
-    margin-right: 11px;
+    margin-right: 0 !important;
     vertical-align: middle;
 }
 
