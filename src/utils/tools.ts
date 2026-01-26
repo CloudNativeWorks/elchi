@@ -314,39 +314,3 @@ export const getLastDotPart = (str: string): string => {
     const parts = str.split('.');
     return parts[parts.length - 1];
 };
-
-/**
- * Extracts union field groups from tags dynamically
- * Groups fields that have the same prefix and are marked as union (isUnion: true)
- *
- * @param tags - Array of tag definitions from version tags
- * @returns Array of string arrays, where each inner array contains mutually exclusive union fields
- *
- * @example
- * // For HeaderMutation with action.remove, action.append, action.remove_on_match
- * getUnionFieldGroups(tags) => [["action.remove", "action.append", "action.remove_on_match"]]
- */
-export const getUnionFieldGroups = (tags: InType[] | undefined): string[][] => {
-    if (!tags || tags.length === 0) return [];
-
-    // Group union fields by their prefix (e.g., "action" from "action.remove")
-    const unionGroups = new Map<string, string[]>();
-
-    tags.forEach(tag => {
-        if (!tag.isUnion) return;
-
-        // Extract prefix from tag name (e.g., "action" from "action.remove")
-        const parts = tag.name.split('.');
-        if (parts.length < 2) return; // Skip if no prefix
-
-        const prefix = parts.slice(0, -1).join('.'); // Get all parts except last
-
-        if (!unionGroups.has(prefix)) {
-            unionGroups.set(prefix, []);
-        }
-        unionGroups.get(prefix)!.push(tag.name);
-    });
-
-    // Convert Map to array of arrays, filter out single-item groups
-    return Array.from(unionGroups.values()).filter(group => group.length > 1);
-};

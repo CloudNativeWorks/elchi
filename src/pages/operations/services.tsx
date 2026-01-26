@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Dropdown, Table, Typography, Pagination, Modal, Tag, Input, Space, Card, Select, Button, Row, Col } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { ActionsSVG } from '@/assets/svg/icons';
-import { useCustomGetQuery } from '@/common/api';
+import { api, useCustomGetQuery } from '@/common/api';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
-import { EditOutlined, InboxOutlined, ApiOutlined, SearchOutlined, FilterOutlined, ClearOutlined } from '@ant-design/icons';
+import { EditOutlined, InboxOutlined, ApiOutlined, SearchOutlined, FilterOutlined, ClearOutlined, GlobalOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { handleApiResponse } from '@/common/notificationHandler';
 import { getVersionAntdColor } from '@/utils/versionColors';
 
 
@@ -39,6 +41,7 @@ interface ApiResponse {
 
 const serviceActions = [
     { key: '1', label: 'Edit', icon: <EditOutlined />, color: 'blue' },
+    { key: '2', label: 'Create GSLB', icon: <GlobalOutlined />, color: 'green' },
 ];
 
 const Services: React.FC = () => {
@@ -50,11 +53,50 @@ const Services: React.FC = () => {
     const [pageSize, setPageSize] = useState(50);
     const [ipModal, setIpModal] = useState<{ visible: boolean; ips: string[] }>({ visible: false, ips: [] });
     const navigate = useNavigate();
+    const queryClient = useQueryClient();
 
+    // Create GSLB mutation
+    const createGslbMutation = useMutation({
+        mutationFn: async (serviceId: string) => {
+            const response = await api.post(`/api/op/services/${serviceId}/recreate-gslb?project=${project}`);
+            return response.data;
+        },
+        onSuccess: (data) => {
+            handleApiResponse(data, undefined, undefined, {
+                showAutoSuccess: true,
+                customSuccessMessage: data.message || 'GSLB record created successfully',
+                successTitle: 'GSLB Created'
+            });
+            // Invalidate GSLB queries to refresh the list
+            queryClient.invalidateQueries({ queryKey: ['gslb-records'] });
+        },
+        onError: (error: any) => {
+            console.error('Create GSLB failed:', error);
+        }
+    });
 
     const onClick = (record: ServiceData, key: string) => {
         if (key === "1") {
             navigate(`/services/${record.id}?version=${record.version}`);
+        } else if (key === "2") {
+            // Create GSLB
+            Modal.confirm({
+                title: 'Create GSLB Record',
+                icon: <GlobalOutlined style={{ color: 'var(--color-primary)' }} />,
+                content: (
+                    <div>
+                        <p>This will create or update a GSLB record for service <strong>{record.name}</strong>.</p>
+                        <p style={{ color: 'var(--text-secondary)', fontSize: 12 }}>
+                            If the record already exists, any missing IPs will be added.
+                        </p>
+                    </div>
+                ),
+                okText: 'Create GSLB',
+                cancelText: 'Cancel',
+                onOk: () => {
+                    createGslbMutation.mutate(record.id);
+                }
+            });
         }
     };
 
