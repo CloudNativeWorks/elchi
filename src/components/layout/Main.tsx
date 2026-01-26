@@ -7,6 +7,7 @@ import Header from "./Header";
 import { DecodeToken } from "@utils/tools";
 import Cookies from 'js-cookie';
 import BreadCrumb from "./BreadCrumb";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const { Header: AntHeader, Content, Sider } = Layout;
 function Main() {
@@ -14,6 +15,7 @@ function Main() {
 	const location = useLocation();
 	const userDetail = DecodeToken(Cookies.get('bb_token'))
 	const { notification } = AntdApp.useApp();
+	const { isDark } = useTheme();
 	const timeoutId = useRef<NodeJS.Timeout | null>(null);
 	const [collapsed, setCollapsed] = useState(() => {
 		const domainKey = window.location.hostname;
@@ -65,8 +67,9 @@ function Main() {
 				<Layout>
 					<div className="content-wrapper">
 						<Sider
+							key={`sider-${isDark ? 'dark' : 'light'}`}
 							collapsedWidth={70}
-							theme="light"
+							theme={isDark ? "dark" : "light"}
 							collapsible={true}
 							collapsed={collapsed}
 							onCollapse={(value) => setCollapsed(value)}

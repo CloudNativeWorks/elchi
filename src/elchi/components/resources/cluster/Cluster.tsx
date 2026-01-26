@@ -329,6 +329,7 @@ const ClusterComponent: React.FC<GeneralProps> = ({ veri }) => {
                                 reduxStore: reduxStore?.transport_socket,
                                 gtype: 'envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext',
                                 prettyName: 'Upstream',
+                                direction: 'upstream',
                                 id: "transport_socket_0"
                             }}
                         />

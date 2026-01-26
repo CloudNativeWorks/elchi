@@ -526,6 +526,55 @@ body {
    DARK MODE OVERRIDES FOR ANT DESIGN & GLOBAL
    ============================================ */
 
+/* Sider and Menu dark mode overrides - CRITICAL */
+[data-theme="dark"] .ant-layout-sider,
+[data-theme="dark"] .ant-layout-sider-light,
+[data-theme="dark"] .ant-layout-sider-dark,
+[data-theme="dark"] .main-menu {
+  background: var(--sidenav-bg) !important;
+  background-color: var(--sidenav-bg) !important;
+}
+
+[data-theme="dark"] .ant-menu,
+[data-theme="dark"] .ant-menu-light,
+[data-theme="dark"] .ant-menu-dark,
+[data-theme="dark"] .ant-menu-inline,
+[data-theme="dark"] .ant-menu-vertical,
+[data-theme="dark"] .ant-menu-root,
+[data-theme="dark"] .ant-menu-sub,
+[data-theme="dark"] .ant-menu-submenu,
+[data-theme="dark"] .ant-menu-submenu-popup,
+[data-theme="dark"] .ant-menu-light .ant-menu-sub,
+[data-theme="dark"] .ant-menu-light.ant-menu-inline .ant-menu-sub {
+  background: var(--sidenav-bg) !important;
+  background-color: var(--sidenav-bg) !important;
+  color: var(--sidenav-text) !important;
+}
+
+[data-theme="dark"] .ant-menu-item,
+[data-theme="dark"] .ant-menu-submenu-title {
+  color: var(--sidenav-text) !important;
+}
+
+[data-theme="dark"] .ant-menu-item a,
+[data-theme="dark"] .ant-menu-item-group-title {
+  color: var(--sidenav-text) !important;
+}
+
+[data-theme="dark"] .ant-menu-item:hover,
+[data-theme="dark"] .ant-menu-submenu-title:hover,
+[data-theme="dark"] .ant-menu-item-active,
+[data-theme="dark"] .ant-menu-submenu-active {
+  background: var(--sidenav-hover) !important;
+  color: var(--sidenav-text) !important;
+}
+
+[data-theme="dark"] .ant-menu-item-selected,
+[data-theme="dark"] .ant-menu-submenu-selected > .ant-menu-submenu-title {
+  background: var(--sidenav-active) !important;
+  color: var(--text-primary) !important;
+}
+
 /* Global layout and content backgrounds */
 [data-theme="dark"] .ant-layout {
   background: var(--bg-body);
@@ -1016,8 +1065,8 @@ body {
   color: var(--text-secondary) !important;
 }
 
-[data-theme="dark"] .tags-container .ant-tag-checkable:hover,
-[data-theme="dark"] .ant-anchor .ant-tag-checkable:hover {
+[data-theme="dark"] .tags-container .ant-tag-checkable:not(.ant-tag-checkable-checked):hover,
+[data-theme="dark"] .ant-anchor .ant-tag-checkable:not(.ant-tag-checkable-checked):hover {
   background: var(--color-primary-light) !important;
   border-color: var(--color-primary) !important;
   color: var(--color-primary) !important;
@@ -1167,6 +1216,15 @@ body {
 [data-theme="dark"] .ant-tag-checkable.ant-tag-checkable-checked {
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%) !important;
   border-color: transparent !important;
+  color: #ffffff !important;
+}
+
+/* CheckableTag - checked state HOVER (red border to indicate deselection) */
+[data-theme="dark"] .ant-tag-checkable.ant-tag-checkable-checked:hover,
+[data-theme="dark"] .tags-container .ant-tag-checkable-checked:hover,
+[data-theme="dark"] .ant-anchor .ant-tag-checkable-checked:hover {
+  background: linear-gradient(135deg, var(--color-accent) 0%, var(--color-primary) 100%) !important;
+  border: 1px solid var(--color-danger) !important;
   color: #ffffff !important;
 }
 

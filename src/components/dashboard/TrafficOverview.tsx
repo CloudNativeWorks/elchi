@@ -1190,7 +1190,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                                         </span>
                                     </div>
                                 ),
-                                color: stats.totalServers === 0 ? '#64748b' : (stats.unhealthyServers > 0 ? '#ef4444' : '#22c55e')
+                                color: stats.totalServers === 0 ? 'var(--text-tertiary)' : (stats.unhealthyServers > 0 ? 'var(--color-danger)' : 'var(--color-success)')
                             }
                         ]}
                     />

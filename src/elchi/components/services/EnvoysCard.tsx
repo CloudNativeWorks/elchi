@@ -131,7 +131,7 @@ const EnvoysCard: React.FC<EnvoysCardProps> = ({ envoys, name, project, version 
                             return {
                                 label: (
                                     <span style={{
-                                        color: !isConnected ? '#999' : undefined,
+                                        color: !isConnected ? 'var(--text-disabled)' : undefined,
                                         display: 'flex',
                                         alignItems: 'center',
                                         gap: 6

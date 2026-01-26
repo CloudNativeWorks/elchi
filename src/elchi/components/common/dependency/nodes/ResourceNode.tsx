@@ -136,6 +136,31 @@ const ResourceNode: React.FC<NodeProps<ResourceNodeType>> = ({ data, selected })
                 </div>
             )}
 
+            {/* Usage count badge - shows how many times this resource is used */}
+            {data.count !== undefined && data.count > 1 && (
+                <div
+                    style={{
+                        position: 'absolute',
+                        top: '-6px',
+                        left: '-6px',
+                        background: '#3b82f6',
+                        borderRadius: '10px',
+                        minWidth: '18px',
+                        height: '18px',
+                        padding: '0 5px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: '0 2px 8px rgba(59, 130, 246, 0.6)',
+                        zIndex: 10,
+                    }}
+                >
+                    <span style={{ fontSize: '10px', fontWeight: 700, color: '#fff' }}>
+                        {data.count}
+                    </span>
+                </div>
+            )}
+
             {/* Icon */}
             <div
                 style={{

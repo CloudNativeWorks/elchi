@@ -172,10 +172,10 @@ const CloudsConfig: React.FC = () => {
             <Card
                 style={{
                     borderRadius: 12,
-                    background: 'linear-gradient(135deg, #ffffff 0%, #f8fbff 100%)',
-                    border: '1px solid #e6f4ff',
+                    background: 'var(--card-bg)',
+                    border: '1px solid var(--border-default)',
                     marginBottom: 16,
-                    boxShadow: '0 2px 8px rgba(24,144,255,0.08)',
+                    boxShadow: 'var(--shadow-sm)',
                 }}
                 hoverable
             >

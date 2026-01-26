@@ -29,6 +29,7 @@ export interface ApiNode {
     first?: boolean;
     link?: string;
     version?: string;
+    count?: number;
     data?: ApiNodeData;
     group?: string;
 }
@@ -43,6 +44,7 @@ export interface ApiNodeData {
     first?: boolean;
     link?: string;
     version?: string;
+    count?: number;
 }
 
 /**
@@ -83,6 +85,7 @@ export interface ResourceNodeData extends Record<string, unknown> {
     link: string;
     version?: string;
     first?: boolean;
+    count?: number;
     isHighlighted?: boolean;
     isNeighbor?: boolean;
     neighborType?: 'parent' | 'child';

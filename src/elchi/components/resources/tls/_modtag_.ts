@@ -37,3 +37,35 @@ export const modtag_quic_downstream_transport = [
         names: ['QuicDownstreamTransport', 'QuicDownstreamTransport_SingleFields'],
     },
 ];
+
+export const modtag_quic_upstream_transport = [
+    {
+        alias: 'qut',
+        relativePath: 'envoy/extensions/transport_sockets/quic/v3/quic_transport',
+        names: ['QuicUpstreamTransport', 'QuicUpstreamTransport_SingleFields'],
+    },
+];
+
+export const modtag_proxy_protocol_upstream_transport = [
+    {
+        alias: 'pput',
+        relativePath: 'envoy/extensions/transport_sockets/proxy_protocol/v3/upstream_proxy_protocol',
+        names: ['ProxyProtocolUpstreamTransport', 'ProxyProtocolUpstreamTransport_SingleFields'],
+    },
+];
+
+export const modtag_raw_buffer_transport = [
+    {
+        alias: 'rbt',
+        relativePath: 'envoy/extensions/transport_sockets/raw_buffer/v3/raw_buffer',
+        names: ['RawBuffer', 'RawBuffer_SingleFields'],
+    },
+];
+
+export const modtag_proxy_protocol_config = [
+    {
+        alias: 'ppc',
+        relativePath: 'envoy/config/core/v3/proxy_protocol',
+        names: ['ProxyProtocolConfig', 'ProxyProtocolConfig_SingleFields', 'ProxyProtocolPassThroughTLVs', 'ProxyProtocolPassThroughTLVs_SingleFields', 'TlvEntry', 'TlvEntry_SingleFields'],
+    },
+];

@@ -172,7 +172,7 @@ const NetworkConfigurationForm: React.FC<NetworkConfigurationFormProps> = ({
                         </Space>
                     }
                     size="small"
-                    style={{ marginBottom: 16, backgroundColor: safetyMode ? '#f6ffed' : '#fff2f0' }}
+                    style={{ marginBottom: 16, backgroundColor: safetyMode ? 'var(--color-success-bg)' : 'var(--color-danger-bg)' }}
                 >
                     <Space direction="vertical" style={{ width: '100%' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

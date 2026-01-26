@@ -534,8 +534,7 @@
 .tags-container .ant-tag-checkable-checked:hover {
     background: var(--gradient-primary-reverse) !important;
     color: #ffffff !important;
-    transform: translateY(-1px) scale(1.02) !important;
-    box-shadow: 0 4px 16px var(--shadow-primary-color-hover) !important;
+    border: 1px solid var(--color-danger) !important;
 }
 
 .ant-tag {
@@ -633,8 +632,7 @@
 .ant-anchor .ant-tag-checkable-checked:hover {
     background: var(--gradient-primary-reverse) !important;
     color: #ffffff !important;
-    transform: translateY(-1px) scale(1.02) !important;
-    box-shadow: 0 4px 16px var(--shadow-primary-color-hover) !important;
+    border: 1px solid var(--color-danger) !important;
 }
 
 .ant-anchor .unchangeable-tag {

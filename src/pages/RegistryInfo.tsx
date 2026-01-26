@@ -946,7 +946,7 @@ const RegistryInfo: React.FC = () => {
                                                 count={`${filteredControlPlanes.length}/${registryData?.data?.control_plane_data?.control_planes?.length || 0}`}
                                                 style={{
                                                     backgroundColor: filteredControlPlanes.length > 0 ? 'var(--color-success)' : 'var(--border-default)',
-                                                    color: filteredControlPlanes.length > 0 ? '#fff' : '#666',
+                                                    color: filteredControlPlanes.length > 0 ? '#fff' : 'var(--text-disabled)',
                                                     fontSize: '11px',
                                                     height: '20px',
                                                     minWidth: '20px',
@@ -1025,7 +1025,7 @@ const RegistryInfo: React.FC = () => {
                                                 count={`${filteredControllers.length}/${registryData?.data?.controller_data?.controllers?.length || 0}`}
                                                 style={{
                                                     backgroundColor: filteredControllers.length > 0 ? 'var(--color-success)' : 'var(--border-default)',
-                                                    color: filteredControllers.length > 0 ? '#fff' : '#666',
+                                                    color: filteredControllers.length > 0 ? '#fff' : 'var(--text-disabled)',
                                                     fontSize: '11px',
                                                     height: '20px',
                                                     minWidth: '20px',

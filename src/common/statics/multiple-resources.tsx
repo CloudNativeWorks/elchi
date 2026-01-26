@@ -148,9 +148,12 @@ export const multipleResource: Record<string, { name: string, defaultValue: stri
         name: "Transport Socket Layer",
         defaultValue: "envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext",
         options: [
-            { value: "envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext", label: "Downstream Tls Context" },
-            { value: "envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext", label: "Upstream Tls Context" },
+            { value: "envoy.extensions.transport_sockets.tls.v3.DownstreamTlsContext", label: "Downstream TLS Context" },
+            { value: "envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext", label: "Upstream TLS Context" },
             { value: "envoy.extensions.transport_sockets.quic.v3.QuicDownstreamTransport", label: "QUIC Downstream Transport" },
+            { value: "envoy.extensions.transport_sockets.quic.v3.QuicUpstreamTransport", label: "QUIC Upstream Transport" },
+            { value: "envoy.extensions.transport_sockets.proxy_protocol.v3.ProxyProtocolUpstreamTransport", label: "Proxy Protocol Upstream Transport" },
+            { value: "envoy.extensions.transport_sockets.raw_buffer.v3.RawBuffer", label: "Raw Buffer Transport" },
         ]
     },
 
