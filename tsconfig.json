@@ -63,7 +63,8 @@
         ]
     },
     "include": [
-        "./src"
+        "./src",
+        "./vite.config.mts"
     ],
     "exclude": [
         "node_modules",

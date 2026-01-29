@@ -66,7 +66,7 @@ const Resources: React.FC = () => {
             'extension': 'Proxy extensions including access loggers, tracing, and custom processors.',
             'extensions': 'Proxy extensions including access loggers, tracing, and custom processors.',
             'secret': 'TLS certificates, private keys, and other sensitive configuration data.',
-            'tls': 'TLS context configurations for secure connections and certificate management.',
+            'transport-socket': 'Transport socket configurations for secure connections and certificate management.',
             'bootstrap': 'Core Proxy bootstrap configurations including admin interface and basic settings.',
             'access_log': 'Access logging configurations for tracking request/response patterns and debugging.',
             'stat_sinks': 'Statistics sinks for exporting metrics to external monitoring systems.',

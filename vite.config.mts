@@ -1,8 +1,9 @@
 import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import react from '@vitejs/plugin-react-swc';
 import eslintPlugin from 'vite-plugin-eslint';
 import tsconfigPaths from 'vite-tsconfig-paths';
 import { createHtmlPlugin } from 'vite-plugin-html';
+import viteCompression from 'vite-plugin-compression';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
 
@@ -21,6 +22,24 @@ export default defineConfig(({ mode }) => {
         build: {
             outDir: 'dist',
             sourcemap: false,
+            rollupOptions: {
+                output: {
+                    manualChunks: {
+                        // React core
+                        'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+                        // Ant Design
+                        'vendor-antd': ['antd', '@ant-design/icons', '@ant-design/cssinjs'],
+                        // State management
+                        'vendor-state': ['@reduxjs/toolkit', 'react-redux', '@tanstack/react-query'],
+                        // Charts and visualization
+                        'vendor-charts': ['echarts', 'echarts-for-react', 'cytoscape'],
+                        // Monaco editor
+                        'vendor-monaco': ['monaco-editor', '@monaco-editor/react'],
+                        // Utilities
+                        'vendor-utils': ['lodash', 'dayjs', 'axios'],
+                    },
+                },
+            },
         },
         server: {
             port: 3000,
@@ -58,6 +77,23 @@ export default defineConfig(({ mode }) => {
                     },
                 },
             }),
+            // Compression plugins (only for production)
+            ...(isProduction
+                ? [
+                    viteCompression({
+                        algorithm: 'gzip',
+                        ext: '.gz',
+                        threshold: 1024,
+                        deleteOriginFile: false,
+                    }),
+                    viteCompression({
+                        algorithm: 'brotliCompress',
+                        ext: '.br',
+                        threshold: 1024,
+                        deleteOriginFile: false,
+                    }),
+                ]
+                : []),
         ],
         optimizeDeps: {
             include: [
