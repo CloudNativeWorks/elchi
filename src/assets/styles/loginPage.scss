@@ -3,7 +3,8 @@
 body {
   font-family: "Open Sans", sans-serif;
   height: 100vh;
-  background: url("/loginbg.jpg") 50% fixed;
+  // WebP format (97%+ browser support, 60% smaller than JPG)
+  background: url("/loginbg.webp") 50% fixed;
   background-size: cover;
 }
 

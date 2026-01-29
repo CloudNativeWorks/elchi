@@ -131,6 +131,7 @@ interface DetailedMetric {
     domain: string;
     requests: number;
     connections: number;
+    upstreamConnections: number;
     incomingBytes: number;
     outgoingBytes: number;
     errors4xx: number;
@@ -138,6 +139,7 @@ interface DetailedMetric {
     healthy: number;
     total: number;
     status: 'healthy' | 'warning' | 'critical';
+    isCluster?: boolean; // cluster metrics için flag
 }
 
 const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
@@ -393,9 +395,11 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
 
     const formatBytes = useCallback((bytes: number) => {
         if (bytes === 0) return '0 B';
+        if (bytes < 0) return '0 B';
         const k = 1024;
         const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        // Clamp index to valid range (0 to sizes.length - 1)
+        const i = Math.max(0, Math.min(Math.floor(Math.log(bytes) / Math.log(k)), sizes.length - 1));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }, []);
 
@@ -533,6 +537,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         domain: domain,
                         requests: getMetricValue(reqRate),
                         connections: 0,
+                        upstreamConnections: 0,
                         incomingBytes: 0,
                         outgoingBytes: 0,
                         errors4xx: getMetricValue(errors4xx),
@@ -543,7 +548,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                     };
 
                 } else if (type === 'connections') {
-                    // Fetch only connection-related metrics
+                    // Fetch only connection-related metrics (downstream)
                     const connResult = await metricsApiMutation.mutateAsync({
                         name: '.*',
                         metric: 'listener_downstream_cx_active',
@@ -559,13 +564,15 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         domain: domain,
                         requests: 0,
                         connections: getMetricValue(connResult),
+                        upstreamConnections: 0,
                         incomingBytes: 0,
                         outgoingBytes: 0,
                         errors4xx: 0,
                         errors5xx: 0,
                         healthy: 1,
                         total: 1,
-                        status: 'healthy'
+                        status: 'healthy',
+                        isCluster: false
                     };
 
                 } else if (type === 'traffic') {
@@ -612,6 +619,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                         domain: domain,
                         requests: 0,
                         connections: 0,
+                        upstreamConnections: 0,
                         incomingBytes: getMetricValue(rxBytes),
                         outgoingBytes: getMetricValue(txBytes),
                         errors4xx: 0,
@@ -623,6 +631,51 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                 }
             }
 
+
+            // For connections type, also fetch cluster (upstream) metrics
+            if (type === 'connections') {
+                const clusterResult = await metricsApiMutation.mutateAsync({
+                    name: '.*',
+                    metric: 'cluster_upstream_cx_active',
+                    start: startTime,
+                    end: endTime,
+                    metricConfig: {
+                        queryTemplate: `{__name__=~".*_%{project}_cluster_upstream_cx_active", envoy_cluster_name!="elchi-control-plane"}`
+                    }
+                });
+
+                // Extract cluster metrics
+                if (clusterResult?.data?.result?.length > 0) {
+                    clusterResult.data.result.forEach((series: any) => {
+                        const clusterName = series.metric?.envoy_cluster_name;
+                        if (clusterName && clusterName !== 'elchi-control-plane') {
+                            let value = 0;
+                            if (series.values && series.values.length > 0) {
+                                const lastPoint = series.values[series.values.length - 1];
+                                value = parseFloat(lastPoint[1]) || 0;
+                            } else if (series.value) {
+                                value = parseFloat(series.value[1]) || 0;
+                            }
+
+                            // Add cluster as a separate entry
+                            domainMetrics[`cluster:${clusterName}`] = {
+                                domain: clusterName,
+                                requests: 0,
+                                connections: 0,
+                                upstreamConnections: value,
+                                incomingBytes: 0,
+                                outgoingBytes: 0,
+                                errors4xx: 0,
+                                errors5xx: 0,
+                                healthy: 1,
+                                total: 1,
+                                status: 'healthy',
+                                isCluster: true
+                            };
+                        }
+                    });
+                }
+            }
 
             // Convert to array and determine status
             const domainList = Object.values(domainMetrics).map(item => {
@@ -640,7 +693,11 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
             domainList.sort((a, b) => {
                 switch (type) {
                     case 'requests': return b.requests - a.requests;
-                    case 'connections': return b.connections - a.connections;
+                    case 'connections':
+                        // Cluster'ları sonra göster, sonra değere göre sırala
+                        if (a.isCluster && !b.isCluster) return 1;
+                        if (!a.isCluster && b.isCluster) return -1;
+                        return (b.connections + b.upstreamConnections) - (a.connections + a.upstreamConnections);
                     case 'traffic': return (b.incomingBytes + b.outgoingBytes) - (a.incomingBytes + a.outgoingBytes);
                     default: return 0;
                 }
@@ -658,7 +715,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
     const showDetailModal = useCallback((type: 'requests' | 'connections' | 'traffic') => {
         const titles = {
             requests: 'Request Details by Domain',
-            connections: 'Connection Details by Domain',
+            connections: 'Connection Details (Listeners & Clusters)',
             traffic: 'Traffic Details by Domain'
         };
         setModalTitle(titles[type]);
@@ -1296,21 +1353,35 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                 onClose={() => setModalVisible(false)}
                 width={800}
                 placement="right"
+                styles={{
+                    body: {
+                        padding: 16,
+                        height: 'calc(100vh - 55px)',
+                        overflow: 'hidden',
+                        display: 'flex',
+                        flexDirection: 'column'
+                    }
+                }}
             >
                 {modalLoading ? (
-                    <div style={{ textAlign: 'center', padding: 40 }}>
+                    <div style={{ textAlign: 'center', padding: 40, flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                         <Spin size="large" />
                         <Text style={{ display: 'block', marginTop: 16, color: 'var(--text-secondary)' }}>
                             Loading domain metrics...
                         </Text>
                     </div>
                 ) : (
-                    <>
+                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                         {filteredModalData.length === 0 && searchText ? (
                             <div style={{
                                 textAlign: 'center',
                                 padding: 40,
-                                color: 'var(--text-secondary)'
+                                color: 'var(--text-secondary)',
+                                flex: 1,
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center'
                             }}>
                                 <SearchOutlined style={{ fontSize: 32, marginBottom: 16 }} />
                                 <div style={{ fontSize: 16, marginBottom: 8 }}>No domains found</div>
@@ -1322,7 +1393,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                             <div style={{
                                 display: 'grid',
                                 gap: 8,
-                                maxHeight: '60vh',
+                                flex: 1,
                                 overflowY: 'auto',
                                 paddingRight: 8
                             }}>
@@ -1351,13 +1422,13 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                                             e.currentTarget.style.boxShadow = '0 1px 3px var(--shadow-card-item)';
                                         }}
                                     >
-                                        {/* Left: Domain name and status */}
+                                        {/* Left: Domain/Cluster name and status */}
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1 }}>
                                             <div style={{
                                                 width: 20,
                                                 height: 20,
                                                 borderRadius: 4,
-                                                background: getStatusColor(item.status),
+                                                background: item.isCluster ? 'var(--color-sky-light)' : getStatusColor(item.status),
                                                 color: 'white',
                                                 fontSize: 10,
                                                 fontWeight: 600,
@@ -1365,8 +1436,20 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                                                 alignItems: 'center',
                                                 justifyContent: 'center'
                                             }}>
-                                                {index + 1}
+                                                {item.isCluster ? <CloudServerOutlined style={{ fontSize: 12 }} /> : index + 1}
                                             </div>
+                                            {item.isCluster && (
+                                                <Text style={{
+                                                    fontSize: 9,
+                                                    padding: '2px 6px',
+                                                    background: 'var(--color-sky-light)',
+                                                    color: 'white',
+                                                    borderRadius: 4,
+                                                    fontWeight: 600
+                                                }}>
+                                                    CLUSTER
+                                                </Text>
+                                            )}
                                             <Text
                                                 strong
                                                 style={{
@@ -1381,8 +1464,8 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                                                 width: 8,
                                                 height: 8,
                                                 borderRadius: '50%',
-                                                background: getStatusColor(item.status),
-                                                boxShadow: `0 0 6px ${getStatusColor(item.status)}50`
+                                                background: item.isCluster ? 'var(--color-sky-light)' : getStatusColor(item.status),
+                                                boxShadow: `0 0 6px ${item.isCluster ? 'var(--color-sky-light)' : getStatusColor(item.status)}50`
                                             }} />
                                         </div>
 
@@ -1415,12 +1498,21 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                                                 </>
                                             )}
                                             {modalTitle.includes('Connection') && (
-                                                <div style={{ minWidth: 70, textAlign: 'center' }}>
-                                                    <Text style={{ fontSize: 10, color: 'var(--text-secondary)', display: 'block' }}>ACTIVE</Text>
-                                                    <Text strong style={{ color: 'var(--color-accent)', fontSize: 14 }}>
-                                                        {formatNumber(item.connections)}
-                                                    </Text>
-                                                </div>
+                                                item.isCluster ? (
+                                                    <div style={{ minWidth: 70, textAlign: 'center' }}>
+                                                        <Text style={{ fontSize: 10, color: 'var(--text-secondary)', display: 'block' }}>UPSTREAM</Text>
+                                                        <Text strong style={{ color: 'var(--color-sky-light)', fontSize: 14 }}>
+                                                            {formatNumber(item.upstreamConnections)}
+                                                        </Text>
+                                                    </div>
+                                                ) : (
+                                                    <div style={{ minWidth: 70, textAlign: 'center' }}>
+                                                        <Text style={{ fontSize: 10, color: 'var(--text-secondary)', display: 'block' }}>DOWNSTREAM</Text>
+                                                        <Text strong style={{ color: 'var(--color-primary-dark)', fontSize: 14 }}>
+                                                            {formatNumber(item.connections)}
+                                                        </Text>
+                                                    </div>
+                                                )
                                             )}
                                             {modalTitle.includes('Traffic') && (
                                                 <>
@@ -1443,7 +1535,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                                 ))}
                             </div>
                         )}
-                    </>
+                    </div>
                 )}
             </Drawer>
 
