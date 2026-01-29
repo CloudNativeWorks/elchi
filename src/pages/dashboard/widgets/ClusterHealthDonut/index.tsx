@@ -7,7 +7,7 @@ import { PieChartOutlined } from '@ant-design/icons';
 import ReactEChartsCore from 'echarts-for-react/lib/core';
 import * as echarts from 'echarts/core';
 import { PieChart } from 'echarts/charts';
-import { TooltipComponent, LegendComponent } from 'echarts/components';
+import { TooltipComponent, LegendComponent, TitleComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { BaseWidget } from '../shared/BaseWidget';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
@@ -15,7 +15,7 @@ import { useDashboardRefresh } from '../../context/DashboardRefreshContext';
 import { api } from '@/common/api';
 import { useChartTheme } from '@/utils/chartTheme';
 
-echarts.use([PieChart, TooltipComponent, LegendComponent, CanvasRenderer]);
+echarts.use([PieChart, TooltipComponent, LegendComponent, TitleComponent, CanvasRenderer]);
 
 export const ClusterHealthDonut: React.FC = () => {
   const projectContext = useProjectVariable();

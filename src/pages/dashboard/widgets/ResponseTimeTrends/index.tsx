@@ -9,7 +9,7 @@ import { Select } from 'antd';
 import ReactEChartsCore from 'echarts-for-react/lib/core';
 import * as echarts from 'echarts/core';
 import { LineChart } from 'echarts/charts';
-import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components';
+import { GridComponent, TooltipComponent, LegendComponent, TitleComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { BaseWidget } from '../shared/BaseWidget';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
@@ -19,7 +19,7 @@ import { formatMilliseconds } from '../../utils/formatters';
 import { useChartTheme } from '@/utils/chartTheme';
 import styles from './styles.module.scss';
 
-echarts.use([LineChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer]);
+echarts.use([LineChart, GridComponent, TooltipComponent, LegendComponent, TitleComponent, CanvasRenderer]);
 
 const PERCENTILES = [
   { label: 'P50', value: 0.5 },
