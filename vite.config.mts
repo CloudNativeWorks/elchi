@@ -24,57 +24,17 @@ export default defineConfig(({ mode }) => {
             sourcemap: false,
             rollupOptions: {
                 output: {
-                    manualChunks: (id) => {
+                    // Use static chunks - safer than function approach
+                    // Vite handles code splitting for lazy-loaded routes automatically
+                    manualChunks: {
                         // React core
-                        if (id.includes('react-dom') || id.includes('react-router')) {
-                            return 'vendor-react';
-                        }
+                        'vendor-react': ['react', 'react-dom', 'react-router-dom'],
                         // Ant Design
-                        if (id.includes('antd') || id.includes('@ant-design')) {
-                            return 'vendor-antd';
-                        }
+                        'vendor-antd': ['antd', '@ant-design/icons', '@ant-design/cssinjs'],
                         // State management
-                        if (id.includes('@reduxjs/toolkit') || id.includes('react-redux') || id.includes('@tanstack/react-query')) {
-                            return 'vendor-state';
-                        }
-                        // Grafana (heavy - separate chunk)
-                        if (id.includes('@grafana')) {
-                            return 'vendor-grafana';
-                        }
-                        // Note: ECharts is NOT separated due to circular dependency issues
-                        // It will be bundled with vendor-misc
-                        // XYFlow (heavy - separate chunk for lazy loading)
-                        if (id.includes('@xyflow') || id.includes('reactflow') || id.includes('elkjs')) {
-                            return 'vendor-xyflow';
-                        }
-                        // Cytoscape (graph visualization)
-                        if (id.includes('cytoscape')) {
-                            return 'vendor-cytoscape';
-                        }
-                        // Monaco editor (heavy - separate chunk for lazy loading)
-                        if (id.includes('monaco-editor') || id.includes('@monaco-editor')) {
-                            return 'vendor-monaco';
-                        }
-                        // PDF generation
-                        if (id.includes('jspdf') || id.includes('html-to-image')) {
-                            return 'vendor-pdf';
-                        }
-                        // Markdown/Code highlighting
-                        if (id.includes('react-markdown') || id.includes('prism') || id.includes('remark') || id.includes('rehype') || id.includes('react-syntax-highlighter')) {
-                            return 'vendor-markdown';
-                        }
-                        // Protobuf
-                        if (id.includes('protobuf') || id.includes('@bufbuild')) {
-                            return 'vendor-protobuf';
-                        }
+                        'vendor-state': ['@reduxjs/toolkit', 'react-redux', '@tanstack/react-query'],
                         // Utilities
-                        if (id.includes('lodash') || id.includes('dayjs') || id.includes('axios') || id.includes('date-fns')) {
-                            return 'vendor-utils';
-                        }
-                        // Other node_modules
-                        if (id.includes('node_modules')) {
-                            return 'vendor-misc';
-                        }
+                        'vendor-utils': ['lodash', 'dayjs', 'axios'],
                     },
                 },
             },
