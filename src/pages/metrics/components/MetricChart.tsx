@@ -194,9 +194,11 @@ const MetricChart: React.FC<ExtendedChartProps> = ({ data, title, metricConfig, 
             animationDurationUpdate: 0,
             animationEasingUpdate: 'linear',
             renderer: 'canvas',
+            backgroundColor: 'transparent', // Use card's background instead of ECharts theme background
             title: {
                 text: title,
                 left: 'center',
+                top: 8,
                 textStyle: {
                     color: colors.textPrimary
                 }
@@ -265,7 +267,7 @@ const MetricChart: React.FC<ExtendedChartProps> = ({ data, title, metricConfig, 
             grid: {
                 left: '0%',
                 right: '1%',
-                bottom: '40px',
+                bottom: '55px',
                 top: '40px'
             },
             xAxis: {
@@ -427,7 +429,7 @@ const MetricChart: React.FC<ExtendedChartProps> = ({ data, title, metricConfig, 
             legend: {
                 type: 'scroll',
                 orient: 'horizontal',
-                bottom: 5,
+                bottom: 0,
                 padding: [0, 0, 0, 0],
                 pageButtonPosition: 'end',
                 selected: chartStateRef.current.legendSelected,
@@ -531,7 +533,7 @@ const MetricChart: React.FC<ExtendedChartProps> = ({ data, title, metricConfig, 
 
     return (
         <>
-            <Card style={{ position: 'relative' }}>
+            <Card style={{ position: 'relative', background: 'var(--card-bg)' }}>
                 <Tooltip title="Full Screen View">
                     <Button
                         icon={<ExpandOutlined />}
@@ -580,7 +582,7 @@ const MetricChart: React.FC<ExtendedChartProps> = ({ data, title, metricConfig, 
                     </Tooltip>
                 )}
 
-                <div ref={chartRef} style={{ position: 'relative', height }}>
+                <div ref={chartRef} style={{ position: 'relative', height, background: 'var(--card-bg)' }}>
                     {!isVisible ? (
                         <div style={{
                             position: 'absolute',
@@ -601,10 +603,10 @@ const MetricChart: React.FC<ExtendedChartProps> = ({ data, title, metricConfig, 
                                 ref={echartsRef}
                                 echarts={echarts}
                                 option={options}
-                                style={{ height }}
+                                style={{ height, background: 'var(--card-bg)' }}
                                 notMerge={false}
                                 lazyUpdate={true}
-                                theme={isDark ? "dark" : "light"}
+                                theme={undefined} // Don't use built-in themes - colors are set manually in options
                                 onEvents={{
                                     'mouseover': (params: any) => {
                                         if (params.componentType === 'series') {
@@ -694,7 +696,7 @@ const MetricChart: React.FC<ExtendedChartProps> = ({ data, title, metricConfig, 
                             style={{ height: '100%', width: '100%' }}
                             notMerge={false}
                             lazyUpdate={true}
-                            theme={isDark ? "dark" : "light"}
+                            theme={undefined} // Don't use built-in themes - colors are set manually in options
                             onEvents={{
                                 'mouseover': (params: any) => {
                                     if (params.componentType === 'series') {
