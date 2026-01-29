@@ -3,7 +3,7 @@ import { Button, Card, message, Result } from 'antd';
 import { useDemoMutation } from "@/common/api";
 import { MailOutlined } from '@ant-design/icons';
 import '@/assets/styles/loginPage.scss';
-import logoelchi from "@/assets/images/logo_black.png";
+import logoelchi from "@/assets/images/logo_black.webp";
 import { useNavigate } from 'react-router';
 
 

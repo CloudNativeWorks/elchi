@@ -6,12 +6,12 @@ import { DecodeToken } from '@utils/tools';
 import { CheckDate } from "@/utils/date-time-tool";
 import { UserOutlined, KeyOutlined } from '@ant-design/icons'
 import '@/assets/styles/loginPage.scss'
-import logoelchi from "@/assets/images/logo_black.png";
+import logoelchi from "@/assets/images/logo_black.webp";
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import styled from 'styled-components';
 import { OTPInputField } from '@/components/otp/OTPInputField';
 import { OTPSetupModal } from '@/components/otp/OTPSetupModal';
-import { Modal, message, notification } from 'antd';
+import { Modal, message } from 'antd';
 
 const CloudNativeWorksLogo = styled.div`
     position: fixed;
