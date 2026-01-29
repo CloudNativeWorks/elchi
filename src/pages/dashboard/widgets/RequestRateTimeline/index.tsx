@@ -14,6 +14,7 @@ import {
   TooltipComponent,
   LegendComponent,
   DataZoomComponent,
+  TitleComponent,
 } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { BaseWidget } from '../shared/BaseWidget';
@@ -30,6 +31,7 @@ echarts.use([
   TooltipComponent,
   LegendComponent,
   DataZoomComponent,
+  TitleComponent,
   CanvasRenderer,
 ]);
 

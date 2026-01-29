@@ -24,19 +24,59 @@ export default defineConfig(({ mode }) => {
             sourcemap: false,
             rollupOptions: {
                 output: {
-                    manualChunks: {
+                    manualChunks: (id) => {
                         // React core
-                        'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+                        if (id.includes('react-dom') || id.includes('react-router')) {
+                            return 'vendor-react';
+                        }
                         // Ant Design
-                        'vendor-antd': ['antd', '@ant-design/icons', '@ant-design/cssinjs'],
+                        if (id.includes('antd') || id.includes('@ant-design')) {
+                            return 'vendor-antd';
+                        }
                         // State management
-                        'vendor-state': ['@reduxjs/toolkit', 'react-redux', '@tanstack/react-query'],
-                        // Charts and visualization
-                        'vendor-charts': ['echarts', 'echarts-for-react', 'cytoscape'],
-                        // Monaco editor
-                        'vendor-monaco': ['monaco-editor', '@monaco-editor/react'],
+                        if (id.includes('@reduxjs/toolkit') || id.includes('react-redux') || id.includes('@tanstack/react-query')) {
+                            return 'vendor-state';
+                        }
+                        // Grafana (heavy - separate chunk)
+                        if (id.includes('@grafana')) {
+                            return 'vendor-grafana';
+                        }
+                        // ECharts (heavy - separate chunk for lazy loading)
+                        if (id.includes('echarts')) {
+                            return 'vendor-echarts';
+                        }
+                        // XYFlow (heavy - separate chunk for lazy loading)
+                        if (id.includes('@xyflow') || id.includes('reactflow') || id.includes('elkjs')) {
+                            return 'vendor-xyflow';
+                        }
+                        // Cytoscape (graph visualization)
+                        if (id.includes('cytoscape')) {
+                            return 'vendor-cytoscape';
+                        }
+                        // Monaco editor (heavy - separate chunk for lazy loading)
+                        if (id.includes('monaco-editor') || id.includes('@monaco-editor')) {
+                            return 'vendor-monaco';
+                        }
+                        // PDF generation
+                        if (id.includes('jspdf') || id.includes('html-to-image')) {
+                            return 'vendor-pdf';
+                        }
+                        // Markdown/Code highlighting
+                        if (id.includes('react-markdown') || id.includes('prism') || id.includes('remark') || id.includes('rehype') || id.includes('react-syntax-highlighter')) {
+                            return 'vendor-markdown';
+                        }
+                        // Protobuf
+                        if (id.includes('protobuf') || id.includes('@bufbuild')) {
+                            return 'vendor-protobuf';
+                        }
                         // Utilities
-                        'vendor-utils': ['lodash', 'dayjs', 'axios'],
+                        if (id.includes('lodash') || id.includes('dayjs') || id.includes('axios') || id.includes('date-fns')) {
+                            return 'vendor-utils';
+                        }
+                        // Other node_modules
+                        if (id.includes('node_modules')) {
+                            return 'vendor-misc';
+                        }
                     },
                 },
             },

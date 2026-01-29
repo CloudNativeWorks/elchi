@@ -8,7 +8,7 @@ import { SafetyOutlined } from '@ant-design/icons';
 import ReactEChartsCore from 'echarts-for-react/lib/core';
 import * as echarts from 'echarts/core';
 import { BarChart, LineChart } from 'echarts/charts';
-import { GridComponent, TooltipComponent, LegendComponent } from 'echarts/components';
+import { GridComponent, TooltipComponent, LegendComponent, TitleComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { BaseWidget } from '../shared/BaseWidget';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
@@ -17,7 +17,7 @@ import { useDashboardRefresh } from '../../context/DashboardRefreshContext';
 import styles from './styles.module.scss';
 import { useChartTheme } from '@/utils/chartTheme';
 
-echarts.use([BarChart, LineChart, GridComponent, TooltipComponent, LegendComponent, CanvasRenderer]);
+echarts.use([BarChart, LineChart, GridComponent, TooltipComponent, LegendComponent, TitleComponent, CanvasRenderer]);
 
 interface WAFMetrics {
   blocked: number;
