@@ -41,10 +41,8 @@ export default defineConfig(({ mode }) => {
                         if (id.includes('@grafana')) {
                             return 'vendor-grafana';
                         }
-                        // ECharts (heavy - separate chunk for lazy loading)
-                        if (id.includes('echarts')) {
-                            return 'vendor-echarts';
-                        }
+                        // Note: ECharts is NOT separated due to circular dependency issues
+                        // It will be bundled with vendor-misc
                         // XYFlow (heavy - separate chunk for lazy loading)
                         if (id.includes('@xyflow') || id.includes('reactflow') || id.includes('elkjs')) {
                             return 'vendor-xyflow';
