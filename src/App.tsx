@@ -13,7 +13,17 @@ import { setNotificationApi } from './common/notificationHandler';
 import { useEffect } from 'react';
 
 
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            staleTime: 30 * 1000, // 30 seconds - reduce unnecessary refetches
+            gcTime: 5 * 60 * 1000, // 5 minutes - garbage collect unused queries
+            refetchOnWindowFocus: false,
+            retry: 1,
+            retryDelay: 1000,
+        },
+    },
+})
 
 const AppContent = () => {
     const { notification } = AntdApp.useApp();

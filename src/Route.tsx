@@ -1,8 +1,9 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 
 import { PageLoadingFallback } from '@/components/common/PageLoadingFallback';
 import { LazyLoadErrorBoundary } from '@/components/common/LazyLoadErrorBoundary';
+import { lazyWithRetry } from '@/utils/lazyWithRetry';
 
 // Eager imports (critical path - always needed)
 import Dashboard from "@/pages/Dashboard";
@@ -11,67 +12,67 @@ import Main from "@/components/layout/Main";
 import Err403 from "@/pages/403";
 import ProtectedRoute from '@/ProtectedRoute';
 
-// Lazy imports - Heavy pages (ECharts, Monaco, XYFlow)
-const RegistryInfo = lazy(() => import("@/pages/RegistryInfo"));
-const JobDetail = lazy(() => import('./pages/jobs/JobDetail'));
-const AuditDetail = lazy(() => import('./pages/audit/AuditDetail'));
-const Metrics = lazy(() => import('./pages/metrics/metrics'));
-const Logs = lazy(() => import('./pages/logs/Logs'));
-const GslbStatistics = lazy(() => import('./pages/gslb/GslbStatistics'));
-const DependencyGraphPage = lazy(() => import('./pages/DependencyGraphPage'));
-const RouteMapPage = lazy(() => import('./pages/RouteMapPage'));
-const AIConfigGenerator = lazy(() => import('./ai/AIConfigGenerator'));
+// Lazy imports with retry - Heavy pages (ECharts, Monaco, XYFlow)
+const RegistryInfo = lazyWithRetry(() => import("@/pages/RegistryInfo"));
+const JobDetail = lazyWithRetry(() => import('./pages/jobs/JobDetail'));
+const AuditDetail = lazyWithRetry(() => import('./pages/audit/AuditDetail'));
+const Metrics = lazyWithRetry(() => import('./pages/metrics/metrics'));
+const Logs = lazyWithRetry(() => import('./pages/logs/Logs'));
+const GslbStatistics = lazyWithRetry(() => import('./pages/gslb/GslbStatistics'));
+const DependencyGraphPage = lazyWithRetry(() => import('./pages/DependencyGraphPage'));
+const RouteMapPage = lazyWithRetry(() => import('./pages/RouteMapPage'));
+const AIConfigGenerator = lazyWithRetry(() => import('./ai/AIConfigGenerator'));
 
-// Lazy imports - Resource pages
-const Resources = lazy(() => import("@/pages/Resources"));
-const Resource = lazy(() => import("@/pages/Resource"));
-const FilterMain = lazy(() => import('@/pages/FilterMain'));
-const ExtensionsMain = lazy(() => import("@/pages/ExtensionsMain"));
-const SnapshotDump = lazy(() => import('@/pages/SnapshotDump'));
-const QuickStart = lazy(() => import("@/pages/QuickStart"));
+// Lazy imports with retry - Resource pages
+const Resources = lazyWithRetry(() => import("@/pages/Resources"));
+const Resource = lazyWithRetry(() => import("@/pages/Resource"));
+const FilterMain = lazyWithRetry(() => import('@/pages/FilterMain'));
+const ExtensionsMain = lazyWithRetry(() => import("@/pages/ExtensionsMain"));
+const SnapshotDump = lazyWithRetry(() => import('@/pages/SnapshotDump'));
+const QuickStart = lazyWithRetry(() => import("@/pages/QuickStart"));
 
-// Lazy imports - Scenarios
-const ScenarioDashboard = lazy(() => import('@/elchi/components/scenarios/ScenarioDashboard'));
-const DynamicScenarioWizard = lazy(() => import('@/elchi/components/scenarios/DynamicScenarioWizard'));
-const DynamicScenarioExecutionRedux = lazy(() => import('@/elchi/components/scenarios/DynamicScenarioExecutionRedux'));
+// Lazy imports with retry - Scenarios
+const ScenarioDashboard = lazyWithRetry(() => import('@/elchi/components/scenarios/ScenarioDashboard'));
+const DynamicScenarioWizard = lazyWithRetry(() => import('@/elchi/components/scenarios/DynamicScenarioWizard'));
+const DynamicScenarioExecutionRedux = lazyWithRetry(() => import('@/elchi/components/scenarios/DynamicScenarioExecutionRedux'));
 
-// Lazy imports - Operations
-const Clients = lazy(() => import('./pages/operations/clients'));
-const Services = lazy(() => import('./pages/operations/services'));
-const Client = lazy(() => import('./pages/operations/client'));
-const Service = lazy(() => import('./pages/operations/service'));
+// Lazy imports with retry - Operations
+const Clients = lazyWithRetry(() => import('./pages/operations/clients'));
+const Services = lazyWithRetry(() => import('./pages/operations/services'));
+const Client = lazyWithRetry(() => import('./pages/operations/client'));
+const Service = lazyWithRetry(() => import('./pages/operations/service'));
 
-// Lazy imports - Settings
-const Settings = lazy(() => import("@/pages/settings/settings"));
-const User = lazy(() => import("@/pages/settings/User"));
-const Users = lazy(() => import("@/pages/settings/users"));
-const Groups = lazy(() => import("@/pages/settings/Groups"));
-const Group = lazy(() => import("@/pages/settings/Group"));
-const Projects = lazy(() => import("@/pages/settings/Projects"));
-const Project = lazy(() => import("@/pages/settings/Project"));
+// Lazy imports with retry - Settings
+const Settings = lazyWithRetry(() => import("@/pages/settings/settings"));
+const User = lazyWithRetry(() => import("@/pages/settings/User"));
+const Users = lazyWithRetry(() => import("@/pages/settings/users"));
+const Groups = lazyWithRetry(() => import("@/pages/settings/Groups"));
+const Group = lazyWithRetry(() => import("@/pages/settings/Group"));
+const Projects = lazyWithRetry(() => import("@/pages/settings/Projects"));
+const Project = lazyWithRetry(() => import("@/pages/settings/Project"));
 
-// Lazy imports - Jobs & Audit
-const JobList = lazy(() => import('./pages/jobs/JobList'));
-const AuditList = lazy(() => import('./pages/audit/AuditList'));
+// Lazy imports with retry - Jobs & Audit
+const JobList = lazyWithRetry(() => import('./pages/jobs/JobList'));
+const AuditList = lazyWithRetry(() => import('./pages/audit/AuditList'));
 
-// Lazy imports - WAF
-const WafList = lazy(() => import('./pages/waf/WafList'));
-const WafDetail = lazy(() => import('./pages/waf/WafDetail'));
+// Lazy imports with retry - WAF
+const WafList = lazyWithRetry(() => import('./pages/waf/WafList'));
+const WafDetail = lazyWithRetry(() => import('./pages/waf/WafDetail'));
 
-// Lazy imports - GSLB
-const GslbList = lazy(() => import('./pages/gslb/GslbList'));
-const GslbDetail = lazy(() => import('./pages/gslb/GslbDetail'));
+// Lazy imports with retry - GSLB
+const GslbList = lazyWithRetry(() => import('./pages/gslb/GslbList'));
+const GslbDetail = lazyWithRetry(() => import('./pages/gslb/GslbDetail'));
 
-// Lazy imports - ACME
-const CertificateList = lazy(() => import('./pages/acme/CertificateList'));
-const CertificateDetail = lazy(() => import('./pages/acme/CertificateDetail'));
-const DnsCredentialDetail = lazy(() => import('./pages/acme/DnsCredentialDetail'));
-const AcmeAccountDetail = lazy(() => import('./pages/acme/AcmeAccountDetail'));
+// Lazy imports with retry - ACME
+const CertificateList = lazyWithRetry(() => import('./pages/acme/CertificateList'));
+const CertificateDetail = lazyWithRetry(() => import('./pages/acme/CertificateDetail'));
+const DnsCredentialDetail = lazyWithRetry(() => import('./pages/acme/DnsCredentialDetail'));
+const AcmeAccountDetail = lazyWithRetry(() => import('./pages/acme/AcmeAccountDetail'));
 
-// Lazy imports - Other pages
-const Discovery = lazy(() => import('./pages/discovery/Discovery'));
-const Search = lazy(() => import('./pages/Search'));
-const Profile = lazy(() => import('./pages/profile/Profile'));
+// Lazy imports with retry - Other pages
+const Discovery = lazyWithRetry(() => import('./pages/discovery/Discovery'));
+const Search = lazyWithRetry(() => import('./pages/Search'));
+const Profile = lazyWithRetry(() => import('./pages/profile/Profile'));
 
 // Wrapper component for lazy-loaded routes
 const LazyRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => (

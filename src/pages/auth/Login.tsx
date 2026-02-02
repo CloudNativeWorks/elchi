@@ -53,6 +53,20 @@ const Login = () => {
     const [requiresOTPSetup, setRequiresOTPSetup] = useState(false);
     const [credentials, setCredentials] = useState({ username: '', password: '' });
 
+    // Preload login background image for better LCP
+    useEffect(() => {
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.href = '/loginbg.webp';
+        link.as = 'image';
+        link.type = 'image/webp';
+        document.head.appendChild(link);
+
+        return () => {
+            document.head.removeChild(link);
+        };
+    }, []);
+
     useEffect(() => {
         if (userDetail.token) {
             const tokenExp = DecodeToken(userDetail.token);
