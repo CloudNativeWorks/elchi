@@ -13,13 +13,13 @@ import {
     CloudOutlined,
     ClusterOutlined,
     AimOutlined,
-    SafetyOutlined,
     KeyOutlined,
     FilterOutlined,
     AppstoreOutlined,
     CodeOutlined,
     ClearOutlined,
-    ArrowUpOutlined
+    ArrowUpOutlined,
+    SwapOutlined
 } from '@ant-design/icons';
 
 
@@ -43,7 +43,7 @@ const Resources: React.FC = () => {
             'virtual_hosts': <CloudOutlined style={{ color: 'var(--color-purple)', fontSize: 24 }} />,
             'clusters': <ClusterOutlined style={{ color: 'var(--color-warning)', fontSize: 24 }} />,
             'endpoints': <AimOutlined style={{ color: 'var(--color-cyan)', fontSize: 24 }} />,
-            'tls': <SafetyOutlined style={{ color: 'var(--color-danger)', fontSize: 24 }} />,
+            'tls': <SwapOutlined style={{ color: 'var(--color-danger)', fontSize: 24 }} />,
             'secrets': <KeyOutlined style={{ color: 'var(--color-danger)', fontSize: 24 }} />,
             'filter': <FilterOutlined style={{ color: 'var(--color-pink)', fontSize: 24 }} />,
             'filters': <FilterOutlined style={{ color: 'var(--color-pink)', fontSize: 24 }} />,
