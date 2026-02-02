@@ -22,7 +22,25 @@ export default defineConfig(({ mode }) => {
         build: {
             outDir: 'dist',
             sourcemap: false,
-            // No manualChunks - let Rollup handle everything automatically
+            rollupOptions: {
+                output: {
+                    manualChunks(id) {
+                        // Group all envoy models/tags by version into single chunks
+                        if (id.includes('/elchi/versions/')) {
+                            const versionMatch = id.match(/\/versions\/(v[\d.]+)\//);
+                            if (versionMatch) {
+                                const version = versionMatch[1].replace(/\./g, '-');
+                                if (id.includes('/models/')) {
+                                    return `envoy-models-${version}`;
+                                }
+                                if (id.includes('/tags/')) {
+                                    return `envoy-tags-${version}`;
+                                }
+                            }
+                        }
+                    },
+                },
+            },
         },
         server: {
             port: 3000,
