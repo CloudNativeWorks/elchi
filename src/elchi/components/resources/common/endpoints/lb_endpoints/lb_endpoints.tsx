@@ -274,14 +274,16 @@ const LBEndpointsComponent: React.FC<GeneralProps> = ({ veri }) => {
                 onClose={veri.drawerClose}
                 size='large'
             >
-                <Row>
+                <Row style={{ width: '100%', overflow: 'hidden' }}>
                     <div style={{
                         background: 'var(--card-bg)',
                         padding: '12px 12px 24px 12px',
                         borderRadius: 12,
                         boxShadow: 'var(--shadow-sm)',
                         margin: '4px 0',
-                        border: '1px solid var(--border-default)'
+                        border: '1px solid var(--border-default)',
+                        width: '100%',
+                        overflow: 'hidden'
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center', marginBottom: 12 }}>
                             <ElchiButton onClick={() => setState((prevState) => ({ ...prevState, modal: true }))} onlyText>Add Endpoint</ElchiButton>
@@ -289,7 +291,8 @@ const LBEndpointsComponent: React.FC<GeneralProps> = ({ veri }) => {
                         </div>
                         <Table
                             size="small"
-                            scroll={{ y: "auto" }}
+                            tableLayout="fixed"
+                            scroll={{ x: '100%' }}
                             pagination={{ pageSize: 50 }}
                             rowClassName="cursor-row"
                             dataSource={Array.isArray(veri.reduxStore)
