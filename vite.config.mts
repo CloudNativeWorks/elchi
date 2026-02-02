@@ -25,18 +25,23 @@ export default defineConfig(({ mode }) => {
             rollupOptions: {
                 output: {
                     manualChunks(id) {
-                        // Group all envoy models/tags by version into single chunks
-                        if (id.includes('/elchi/versions/')) {
-                            const versionMatch = id.match(/\/versions\/(v[\d.]+)\//);
-                            if (versionMatch) {
-                                const version = versionMatch[1].replace(/\./g, '-');
-                                if (id.includes('/models/')) {
-                                    return `envoy-models-${version}`;
-                                }
-                                if (id.includes('/tags/')) {
-                                    return `envoy-tags-${version}`;
+                        // Group all elchi code into chunks
+                        if (id.includes('/elchi/')) {
+                            // Envoy models/tags by version
+                            if (id.includes('/versions/')) {
+                                const versionMatch = id.match(/\/versions\/(v[\d.]+)\//);
+                                if (versionMatch) {
+                                    const version = versionMatch[1].replace(/\./g, '-');
+                                    if (id.includes('/models/')) {
+                                        return `envoy-models-${version}`;
+                                    }
+                                    if (id.includes('/tags/')) {
+                                        return `envoy-tags-${version}`;
+                                    }
                                 }
                             }
+                            // All other elchi code (components, helpers, etc.)
+                            return 'elchi-core';
                         }
                     },
                 },
