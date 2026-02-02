@@ -22,8 +22,34 @@ export default defineConfig(({ mode }) => {
         build: {
             outDir: 'dist',
             sourcemap: false,
-            // Let Vite handle code splitting automatically
-            // Manual chunks removed to reduce parallel request issues
+            chunkSizeWarningLimit: 1000,
+            rollupOptions: {
+                output: {
+                    // Simple chunking strategy - all vendors together
+                    manualChunks(id) {
+                        // All node_modules in one vendor chunk
+                        if (id.includes('node_modules')) {
+                            return 'vendor';
+                        }
+
+                        // Group Envoy version models (pure data, no React)
+                        if (id.includes('/elchi/versions/')) {
+                            const versionMatch = id.match(/\/versions\/(v[\d.]+)\//);
+                            if (versionMatch) {
+                                const version = versionMatch[1].replace(/\./g, '-');
+                                if (id.includes('/models/')) {
+                                    return `envoy-models-${version}`;
+                                }
+                                if (id.includes('/tags/')) {
+                                    return `envoy-tags-${version}`;
+                                }
+                            }
+                        }
+                    },
+                    // Minimum chunk size to reduce number of files
+                    experimentalMinChunkSize: 500000, // 500KB minimum - more aggressive merging
+                },
+            },
         },
         server: {
             port: 3000,
