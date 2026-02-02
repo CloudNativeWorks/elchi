@@ -22,17 +22,11 @@ export default defineConfig(({ mode }) => {
         build: {
             outDir: 'dist',
             sourcemap: false,
-            chunkSizeWarningLimit: 1000,
+            chunkSizeWarningLimit: 2000,
             rollupOptions: {
                 output: {
-                    // Simple chunking strategy - all vendors together
+                    // Only group envoy models (pure data, no React dependency)
                     manualChunks(id) {
-                        // All node_modules in one vendor chunk
-                        if (id.includes('node_modules')) {
-                            return 'vendor';
-                        }
-
-                        // Group Envoy version models (pure data, no React)
                         if (id.includes('/elchi/versions/')) {
                             const versionMatch = id.match(/\/versions\/(v[\d.]+)\//);
                             if (versionMatch) {
@@ -45,9 +39,8 @@ export default defineConfig(({ mode }) => {
                                 }
                             }
                         }
+                        // Let Rollup handle everything else automatically
                     },
-                    // Minimum chunk size to reduce number of files
-                    experimentalMinChunkSize: 500000, // 500KB minimum - more aggressive merging
                 },
             },
         },
