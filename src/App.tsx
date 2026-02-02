@@ -16,7 +16,7 @@ import { useEffect } from 'react';
 const queryClient = new QueryClient({
     defaultOptions: {
         queries: {
-            staleTime: 30 * 1000, // 30 seconds - reduce unnecessary refetches
+            staleTime: 0, // Always refetch on mount
             gcTime: 5 * 60 * 1000, // 5 minutes - garbage collect unused queries
             refetchOnWindowFocus: false,
             retry: 1,
