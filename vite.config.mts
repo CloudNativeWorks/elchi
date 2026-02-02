@@ -22,22 +22,8 @@ export default defineConfig(({ mode }) => {
         build: {
             outDir: 'dist',
             sourcemap: false,
-            rollupOptions: {
-                output: {
-                    // Use static chunks - safer than function approach
-                    // Vite handles code splitting for lazy-loaded routes automatically
-                    manualChunks: {
-                        // React core
-                        'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-                        // Ant Design
-                        'vendor-antd': ['antd', '@ant-design/icons', '@ant-design/cssinjs'],
-                        // State management
-                        'vendor-state': ['@reduxjs/toolkit', 'react-redux', '@tanstack/react-query'],
-                        // Utilities
-                        'vendor-utils': ['lodash', 'dayjs', 'axios'],
-                    },
-                },
-            },
+            // Let Vite handle code splitting automatically
+            // Manual chunks removed to reduce parallel request issues
         },
         server: {
             port: 3000,
