@@ -22,27 +22,7 @@ export default defineConfig(({ mode }) => {
         build: {
             outDir: 'dist',
             sourcemap: false,
-            chunkSizeWarningLimit: 2000,
-            rollupOptions: {
-                output: {
-                    // Only group envoy models (pure data, no React dependency)
-                    manualChunks(id) {
-                        if (id.includes('/elchi/versions/')) {
-                            const versionMatch = id.match(/\/versions\/(v[\d.]+)\//);
-                            if (versionMatch) {
-                                const version = versionMatch[1].replace(/\./g, '-');
-                                if (id.includes('/models/')) {
-                                    return `envoy-models-${version}`;
-                                }
-                                if (id.includes('/tags/')) {
-                                    return `envoy-tags-${version}`;
-                                }
-                            }
-                        }
-                        // Let Rollup handle everything else automatically
-                    },
-                },
-            },
+            // No manualChunks - let Rollup handle everything automatically
         },
         server: {
             port: 3000,

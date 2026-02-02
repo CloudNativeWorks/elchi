@@ -1,87 +1,56 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 
-import { PageLoadingFallback } from '@/components/common/PageLoadingFallback';
-import { LazyLoadErrorBoundary } from '@/components/common/LazyLoadErrorBoundary';
-import { lazyWithRetry } from '@/utils/lazyWithRetry';
-
-// Eager imports (critical path - always needed)
+// All imports are eager - no lazy loading
 import Dashboard from "@/pages/Dashboard";
 import Login from "@/pages/auth/Login";
-import Main from "@/components/layout/Main";
+import FilterMain from '@/pages/FilterMain';
+import Resources from "@/pages/Resources";
+import Resource from "@/pages/Resource";
+import User from "@/pages/settings/User";
+import Users from "@/pages/settings/users";
+import Groups from "@/pages/settings/Groups";
+import Group from "@/pages/settings/Group";
+import Projects from "@/pages/settings/Projects";
+import Project from "@/pages/settings/Project";
 import Err403 from "@/pages/403";
+import QuickStart from "@/pages/QuickStart";
+
 import ProtectedRoute from '@/ProtectedRoute';
+import Main from "@/components/layout/Main";
+import Settings from "@/pages/settings/settings";
+import RegistryInfo from "@/pages/RegistryInfo";
+import ExtensionsMain from "@/pages/ExtensionsMain";
+import SnapshotDump from '@/pages/SnapshotDump';
+import ScenarioDashboard from '@/elchi/components/scenarios/ScenarioDashboard';
+import DynamicScenarioWizard from '@/elchi/components/scenarios/DynamicScenarioWizard';
+import DynamicScenarioExecutionRedux from '@/elchi/components/scenarios/DynamicScenarioExecutionRedux';
+import Clients from './pages/operations/clients';
+import Services from './pages/operations/services';
+import Client from './pages/operations/client';
+import Service from './pages/operations/service';
+import Metrics from './pages/metrics/metrics';
+import Logs from './pages/logs/Logs';
+import AIConfigGenerator from './ai/AIConfigGenerator';
+import Discovery from './pages/discovery/Discovery';
+import JobList from './pages/jobs/JobList';
+import JobDetail from './pages/jobs/JobDetail';
+import AuditList from './pages/audit/AuditList';
+import AuditDetail from './pages/audit/AuditDetail';
+import Search from './pages/Search';
+import WafList from './pages/waf/WafList';
+import WafDetail from './pages/waf/WafDetail';
+import GslbList from './pages/gslb/GslbList';
+import GslbDetail from './pages/gslb/GslbDetail';
+import GslbStatistics from './pages/gslb/GslbStatistics';
+import CertificateList from './pages/acme/CertificateList';
+import CertificateDetail from './pages/acme/CertificateDetail';
+import DnsCredentialDetail from './pages/acme/DnsCredentialDetail';
+import AcmeAccountDetail from './pages/acme/AcmeAccountDetail';
+import Profile from './pages/profile/Profile';
+import DependencyGraphPage from './pages/DependencyGraphPage';
+import RouteMapPage from './pages/RouteMapPage';
 
-// Lazy imports with retry - Heavy pages (ECharts, Monaco, XYFlow)
-const RegistryInfo = lazyWithRetry(() => import("@/pages/RegistryInfo"));
-const JobDetail = lazyWithRetry(() => import('./pages/jobs/JobDetail'));
-const AuditDetail = lazyWithRetry(() => import('./pages/audit/AuditDetail'));
-const Metrics = lazyWithRetry(() => import('./pages/metrics/metrics'));
-const Logs = lazyWithRetry(() => import('./pages/logs/Logs'));
-const GslbStatistics = lazyWithRetry(() => import('./pages/gslb/GslbStatistics'));
-const DependencyGraphPage = lazyWithRetry(() => import('./pages/DependencyGraphPage'));
-const RouteMapPage = lazyWithRetry(() => import('./pages/RouteMapPage'));
-const AIConfigGenerator = lazyWithRetry(() => import('./ai/AIConfigGenerator'));
-
-// Lazy imports with retry - Resource pages
-const Resources = lazyWithRetry(() => import("@/pages/Resources"));
-const Resource = lazyWithRetry(() => import("@/pages/Resource"));
-const FilterMain = lazyWithRetry(() => import('@/pages/FilterMain'));
-const ExtensionsMain = lazyWithRetry(() => import("@/pages/ExtensionsMain"));
-const SnapshotDump = lazyWithRetry(() => import('@/pages/SnapshotDump'));
-const QuickStart = lazyWithRetry(() => import("@/pages/QuickStart"));
-
-// Lazy imports with retry - Scenarios
-const ScenarioDashboard = lazyWithRetry(() => import('@/elchi/components/scenarios/ScenarioDashboard'));
-const DynamicScenarioWizard = lazyWithRetry(() => import('@/elchi/components/scenarios/DynamicScenarioWizard'));
-const DynamicScenarioExecutionRedux = lazyWithRetry(() => import('@/elchi/components/scenarios/DynamicScenarioExecutionRedux'));
-
-// Lazy imports with retry - Operations
-const Clients = lazyWithRetry(() => import('./pages/operations/clients'));
-const Services = lazyWithRetry(() => import('./pages/operations/services'));
-const Client = lazyWithRetry(() => import('./pages/operations/client'));
-const Service = lazyWithRetry(() => import('./pages/operations/service'));
-
-// Lazy imports with retry - Settings
-const Settings = lazyWithRetry(() => import("@/pages/settings/settings"));
-const User = lazyWithRetry(() => import("@/pages/settings/User"));
-const Users = lazyWithRetry(() => import("@/pages/settings/users"));
-const Groups = lazyWithRetry(() => import("@/pages/settings/Groups"));
-const Group = lazyWithRetry(() => import("@/pages/settings/Group"));
-const Projects = lazyWithRetry(() => import("@/pages/settings/Projects"));
-const Project = lazyWithRetry(() => import("@/pages/settings/Project"));
-
-// Lazy imports with retry - Jobs & Audit
-const JobList = lazyWithRetry(() => import('./pages/jobs/JobList'));
-const AuditList = lazyWithRetry(() => import('./pages/audit/AuditList'));
-
-// Lazy imports with retry - WAF
-const WafList = lazyWithRetry(() => import('./pages/waf/WafList'));
-const WafDetail = lazyWithRetry(() => import('./pages/waf/WafDetail'));
-
-// Lazy imports with retry - GSLB
-const GslbList = lazyWithRetry(() => import('./pages/gslb/GslbList'));
-const GslbDetail = lazyWithRetry(() => import('./pages/gslb/GslbDetail'));
-
-// Lazy imports with retry - ACME
-const CertificateList = lazyWithRetry(() => import('./pages/acme/CertificateList'));
-const CertificateDetail = lazyWithRetry(() => import('./pages/acme/CertificateDetail'));
-const DnsCredentialDetail = lazyWithRetry(() => import('./pages/acme/DnsCredentialDetail'));
-const AcmeAccountDetail = lazyWithRetry(() => import('./pages/acme/AcmeAccountDetail'));
-
-// Lazy imports with retry - Other pages
-const Discovery = lazyWithRetry(() => import('./pages/discovery/Discovery'));
-const Search = lazyWithRetry(() => import('./pages/Search'));
-const Profile = lazyWithRetry(() => import('./pages/profile/Profile'));
-
-// Wrapper component for lazy-loaded routes
-const LazyRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-    <LazyLoadErrorBoundary>
-        <Suspense fallback={<PageLoadingFallback />}>
-            {children}
-        </Suspense>
-    </LazyLoadErrorBoundary>
-);
 
 const AppRoutes: React.FC = () => (
     <Routes>
@@ -92,106 +61,106 @@ const AppRoutes: React.FC = () => (
         <Route element={<ProtectedRoute />}>
             <Route path="/" element={<Main />}>
                 <Route index element={<Dashboard />} />
-                <Route path="/profile" element={<LazyRoute><Profile /></LazyRoute>} />
-                <Route path="/quick_start" element={<LazyRoute><QuickStart /></LazyRoute>} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/quick_start" element={<QuickStart />} />
 
                 {/* Scenarios */}
-                <Route path="/scenarios" element={<LazyRoute><ScenarioDashboard /></LazyRoute>} />
-                <Route path="/scenarios/create" element={<LazyRoute><DynamicScenarioWizard /></LazyRoute>} />
-                <Route path="/scenarios/:scenarioId/execute" element={<LazyRoute><DynamicScenarioExecutionRedux /></LazyRoute>} />
-                <Route path="/scenarios/:scenarioId/edit" element={<LazyRoute><DynamicScenarioWizard /></LazyRoute>} />
+                <Route path="/scenarios" element={<ScenarioDashboard />} />
+                <Route path="/scenarios/create" element={<DynamicScenarioWizard />} />
+                <Route path="/scenarios/:scenarioId/execute" element={<DynamicScenarioExecutionRedux />} />
+                <Route path="/scenarios/:scenarioId/edit" element={<DynamicScenarioWizard />} />
                 <Route path="/403" element={<Err403 />} />
-                <Route path="/snapshot_dump/:listenerName" element={<LazyRoute><SnapshotDump /></LazyRoute>} />
+                <Route path="/snapshot_dump/:listenerName" element={<SnapshotDump />} />
 
                 {/* Resource Routes */}
-                <Route path="/create/:resource" element={<LazyRoute><Resource /></LazyRoute>} />
-                <Route path="/resource/:resource" element={<LazyRoute><Resources /></LazyRoute>} />
-                <Route path="/resource/:resource/*" element={<LazyRoute><Resource /></LazyRoute>} />
+                <Route path="/create/:resource" element={<Resource />} />
+                <Route path="/resource/:resource" element={<Resources />} />
+                <Route path="/resource/:resource/*" element={<Resource />} />
 
                 {/* Filter Routes */}
-                <Route path="/filters" element={<LazyRoute><FilterMain /></LazyRoute>} />
-                <Route path="/filters/network/:resource" element={<LazyRoute><Resources /></LazyRoute>} />
-                <Route path="/filters/network/:resource/*" element={<LazyRoute><Resource /></LazyRoute>} />
-                <Route path="/filters/http/:resource" element={<LazyRoute><Resources /></LazyRoute>} />
-                <Route path="/filters/http/:resource/*" element={<LazyRoute><Resource /></LazyRoute>} />
-                <Route path="/filters/listener/:resource" element={<LazyRoute><Resources /></LazyRoute>} />
-                <Route path="/filters/listener/:resource/*" element={<LazyRoute><Resource /></LazyRoute>} />
-                <Route path="/filters/udp/:resource" element={<LazyRoute><Resources /></LazyRoute>} />
-                <Route path="/filters/udp/:resource/*" element={<LazyRoute><Resource /></LazyRoute>} />
+                <Route path="/filters" element={<FilterMain />} />
+                <Route path="/filters/network/:resource" element={<Resources />} />
+                <Route path="/filters/network/:resource/*" element={<Resource />} />
+                <Route path="/filters/http/:resource" element={<Resources />} />
+                <Route path="/filters/http/:resource/*" element={<Resource />} />
+                <Route path="/filters/listener/:resource" element={<Resources />} />
+                <Route path="/filters/listener/:resource/*" element={<Resource />} />
+                <Route path="/filters/udp/:resource" element={<Resources />} />
+                <Route path="/filters/udp/:resource/*" element={<Resource />} />
 
                 {/* Extension Routes */}
-                <Route path="/extensions" element={<LazyRoute><ExtensionsMain /></LazyRoute>} />
-                <Route path="/extensions/:resource" element={<LazyRoute><Resources /></LazyRoute>} />
-                <Route path="/extensions/:resource/*" element={<LazyRoute><Resource /></LazyRoute>} />
+                <Route path="/extensions" element={<ExtensionsMain />} />
+                <Route path="/extensions/:resource" element={<Resources />} />
+                <Route path="/extensions/:resource/*" element={<Resource />} />
 
                 {/* Registry Info Route */}
-                <Route path="/registry" element={<LazyRoute><RegistryInfo /></LazyRoute>} />
+                <Route path="/registry" element={<RegistryInfo />} />
 
                 {/* Settings Routes */}
-                <Route path="/settings" element={<LazyRoute><Settings /></LazyRoute>} />
-                {!window.APP_CONFIG?.ENABLE_DEMO && <Route path="/settings/create/user" element={<LazyRoute><User /></LazyRoute>} />}
-                <Route path="/settings/create/group" element={<LazyRoute><Group /></LazyRoute>} />
-                <Route path="/settings/create/project" element={<LazyRoute><Project /></LazyRoute>} />
-                {!window.APP_CONFIG?.ENABLE_DEMO && <Route path="/settings/users" element={<LazyRoute><Users /></LazyRoute>} />}
-                {!window.APP_CONFIG?.ENABLE_DEMO && <Route path="/settings/users/:username" element={<LazyRoute><User /></LazyRoute>} />}
-                <Route path="/settings/groups" element={<LazyRoute><Groups /></LazyRoute>} />
-                <Route path="/settings/groups/:groupname" element={<LazyRoute><Group /></LazyRoute>} />
-                <Route path="/settings/projects" element={<LazyRoute><Projects /></LazyRoute>} />
-                <Route path="/settings/projects/:projectname" element={<LazyRoute><Project /></LazyRoute>} />
+                <Route path="/settings" element={<Settings />} />
+                {!window.APP_CONFIG?.ENABLE_DEMO && <Route path="/settings/create/user" element={<User />} />}
+                <Route path="/settings/create/group" element={<Group />} />
+                <Route path="/settings/create/project" element={<Project />} />
+                {!window.APP_CONFIG?.ENABLE_DEMO && <Route path="/settings/users" element={<Users />} />}
+                {!window.APP_CONFIG?.ENABLE_DEMO && <Route path="/settings/users/:username" element={<User />} />}
+                <Route path="/settings/groups" element={<Groups />} />
+                <Route path="/settings/groups/:groupname" element={<Group />} />
+                <Route path="/settings/projects" element={<Projects />} />
+                <Route path="/settings/projects/:projectname" element={<Project />} />
 
                 {/* Operations Routes */}
-                <Route path="/clients" element={<LazyRoute><Clients /></LazyRoute>} />
-                <Route path="/clients/:client_id" element={<LazyRoute><Client /></LazyRoute>} />
-                <Route path="/services" element={<LazyRoute><Services /></LazyRoute>} />
-                <Route path="/services/:service_id" element={<LazyRoute><Service /></LazyRoute>} />
+                <Route path="/clients" element={<Clients />} />
+                <Route path="/clients/:client_id" element={<Client />} />
+                <Route path="/services" element={<Services />} />
+                <Route path="/services/:service_id" element={<Service />} />
 
                 {/* Metrics Routes */}
-                <Route path="/observability/metrics" element={<LazyRoute><Metrics /></LazyRoute>} />
+                <Route path="/observability/metrics" element={<Metrics />} />
 
                 {/* Logs Routes */}
-                <Route path="/observability/logs" element={<LazyRoute><Logs /></LazyRoute>} />
+                <Route path="/observability/logs" element={<Logs />} />
 
                 {/* AI Config Generator Routes */}
-                <Route path="/ai-analyzer" element={<LazyRoute><AIConfigGenerator /></LazyRoute>} />
+                <Route path="/ai-analyzer" element={<AIConfigGenerator />} />
 
                 {/* Search Route */}
-                <Route path="/search" element={<LazyRoute><Search /></LazyRoute>} />
+                <Route path="/search" element={<Search />} />
 
                 {/* Discovery Route */}
-                <Route path="/discovery" element={<LazyRoute><Discovery /></LazyRoute>} />
+                <Route path="/discovery" element={<Discovery />} />
 
                 {/* Jobs Routes */}
-                <Route path="/jobs" element={<LazyRoute><JobList /></LazyRoute>} />
-                <Route path="/jobs/:jobId" element={<LazyRoute><JobDetail /></LazyRoute>} />
+                <Route path="/jobs" element={<JobList />} />
+                <Route path="/jobs/:jobId" element={<JobDetail />} />
 
                 {/* Audit Routes */}
-                <Route path="/audit" element={<LazyRoute><AuditList /></LazyRoute>} />
-                <Route path="/audit/:auditId" element={<LazyRoute><AuditDetail /></LazyRoute>} />
+                <Route path="/audit" element={<AuditList />} />
+                <Route path="/audit/:auditId" element={<AuditDetail />} />
 
                 {/* WAF Routes */}
-                <Route path="/waf" element={<LazyRoute><WafList /></LazyRoute>} />
-                <Route path="/waf/:id" element={<LazyRoute><WafDetail /></LazyRoute>} />
+                <Route path="/waf" element={<WafList />} />
+                <Route path="/waf/:id" element={<WafDetail />} />
 
                 {/* GSLB Routes */}
-                <Route path="/gslb" element={<LazyRoute><GslbList /></LazyRoute>} />
-                <Route path="/gslb/statistics" element={<LazyRoute><GslbStatistics /></LazyRoute>} />
-                <Route path="/gslb/create" element={<LazyRoute><GslbDetail /></LazyRoute>} />
-                <Route path="/gslb/:id" element={<LazyRoute><GslbDetail /></LazyRoute>} />
+                <Route path="/gslb" element={<GslbList />} />
+                <Route path="/gslb/statistics" element={<GslbStatistics />} />
+                <Route path="/gslb/create" element={<GslbDetail />} />
+                <Route path="/gslb/:id" element={<GslbDetail />} />
 
                 {/* ACME Certificate Routes */}
-                <Route path="/acme" element={<LazyRoute><CertificateList /></LazyRoute>} />
-                <Route path="/acme/create" element={<LazyRoute><CertificateDetail /></LazyRoute>} />
-                <Route path="/acme/:id" element={<LazyRoute><CertificateDetail /></LazyRoute>} />
-                <Route path="/acme/acme-accounts/create" element={<LazyRoute><AcmeAccountDetail /></LazyRoute>} />
-                <Route path="/acme/acme-accounts/:id" element={<LazyRoute><AcmeAccountDetail /></LazyRoute>} />
-                <Route path="/acme/dns-credentials/create" element={<LazyRoute><DnsCredentialDetail /></LazyRoute>} />
-                <Route path="/acme/dns-credentials/:id" element={<LazyRoute><DnsCredentialDetail /></LazyRoute>} />
+                <Route path="/acme" element={<CertificateList />} />
+                <Route path="/acme/create" element={<CertificateDetail />} />
+                <Route path="/acme/:id" element={<CertificateDetail />} />
+                <Route path="/acme/acme-accounts/create" element={<AcmeAccountDetail />} />
+                <Route path="/acme/acme-accounts/:id" element={<AcmeAccountDetail />} />
+                <Route path="/acme/dns-credentials/create" element={<DnsCredentialDetail />} />
+                <Route path="/acme/dns-credentials/:id" element={<DnsCredentialDetail />} />
 
                 {/* Dependency Graph Route */}
-                <Route path="/dependency/:name" element={<LazyRoute><DependencyGraphPage /></LazyRoute>} />
+                <Route path="/dependency/:name" element={<DependencyGraphPage />} />
 
                 {/* Route Map Route */}
-                <Route path="/routemap/:name" element={<LazyRoute><RouteMapPage /></LazyRoute>} />
+                <Route path="/routemap/:name" element={<RouteMapPage />} />
 
                 {/* Catch-All Route */}
                 <Route path="*" element={<Dashboard />} />
