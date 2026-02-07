@@ -225,8 +225,8 @@ const FormItem = ({ veri }: RenderFormItemProps) => {
                         width: 28,
                         height: 28,
                         borderRadius: 8,
-                        border: '1px solid rgba(5, 117, 230, 0.2)',
-                        background: 'linear-gradient(135deg, rgba(5, 117, 230, 0.05) 0%, rgba(0, 198, 251, 0.08) 100%)',
+                        border: '1px solid var(--color-primary-border)',
+                        background: 'var(--color-primary-bg)',
                         position: 'relative',
                         transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                         backdropFilter: 'blur(8px)',
@@ -234,20 +234,20 @@ const FormItem = ({ veri }: RenderFormItemProps) => {
                     }}
                     onMouseEnter={(e) => {
                         e.currentTarget.style.transform = 'translateY(-1px)';
-                        e.currentTarget.style.boxShadow = '0 2px 8px rgba(5, 117, 230, 0.15)';
-                        e.currentTarget.style.borderColor = 'rgba(5, 117, 230, 0.4)';
+                        e.currentTarget.style.boxShadow = '0 2px 8px var(--shadow-primary-color)';
+                        e.currentTarget.style.borderColor = 'var(--color-primary)';
                     }}
                     onMouseLeave={(e) => {
                         e.currentTarget.style.transform = 'translateY(0)';
                         e.currentTarget.style.boxShadow = 'none';
-                        e.currentTarget.style.borderColor = 'rgba(5, 117, 230, 0.2)';
+                        e.currentTarget.style.borderColor = 'var(--color-primary-border)';
                     }}
                 >
                     <IconBracet
                         className="bang_Icon"
                         width="14"
                         height="14"
-                        fill="#056ccd"
+                        fill="var(--color-primary)"
                     />
                     {veri.condition &&
                         <div
@@ -258,9 +258,9 @@ const FormItem = ({ veri }: RenderFormItemProps) => {
                                 width: 8,
                                 height: 8,
                                 borderRadius: '50%',
-                                background: 'linear-gradient(45deg,rgb(0, 157, 26),rgb(111, 238, 82))',
-                                boxShadow: '0 1px 2px rgba(238, 90, 82, 0.3)',
-                                border: '1px solid white'
+                                background: 'var(--gradient-success)',
+                                boxShadow: '0 1px 2px var(--shadow-success-color)',
+                                border: '1px solid var(--bg-surface)'
                             }}
                         />
                     }

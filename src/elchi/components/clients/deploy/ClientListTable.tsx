@@ -591,9 +591,9 @@ export function ClientListTable({
                             justifyContent: 'center',
                             fontSize: 12,
                             transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                            background: 'linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #06b6d4 100%)',
-                            boxShadow: '0 8px 20px rgba(59, 130, 246, 0.3), 0 3px 10px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.15)',
-                            color: '#ffffff',
+                            background: 'var(--gradient-primary)',
+                            boxShadow: '0 8px 20px var(--shadow-blue-color), 0 3px 10px var(--shadow-color), inset 0 1px 0 var(--inset-light-top)',
+                            color: 'var(--text-on-primary)',
                             overflow: 'hidden',
                             outline: 'none',
                             opacity: canRedeploy ? 1 : 0.5,
@@ -602,14 +602,14 @@ export function ClientListTable({
                         onMouseEnter={e => {
                             if (!canRedeploy) return;
                             e.currentTarget.style.transform = 'translateY(-2px) scale(1.05)';
-                            e.currentTarget.style.boxShadow = '0 12px 30px rgba(59, 130, 246, 0.4), 0 6px 20px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.2)';
-                            e.currentTarget.style.background = 'linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #0891b2 100%)';
+                            e.currentTarget.style.boxShadow = '0 12px 30px var(--shadow-blue-color-hover), 0 6px 20px var(--shadow-color), inset 0 1px 0 var(--inset-light-top-hover)';
+                            e.currentTarget.style.background = 'var(--gradient-primary)';
                         }}
                         onMouseLeave={e => {
                             if (!canRedeploy) return;
                             e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                            e.currentTarget.style.boxShadow = '0 8px 20px rgba(59, 130, 246, 0.3), 0 3px 10px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.15)';
-                            e.currentTarget.style.background = 'linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #06b6d4 100%)';
+                            e.currentTarget.style.boxShadow = '0 8px 20px var(--shadow-blue-color), 0 3px 10px var(--shadow-color), inset 0 1px 0 var(--inset-light-top)';
+                            e.currentTarget.style.background = 'var(--gradient-primary)';
                         }}
                         onMouseDown={e => {
                             if (!canRedeploy) return;
@@ -626,7 +626,7 @@ export function ClientListTable({
                             left: 0,
                             right: 0,
                             height: '40%',
-                            background: 'linear-gradient(180deg, rgba(255,255,255,0.2) 0%, transparent 100%)',
+                            background: 'linear-gradient(180deg, var(--inset-light-top-hover) 0%, transparent 100%)',
                             borderRadius: '8px 8px 0 0',
                             zIndex: 1
                         }} />

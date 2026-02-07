@@ -57,12 +57,12 @@ const BgpLogs: React.FC<BgpLogProps> = ({ clientId }) => {
     const [activeLevels, setActiveLevels] = useState<string[]>([]);
     
     const logLevels = [
-        { key: 'info', label: 'Info', color: '#40a9ff' },
-        { key: 'warning', label: 'Warning', color: '#faad14' },
-        { key: 'error', label: 'Error', color: '#ff4d4f' },
-        { key: 'debug', label: 'Debug', color: '#b37feb' },
-        { key: 'trace', label: 'Trace', color: '#13c2c2' },
-        { key: 'critical', label: 'Critical', color: '#d4380d' },
+        { key: 'info', label: 'Info', color: 'var(--color-primary)' },
+        { key: 'warning', label: 'Warning', color: 'var(--color-warning)' },
+        { key: 'error', label: 'Error', color: 'var(--color-danger)' },
+        { key: 'debug', label: 'Debug', color: 'var(--color-purple)' },
+        { key: 'trace', label: 'Trace', color: 'var(--color-cyan)' },
+        { key: 'critical', label: 'Critical', color: 'var(--color-danger)' },
     ];
 
     const toggleLevel = (level: string) => {
@@ -136,14 +136,14 @@ const BgpLogs: React.FC<BgpLogProps> = ({ clientId }) => {
 
     const levelColor = (level: string) => {
         switch ((level || '').toLowerCase()) {
-            case 'error': return '#ff4d4f';
-            case 'warn': return '#faad14';
-            case 'warning': return '#faad14';
-            case 'info': return '#40a9ff';
-            case 'debug': return '#b37feb';
-            case 'trace': return '#13c2c2';
-            case 'critical': return '#d4380d';
-            default: return '#bfbfbf';
+            case 'error': return 'var(--color-danger)';
+            case 'warn': return 'var(--color-warning)';
+            case 'warning': return 'var(--color-warning)';
+            case 'info': return 'var(--color-primary)';
+            case 'debug': return 'var(--color-purple)';
+            case 'trace': return 'var(--color-cyan)';
+            case 'critical': return 'var(--color-danger)';
+            default: return 'var(--text-tertiary)';
         }
     };
 
@@ -295,7 +295,7 @@ const BgpLogs: React.FC<BgpLogProps> = ({ clientId }) => {
                                 }}>
                                     <span style={{
                                         background: levelColor(log.level),
-                                        color: '#fff',
+                                        color: 'var(--text-on-primary)',
                                         padding: '2px 6px',
                                         borderRadius: 3,
                                         fontSize: 10,

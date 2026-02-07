@@ -17,7 +17,7 @@ const ElchiButton: React.FC<ElchiButtonProps> = ({ children = 'Add New', onlyTex
             icon={
                 onlyText ? undefined : (
                     <span style={{
-                        background: isDisabled ? 'rgba(220,220,220,0.18)' : 'rgba(255,255,255,0.18)',
+                        background: isDisabled ? 'var(--bg-hover)' : 'var(--glass-white-medium)',
                         borderRadius: '50%',
                         display: 'flex',
                         alignItems: 'center',
@@ -43,7 +43,7 @@ const ElchiButton: React.FC<ElchiButtonProps> = ({ children = 'Add New', onlyTex
                 height: 32,
                 boxShadow: isDisabled
                     ? 'var(--shadow-sm)'
-                    : '0 4px 16px 0 rgba(5,117,230,0.10)',
+                    : '0 4px 16px 0 var(--shadow-primary-color)',
                 display: 'flex',
                 alignItems: 'center',
                 transition: 'all 0.18s',

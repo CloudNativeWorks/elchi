@@ -232,6 +232,22 @@
   --shadow-card-item: rgba(0, 0, 0, 0.08);
   --shadow-card-item-hover: rgba(0, 0, 0, 0.12);
   --shadow-card-subtle: rgba(0, 0, 0, 0.04);
+
+  /* Button-specific shadows */
+  --shadow-button-ant-blue: rgba(24, 144, 255, 0.2);
+  --shadow-button-purple: rgba(114, 46, 209, 0.2);
+  --inset-light-top: rgba(255, 255, 255, 0.15);
+  --inset-light-top-hover: rgba(255, 255, 255, 0.2);
+
+  /* Switch/Toggle shadows */
+  --shadow-switch-on: rgba(16, 185, 129, 0.35);
+  --shadow-switch-on-hover: rgba(16, 185, 129, 0.4);
+  --shadow-switch-off: rgba(100, 116, 139, 0.25);
+  --shadow-switch-off-hover: rgba(100, 116, 139, 0.3);
+
+  /* Gradients for switches */
+  --gradient-switch-on: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  --gradient-switch-off: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
 }
 
 /* ============================================
@@ -462,6 +478,22 @@
   --shadow-card-item: rgba(0, 0, 0, 0.4);
   --shadow-card-item-hover: rgba(0, 0, 0, 0.6);
   --shadow-card-subtle: rgba(0, 0, 0, 0.3);
+
+  /* Button-specific shadows - Dark Mode */
+  --shadow-button-ant-blue: rgba(96, 165, 250, 0.25);
+  --shadow-button-purple: rgba(196, 181, 253, 0.25);
+  --inset-light-top: rgba(255, 255, 255, 0.12);
+  --inset-light-top-hover: rgba(255, 255, 255, 0.18);
+
+  /* Switch/Toggle shadows - Dark Mode */
+  --shadow-switch-on: rgba(52, 211, 153, 0.35);
+  --shadow-switch-on-hover: rgba(52, 211, 153, 0.45);
+  --shadow-switch-off: rgba(100, 116, 139, 0.35);
+  --shadow-switch-off-hover: rgba(100, 116, 139, 0.45);
+
+  /* Gradients for switches - Dark Mode */
+  --gradient-switch-on: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  --gradient-switch-off: linear-gradient(135deg, #64748b 0%, #475569 100%);
 }
 
 /* ============================================

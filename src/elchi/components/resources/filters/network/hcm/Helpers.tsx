@@ -44,7 +44,7 @@ export const SortableRow = ({ children, ...props }: RowProps) => {
                             children: (
                                 <MenuOutlined
                                     ref={setActivatorNodeRef}
-                                    style={{ touchAction: 'none', cursor: 'move' }}
+                                    style={{ touchAction: 'none', cursor: 'move', color: 'var(--text-tertiary)' }}
                                     {...listeners}
                                 />
                             ),

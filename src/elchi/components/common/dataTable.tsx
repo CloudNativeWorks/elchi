@@ -123,7 +123,7 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({
 
     const isBootstrapPath = path.startsWith('xds/bootstrap');
 
-    // Compare semantic versions (e.g., "1.36.2" > "1.35.3")
+    // Compare semantic versions (e.g., "1.36.2" > "1.35.3" > "1.37.0")
     const compareVersions = (v1: string, v2: string): number => {
         const parts1 = v1.split('.').map(Number);
         const parts2 = v2.split('.').map(Number);
@@ -378,7 +378,7 @@ const CustomDataTable: React.FC<CustomDataTableProps> = ({
                                 border: 'none',
                                 padding: 0,
                                 cursor: 'pointer',
-                                color: 'blue',
+                                color: 'var(--text-secondary)',
                                 display: 'flex',
                                 alignItems: 'center',
                             }}

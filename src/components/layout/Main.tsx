@@ -58,6 +58,14 @@ function Main() {
 		};
 	}, []);
 
+	// Scroll to top on route change
+	useEffect(() => {
+		const mainContent = document.querySelector('.main-content');
+		if (mainContent) {
+			mainContent.scrollTop = 0;
+		}
+	}, [location.pathname]);
+
 	return (
 		<div className="App">
 			<Layout style={{ minHeight: '100vh' }}>

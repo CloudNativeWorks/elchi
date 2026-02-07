@@ -144,17 +144,17 @@ const AddBGPPrefixListCard: React.FC<AddBGPPrefixListCardProps> = ({
                     </Col>
                 </Row>
 
-                <div style={{ 
-                    background: '#f0f9ff', 
-                    padding: '12px 16px', 
-                    borderRadius: 8, 
+                <div style={{
+                    background: 'var(--color-info-light)',
+                    padding: '12px 16px',
+                    borderRadius: 8,
                     marginBottom: 16,
-                    border: '1px solid #e6f7ff'
+                    border: '1px solid var(--color-info-border)'
                 }}>
-                    <div style={{ fontSize: 13, color: '#0958d9', marginBottom: 4, fontWeight: 500 }}>
+                    <div style={{ fontSize: 13, color: 'var(--color-info)', marginBottom: 4, fontWeight: 500 }}>
                         Examples:
                     </div>
-                    <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>
                         • <code>192.168.0.0/16</code> - Exact match<br/>
                         • <code>192.168.0.0/16 ge 24</code> - /16 network with /24 or longer prefixes<br/>
                         • <code>192.168.0.0/16 le 24</code> - /16 network with /24 or shorter prefixes<br/>

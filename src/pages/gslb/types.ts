@@ -99,6 +99,16 @@ export interface GSLBListResponse {
   total_pages: number;
 }
 
+export interface GSLBNode {
+  id: string;
+  node_ip: string;
+  zone: string;
+  first_seen: string;
+  last_seen: string;
+  request_count: number;
+  last_version_hash: string;
+}
+
 export interface GSLBListFilter {
   project: string;
   page?: number;

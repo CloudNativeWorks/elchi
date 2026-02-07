@@ -97,7 +97,7 @@ const PopoverContent: React.FC<PopoverContentProps> = ({
                         alignItems: 'center',
                         justifyContent: 'center',
                         fontSize: '20px',
-                        color: '#fff',
+                        color: 'var(--text-on-primary)',
                         flexShrink: 0,
                         boxShadow: nodeStyle.shadow,
                     }}
@@ -225,7 +225,7 @@ const PopoverContent: React.FC<PopoverContentProps> = ({
                     background: nodeStyle.gradient,
                     border: `2px solid ${nodeStyle.border}`,
                     borderRadius: '10px',
-                    color: '#fff',
+                    color: 'var(--text-on-primary)',
                     fontSize: '13px',
                     fontWeight: 700,
                     cursor: 'pointer',
@@ -234,15 +234,15 @@ const PopoverContent: React.FC<PopoverContentProps> = ({
                     justifyContent: 'center',
                     gap: '8px',
                     transition: 'all 0.2s ease',
-                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+                    boxShadow: 'var(--shadow-sm)',
                 }}
                 onMouseEnter={(e) => {
                     e.currentTarget.style.transform = 'translateY(-2px)';
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+                    e.currentTarget.style.boxShadow = 'var(--shadow-md)';
                 }}
                 onMouseLeave={(e) => {
                     e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.1)';
+                    e.currentTarget.style.boxShadow = 'var(--shadow-sm)';
                 }}
             >
                 <LinkOutlined style={{ fontSize: '14px' }} />

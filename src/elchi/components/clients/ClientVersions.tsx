@@ -352,7 +352,7 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                                 {!isSupported && (
                                     <Badge
                                         status="warning"
-                                        text={<Text style={{ fontSize: 11, color: '#fa8c16' }}>Not Supported</Text>}
+                                        text={<Text style={{ fontSize: 11, color: 'var(--color-warning)' }}>Not Supported</Text>}
                                     />
                                 )}
                             </div>
@@ -395,7 +395,7 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
         {
             title: (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <FileZipOutlined style={{ color: '#fa8c16' }} />
+                    <FileZipOutlined style={{ color: 'var(--color-warning)' }} />
                     <span>Architectures</span>
                 </div>
             ),
@@ -405,11 +405,11 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                     {binaries.map(binary => {
                         const archColors: { [key: string]: string } = {
-                            'linux-amd64': '#1890ff',
-                            'linux-arm64': '#52c41a',
-                            'darwin-amd64': '#722ed1',
-                            'darwin-arm64': '#fa8c16',
-                            'windows-amd64': '#eb2f96'
+                            'linux-amd64': 'blue',
+                            'linux-arm64': 'green',
+                            'darwin-amd64': 'purple',
+                            'darwin-arm64': 'orange',
+                            'windows-amd64': 'pink'
                         };
 
                         return (
@@ -452,7 +452,7 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                             borderRadius: 8,
                             fontWeight: 500,
                             height: 36,
-                            boxShadow: isDownloaded ? 'none' : '0 2px 4px rgba(24,144,255,0.2)',
+                            boxShadow: isDownloaded ? 'none' : '0 2px 4px var(--shadow-button-ant-blue)',
                             opacity: !isSupported ? 0.6 : 1
                         }}
                         title={!isSupported ? 'This version is not supported by Elchi' : ''}
@@ -537,7 +537,7 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
         {
             title: (
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <FileZipOutlined style={{ color: '#fa8c16' }} />
+                    <FileZipOutlined style={{ color: 'var(--color-warning)' }} />
                     <span>Architectures</span>
                 </div>
             ),
@@ -547,8 +547,8 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                     {binaries.map(binary => {
                         const archColors: { [key: string]: string } = {
-                            'wasm-amd64': '#722ed1',
-                            'wasm-arm64': '#eb2f96'
+                            'wasm-amd64': 'purple',
+                            'wasm-arm64': 'pink'
                         };
 
                         return (
@@ -588,7 +588,7 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                             borderRadius: 8,
                             fontWeight: 500,
                             height: 36,
-                            boxShadow: isDownloaded ? 'none' : '0 2px 4px rgba(114,46,209,0.2)'
+                            boxShadow: isDownloaded ? 'none' : '0 2px 4px var(--shadow-button-purple)'
                         }}
                     >
                         {isDownloaded ? 'Reinstall' : 'Install'}
@@ -614,7 +614,7 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                     background: 'var(--card-bg)',
                     borderRadius: 12,
                     border: '1px solid var(--border-default)',
-                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                    boxShadow: 'var(--shadow-sm)',
                     overflow: 'hidden'
                 }}>
                     {/* Header */}
@@ -660,7 +660,7 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                                         border: '1px solid var(--border-default)'
                                     }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                                            <CheckCircleOutlined style={{ fontSize: 12, color: '#10b981' }} />
+                                            <CheckCircleOutlined style={{ fontSize: 12, color: 'var(--color-success)' }} />
                                             <Text style={{ color: 'var(--text-primary)', fontSize: 13, fontWeight: 500 }}>
                                                 {version}
                                             </Text>
@@ -681,7 +681,7 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                 background: 'var(--card-bg)',
                 borderRadius: 12,
                 border: '1px solid var(--border-default)',
-                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                boxShadow: 'var(--shadow-sm)',
                 overflow: 'hidden'
             }}>
                 {/* Header */}
@@ -704,7 +704,7 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                     </div>
                     <Badge
                         count={availableVersions?.releases?.length || 0}
-                        style={{ backgroundColor: '#6b7280' }}
+                        style={{ backgroundColor: 'var(--text-secondary)' }}
                         showZero
                     />
                 </div>
@@ -736,11 +736,11 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                     <style dangerouslySetInnerHTML={{
                         __html: `
                             .downloaded-version {
-                                background: linear-gradient(90deg, rgba(16, 185, 129, 0.05) 0%, rgba(16, 185, 129, 0.02) 100%) !important;
-                                border-left: 3px solid #10b981 !important;
+                                background: linear-gradient(90deg, var(--color-success-light) 0%, transparent 100%) !important;
+                                border-left: 3px solid var(--color-success) !important;
                             }
                             .downloaded-version:hover {
-                                background: linear-gradient(90deg, rgba(16, 185, 129, 0.08) 0%, rgba(16, 185, 129, 0.04) 100%) !important;
+                                background: linear-gradient(90deg, var(--color-success-bg) 0%, transparent 100%) !important;
                             }
                         `
                     }} />
@@ -757,7 +757,7 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                     background: 'var(--card-bg)',
                     borderRadius: 12,
                     border: '1px solid var(--border-default)',
-                    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                    boxShadow: 'var(--shadow-sm)',
                     overflow: 'hidden'
                 }}>
                     {/* Header */}
@@ -837,7 +837,7 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                                                     style={{
                                                         borderRadius: 6,
                                                         color: 'var(--color-purple)',
-                                                        borderColor: '#722ed1'
+                                                        borderColor: 'var(--color-purple)'
                                                     }}
                                                 >
                                                     Copy
@@ -861,7 +861,7 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                 background: 'var(--card-bg)',
                 borderRadius: 12,
                 border: '1px solid var(--border-default)',
-                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+                boxShadow: 'var(--shadow-sm)',
                 overflow: 'hidden'
             }}>
                 {/* Header */}
@@ -884,7 +884,7 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                     </div>
                     <Badge
                         count={availableVersions?.coroza_releases?.length || 0}
-                        style={{ backgroundColor: '#722ed1' }}
+                        style={{ backgroundColor: 'var(--color-purple)' }}
                         showZero
                     />
                 </div>
@@ -916,11 +916,11 @@ const ClientVersions: React.FC<ClientVersionsProps> = ({ clientId, downstreamAdd
                     <style dangerouslySetInnerHTML={{
                         __html: `
                             .downloaded-coroza-version {
-                                background: linear-gradient(90deg, rgba(114, 46, 209, 0.05) 0%, rgba(114, 46, 209, 0.02) 100%) !important;
-                                border-left: 3px solid #722ed1 !important;
+                                background: linear-gradient(90deg, var(--color-purple-light) 0%, transparent 100%) !important;
+                                border-left: 3px solid var(--color-purple) !important;
                             }
                             .downloaded-coroza-version:hover {
-                                background: linear-gradient(90deg, rgba(114, 46, 209, 0.08) 0%, rgba(114, 46, 209, 0.04) 100%) !important;
+                                background: linear-gradient(90deg, var(--color-purple-bg) 0%, transparent 100%) !important;
                             }
                         `
                     }} />

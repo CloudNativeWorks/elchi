@@ -146,8 +146,8 @@ const ComponentJwtRequirementOrList: React.FC<GeneralProps> = ({ veri }) => {
 
                 {!veri.reduxStore?.requirements || veri.reduxStore.requirements.length === 0 ? (
                     <div style={{
-                        background: 'linear-gradient(135deg, rgba(248, 250, 252, 0.8) 0%, rgba(241, 245, 249, 0.9) 100%)',
-                        border: '2px dashed rgba(148, 163, 184, 0.3)',
+                        background: 'var(--empty-state-gradient)',
+                        border: '2px dashed var(--border-default)',
                         borderRadius: 16,
                         padding: '40px 20px',
                         textAlign: 'center',
@@ -197,7 +197,7 @@ const ComponentJwtRequirementOrList: React.FC<GeneralProps> = ({ veri }) => {
                                     label: (
                                         <span style={{
                                             fontWeight: 500,
-                                            color: '#1e293b',
+                                            color: 'var(--text-primary)',
                                             fontSize: 14
                                         }}>
                                             {`${index}) JWT Requirement (OR)`}
@@ -206,21 +206,21 @@ const ComponentJwtRequirementOrList: React.FC<GeneralProps> = ({ veri }) => {
                                     extra:
                                         <Button
                                             key={"btn_ " + index.toString()}
-                                            icon={<DeleteTwoTone twoToneColor="#ef4444" />}
+                                            icon={<DeleteTwoTone twoToneColor="var(--color-danger)" />}
                                             size='small'
                                             onClick={(e) => { onRemove(e, index) }}
                                             iconPosition={"end"}
                                             style={{
                                                 borderRadius: 8,
-                                                border: '1px solid rgba(239, 68, 68, 0.2)',
-                                                background: 'rgba(254, 242, 242, 0.5)',
+                                                border: '1px solid var(--color-danger-border)',
+                                                background: 'var(--color-danger-bg)',
                                             }}
                                         />,
                                     style: {
                                         marginBottom: 8,
                                         borderRadius: 12,
-                                        border: '1px solid rgba(226, 232, 240, 0.5)',
-                                        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 250, 252, 0.8) 100%)',
+                                        border: '1px solid var(--border-default)',
+                                        background: 'var(--card-bg)',
                                         backdropFilter: 'blur(10px)',
                                     },
                                     children:

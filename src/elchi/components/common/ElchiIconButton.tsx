@@ -24,7 +24,7 @@ const ElchiIconButton: React.FC<ElchiIconButtonProps> = ({ style, disabled, ...p
                     : 'var(--gradient-primary)',
                 border: 'none',
                 color: 'var(--text-on-primary)',
-                boxShadow: '0 2px 8px 0 rgba(5,117,230,0.10)',
+                boxShadow: '0 2px 8px 0 var(--shadow-primary-color)',
                 width: 26,
                 height: 26,
                 minWidth: 26,

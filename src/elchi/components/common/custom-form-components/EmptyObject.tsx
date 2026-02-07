@@ -45,8 +45,8 @@ const EmptyObjectComponent: React.FC<ComponentProps> = ({ veri }) => {
                 width: 28,
                 height: 28,
                 borderRadius: 8,
-                border: '1px solid rgba(156, 163, 175, 0.2)',
-                background: 'linear-gradient(135deg, rgba(156, 163, 175, 0.05) 0%, rgba(156, 163, 175, 0.08) 100%)',
+                border: '1px solid var(--border-default)',
+                background: 'var(--bg-hover)',
                 position: 'relative',
                 transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
                 opacity: 0.6,
@@ -54,13 +54,13 @@ const EmptyObjectComponent: React.FC<ComponentProps> = ({ veri }) => {
                 padding: 0,
             }}
         >
-            <IconBracet 
+            <IconBracet
                 className=""
                 width="14"
                 height="14"
-                fill="#9ca3af"
+                fill="var(--text-tertiary)"
             />
-            <div 
+            <div
                 style={{
                     position: 'absolute',
                     top: -2,
@@ -68,9 +68,9 @@ const EmptyObjectComponent: React.FC<ComponentProps> = ({ veri }) => {
                     width: 8,
                     height: 8,
                     borderRadius: '50%',
-                    background: 'linear-gradient(45deg, #9ca3af, #d1d5db)',
-                    boxShadow: '0 1px 2px rgba(156, 163, 175, 0.2)',
-                    border: '1px solid rgba(255, 255, 255, 0.8)'
+                    background: 'var(--text-tertiary)',
+                    boxShadow: 'var(--shadow-sm)',
+                    border: '1px solid var(--bg-surface)'
                 }}
             />
         </Button>

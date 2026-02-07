@@ -8,6 +8,7 @@ import { handleApiResponse } from '@/common/notificationHandler';
 import type {
   GSLBRecord,
   GSLBConfig,
+  GSLBNode,
   CreateGSLBRequest,
   UpdateGSLBRequest,
   GSLBListResponse,
@@ -271,6 +272,22 @@ class GslbApiClient {
       successTitle: 'Bulk Update Completed'
     });
 
+    return response.data;
+  }
+  // ========== GSLB Nodes API ==========
+
+  async getGslbNodes(): Promise<GSLBNode[]> {
+    const response = await api.get<{ data: GSLBNode[]; message: string; total: number }>(`${GSLB_BASE}/nodes`);
+    return response.data.data || [];
+  }
+
+  async deleteGslbNode(nodeId: string): Promise<{ message: string }> {
+    const response = await api.delete<{ message: string }>(`${GSLB_BASE}/nodes/${nodeId}`);
+    handleApiResponse(response.data, undefined, undefined, {
+      showAutoSuccess: true,
+      customSuccessMessage: 'GSLB node removed successfully',
+      successTitle: 'Node Removed'
+    });
     return response.data;
   }
 }

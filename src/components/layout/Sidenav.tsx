@@ -409,9 +409,13 @@ function Sidenav({ color, userDetail, collapsed }: Readonly<defaultProps>) {
 				.main-menu .ant-menu-item a {
 					color: var(--sidenav-text) !important;
 				}
-				.main-menu .ant-menu-item:hover,
+				.main-menu .ant-menu-item:hover:not(.ant-menu-item-selected),
 				.main-menu .ant-menu-submenu-title:hover {
 					background: var(--sidenav-hover) !important;
+				}
+				.main-menu .ant-menu-item-selected:hover {
+					background: var(--gradient-primary) !important;
+					color: white !important;
 				}
 				.ant-menu,
 				.ant-menu * {

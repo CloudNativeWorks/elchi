@@ -48,9 +48,9 @@ const SwitchComponent: React.FC<ComponentProps> = ({ veri }) => {
                     const switchEl = e.currentTarget.querySelector('.ant-switch') as HTMLElement;
                     if (switchEl) {
                         switchEl.style.transform = 'translateY(-1px)';
-                        switchEl.style.boxShadow = veri.value 
-                            ? '0 4px 12px rgba(16, 185, 129, 0.4)' 
-                            : '0 4px 12px rgba(100, 116, 139, 0.3)';
+                        switchEl.style.boxShadow = veri.value
+                            ? '0 4px 12px var(--shadow-switch-on-hover)'
+                            : '0 4px 12px var(--shadow-switch-off-hover)';
                     }
                 }
             }}
@@ -60,8 +60,8 @@ const SwitchComponent: React.FC<ComponentProps> = ({ veri }) => {
                     if (switchEl) {
                         switchEl.style.transform = 'translateY(0)';
                         switchEl.style.boxShadow = veri.value
-                            ? '0 2px 6px rgba(16, 185, 129, 0.35)'
-                            : '0 2px 6px rgba(100, 116, 139, 0.25)';
+                            ? '0 2px 6px var(--shadow-switch-on)'
+                            : '0 2px 6px var(--shadow-switch-off)';
                     }
                 }
             }}
@@ -90,12 +90,12 @@ const SwitchComponent: React.FC<ComponentProps> = ({ veri }) => {
                 onChange={(val) => veri.handleChange(veri.localKeyPrefix, val)}
                 style={{
                     minWidth: 60,
-                    background: veri.value 
-                        ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' 
-                        : 'linear-gradient(135deg, #94a3b8 0%, #64748b 100%)',
+                    background: veri.value
+                        ? 'var(--gradient-switch-on)'
+                        : 'var(--gradient-switch-off)',
                     boxShadow: veri.value
-                        ? '0 2px 6px rgba(16, 185, 129, 0.35)'
-                        : '0 2px 6px rgba(100, 116, 139, 0.25)',
+                        ? '0 2px 6px var(--shadow-switch-on)'
+                        : '0 2px 6px var(--shadow-switch-off)',
                     border: 'none',
                     transition: 'all 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
                 }}

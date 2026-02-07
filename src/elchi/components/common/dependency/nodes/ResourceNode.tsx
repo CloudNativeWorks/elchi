@@ -51,17 +51,17 @@ const ResourceNode: React.FC<NodeProps<ResourceNodeType>> = ({ data, selected })
     const getBorderStyle = () => {
         if (selected || data.isHighlighted) {
             return {
-                borderColor: '#fbbf24',
+                borderColor: 'var(--color-warning)',
                 borderWidth: '3px',
-                boxShadow: '0 0 30px rgba(251, 191, 36, 0.8)',
+                boxShadow: '0 0 30px var(--shadow-warning-color-hover)',
             };
         }
         if (data.isNeighbor) {
-            const neighborColor = data.neighborType === 'parent' ? '#10b981' : '#3b82f6';
+            const neighborColor = data.neighborType === 'parent' ? 'var(--color-success)' : 'var(--color-primary)';
             return {
                 borderColor: neighborColor,
                 borderWidth: '2px',
-                boxShadow: `0 0 20px ${neighborColor}40`,
+                boxShadow: `0 0 20px ${data.neighborType === 'parent' ? 'var(--shadow-success-color)' : 'var(--shadow-blue-color)'}`,
             };
         }
         return {
@@ -121,18 +121,18 @@ const ResourceNode: React.FC<NodeProps<ResourceNodeType>> = ({ data, selected })
                         position: 'absolute',
                         top: '-6px',
                         right: '-6px',
-                        background: '#fbbf24',
+                        background: 'var(--color-warning)',
                         borderRadius: '50%',
                         width: '18px',
                         height: '18px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        boxShadow: '0 2px 8px rgba(251, 191, 36, 0.6)',
+                        boxShadow: '0 2px 8px var(--shadow-warning-color)',
                         zIndex: 10,
                     }}
                 >
-                    <StarFilled style={{ fontSize: '10px', color: '#fff' }} />
+                    <StarFilled style={{ fontSize: '10px', color: 'var(--text-on-primary)' }} />
                 </div>
             )}
 
@@ -143,7 +143,7 @@ const ResourceNode: React.FC<NodeProps<ResourceNodeType>> = ({ data, selected })
                         position: 'absolute',
                         top: '-6px',
                         left: '-6px',
-                        background: '#3b82f6',
+                        background: 'var(--color-primary)',
                         borderRadius: '10px',
                         minWidth: '18px',
                         height: '18px',
@@ -151,11 +151,11 @@ const ResourceNode: React.FC<NodeProps<ResourceNodeType>> = ({ data, selected })
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        boxShadow: '0 2px 8px rgba(59, 130, 246, 0.6)',
+                        boxShadow: '0 2px 8px var(--shadow-blue-color-hover)',
                         zIndex: 10,
                     }}
                 >
-                    <span style={{ fontSize: '10px', fontWeight: 700, color: '#fff' }}>
+                    <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-on-primary)' }}>
                         {data.count}
                     </span>
                 </div>

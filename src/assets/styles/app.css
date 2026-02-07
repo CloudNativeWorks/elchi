@@ -257,10 +257,10 @@ com-1password-button {
     cursor: pointer;
     border: unset;
     padding: 0;
-    background-color: rgba(255, 255, 255, 0.08) !important;
-    color: var(--text-inverse);
-    stroke: var(--text-inverse);
-    fill: var(--text-inverse);
+    background-color: transparent !important;
+    color: var(--text-secondary);
+    stroke: var(--text-secondary);
+    fill: var(--text-secondary);
     display: flex;
     align-items: center;
     justify-content: center;

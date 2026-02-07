@@ -671,9 +671,9 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                                         'linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #f87171 100%)' :
                                         'linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #06b6d4 100%)',
                                     boxShadow: action === OperationsType.UNDEPLOY ?
-                                        '0 8px 20px rgba(220, 38, 38, 0.3), 0 3px 10px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.15)' :
-                                        '0 8px 20px rgba(59, 130, 246, 0.3), 0 3px 10px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.15)',
-                                    color: '#ffffff',
+                                        '0 8px 20px var(--shadow-danger-color), 0 3px 10px var(--shadow-color), inset 0 1px 0 var(--inset-light-top)' :
+                                        '0 8px 20px var(--shadow-blue-color), 0 3px 10px var(--shadow-color), inset 0 1px 0 var(--inset-light-top)',
+                                    color: 'var(--text-on-primary)',
                                     overflow: 'hidden',
                                     outline: 'none',
                                     opacity: selectedRowKeys.length === 0 || loading || (action === OperationsType.DEPLOY && selectedRowKeys.every(id => isExistingClient(id))) ? 0.5 : 1
@@ -682,8 +682,8 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                                     if (selectedRowKeys.length === 0 || loading || (action === OperationsType.DEPLOY && selectedRowKeys.every(id => isExistingClient(id)))) return;
                                     e.currentTarget.style.transform = 'translateY(-2px) scale(1.03)';
                                     e.currentTarget.style.boxShadow = action === OperationsType.UNDEPLOY ?
-                                        '0 12px 30px rgba(220, 38, 38, 0.4), 0 6px 20px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.2)' :
-                                        '0 12px 30px rgba(59, 130, 246, 0.4), 0 6px 20px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.2)';
+                                        '0 12px 30px var(--shadow-danger-color-hover), 0 6px 20px var(--shadow-color), inset 0 1px 0 var(--inset-light-top-hover)' :
+                                        '0 12px 30px var(--shadow-blue-color-hover), 0 6px 20px var(--shadow-color), inset 0 1px 0 var(--inset-light-top-hover)';
                                     e.currentTarget.style.background = action === OperationsType.UNDEPLOY ?
                                         'linear-gradient(135deg, #b91c1c 0%, #dc2626 50%, #ef4444 100%)' :
                                         'linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #0891b2 100%)';
@@ -692,8 +692,8 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                                     if (selectedRowKeys.length === 0 || loading || (action === OperationsType.DEPLOY && selectedRowKeys.every(id => isExistingClient(id)))) return;
                                     e.currentTarget.style.transform = 'translateY(0) scale(1)';
                                     e.currentTarget.style.boxShadow = action === OperationsType.UNDEPLOY ?
-                                        '0 8px 20px rgba(220, 38, 38, 0.3), 0 3px 10px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.15)' :
-                                        '0 8px 20px rgba(59, 130, 246, 0.3), 0 3px 10px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.15)';
+                                        '0 8px 20px var(--shadow-danger-color), 0 3px 10px var(--shadow-color), inset 0 1px 0 var(--inset-light-top)' :
+                                        '0 8px 20px var(--shadow-blue-color), 0 3px 10px var(--shadow-color), inset 0 1px 0 var(--inset-light-top)';
                                     e.currentTarget.style.background = action === OperationsType.UNDEPLOY ?
                                         'linear-gradient(135deg, #dc2626 0%, #ef4444 50%, #f87171 100%)' :
                                         'linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #06b6d4 100%)';
@@ -713,7 +713,7 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                                     left: 0,
                                     right: 0,
                                     height: '40%',
-                                    background: 'linear-gradient(180deg, rgba(255,255,255,0.2) 0%, transparent 100%)',
+                                    background: 'linear-gradient(180deg, var(--inset-light-top-hover) 0%, transparent 100%)',
                                     borderRadius: '12px 12px 0 0',
                                     zIndex: 1
                                 }} />
@@ -721,7 +721,7 @@ export function DeployServiceDialog({ open, onClose, serviceName, project, actio
                                     fontSize: 12,
                                     fontWeight: 600,
                                     letterSpacing: '0.2px',
-                                    textShadow: '0 1px 2px rgba(0,0,0,0.3)',
+                                    textShadow: '0 1px 2px var(--shadow-text)',
                                     zIndex: 1,
                                     whiteSpace: 'nowrap'
                                 }}>

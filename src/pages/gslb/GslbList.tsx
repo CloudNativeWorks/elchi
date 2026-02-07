@@ -38,6 +38,7 @@ import ElchiButton from '@/elchi/components/common/ElchiButton';
 import { gslbApi } from './gslbApi';
 import { GSLBRecord } from './types';
 import { HEALTH_STATUS } from './constants';
+import GslbTopology from './components/GslbTopology';
 
 const { Title, Text } = Typography;
 const { confirm } = Modal;
@@ -397,6 +398,8 @@ const GslbList: React.FC = () => {
                 </Text>
             </div>
 
+            {/* Node Topology */}
+            <GslbTopology />
 
             {/* Data Table */}
             <div
