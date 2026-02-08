@@ -317,7 +317,7 @@ const GslbTopology: React.FC = () => {
     const queryClient = useQueryClient();
     const { project } = useProjectVariable();
 
-    const { data: gslbNodes, isLoading } = useQuery({
+    const { data: gslbNodes, isLoading, dataUpdatedAt } = useQuery({
         queryKey: ['gslb-nodes', project],
         queryFn: () => gslbApi.getGslbNodes(),
         enabled: !!project,
@@ -389,7 +389,7 @@ const GslbTopology: React.FC = () => {
                             />
                         </div>
                     ) : (
-                        <ReactFlowProvider>
+                        <ReactFlowProvider key={dataUpdatedAt}>
                             <GslbTopologyInner gslbNodes={gslbNodes} />
                         </ReactFlowProvider>
                     )}

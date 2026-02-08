@@ -188,6 +188,28 @@ class GslbApiClient {
   }
 
   /**
+   * Update regions for an IP in a GSLB record
+   */
+  async updateIpRegions(
+    recordId: string,
+    ip: string,
+    regions: string[]
+  ): Promise<{ message: string; ip: string; regions: string[] }> {
+    const response = await api.put<{ message: string; ip: string; regions: string[] }>(
+      `${GSLB_BASE}/${recordId}/ips/${encodeURIComponent(ip)}/regions`,
+      { regions }
+    );
+
+    handleApiResponse(response.data, undefined, undefined, {
+      showAutoSuccess: true,
+      customSuccessMessage: `Regions updated for IP ${ip}`,
+      successTitle: 'IP Regions Updated'
+    });
+
+    return response.data;
+  }
+
+  /**
    * Get all IPs for a GSLB record
    */
   async getRecordIps(recordId: string): Promise<GSLBIPAddress[]> {
@@ -209,11 +231,11 @@ class GslbApiClient {
   }
 
   /**
-   * Get failover zones list for project
+   * Get GSLB options (failover zones and regions) for project
    */
-  async getFailoverZones(project: string): Promise<{ failover_zones: string[]; project: string; message?: string }> {
-    const response = await api.get<{ failover_zones: string[]; project: string; message?: string }>(
-      `${SETTING_BASE}/failover-zones?project=${project}`
+  async getOptions(project: string): Promise<{ failover_zones: string[]; regions: string[]; project: string; message?: string }> {
+    const response = await api.get<{ failover_zones: string[]; regions: string[]; project: string; message?: string }>(
+      `${SETTING_BASE}/options?project=${project}`
     );
     return response.data;
   }

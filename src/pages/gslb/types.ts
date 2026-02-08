@@ -7,6 +7,7 @@ export interface GSLBConfig {
   enabled: boolean;
   zone: string;
   failover_zones?: string[]; // Array of failover zones (first one is default)
+  regions?: string[]; // Geographic regions for IP-level region assignment
   dns_secret: string;
   default_ttl: number;
 }
@@ -32,6 +33,7 @@ export interface GSLBIPAddress {
   last_status_change?: string;
   status_history?: GSLBStatusHistory[];
   is_manual?: boolean; // true = manually added by admin (deletable), false = auto-generated from service (non-deletable)
+  regions?: string[]; // Regions assigned to this IP
 }
 
 export interface GSLBProbe {

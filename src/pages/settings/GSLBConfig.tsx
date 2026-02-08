@@ -57,6 +57,7 @@ const GSLBConfigComponent: React.FC = () => {
                 enabled: config.enabled,
                 zone: config.zone,
                 failover_zones: config.failover_zones || [],
+                regions: config.regions || [],
                 default_ttl: config.default_ttl,
                 // Don't set dns_secret in form, keep it empty (masked)
             });
@@ -68,6 +69,7 @@ const GSLBConfigComponent: React.FC = () => {
             form.setFieldsValue({
                 enabled: false,
                 failover_zones: [],
+                regions: [],
                 default_ttl: 60
             });
         }
@@ -113,6 +115,7 @@ const GSLBConfigComponent: React.FC = () => {
                 enabled: values.enabled,
                 zone: values.zone,
                 failover_zones: values.failover_zones || [],
+                regions: values.regions || [],
                 dns_secret: values.dns_secret || '',
                 default_ttl: values.default_ttl
             };
@@ -280,6 +283,60 @@ const GSLBConfigComponent: React.FC = () => {
                                     </>
                                 )}
                             </Form.List>
+
+                            {/* Regions */}
+                            <Form.List name="regions">
+                                {(fields, { add, remove }) => (
+                                    <>
+                                        <Form.Item
+                                            label="Regions (Optional)"
+                                            extra={
+                                                <Text style={{ color: 'var(--text-secondary)', fontSize: 13, marginTop: 8 }}>
+                                                    Define geographic regions for IP-level region assignment in GSLB records
+                                                </Text>
+                                            }
+                                        >
+                                            <Space direction="vertical" style={{ width: '100%' }} size="small">
+                                                {fields.map((field, index) => (
+                                                    <div key={field.key} style={{ display: 'flex', gap: 8, alignItems: 'flex-start', width: '100%' }}>
+                                                        <Tag color="cyan" style={{ marginTop: 5, width: 70, textAlign: 'center', flexShrink: 0 }}>
+                                                            #{index + 1}
+                                                        </Tag>
+                                                        <Form.Item
+                                                            name={field.name}
+                                                            rules={[
+                                                                { required: true, message: 'Region name required' },
+                                                                { pattern: /^[a-zA-Z0-9_-]+$/, message: 'Only alphanumeric, hyphens and underscores' }
+                                                            ]}
+                                                            style={{ marginBottom: 0, flex: 1 }}
+                                                        >
+                                                            <Input style={{ width: '100%' }} placeholder="e.g. us-east, europe, asia" size="large" />
+                                                        </Form.Item>
+                                                        <div style={{ marginTop: 5, display: 'flex', gap: 4, flexShrink: 0 }}>
+                                                            <Button
+                                                                danger
+                                                                size="small"
+                                                                icon={<CloseOutlined />}
+                                                                onClick={() => remove(field.name)}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                                <Button
+                                                    type="dashed"
+                                                    onClick={() => add()}
+                                                    icon={<PlusOutlined />}
+                                                    style={{ width: '100%', marginTop: 8 }}
+                                                >
+                                                    Add Region
+                                                </Button>
+                                            </Space>
+                                        </Form.Item>
+                                    </>
+                                )}
+                            </Form.List>
+
+                            <Divider />
 
                             {/* DNS Secret */}
                             <Form.Item label="DNS Secret">

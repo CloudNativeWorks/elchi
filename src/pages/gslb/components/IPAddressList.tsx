@@ -18,9 +18,10 @@ export interface IPAddressListProps {
     recordId?: string; // For edit mode - when provided, use API calls
     isEditMode?: boolean;
     onRefresh?: () => void; // Callback to refresh data after API calls
+    availableRegions?: string[]; // Available regions from GSLB settings
 }
 
-const IPAddressList: React.FC<IPAddressListProps> = ({ ips, onChange, recordId, isEditMode, onRefresh }) => {
+const IPAddressList: React.FC<IPAddressListProps> = ({ ips, onChange, recordId, isEditMode, onRefresh, availableRegions = [] }) => {
     const { modal } = App.useApp();
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isAddingIP, setIsAddingIP] = useState(false);
@@ -30,6 +31,8 @@ const IPAddressList: React.FC<IPAddressListProps> = ({ ips, onChange, recordId, 
     const [selectedIpId, setSelectedIpId] = useState<string>('');
     const [togglingHealthIP, setTogglingHealthIP] = useState<string | null>(null);
     const [isClearingHistory, setIsClearingHistory] = useState(false);
+    const [editingRegionsIP, setEditingRegionsIP] = useState<string | null>(null);
+    const [savingRegions, setSavingRegions] = useState<string | null>(null);
     const [form] = Form.useForm();
 
     const handleAdd = async () => {
@@ -162,6 +165,30 @@ const IPAddressList: React.FC<IPAddressListProps> = ({ ips, onChange, recordId, 
         }
     };
 
+    const handleUpdateRegions = async (ip: string, newRegions: string[]) => {
+        if (!isEditMode || !recordId) {
+            // Create mode - update local state
+            const updatedIps = ips.map(ipItem =>
+                ipItem.ip === ip ? { ...ipItem, regions: newRegions } : ipItem
+            );
+            onChange(updatedIps);
+            return;
+        }
+
+        setSavingRegions(ip);
+        try {
+            await gslbApi.updateIpRegions(recordId, ip, newRegions);
+            if (onRefresh) {
+                onRefresh();
+            }
+        } catch (error) {
+            console.error('Failed to update IP regions:', error);
+        } finally {
+            setSavingRegions(null);
+            setEditingRegionsIP(null);
+        }
+    };
+
     const historyColumns = [
         {
             title: 'Status',
@@ -276,6 +303,53 @@ const IPAddressList: React.FC<IPAddressListProps> = ({ ips, onChange, recordId, 
                 return <Text type="secondary">-</Text>;
             },
         },
+        ...(availableRegions.length > 0 ? [{
+            title: 'Regions',
+            key: 'regions',
+            width: 200,
+            render: (_: any, record: GSLBIPAddress) => {
+                const isEditing = editingRegionsIP === record.ip;
+                const currentRegions = record.regions || [];
+
+                if (isEditing) {
+                    return (
+                        <Select
+                            mode="multiple"
+                            value={currentRegions}
+                            onChange={(value: string[]) => handleUpdateRegions(record.ip, value)}
+                            style={{ width: '100%', minWidth: 160 }}
+                            placeholder="Select regions"
+                            loading={savingRegions === record.ip}
+                            options={availableRegions.map(r => ({ label: r, value: r }))}
+                            onBlur={() => setEditingRegionsIP(null)}
+                            autoFocus
+                            size="small"
+                        />
+                    );
+                }
+
+                return (
+                    <div
+                        onClick={() => isEditMode && setEditingRegionsIP(record.ip)}
+                        style={{ cursor: isEditMode ? 'pointer' : 'default', minHeight: 22 }}
+                    >
+                        {currentRegions.length > 0 ? (
+                            <Space size={[0, 4]} wrap>
+                                {currentRegions.map(region => (
+                                    <Tag key={region} color="cyan" style={{ marginRight: 0 }}>
+                                        {region}
+                                    </Tag>
+                                ))}
+                            </Space>
+                        ) : (
+                            <Text type="secondary" style={{ fontSize: 12 }}>
+                                {isEditMode ? 'Click to assign' : '-'}
+                            </Text>
+                        )}
+                    </div>
+                );
+            },
+        }] : []),
         {
             title: 'Health State',
             dataIndex: 'health_state',
@@ -357,7 +431,7 @@ const IPAddressList: React.FC<IPAddressListProps> = ({ ips, onChange, recordId, 
         {
             title: 'Actions',
             key: 'actions',
-            width: 150,
+            width: 100,
             render: (_: any, record: GSLBIPAddress, index: number) => (
                 <Space>
                     {isEditMode && (

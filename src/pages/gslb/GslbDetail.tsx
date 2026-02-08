@@ -30,10 +30,10 @@ const GslbDetail: React.FC = () => {
     const isCreateMode = !id;
     const isEditMode = !!id;
 
-    // Fetch failover zones
-    const { data: failoverZonesData } = useQuery({
-        queryKey: ['gslb-failover-zones', project],
-        queryFn: () => gslbApi.getFailoverZones(project),
+    // Fetch GSLB options (failover zones and regions)
+    const { data: optionsData } = useQuery({
+        queryKey: ['gslb-options', project],
+        queryFn: () => gslbApi.getOptions(project),
         enabled: !!project,
         refetchOnWindowFocus: false,
     });
@@ -60,7 +60,8 @@ const GslbDetail: React.FC = () => {
 
     // Get zone from record and failover zones
     const zone = record?.zone;
-    const failoverZones = failoverZonesData?.failover_zones || [];
+    const failoverZones = optionsData?.failover_zones || [];
+    const availableRegions = optionsData?.regions || [];
 
     // Track if form is mounted
     const [isFormMounted, setIsFormMounted] = useState(false);
@@ -305,6 +306,7 @@ const GslbDetail: React.FC = () => {
                     recordId={id}
                     isEditMode={isEditMode}
                     onRefresh={handleRefresh}
+                    availableRegions={availableRegions}
                 />
 
                 <ProbeConfig
