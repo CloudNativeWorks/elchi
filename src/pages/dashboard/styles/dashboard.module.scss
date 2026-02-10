@@ -8,15 +8,15 @@
 .dashboardContainer {
   min-height: 100vh;
   background: $gradient-background;
-  padding: $space-lg;
+  padding: $space-sm $space-lg;
   font-family: $font-family;
 
   @include respond-to('md') {
-    padding: $space-md;
+    padding: $space-sm $space-md;
   }
 
   @include respond-to('sm') {
-    padding: $space-sm;
+    padding: $space-xs $space-sm;
   }
 }
 
@@ -282,6 +282,138 @@
 
   @include respond-to('md') {
     grid-column: 1 / -1;
+  }
+}
+
+// Sortable Widget Wrapper
+.sortableWidget {
+  position: relative;
+  transition: all $transition-normal;
+  animation: slide-up 0.5s ease-out;
+
+  &.editing {
+    border: 2px dashed $border-light;
+    border-radius: $radius-xl;
+    padding: $space-xs;
+
+    &:hover {
+      border-color: $color-primary;
+    }
+  }
+
+  &.dragging {
+    opacity: 0.4;
+    z-index: $z-modal;
+  }
+
+  @include respond-to('md') {
+    grid-column: 1 / -1 !important;
+  }
+}
+
+// Drag Handle
+.dragHandle {
+  position: absolute;
+  top: $space-sm;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 20px;
+  background: $bg-glass;
+  border: 1px solid $border-light;
+  border-radius: $radius-sm;
+  cursor: grab;
+  color: $text-tertiary;
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity $transition-fast;
+
+  .sortableWidget:hover & {
+    opacity: 1;
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+// Dashboard Toolbar
+.dashboardToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $space-xs $space-md;
+  margin-bottom: $space-sm;
+  @include glassmorphism;
+  border-radius: $radius-lg;
+
+  .toolbarLeft {
+    display: flex;
+    align-items: center;
+    gap: $space-sm;
+  }
+
+  .toolbarIcon {
+    font-size: 18px;
+    color: $color-primary;
+  }
+
+  .toolbarTitle {
+    font-size: $font-size-title;
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
+
+    @include respond-to('sm') {
+      display: none;
+    }
+  }
+
+  .toolbarRight {
+    display: flex;
+    align-items: center;
+    gap: $space-sm;
+  }
+
+  .customizeButton {
+    color: $text-secondary;
+    transition: all $transition-fast;
+
+    &:hover {
+      color: $color-primary;
+    }
+  }
+
+  @include respond-to('md') {
+    padding: $space-xs $space-sm;
+  }
+}
+
+// Drag Overlay
+.dragOverlay {
+  @include glassmorphism;
+  border-radius: $radius-xl;
+  padding: $space-lg;
+  opacity: 0.9;
+  box-shadow: $shadow-xl;
+  pointer-events: none;
+  min-width: 200px;
+  min-height: 80px;
+
+  .dragOverlayContent {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+
+  .dragOverlayTitle {
+    font-size: $font-size-title;
+    font-weight: $font-weight-semibold;
+    color: $text-primary;
   }
 }
 

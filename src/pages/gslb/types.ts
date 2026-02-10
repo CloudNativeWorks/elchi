@@ -111,6 +111,49 @@ export interface GSLBNode {
   last_version_hash: string;
 }
 
+// ========== Node Operations Types ==========
+
+export interface NodeHealthResponse {
+  status: string;
+  zone: string;
+  records_count: number;
+  version_hash: string;
+  last_sync: string;
+  last_sync_status: string;
+}
+
+export interface NodeRecord {
+  name: string;
+  type: string;
+  ttl: number;
+  ips: string[];
+}
+
+export interface NodeRecordsResponse {
+  zone: string;
+  version_hash: string;
+  count: number;
+  records: NodeRecord[];
+}
+
+export interface NotifyRequest {
+  records?: string[];
+  deletes?: string[];
+}
+
+export interface NotifyResponse {
+  status: string;
+  updated: number;
+  deleted: number;
+}
+
+export interface NotifyAllResponse {
+  total: number;
+  success: number;
+  failed: number;
+  results: { node_ip: string; status: number; error?: string }[];
+}
+
 export interface GSLBListFilter {
   project: string;
   page?: number;

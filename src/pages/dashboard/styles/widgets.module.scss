@@ -424,6 +424,91 @@
   }
 }
 
+// Edit Mode - Close Button
+.closeButton {
+  &:hover {
+    background: var(--color-danger-light, rgba(239, 68, 68, 0.1)) !important;
+    color: $color-danger !important;
+  }
+}
+
+// Resize Control
+.resizeControl {
+  margin-right: $space-xs;
+}
+
+// Settings Drawer List
+.settingsList {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+}
+
+.settingsItem {
+  @include glassmorphism;
+  border-radius: $radius-lg;
+  padding: $space-md;
+  transition: all $transition-fast;
+
+  &:hover {
+    box-shadow: $shadow-md;
+  }
+}
+
+.settingsItemHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.settingsItemInfo {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  flex: 1;
+  min-width: 0;
+}
+
+.settingsItemIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: $radius-md;
+  background: $gradient-primary;
+  color: $text-white;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.settingsItemTitle {
+  font-size: $font-size-body;
+  font-weight: $font-weight-medium;
+  color: $text-primary;
+}
+
+.settingsItemDescription {
+  font-size: $font-size-caption;
+  color: $text-tertiary;
+  margin-top: 2px;
+}
+
+.settingsItemResize {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  margin-top: $space-sm;
+  padding-top: $space-sm;
+  border-top: 1px solid $border-light;
+
+  .resizeLabel {
+    font-size: $font-size-caption;
+    color: $text-secondary;
+    flex-shrink: 0;
+  }
+}
+
 // Animations
 @keyframes spin {
   from {

@@ -5,6 +5,7 @@
 
 import { ReactNode } from 'react';
 import { RefreshInterval } from './dashboard.types';
+import { WidgetSpan } from './layout.types';
 
 // Base Widget Props
 export interface BaseWidgetProps {
@@ -20,6 +21,13 @@ export interface BaseWidgetProps {
   onExpand?: () => void;
   className?: string;
   children: ReactNode;
+  // Layout edit mode props
+  editMode?: boolean;
+  onClose?: () => void;
+  onResize?: (span: WidgetSpan) => void;
+  currentSpan?: WidgetSpan;
+  minSpan?: WidgetSpan;
+  maxSpan?: WidgetSpan;
 }
 
 // Widget Header Props
@@ -30,6 +38,13 @@ export interface WidgetHeaderProps {
   onRefresh?: () => void;
   onExpand?: () => void;
   loading?: boolean;
+  // Layout edit mode props
+  editMode?: boolean;
+  onClose?: () => void;
+  onResize?: (span: WidgetSpan) => void;
+  currentSpan?: WidgetSpan;
+  minSpan?: WidgetSpan;
+  maxSpan?: WidgetSpan;
 }
 
 // Widget Container Props

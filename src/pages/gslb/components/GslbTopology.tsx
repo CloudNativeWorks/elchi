@@ -12,18 +12,20 @@ import {
     EdgeLabelRenderer,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueries, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button, Modal, Typography, Space, Spin, Empty } from 'antd';
 import {
     UpOutlined,
     DownOutlined,
     DeleteOutlined,
+    ToolOutlined,
     ReloadOutlined,
     ExclamationCircleOutlined,
     CloudServerOutlined,
     ClusterOutlined,
     ApartmentOutlined,
 } from '@ant-design/icons';
+import GslbNodeDrawer from './GslbNodeDrawer';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import { gslbApi } from '../gslbApi';
 import type { GSLBNode } from '../types';
@@ -31,13 +33,6 @@ import type { GSLBNode } from '../types';
 const { Text } = Typography;
 
 // ── Utilities ──
-
-function formatCount(n: number): string {
-    if (n >= 1_000_000_000) return `${(n / 1_000_000_000).toFixed(1)}B`;
-    if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
-    if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
-    return String(n);
-}
 
 function formatTimeAgo(dateStr: string): string {
     const now = new Date();
@@ -95,15 +90,25 @@ interface GslbNodeData extends Record<string, unknown> {
     nodeIp: string;
     zone: string;
     lastSeen: string;
-    requestCount: number;
     versionHash: string;
     nodeId: string;
+    healthStatus: 'healthy' | 'unhealthy' | 'loading' | 'unknown';
+    recordsCount: number | null;
     onDelete: (nodeId: string, nodeIp: string) => void;
+    onManage: (nodeId: string, nodeIp: string) => void;
 }
+
+const HEALTH_COLORS: Record<string, { dot: string; glow: string }> = {
+    healthy: { dot: 'var(--color-success)', glow: 'rgba(82, 196, 26, 0.4)' },
+    unhealthy: { dot: 'var(--color-danger)', glow: 'rgba(255, 77, 79, 0.4)' },
+    loading: { dot: 'var(--color-warning, #faad14)', glow: 'rgba(250, 173, 20, 0.4)' },
+    unknown: { dot: 'var(--text-tertiary)', glow: 'transparent' },
+};
 
 const GslbNodeComponent = memo(({ data }: { data: GslbNodeData }) => {
     const isStale = (Date.now() - new Date(data.lastSeen).getTime()) / 60000 > 5;
     const handleColor = isStale ? 'var(--color-danger)' : 'var(--color-success)';
+    const healthColors = HEALTH_COLORS[data.healthStatus] || HEALTH_COLORS.unknown;
 
     return (
         <div
@@ -119,6 +124,23 @@ const GslbNodeComponent = memo(({ data }: { data: GslbNodeData }) => {
             }}
         >
             <Handle type="target" position={Position.Left} style={{ background: handleColor, width: 8, height: 8, border: '2px solid var(--bg-surface)' }} />
+
+            {/* Health indicator */}
+            <div
+                title={data.healthStatus}
+                style={{
+                    position: 'absolute',
+                    top: -4,
+                    left: -4,
+                    width: 10,
+                    height: 10,
+                    borderRadius: '50%',
+                    background: healthColors.dot,
+                    boxShadow: `0 0 6px ${healthColors.glow}`,
+                    border: '2px solid var(--card-bg)',
+                    zIndex: 1,
+                }}
+            />
 
             <button
                 className="gslb-node-delete-btn"
@@ -142,6 +164,28 @@ const GslbNodeComponent = memo(({ data }: { data: GslbNodeData }) => {
                 <DeleteOutlined style={{ fontSize: 10, color: 'var(--color-danger)' }} />
             </button>
 
+            <button
+                className="gslb-node-manage-btn"
+                onClick={(e) => { e.stopPropagation(); data.onManage(data.nodeId, data.nodeIp); }}
+                style={{
+                    position: 'absolute',
+                    top: 20,
+                    right: 4,
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: 3,
+                    borderRadius: 4,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    opacity: 0,
+                    transition: 'opacity 0.2s',
+                }}
+            >
+                <ToolOutlined style={{ fontSize: 10, color: 'var(--color-primary)' }} />
+            </button>
+
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <div>
                     <div style={{ fontWeight: 600, fontSize: 12, color: 'var(--text-primary)' }}>
@@ -153,8 +197,8 @@ const GslbNodeComponent = memo(({ data }: { data: GslbNodeData }) => {
                 </div>
             </div>
             <div style={{ fontSize: 9, color: 'var(--text-tertiary)', marginTop: 4, display: 'flex', justifyContent: 'space-between' }}>
-                <span>{formatCount(data.requestCount)} reqs</span>
-                <span>#{data.versionHash.slice(-6)}</span>
+                <span>{data.recordsCount !== null ? `${data.recordsCount} RR` : '—'}</span>
+                <span title={data.versionHash} style={{ cursor: 'default' }}>#{data.versionHash.slice(-6)}</span>
             </div>
         </div>
     );
@@ -227,6 +271,37 @@ interface GslbTopologyInnerProps {
 
 const GslbTopologyInner: React.FC<GslbTopologyInnerProps> = ({ gslbNodes }) => {
     const queryClient = useQueryClient();
+    const [drawerState, setDrawerState] = useState<{ open: boolean; nodeId: string; nodeIp: string }>({
+        open: false, nodeId: '', nodeIp: '',
+    });
+
+    const healthQueries = useQueries({
+        queries: gslbNodes.map((node) => ({
+            queryKey: ['gslb-node-health', node.id],
+            queryFn: () => gslbApi.getNodeHealth(node.id),
+            retry: false,
+            staleTime: 30_000,
+            refetchInterval: 60_000,
+        })),
+    });
+
+    const healthMap = useMemo(() => {
+        const map: Record<string, { status: 'healthy' | 'unhealthy' | 'loading' | 'unknown'; recordsCount: number | null }> = {};
+        gslbNodes.forEach((node, i) => {
+            const q = healthQueries[i];
+            if (q.isLoading) {
+                map[node.id] = { status: 'loading', recordsCount: null };
+            } else if (q.isError || !q.data) {
+                map[node.id] = { status: 'unhealthy', recordsCount: null };
+            } else {
+                map[node.id] = {
+                    status: q.data.status === 'healthy' ? 'healthy' : 'unhealthy',
+                    recordsCount: q.data.records_count,
+                };
+            }
+        });
+        return map;
+    }, [gslbNodes, healthQueries]);
 
     const deleteMutation = useMutation({
         mutationFn: (nodeId: string) => gslbApi.deleteGslbNode(nodeId),
@@ -245,6 +320,10 @@ const GslbTopologyInner: React.FC<GslbTopologyInnerProps> = ({ gslbNodes }) => {
             onOk: () => deleteMutation.mutate(nodeId),
         });
     }, [deleteMutation]);
+
+    const handleManage = useCallback((nodeId: string, nodeIp: string) => {
+        setDrawerState({ open: true, nodeId, nodeIp });
+    }, []);
 
     const { nodes, edges } = useMemo(() => {
         if (!gslbNodes.length) return { nodes: [], edges: [] };
@@ -268,10 +347,12 @@ const GslbTopologyInner: React.FC<GslbTopologyInnerProps> = ({ gslbNodes }) => {
                 nodeIp: node.node_ip,
                 zone: node.zone,
                 lastSeen: node.last_seen,
-                requestCount: node.request_count,
                 versionHash: node.last_version_hash,
                 nodeId: node.id,
+                healthStatus: healthMap[node.id]?.status ?? 'unknown',
+                recordsCount: healthMap[node.id]?.recordsCount ?? null,
                 onDelete: handleDelete,
+                onManage: handleManage,
             } satisfies GslbNodeData,
             draggable: false,
         }));
@@ -285,9 +366,10 @@ const GslbTopologyInner: React.FC<GslbTopologyInnerProps> = ({ gslbNodes }) => {
         }));
 
         return { nodes: [controllerNode, ...flowNodes], edges: flowEdges };
-    }, [gslbNodes, handleDelete]);
+    }, [gslbNodes, handleDelete, handleManage, healthMap]);
 
     return (
+        <>
         <ReactFlow
             nodes={nodes}
             edges={edges}
@@ -307,6 +389,13 @@ const GslbTopologyInner: React.FC<GslbTopologyInnerProps> = ({ gslbNodes }) => {
         >
             <Background gap={20} size={1} color="var(--border-default)" style={{ opacity: 0.4 }} />
         </ReactFlow>
+        <GslbNodeDrawer
+            open={drawerState.open}
+            onClose={() => setDrawerState(s => ({ ...s, open: false }))}
+            nodeId={drawerState.nodeId}
+            nodeIp={drawerState.nodeIp}
+        />
+        </>
     );
 };
 
@@ -363,6 +452,7 @@ const GslbTopology: React.FC = () => {
                             onClick={(e) => {
                                 e.stopPropagation();
                                 queryClient.invalidateQueries({ queryKey: ['gslb-nodes'] });
+                                queryClient.invalidateQueries({ queryKey: ['gslb-node-health'] });
                             }}
                         />
                     )}
@@ -398,11 +488,15 @@ const GslbTopology: React.FC = () => {
             })()}
 
             <style>{`
-                .gslb-topology-node:hover .gslb-node-delete-btn {
+                .gslb-topology-node:hover .gslb-node-delete-btn,
+                .gslb-topology-node:hover .gslb-node-manage-btn {
                     opacity: 1 !important;
                 }
                 .gslb-node-delete-btn:hover {
                     background: var(--color-danger-bg) !important;
+                }
+                .gslb-node-manage-btn:hover {
+                    background: var(--color-primary-bg, rgba(10, 127, 218, 0.1)) !important;
                 }
             `}</style>
         </div>

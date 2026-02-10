@@ -13,7 +13,12 @@ import type {
   UpdateGSLBRequest,
   GSLBListResponse,
   GSLBListFilter,
-  GSLBIPAddress
+  GSLBIPAddress,
+  NodeHealthResponse,
+  NodeRecordsResponse,
+  NotifyRequest,
+  NotifyResponse,
+  NotifyAllResponse,
 } from './types';
 
 const GSLB_BASE = '/api/v3/gslb';
@@ -309,6 +314,63 @@ class GslbApiClient {
       showAutoSuccess: true,
       customSuccessMessage: 'GSLB node removed successfully',
       successTitle: 'Node Removed'
+    });
+    return response.data;
+  }
+
+  // ========== Node Operations API ==========
+
+  async getNodeHealth(nodeId: string): Promise<NodeHealthResponse> {
+    const response = await api.get<NodeHealthResponse>(`${GSLB_BASE}/nodes/${nodeId}/health`);
+    return response.data;
+  }
+
+  async getNodeRecords(
+    nodeId: string,
+    params?: { project?: string; name?: string; type?: string }
+  ): Promise<NodeRecordsResponse> {
+    const queryString = new URLSearchParams(
+      Object.entries(params || {}).reduce((acc, [key, value]) => {
+        if (value) acc[key] = value;
+        return acc;
+      }, {} as Record<string, string>)
+    ).toString();
+    const url = queryString
+      ? `${GSLB_BASE}/nodes/${nodeId}/records?${queryString}`
+      : `${GSLB_BASE}/nodes/${nodeId}/records`;
+    const response = await api.get<NodeRecordsResponse>(url);
+    return response.data;
+  }
+
+  async notifyNode(
+    nodeId: string,
+    project: string,
+    body: NotifyRequest
+  ): Promise<NotifyResponse> {
+    const response = await api.post<NotifyResponse>(
+      `${GSLB_BASE}/nodes/${nodeId}/notify?project=${project}`,
+      body
+    );
+    handleApiResponse(response.data, undefined, undefined, {
+      showAutoSuccess: true,
+      customSuccessMessage: `Node notified: ${response.data.updated} updated, ${response.data.deleted} deleted`,
+      successTitle: 'Node Notified'
+    });
+    return response.data;
+  }
+
+  async notifyAllNodes(
+    project: string,
+    body: NotifyRequest
+  ): Promise<NotifyAllResponse> {
+    const response = await api.post<NotifyAllResponse>(
+      `${GSLB_BASE}/nodes/notify-all?project=${project}`,
+      body
+    );
+    handleApiResponse(response.data, undefined, undefined, {
+      showAutoSuccess: true,
+      customSuccessMessage: `${response.data.success}/${response.data.total} nodes notified successfully`,
+      successTitle: 'All Nodes Notified'
     });
     return response.data;
   }

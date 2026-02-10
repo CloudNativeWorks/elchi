@@ -1,13 +1,23 @@
 /**
  * Widget Header Component
- * Consistent header for all widgets
+ * Consistent header for all widgets with optional edit mode controls
  */
 
 import React from 'react';
-import { ReloadOutlined, ExpandOutlined } from '@ant-design/icons';
+import { Segmented } from 'antd';
+import { ReloadOutlined, ExpandOutlined, CloseOutlined } from '@ant-design/icons';
 import { WidgetHeaderProps } from '../../types/widgets.types';
+import { WidgetSpan } from '../../types/layout.types';
 import { formatRelativeTime } from '../../utils/formatters';
 import styles from '../../styles/widgets.module.scss';
+
+const SPAN_OPTIONS: { value: WidgetSpan; label: string }[] = [
+  { value: 6, label: '1/4' },
+  { value: 8, label: '1/3' },
+  { value: 12, label: '1/2' },
+  { value: 16, label: '2/3' },
+  { value: 24, label: 'Full' },
+];
 
 export const WidgetHeader: React.FC<WidgetHeaderProps> = ({
   title,
@@ -16,7 +26,18 @@ export const WidgetHeader: React.FC<WidgetHeaderProps> = ({
   onRefresh,
   onExpand,
   loading = false,
+  editMode = false,
+  onClose,
+  onResize,
+  currentSpan,
+  minSpan,
+  maxSpan,
 }) => {
+  const availableSpans = (minSpan && maxSpan)
+    ? SPAN_OPTIONS.filter((opt) => opt.value >= minSpan && opt.value <= maxSpan)
+    : [];
+  const canResize = editMode && onResize && availableSpans.length > 1;
+
   return (
     <div className={styles.widgetHeader}>
       <div className={styles.widgetTitle}>
@@ -25,13 +46,27 @@ export const WidgetHeader: React.FC<WidgetHeaderProps> = ({
       </div>
 
       <div className={styles.widgetActions}>
-        {lastUpdated && (
+        {canResize && (
+          <div className={styles.resizeControl}>
+            <Segmented
+              size="small"
+              value={currentSpan}
+              options={availableSpans.map((opt) => ({
+                value: opt.value,
+                label: opt.label,
+              }))}
+              onChange={(value) => onResize(value as WidgetSpan)}
+            />
+          </div>
+        )}
+
+        {!editMode && lastUpdated && (
           <span className={styles.lastUpdated}>
             {formatRelativeTime(lastUpdated)}
           </span>
         )}
 
-        {onRefresh && (
+        {!editMode && onRefresh && (
           <button
             className={`${styles.actionButton} ${loading ? styles.loading : ''}`}
             onClick={onRefresh}
@@ -43,7 +78,7 @@ export const WidgetHeader: React.FC<WidgetHeaderProps> = ({
           </button>
         )}
 
-        {onExpand && (
+        {!editMode && onExpand && (
           <button
             className={styles.actionButton}
             onClick={onExpand}
@@ -51,6 +86,17 @@ export const WidgetHeader: React.FC<WidgetHeaderProps> = ({
             type="button"
           >
             <ExpandOutlined />
+          </button>
+        )}
+
+        {editMode && onClose && (
+          <button
+            className={`${styles.actionButton} ${styles.closeButton}`}
+            onClick={onClose}
+            title="Hide widget"
+            type="button"
+          >
+            <CloseOutlined />
           </button>
         )}
       </div>
