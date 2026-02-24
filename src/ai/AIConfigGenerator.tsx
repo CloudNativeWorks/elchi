@@ -108,6 +108,7 @@ export const DynamicLogAnalysisRenderer: React.FC<{ analysisResult: any }> = ({ 
                     )}
                     <pre style={{
                       backgroundColor: 'var(--code-bg)',
+                      color: 'var(--code-text)',
                       padding: 16,
                       borderRadius: 8,
                       overflow: 'auto',
@@ -384,8 +385,8 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
                   <Typography.Text
                     code
                     style={{
-                      backgroundColor: 'rgba(0, 0, 0, 0.04)',
-                      color: '#d63384',
+                      backgroundColor: 'var(--code-inline-bg)',
+                      color: 'var(--code-inline-color)',
                       padding: '2px 6px',
                       borderRadius: 4,
                       fontSize: 13
@@ -403,8 +404,8 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
                       position: 'absolute',
                       top: 8,
                       right: 8,
-                      background: 'rgba(0, 0, 0, 0.7)',
-                      color: '#fff',
+                      background: 'var(--code-block-bg)',
+                      color: 'var(--code-block-color)',
                       padding: '2px 8px',
                       borderRadius: 4,
                       fontSize: 12,
@@ -414,11 +415,12 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
                     </div>
                   )}
                   <pre style={{
-                    backgroundColor: '#f6f8fa',
+                    backgroundColor: 'var(--code-bg)',
+                    color: 'var(--code-text)',
                     padding: 16,
                     borderRadius: 8,
                     overflow: 'auto',
-                    border: '1px solid #e1e4e8',
+                    border: '1px solid var(--code-border)',
                     fontSize: 13,
                     margin: 0,
                     fontFamily: 'SFMono-Regular, Monaco, Consolas, monospace',
@@ -498,6 +500,7 @@ export const AIAnalysisRenderer: React.FC<{ analysis: string }> = ({ analysis })
                     )}
                     <pre style={{
                       backgroundColor: 'var(--code-bg)',
+                      color: 'var(--code-text)',
                       padding: 16,
                       borderRadius: 8,
                       overflow: 'auto',

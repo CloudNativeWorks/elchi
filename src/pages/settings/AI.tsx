@@ -357,11 +357,11 @@ const AI: React.FC = () => {
                                     </div>
                                     
                                     {selectedModel && getModelInfo(selectedModel) ? (
-                                        <div style={{ 
-                                            padding: '12px 16px', 
-                                            background: '#f6ffed', 
-                                            border: '1px solid #b7eb8f', 
-                                            borderRadius: 6 
+                                        <div style={{
+                                            padding: '12px 16px',
+                                            background: 'var(--color-success-bg)',
+                                            border: '1px solid var(--color-success-border)',
+                                            borderRadius: 6
                                         }}>
                                             <div style={{ fontWeight: 500, fontSize: 15, marginBottom: 4 }}>
                                                 {getModelInfo(selectedModel)?.name}
