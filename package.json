@@ -23,7 +23,7 @@
     "@xyflow/react": "^12.9.3",
     "antd": "^5.24.6",
     "antd-style": "^3.6.2",
-    "axios": "^1.7.5",
+    "axios": "^1.15.0",
     "crypto-js": "^4.2.0",
     "cytoscape": "^3.30.2",
     "cytoscape-dagre": "^2.5.0",
