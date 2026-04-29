@@ -59,6 +59,18 @@ jobs:
           echo "Dist contents (top level):"
           ls -la dist/ | head -10
 
+      - name: Ensure 'dist' is not excluded by .dockerignore
+        working-directory: release
+        run: |
+          # The new build flow needs dist/ in the docker context.
+          # Older release tags may still have 'dist' in .dockerignore -
+          # strip any such line so the COPY succeeds regardless.
+          if [ -f .dockerignore ]; then
+            sed -i -E '/^[[:space:]]*dist\/?[[:space:]]*$/d' .dockerignore
+            echo "Effective .dockerignore:"
+            cat .dockerignore
+          fi
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
