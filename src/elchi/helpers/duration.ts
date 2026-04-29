@@ -20,8 +20,8 @@ async function initializeDurationModules() {
             case 'v1.35.3':
                 module = await import('../versions/v1.35.3/models/google/protobuf/duration')
                 break
-            case 'v1.37.0':
-                module = await import('../versions/v1.37.0/models/google/protobuf/duration')
+            case 'v1.38.0':
+                module = await import('../versions/v1.38.0/models/google/protobuf/duration')
                 break
             default:
                 throw new Error(`Unsupported version: ${version}`)

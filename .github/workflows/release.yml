@@ -13,8 +13,77 @@ env:
   GH_TOKEN: ${{ secrets.GH_PAT }}
 
 jobs:
-  create-release:
+  build:
+    name: Build distribution
     runs-on: ubuntu-latest
+    container:
+      image: node:20.10-alpine
+    env:
+      NODE_OPTIONS: "--max-old-space-size=8192"
+      NODE_ENV: "live"
+      DEBUG: "vite:* vite build"
+    outputs:
+      version: ${{ steps.get_version.outputs.version }}
+      should_release: ${{ steps.check_release.outputs.should_release }}
+    steps:
+      - name: Install build prerequisites (alpine)
+        run: apk add --no-cache bash git tar curl
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
+          token: ${{ secrets.GH_PAT }}
+
+      - name: Get version from VERSION file
+        id: get_version
+        run: |
+          VERSION=$(cat VERSION)
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Version found: ${VERSION}"
+
+      - name: Check if release exists
+        id: check_release
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: token ${GH_TOKEN}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/v${{ steps.get_version.outputs.version }}")
+          if [ "$STATUS" = "200" ]; then
+            echo "should_release=false" >> $GITHUB_OUTPUT
+            echo "Release v${{ steps.get_version.outputs.version }} already exists, build will be skipped"
+          else
+            echo "should_release=true" >> $GITHUB_OUTPUT
+            echo "Release v${{ steps.get_version.outputs.version }} does not exist, will build"
+          fi
+
+      - name: Install dependencies
+        if: steps.check_release.outputs.should_release == 'true'
+        run: npm ci --legacy-peer-deps || npm ci --legacy-peer-deps || npm ci --legacy-peer-deps
+
+      - name: Build for production
+        if: steps.check_release.outputs.should_release == 'true'
+        run: npm run build -- --mode production
+
+      - name: Package dist as tar.gz
+        if: steps.check_release.outputs.should_release == 'true'
+        run: |
+          VERSION=${{ steps.get_version.outputs.version }}
+          tar -czf "elchi-dist-v${VERSION}.tar.gz" dist
+          ls -lh "elchi-dist-v${VERSION}.tar.gz"
+
+      - name: Upload dist artifact
+        if: steps.check_release.outputs.should_release == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-archive
+          path: elchi-dist-v${{ steps.get_version.outputs.version }}.tar.gz
+          retention-days: 1
+
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: build
+    if: needs.build.outputs.should_release == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -29,56 +98,49 @@ jobs:
           git config --global user.email "action@github.com"
           git remote set-url origin https://${{ secrets.GH_PAT }}@github.com/${{ github.repository }}.git
 
-      - name: Get version from VERSION file
-        id: get_version
-        run: |
-          VERSION=$(cat VERSION)
-          echo "version=${VERSION}" >> $GITHUB_OUTPUT
-          echo "Version found: ${VERSION}"
-
-      - name: Check if release exists
-        id: check_release
-        run: |
-          RELEASE_EXISTS=$(gh release view v${{ steps.get_version.outputs.version }} 2>/dev/null || echo "false")
-          if [ "$RELEASE_EXISTS" != "false" ]; then
-            echo "exists=true" >> $GITHUB_OUTPUT
-            echo "Release v${{ steps.get_version.outputs.version }} already exists"
-          else
-            echo "exists=false" >> $GITHUB_OUTPUT
-            echo "Release v${{ steps.get_version.outputs.version }} does not exist"
-          fi
+      - name: Download dist artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: dist-archive
 
       - name: Create GitHub Release
-        if: steps.check_release.outputs.exists == 'false'
+        env:
+          VERSION: ${{ needs.build.outputs.version }}
         run: |
-          VERSION=${{ steps.get_version.outputs.version }}
-          
           # Create a new tag
-          git tag v${VERSION}
-          git push origin v${VERSION}
-          
+          git tag "v${VERSION}"
+          git push origin "v${VERSION}"
+
           # Generate changelog from commits since last tag
-          PREVIOUS_TAG=$(git describe --tags --abbrev=0 v${VERSION}^ 2>/dev/null || echo "")
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 "v${VERSION}^" 2>/dev/null || echo "")
           if [ -n "$PREVIOUS_TAG" ]; then
-            CHANGELOG=$(git log --pretty=format:"* %s" ${PREVIOUS_TAG}..HEAD)
+            CHANGELOG=$(git log --pretty=format:"* %s" "${PREVIOUS_TAG}..HEAD")
           else
             CHANGELOG=$(git log --pretty=format:"* %s")
           fi
-          
-          # Create source archive
+
+          # Create source archive (kept for backwards-compat)
           ARCHIVE_NAME="elchi-v${VERSION}"
-          git archive --format=tar.gz --prefix=${ARCHIVE_NAME}/ -o ${ARCHIVE_NAME}.tar.gz HEAD
-          
-          # Create release
-          gh release create v${VERSION} \
+          git archive --format=tar.gz --prefix="${ARCHIVE_NAME}/" -o "${ARCHIVE_NAME}.tar.gz" HEAD
+
+          # Create release with BOTH source archive and pre-built dist archive
+          gh release create "v${VERSION}" \
             --title "Elchi v${VERSION}" \
             --notes "${CHANGELOG}" \
-            ${ARCHIVE_NAME}.tar.gz
+            "${ARCHIVE_NAME}.tar.gz" \
+            "elchi-dist-v${VERSION}.tar.gz"
 
       - name: Release Status
         run: |
-          if [ "${{ steps.check_release.outputs.exists }}" == "true" ]; then
-            echo "✅ Release v${{ steps.get_version.outputs.version }} already exists"
-          else
-            echo "✅ Release v${{ steps.get_version.outputs.version }} created successfully"
-          fi 
+          echo "✅ Release v${{ needs.build.outputs.version }} created successfully"
+          echo "Assets:"
+          echo "  - elchi-v${{ needs.build.outputs.version }}.tar.gz (source)"
+          echo "  - elchi-dist-v${{ needs.build.outputs.version }}.tar.gz (pre-built dist)"
+
+  skipped:
+    name: Skipped (release already exists)
+    runs-on: ubuntu-latest
+    needs: build
+    if: needs.build.outputs.should_release == 'false'
+    steps:
+      - run: echo "✅ Release v${{ needs.build.outputs.version }} already exists, nothing to do"

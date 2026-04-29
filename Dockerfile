@@ -1,32 +1,18 @@
-# Stage 1: Build the React (Vite) application
-FROM node:20.10-alpine AS build
+# Serve pre-built React (Vite) bundle with Nginx.
+# The dist/ folder is produced by the release workflow and downloaded
+# from the GitHub release before this image is built.
 
-# Environment variables
-ENV NODE_OPTIONS="--max-old-space-size=8192"
-ENV NODE_ENV="live"
-ENV DEBUG="vite:* vite build"
-
-WORKDIR /app
-
-# Copy package.json and lock file
-COPY package*.json ./
-
-RUN npm ci --legacy-peer-deps || npm ci --legacy-peer-deps || npm ci --legacy-peer-deps
-
-# Copy project source code
-COPY . .
-
-# Build the application for production
-RUN npm run build -- --mode production
-
-# Stage 2: Serve React application with Nginx
 FROM nginx:stable-alpine
+
+ARG APP_VERSION=unknown
+LABEL org.opencontainers.image.title="Elchi" \
+      org.opencontainers.image.version="${APP_VERSION}"
 
 # Copy Nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Copy compiled dist folder
-COPY --from=build /app/dist /usr/share/nginx/html
+# Copy pre-built dist (produced by release workflow)
+COPY dist /usr/share/nginx/html
 
 # Create Nginx cache and temp directories and set permissions
 RUN mkdir -p /var/cache/nginx /var/run /var/log/nginx && \
@@ -34,5 +20,4 @@ RUN mkdir -p /var/cache/nginx /var/run /var/log/nginx && \
 
 EXPOSE 8080
 
-# Start Nginx in foreground mode
 CMD ["nginx", "-g", "daemon off;"]
