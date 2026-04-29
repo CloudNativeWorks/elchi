@@ -2,6 +2,8 @@ name: Build and Push Image
 
 on:
   workflow_dispatch:
+  release:
+    types: [published]
 
 env:
   DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -20,13 +22,22 @@ jobs:
           ref: main
           token: ${{ secrets.GH_PAT }}
 
-      - name: Get Project Version
+      - name: Determine version
         id: version
         run: |
-          VERSION=$(cat VERSION)
+          if [ "${{ github.event_name }}" = "release" ]; then
+            # Triggered automatically by release publish - use the tag
+            RAW="${{ github.event.release.tag_name }}"
+            VERSION="${RAW#v}"
+            echo "Trigger: release event (tag: ${RAW})"
+          else
+            # Manual trigger - read VERSION from main branch
+            VERSION=$(cat VERSION)
+            echo "Trigger: manual"
+          fi
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "PROJECT_VERSION=${VERSION}" >> $GITHUB_ENV
-          echo "Version: ${VERSION}"
+          echo "Building version: v${VERSION}"
 
       - name: Checkout release tag
         uses: actions/checkout@v4
