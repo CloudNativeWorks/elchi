@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, Tabs, Typography, Space } from 'antd';
-import { UserOutlined, TeamOutlined, ProjectOutlined, SettingOutlined, AppstoreOutlined, KeyOutlined, RobotOutlined, CloudOutlined, SafetyOutlined, ToolOutlined, GlobalOutlined } from '@ant-design/icons';
+import { UserOutlined, TeamOutlined, ProjectOutlined, SettingOutlined, AppstoreOutlined, KeyOutlined, RobotOutlined, CloudOutlined, SafetyOutlined, SafetyCertificateOutlined, ToolOutlined, GlobalOutlined } from '@ant-design/icons';
 import { useSearchParams } from 'react-router-dom';
 import General from './General';
 import Users from './users';
@@ -11,6 +11,7 @@ import Tokens from './Tokens';
 import CloudsConfig from './CloudsConfig';
 import LdapConfig from './LdapConfig';
 import GSLBConfig from './GSLBConfig';
+import Licensing from './Licensing';
 import Maintenance from './Maintenance';
 
 const { Title, Text } = Typography;
@@ -124,6 +125,16 @@ const Settings: React.FC = () => {
             children: <GSLBConfig />
         },
         {
+            key: 'license',
+            label: (
+                <span className="tabLabel">
+                    <SafetyCertificateOutlined style={{ fontSize: 18 }} />
+                    License
+                </span>
+            ),
+            children: <Licensing />
+        },
+        {
             key: 'maintenance',
             label: (
                 <span className="tabLabel">
@@ -147,7 +158,7 @@ const Settings: React.FC = () => {
                 </div>
                 
                 <Text type="secondary">
-                    Manage your application settings, users, groups, projects, AI configuration, API tokens, cloud providers, LDAP authentication, and system maintenance.
+                    Manage your application settings, users, groups, projects, AI configuration, API tokens, cloud providers, LDAP authentication, license, and system maintenance.
                 </Text>
             </div>
 

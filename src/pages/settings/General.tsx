@@ -3,15 +3,17 @@ import { Card, Typography, Tag, Space, Row, Col, Divider, Segmented } from 'antd
 import { CloudServerOutlined, SunOutlined, MoonOutlined, DesktopOutlined } from '@ant-design/icons';
 import { getVersionAntdColor } from '@/utils/versionColors';
 import { useTheme, ThemeMode } from '@/contexts/ThemeContext';
+import { useLicenseStatus } from '@/hooks/useLicense';
 
 const { Text, Title } = Typography;
 
 const General: React.FC = () => {
     const { mode, setMode, isDark } = useTheme();
+    const { license } = useLicenseStatus();
     const appInfo = {
         name: 'Elchi',
         version: window.APP_CONFIG.VERSION,
-        apiVersion: 'v3',
+        apiVersion: license?.api_version || '—',
         supportedEnvoyVersions: window.APP_CONFIG.AVAILABLE_VERSIONS,
     };
 
@@ -73,12 +75,12 @@ const General: React.FC = () => {
                             <Space direction="vertical" size="small" style={{ width: '100%' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <Text style={{ color: 'var(--text-on-gradient, rgba(255,255,255,0.9))', fontSize: '14px' }}>
-                                        Application Version
+                                        UI Version
                                     </Text>
-                                    <Tag 
-                                        color="success" 
-                                        style={{ 
-                                            fontSize: '12px', 
+                                    <Tag
+                                        color="success"
+                                        style={{
+                                            fontSize: '12px',
                                             fontWeight: 'bold',
                                             border: 'none',
                                             background: 'var(--tag-on-gradient, rgba(255,255,255,0.9))',
@@ -88,15 +90,15 @@ const General: React.FC = () => {
                                         {appInfo.version}
                                     </Tag>
                                 </div>
-                                
+
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <Text style={{ color: 'var(--text-on-gradient, rgba(255,255,255,0.9))', fontSize: '14px' }}>
                                         API Version
                                     </Text>
-                                    <Tag 
-                                        color="processing" 
-                                        style={{ 
-                                            fontSize: '12px', 
+                                    <Tag
+                                        color="processing"
+                                        style={{
+                                            fontSize: '12px',
                                             fontWeight: 'bold',
                                             border: 'none',
                                             background: 'var(--tag-on-gradient, rgba(255,255,255,0.9))',
