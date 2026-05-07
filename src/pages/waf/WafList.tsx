@@ -95,16 +95,16 @@ const WafList: React.FC = () => {
             render: (text: string) => <Text strong>{text}</Text>,
         },
         {
-            title: 'Default Directives',
-            dataIndex: ['data', 'default_directives'],
-            key: 'default_directives',
+            title: 'Default Set',
+            dataIndex: ['data', 'default_set'],
+            key: 'default_set',
             render: (text: string) => <Tag className='auto-width-tag' color="green">{text}</Tag>,
         },
         {
             title: 'Directive Sets',
             key: 'directive_count',
             render: (_: any, record: WafConfig) => {
-                const count = Object.keys(record.data?.directives_map || {}).length;
+                const count = record.data?.sets?.length ?? 0;
                 return <Text>{count} set{count !== 1 ? 's' : ''}</Text>;
             },
         },

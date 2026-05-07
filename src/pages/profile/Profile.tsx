@@ -131,48 +131,66 @@ const Profile: React.FC = () => {
 
                             <Space direction="vertical" size="small" style={{ width: '100%' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <Text style={{ color: 'var(--text-on-gradient, rgba(255,255,255,0.9))', fontSize: '14px' }}>
+                                    <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: '14px' }}>
                                         Role
                                     </Text>
                                     <Tag
                                         style={{
-                                            fontSize: '12px',
-                                            fontWeight: 'bold',
-                                            background: 'rgba(255,255,255,0.2)',
-                                            color: 'white',
-                                            border: 'none'
+                                            fontSize: '11px',
+                                            fontWeight: 700,
+                                            letterSpacing: '0.5px',
+                                            padding: '2px 10px',
+                                            background: 'rgba(255,255,255,0.95)',
+                                            color: 'var(--color-primary)',
+                                            border: 'none',
+                                            borderRadius: 6,
+                                            margin: 0,
                                         }}
                                     >
                                         {userDetail?.role?.toUpperCase()}
                                     </Tag>
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <Text style={{ color: 'var(--text-on-gradient, rgba(255,255,255,0.9))', fontSize: '14px' }}>
+                                    <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: '14px' }}>
                                         Authentication
                                     </Text>
                                     <Tag
                                         style={{
-                                            fontSize: '12px',
-                                            fontWeight: 'bold',
-                                            background: 'rgba(255,255,255,0.2)',
-                                            color: 'white',
-                                            border: 'none'
+                                            fontSize: '11px',
+                                            fontWeight: 700,
+                                            letterSpacing: '0.5px',
+                                            padding: '2px 10px',
+                                            background: 'rgba(255,255,255,0.95)',
+                                            color: '#13c2c2',
+                                            border: 'none',
+                                            borderRadius: 6,
+                                            margin: 0,
                                         }}
                                     >
                                         {(userDetail?.auth_type || 'LOCAL').toUpperCase()}
                                     </Tag>
                                 </div>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <Text style={{ color: 'var(--text-on-gradient, rgba(255,255,255,0.9))', fontSize: '14px' }}>
+                                    <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: '14px' }}>
                                         2FA Status
                                     </Text>
                                     <Tag
+                                        icon={otpStatus?.otp_enabled
+                                            ? <CheckCircleOutlined style={{ fontSize: 11 }} />
+                                            : <CloseCircleOutlined style={{ fontSize: 11 }} />}
                                         style={{
-                                            fontSize: '12px',
-                                            fontWeight: 'bold',
-                                            background: otpStatus?.otp_enabled ? 'var(--color-success-light)' : 'var(--color-danger-light)',
+                                            fontSize: '11px',
+                                            fontWeight: 700,
+                                            letterSpacing: '0.5px',
+                                            padding: '2px 10px',
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            gap: 4,
+                                            background: otpStatus?.otp_enabled ? '#52c41a' : '#ff4d4f',
                                             color: 'white',
-                                            border: 'none'
+                                            border: 'none',
+                                            borderRadius: 6,
+                                            margin: 0,
                                         }}
                                     >
                                         {otpStatus?.otp_enabled ? 'ENABLED' : 'DISABLED'}
@@ -353,7 +371,11 @@ const Profile: React.FC = () => {
                                 layout="vertical"
                                 onFinish={handleUpdateEmail}
                                 disabled={!isLocalAuth}
+                                autoComplete="off"
                             >
+                                {/* Honeypot fields to defeat password-manager autofill heuristics. */}
+                                <input type="text" name="username" autoComplete="username" style={{ display: 'none' }} tabIndex={-1} aria-hidden="true" />
+                                <input type="password" name="password" autoComplete="current-password" style={{ display: 'none' }} tabIndex={-1} aria-hidden="true" />
                                 <Form.Item
                                     label={<span style={{ fontSize: 13 }}>New Email</span>}
                                     name="email"
@@ -366,6 +388,11 @@ const Profile: React.FC = () => {
                                     <Input
                                         prefix={<MailOutlined />}
                                         placeholder={isLocalAuth ? "Enter new email" : "Managed by LDAP"}
+                                        autoComplete="off"
+                                        data-lpignore="true"
+                                        data-1p-ignore="true"
+                                        data-bwignore="true"
+                                        data-form-type="other"
                                     />
                                 </Form.Item>
                                 <Form.Item
@@ -377,6 +404,11 @@ const Profile: React.FC = () => {
                                     <Input.Password
                                         prefix={<KeyOutlined />}
                                         placeholder={isLocalAuth ? "Enter password" : "Managed by LDAP"}
+                                        autoComplete="new-password"
+                                        data-lpignore="true"
+                                        data-1p-ignore="true"
+                                        data-bwignore="true"
+                                        data-form-type="other"
                                     />
                                 </Form.Item>
                                 {isLocalAuth && (
@@ -448,7 +480,11 @@ const Profile: React.FC = () => {
                                 layout="vertical"
                                 onFinish={handleUpdatePassword}
                                 disabled={!isLocalAuth}
+                                autoComplete="off"
                             >
+                                {/* Honeypot fields to defeat password-manager autofill heuristics. */}
+                                <input type="text" name="username" autoComplete="username" style={{ display: 'none' }} tabIndex={-1} aria-hidden="true" />
+                                <input type="password" name="password" autoComplete="current-password" style={{ display: 'none' }} tabIndex={-1} aria-hidden="true" />
                                 <Form.Item
                                     label={<span style={{ fontSize: 13 }}>Current Password</span>}
                                     name="current_password"
@@ -458,6 +494,11 @@ const Profile: React.FC = () => {
                                     <Input.Password
                                         prefix={<KeyOutlined />}
                                         placeholder={isLocalAuth ? "Enter current password" : "Managed by LDAP"}
+                                        autoComplete="new-password"
+                                        data-lpignore="true"
+                                        data-1p-ignore="true"
+                                        data-bwignore="true"
+                                        data-form-type="other"
                                     />
                                 </Form.Item>
                                 <Form.Item
@@ -508,7 +549,12 @@ const Profile: React.FC = () => {
                                 >
                                     <Input.Password
                                         prefix={<KeyOutlined />}
-                                        placeholder={isLocalAuth ? "Min 12 chars, 1 uppercase, 1 lowercase, 1 number, 1 special (@$!%*?&)" : "Managed by LDAP"}
+                                        placeholder={isLocalAuth ? "At least 12 chars" : "Managed by LDAP"}
+                                        autoComplete="new-password"
+                                        data-lpignore="true"
+                                        data-1p-ignore="true"
+                                        data-bwignore="true"
+                                        data-form-type="other"
                                     />
                                 </Form.Item>
                                 {isLocalAuth && (
@@ -563,13 +609,25 @@ const Profile: React.FC = () => {
                     form={disableOTPForm}
                     layout="vertical"
                     onFinish={handleDisableOTP}
+                    autoComplete="off"
                 >
+                    {/* Honeypot fields to defeat password-manager autofill heuristics. */}
+                    <input type="text" name="username" autoComplete="username" style={{ display: 'none' }} tabIndex={-1} aria-hidden="true" />
+                    <input type="password" name="password" autoComplete="current-password" style={{ display: 'none' }} tabIndex={-1} aria-hidden="true" />
                     <Form.Item
                         label="Password"
                         name="password"
                         rules={[{ required: true, message: 'Please enter your password' }]}
                     >
-                        <Input.Password prefix={<KeyOutlined />} placeholder="Enter password" />
+                        <Input.Password
+                            prefix={<KeyOutlined />}
+                            placeholder="Enter password"
+                            autoComplete="new-password"
+                            data-lpignore="true"
+                            data-1p-ignore="true"
+                            data-bwignore="true"
+                            data-form-type="other"
+                        />
                     </Form.Item>
                     <Divider>Verify with OTP or Backup Code</Divider>
                     <Form.Item

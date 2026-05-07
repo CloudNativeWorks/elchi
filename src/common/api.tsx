@@ -6,6 +6,14 @@ import { AuthMutationOptions, AxiosInstanceExtended, CustomMutationOptions, Cust
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import { showErrorNotification, isAuthError, handleApiResponse } from './notificationHandler';
 
+// Augment axios so callers can opt out of the global error notification
+// per-request (used by WAF mutations that render structured 409 UIs).
+declare module 'axios' {
+    export interface AxiosRequestConfig {
+        _skipGlobalErrorNotification?: boolean;
+    }
+}
+
 export const api: AxiosInstanceExtended = axios.create({
     baseURL: window.APP_CONFIG?.API_URL,
     headers: {
@@ -108,8 +116,12 @@ api.interceptors.response.use(
             // 1. Non-auth errors (all endpoints)
             // 2. Auth errors for profile/OTP endpoints (so users see "wrong password" etc.)
             // 3. BUT NOT for login endpoint (login page handles OTP logic itself)
+            // 4. BUT NOT when the caller opted out via `_skipGlobalErrorNotification`
+            //    (used by WAF mutations to render structured 409 UIs themselves
+            //    without doubling up on a generic toast).
             const isTemplateCheck = error.config?.url?.includes('/templates/check/');
-            if (!isTemplateCheck && !isLoginEndpoint) {
+            const skipGlobal = (error.config as { _skipGlobalErrorNotification?: boolean } | undefined)?._skipGlobalErrorNotification;
+            if (!isTemplateCheck && !isLoginEndpoint && !skipGlobal) {
                 showErrorNotification(error);
 
                 // Trigger error summary refresh on API errors (but not too frequently)

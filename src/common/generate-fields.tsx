@@ -4,18 +4,25 @@ import { FieldTypes, mapToFieldType } from "./statics/general";
 
 
 type FieldBeginType = {
-    f: InType[]; // field list 
+    f: InType[]; // field list
     sf: string[]; // single value field list
     e?: string[]; // exclude list
     r?: string[]; // required list
     sn?: number; // width of the form
     ssn?: { [key: string]: number }; // specific width of the form
     rwr?: Record<string, FieldTypes>; // type overwrite
+    /**
+     * Enum overrides for fields whose protobuf type is `string` but accept
+     * a fixed set of registered names at runtime (e.g. Envoy extension URLs).
+     * Maps `field.name` -> list of allowed values. The field becomes a Select
+     * automatically. Existing `enums` from generated tags take precedence.
+     */
+    eo?: Record<string, string[]>;
     d?: string[]; // disable fields
     h?: string[]; // hide fields
 }
 
-export function generateFields({ f, sf, e, r, sn, ssn, rwr, d, h }: FieldBeginType): FieldConfigType[] {
+export function generateFields({ f, sf, e, r, sn, ssn, rwr, eo, d, h }: FieldBeginType): FieldConfigType[] {
     if (!f || !sf) { return [] }
 
     return f
@@ -29,12 +36,18 @@ export function generateFields({ f, sf, e, r, sn, ssn, rwr, d, h }: FieldBeginTy
             const fieldPath = splitName.pop() || field.name;
             const prefix = splitName.join('.') || '';
 
+            // Generated `enums` win; fall back to caller-supplied override
+            // for proto-string fields with a fixed runtime registry.
+            const effectiveEnums = (field.enums && field.enums.length > 0)
+                ? field.enums
+                : (eo?.[field.name] ?? null);
+
             const fields: FieldConfigType = {
                 tag: fieldPath,
-                type: mapToFieldType(field.enums ? 'select' : field.fieldType),
+                type: mapToFieldType(effectiveEnums ? 'select' : field.fieldType),
                 placeHolder: `(${field.fieldType})`,
                 fieldPath: field.name,
-                values: field.enums || [],
+                values: effectiveEnums || [],
                 tagPrefix: prefix,
                 navigate: field.isUnion,
             }

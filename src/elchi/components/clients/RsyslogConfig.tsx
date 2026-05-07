@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {  Button, Spin, Alert, Tag, Space, Input, Row, Col, Select, Collapse, InputNumber } from 'antd';
+import { Button, Spin, Alert, Tag, Space, Input, Row, Col, Select, Collapse, InputNumber } from 'antd';
 import {
     PlayCircleOutlined,
     PauseCircleOutlined,
@@ -94,8 +94,8 @@ const RsyslogConfig: React.FC<RsyslogConfigProps> = ({ clientId, downstreamAddre
                     });
                 } else if (data[0]?.rsyslog) {
                     const isRunning = data[0].rsyslog.operation_summary?.is_running ??
-                                    data[0].rsyslog.is_running ??
-                                    false;
+                        data[0].rsyslog.is_running ??
+                        false;
 
                     setStatus({
                         service_status: data[0].rsyslog.service_status || 'unknown',
@@ -407,7 +407,7 @@ const RsyslogConfig: React.FC<RsyslogConfigProps> = ({ clientId, downstreamAddre
                                             status={(!displayConfig?.target || displayConfig.target.trim() === '') ? 'error' : ''}
                                         />
                                     ) : (
-                                        <Tag color="blue" style={{ margin: 0, fontSize: 11 }}>{displayConfig?.target}</Tag>
+                                        <Tag color="gray" style={{ margin: 0, fontSize: 11 }}>{displayConfig?.target}</Tag>
                                     )}
                                 </Col>
                             </Row>
@@ -429,7 +429,7 @@ const RsyslogConfig: React.FC<RsyslogConfigProps> = ({ clientId, downstreamAddre
                                             status={(!displayConfig?.port || displayConfig.port < 1 || displayConfig.port > 65535) ? 'error' : ''}
                                         />
                                     ) : (
-                                        <Tag color="green" style={{ margin: 0, fontSize: 11 }}>{displayConfig?.port}</Tag>
+                                        <Tag color="gray" style={{ margin: 0, fontSize: 11 }}>{displayConfig?.port}</Tag>
                                     )}
                                 </Col>
                             </Row>
@@ -451,7 +451,7 @@ const RsyslogConfig: React.FC<RsyslogConfigProps> = ({ clientId, downstreamAddre
                                             <Select.Option value="tcp">TCP</Select.Option>
                                         </Select>
                                     ) : (
-                                        <Tag color={displayConfig?.protocol === 'tcp' ? 'purple' : 'orange'} style={{ margin: 0, fontSize: 11 }}>
+                                        <Tag color="gray" style={{ margin: 0, fontSize: 11 }}>
                                             {displayConfig?.protocol?.toUpperCase()}
                                         </Tag>
                                     )}

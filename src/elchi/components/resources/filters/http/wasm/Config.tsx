@@ -107,6 +107,7 @@ const ComponentConfig: React.FC<GeneralProps> = ({ veri }) => {
                     reduxStore: veri.reduxStore?.vm?.vm_config,
                     keyPrefix: `${veri.keyPrefix}.vm_config`,
                     title: "VM Config",
+                    wafSelected: veri.wafSelected,
                 }}
             />
             <ConditionalComponent

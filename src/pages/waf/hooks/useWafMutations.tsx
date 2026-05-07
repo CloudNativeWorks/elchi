@@ -1,6 +1,6 @@
 /**
  * WAF Mutations Hook
- * Handles Create, Update, Delete operations for WAF configs
+ * Handles Create, Update, Delete + Restore operations for WAF configs.
  */
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -30,6 +30,7 @@ export const useWafMutations = (id?: string, project?: string) => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['waf-config', id] });
             queryClient.invalidateQueries({ queryKey: ['waf-configs'] });
+            queryClient.invalidateQueries({ queryKey: ['waf-versions', id] });
         },
     });
 
@@ -45,10 +46,26 @@ export const useWafMutations = (id?: string, project?: string) => {
         },
     });
 
+    const restoreMutation = useMutation({
+        mutationFn: (version: number) => {
+            if (!id) throw new Error('ID is required for restore');
+            return wafApi.restoreWafVersion(id, version);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['waf-config', id] });
+            queryClient.invalidateQueries({ queryKey: ['waf-versions', id] });
+        },
+    });
+
     return {
         createMutation,
         updateMutation,
         deleteMutation,
-        isLoading: createMutation.isPending || updateMutation.isPending || deleteMutation.isPending
+        restoreMutation,
+        isLoading:
+            createMutation.isPending ||
+            updateMutation.isPending ||
+            deleteMutation.isPending ||
+            restoreMutation.isPending,
     };
 };
