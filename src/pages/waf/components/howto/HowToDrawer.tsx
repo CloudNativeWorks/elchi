@@ -123,6 +123,11 @@ const HowToDrawer: React.FC<HowToDrawerProps> = ({ open, onClose }) => {
                             title: <AnchorLabel emoji="🗺️" text="Big picture" />,
                         },
                         {
+                            key: 'includes',
+                            href: '#howto-includes',
+                            title: <AnchorLabel emoji="📦" text="Includes you need" />,
+                        },
+                        {
                             key: 'anatomy',
                             href: '#howto-anatomy',
                             title: <AnchorLabel emoji="🔬" text="SecRule anatomy" />,
@@ -160,7 +165,7 @@ const HowToDrawer: React.FC<HowToDrawerProps> = ({ open, onClose }) => {
                         {
                             key: 'wasm',
                             href: '#howto-wasm',
-                            title: <AnchorLabel emoji="⚠️" text="WASM v0.6.0" />,
+                            title: <AnchorLabel emoji="⚠️" text="WASM limits" />,
                         },
                         {
                             key: 'glossary',
@@ -203,30 +208,34 @@ const HowToDrawer: React.FC<HowToDrawerProps> = ({ open, onClose }) => {
                     id="howto-quick-start"
                     icon={<RocketOutlined />}
                     title="Quick start"
-                    subtitle="A working WAF in 3 lines"
+                    subtitle="A working WAF in 4 lines"
                 />
                 <Paragraph>
                     Drop these directives into your <strong>default set</strong> in this order. Engine on,
-                    CRS defaults loaded, all OWASP rule files included. Baseline WAF.
+                    body parsing configured, CRS defaults loaded, all OWASP rule files included. Baseline
+                    WAF.
                 </Paragraph>
                 <CodeSnippet
                     block
                     label="Quick start"
                     code={`SecRuleEngine On
+Include @demo-conf
 Include @crs-setup-conf
 Include @owasp_crs/*.conf`}
                 />
                 <Alert
                     type="info"
                     showIcon
-                    message="What just happened?"
+                    message="Order matters"
                     description={
                         <Text style={{ fontSize: 12 }}>
-                            <code>@crs-setup-conf</code> resolves to the CRS example file inside the WASM
-                            plugin (see <strong>CRS Setup</strong> in the sidebar) — almost everything in
-                            there is commented out, so you inherit the rule files&rsquo; built-in defaults:
-                            paranoia level 1, anomaly threshold 5. To change either, add a{' '}
-                            <code>SecAction</code> after the includes.
+                            <code>@demo-conf</code> turns on body parsing and registers JSON/XML
+                            processors — without it, most CRS rules silently miss attacks in POST bodies.
+                            <code>@crs-setup-conf</code> is the CRS setup file (almost everything is
+                            commented out, see <strong>CRS Setup</strong> in the sidebar); you inherit
+                            paranoia 1 + anomaly threshold 5 from CRS&rsquo; init rules. Override with a{' '}
+                            <code>SecAction</code> after the includes. See <strong>Includes you need</strong>{' '}
+                            below for the full breakdown.
                         </Text>
                     }
                 />
@@ -266,6 +275,93 @@ Include @owasp_crs/*.conf`}
                     OWASP CRS uses an <strong>anomaly score</strong> model: every rule adds points instead
                     of blocking immediately. A late rule (<code>949110</code> / <code>959100</code>)
                     compares the running score against a threshold and blocks if exceeded.
+                </Paragraph>
+
+                {/* Includes you need */}
+                <SectionHeader
+                    id="howto-includes"
+                    icon={<ReadOutlined />}
+                    title="Includes you need"
+                    subtitle="@demo-conf vs @crs-setup-conf vs @owasp_crs"
+                />
+                <Paragraph>
+                    <code>Include</code> directives pull in pre-bundled config files. The WASM plugin
+                    resolves three magic paths to embedded files:
+                </Paragraph>
+                <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse', marginBottom: 8 }}>
+                    <thead>
+                        <tr style={{ background: 'var(--bg-secondary, rgba(0,0,0,0.04))' }}>
+                            <th style={{ textAlign: 'left', padding: 6 }}>Include</th>
+                            <th style={{ textAlign: 'left', padding: 6 }}>What it loads</th>
+                            <th style={{ textAlign: 'left', padding: 6 }}>Required for</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style={{ padding: 6, verticalAlign: 'top' }}>
+                                <code>@demo-conf</code>
+                            </td>
+                            <td style={{ padding: 6, verticalAlign: 'top' }}>
+                                Live config: <code>SecRequestBodyAccess On</code>, body limits,
+                                JSON/XML processor selection rules (id 200000/200001/200006),
+                                request-body parse-error reject (id 200002/200003), response body
+                                inspection, audit log defaults pointing to <code>/dev/stdout</code>.
+                            </td>
+                            <td style={{ padding: 6, verticalAlign: 'top' }}>
+                                Any setup that wants OWASP CRS to inspect <strong>POST/JSON/XML
+                                bodies</strong>. Without it, body-targeting rules silently miss
+                                attacks. <strong>Skip only if you replicate the body-parser bits
+                                manually.</strong>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style={{ padding: 6, verticalAlign: 'top' }}>
+                                <code>@crs-setup-conf</code>
+                            </td>
+                            <td style={{ padding: 6, verticalAlign: 'top' }}>
+                                The upstream <code>crs-setup.conf.example</code>. Almost every line is{' '}
+                                <strong>commented out</strong>; only <code>id:900990</code> is active
+                                and stamps <code>tx.crs_setup_version=4140</code>.
+                            </td>
+                            <td style={{ padding: 6, verticalAlign: 'top' }}>
+                                Loading <code>@owasp_crs/*.conf</code>. CRS&rsquo; init file
+                                refuses to run if <code>tx.crs_setup_version</code> is unset,
+                                showing a config error. <strong>Required when you load CRS rules.</strong>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style={{ padding: 6, verticalAlign: 'top' }}>
+                                <code>@owasp_crs/*.conf</code>
+                            </td>
+                            <td style={{ padding: 6, verticalAlign: 'top' }}>
+                                The actual OWASP CRS rule files (REQUEST-901, REQUEST-911, …,
+                                REQUEST-949 + RESPONSE-9xx). The defenses themselves.
+                            </td>
+                            <td style={{ padding: 6, verticalAlign: 'top' }}>
+                                Any time you want OWASP CRS attack detection. Skip if you&rsquo;re
+                                writing a fully custom ruleset.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <Alert
+                    type="warning"
+                    showIcon
+                    style={{ marginTop: 4 }}
+                    message="Order is part of correctness"
+                    description={
+                        <Text style={{ fontSize: 12 }}>
+                            Always: <code>@demo-conf</code> → <code>@crs-setup-conf</code> →
+                            (your <code>SecAction</code> overrides) → <code>@owasp_crs/*.conf</code>.
+                            Your <code>setvar</code> SecActions must run <em>before</em> CRS init
+                            so its &ldquo;set if unset&rdquo; defaults don&rsquo;t overwrite you.
+                        </Text>
+                    }
+                />
+                <Paragraph type="secondary" style={{ fontSize: 12, marginTop: 8 }}>
+                    Open <strong>CRS Setup</strong> and <strong>Demo Conf</strong> in the sidebar to
+                    read either file verbatim. Use <strong>Load template</strong> to apply a curated
+                    set that wires all three correctly.
                 </Paragraph>
 
                 {/* Anatomy */}
@@ -636,49 +732,181 @@ SecRequestBodyLimit 5242880
 SecRequestBodyLimitAction Reject`}
                 />
 
+                <Title level={5}>Rate limiting / brute-force counting</Title>
+                <Alert
+                    type="warning"
+                    showIcon
+                    style={{ marginTop: 4 }}
+                    message="Don't use SecRule + IP collection here"
+                    description={
+                        <Text style={{ fontSize: 12 }}>
+                            ModSecurity tutorials reach for <code>initcol</code> +{' '}
+                            <code>setvar:ip.failed_attempts</code> for rate limiting. In
+                            coraza-proxy-wasm those collections don&rsquo;t persist across
+                            requests, so the counter resets every request and the rule is a
+                            no-op. Use Envoy&rsquo;s <strong>local_ratelimit</strong> /{' '}
+                            <strong>ratelimit</strong> filter instead — it&rsquo;s native and
+                            actually works.
+                        </Text>
+                    }
+                />
+
                 {/* WASM */}
                 <SectionHeader
                     id="howto-wasm"
                     icon={<ExclamationCircleOutlined />}
                     title="coraza-proxy-wasm v0.6.0"
-                    subtitle="Caveats & gotchas"
+                    subtitle="What works · what doesn't"
                 />
-                <Paragraph>The runtime that loads your rules. Things worth knowing:</Paragraph>
+                <Paragraph>
+                    The runtime is a Proxy-Wasm filter compiled with TinyGo 0.34. The WebAssembly
+                    sandbox has{' '}
+                    <strong>no filesystem writes, no shell, no outbound network beyond the proxy</strong>,
+                    and no shared memory between requests by default. Coraza features that depend on
+                    those facilities are silently no-ops or rejected.
+                </Paragraph>
+
+                <Title level={5} style={{ marginTop: 12 }}>
+                    <CheckCircleOutlined style={{ color: 'var(--color-success)' }} /> What works
+                </Title>
                 <ul style={{ fontSize: 13, paddingInlineStart: 18 }}>
                     <li>
-                        <CheckCircleOutlined style={{ color: 'var(--color-success)' }} /> CRS{' '}
-                        <strong>v4.14.0</strong> is bundled — same set you see in the CRS Library here.
+                        OWASP CRS <strong>v4.14.0</strong> bundled — same rules you see in CRS Library.
                     </li>
                     <li>
-                        <CheckCircleOutlined style={{ color: 'var(--color-success)' }} /> Multiphase
-                        evaluation enabled by default — rules run as soon as their variables are ready.
+                        <strong>Multiphase evaluation</strong> on by default — rules run as soon as
+                        their variables are ready, blocks happen earlier.
                     </li>
                     <li>
-                        <CheckCircleOutlined style={{ color: 'var(--color-success)' }} /> Prometheus
-                        metrics with phase + rule-id labels are exposed by the filter.
+                        Operators <code>@rx</code>, <code>@pm</code>, <code>@detectSQLi</code>,{' '}
+                        <code>@detectXSS</code> (libinjection) ship via <code>coraza-wasilibs</code>.
+                        <code>@contains</code>, <code>@beginsWith</code>, <code>@streq</code>,{' '}
+                        <code>@within</code>, <code>@eq/gt/lt</code>, <code>@ipMatch</code>,{' '}
+                        <code>@validateByteRange</code> work — they&rsquo;re stateless / pure compute.
                     </li>
                     <li>
-                        <ExclamationCircleOutlined style={{ color: 'var(--color-warning)' }} />{' '}
-                        <strong>Tuning required.</strong> Out-of-the-box CRS will false-positive on
-                        legitimate traffic. Start in <code>DetectionOnly</code>, watch logs, add
-                        exceptions, then promote.
+                        Prometheus metrics with phase + rule-id labels are exposed by the filter.
                     </li>
                     <li>
-                        <ExclamationCircleOutlined style={{ color: 'var(--color-warning)' }} /> Built with{' '}
-                        <strong>TinyGo 0.34</strong>. Memory pressure / GC quirks can show under load —
-                        load-test before production.
-                    </li>
-                    <li>
-                        <StopOutlined style={{ color: 'var(--color-danger)' }} /> Audit log Parts D, G, I,
-                        J are not implemented yet — expect <code>SecAuditLogParts ABCFHZ</code> as the
-                        safe set.
-                    </li>
-                    <li>
-                        <StopOutlined style={{ color: 'var(--color-danger)' }} />{' '}
-                        <code>SecRequestBodyNoFilesLimit</code> is parsed but not enforced — rely on{' '}
-                        <code>SecRequestBodyLimit</code> instead.
+                        Audit log routed to Envoy stdout (<code>/dev/stdout</code>) in JSON format —
+                        scrapeable from the proxy logs.
                     </li>
                 </ul>
+
+                <Title level={5} style={{ marginTop: 12 }}>
+                    <ExclamationCircleOutlined style={{ color: 'var(--color-warning)' }} /> Partial / parsed-but-not-enforced
+                </Title>
+                <ul style={{ fontSize: 13, paddingInlineStart: 18 }}>
+                    <li>
+                        <strong>Tuning required.</strong> Out-of-the-box CRS false-positives on
+                        legitimate traffic. Start in <code>DetectionOnly</code>, watch logs, add
+                        exceptions, then promote to <code>On</code>.
+                    </li>
+                    <li>
+                        <strong>TinyGo 0.34 memory pressure.</strong> GC quirks can surface under load.
+                        Load-test before production.
+                    </li>
+                    <li>
+                        <code>SecArgumentsLimit</code> — parsed but the limit is not enforced
+                        (Coraza issue #1752). Rely on <code>SecRequestBodyLimit</code> for size caps.
+                    </li>
+                    <li>
+                        <code>SecResponseBodyAccess</code> — partial: some CRS rules can&rsquo;t
+                        access response body in WASM.
+                    </li>
+                    <li>
+                        <code>SecDefaultAction</code> — applies only to rules in the same phase.
+                    </li>
+                    <li>
+                        <code>SecAction</code> — only the <code>tx</code> collection is supported
+                        for <code>setvar</code>. <code>setvar:ip.X</code>, <code>setvar:session.X</code>,
+                        etc. don&rsquo;t persist (see below).
+                    </li>
+                </ul>
+
+                <Title level={5} style={{ marginTop: 12 }}>
+                    <StopOutlined style={{ color: 'var(--color-danger)' }} /> Not supported in WASM
+                </Title>
+                <Paragraph type="secondary" style={{ fontSize: 12 }}>
+                    Don&rsquo;t bother writing rules that depend on these — they&rsquo;ll be parsed
+                    silently or rejected, and the security control you intended will quietly not exist.
+                </Paragraph>
+                <ul style={{ fontSize: 13, paddingInlineStart: 18 }}>
+                    <li>
+                        <strong>Persistent collections.</strong> <code>initcol</code>,{' '}
+                        <code>setsid</code>, <code>setuid</code>, and writes to{' '}
+                        <code>IP</code>, <code>SESSION</code>, <code>USER</code>, <code>GLOBAL</code>,
+                        <code>RESOURCE</code> collections do <em>not persist across requests</em> in
+                        coraza-proxy-wasm — the WASM VM has no host filesystem and no built-in memcache
+                        backend. <strong>Rate limiting / brute-force counters built on these don&rsquo;t
+                        actually count anything past a single request.</strong> Use Envoy&rsquo;s native
+                        rate-limit filter for that.
+                    </li>
+                    <li>
+                        <strong>Lua / external scripts.</strong> The <code>exec</code> action and{' '}
+                        <code>SecRuleScript</code> directive require running Lua or shell scripts —
+                        no execution surface in WASM. Any rule using these will fail to load.
+                    </li>
+                    <li>
+                        <code>@pmFromFile</code> with an external path — the WASM plugin only sees
+                        its embedded read-only filesystem (<code>@owasp_crs/...</code>,{' '}
+                        <code>@demo-conf</code>, <code>@crs-setup-conf</code>). External pattern
+                        files can&rsquo;t be loaded. Use <code>@pm pattern1 pattern2 ...</code> inline.
+                    </li>
+                    <li>
+                        <code>@geoLookup</code> — needs a GeoIP database on disk. Not bundled.
+                    </li>
+                    <li>
+                        <code>@inspectFile</code> — runs an external binary against uploaded files.
+                        No exec surface.
+                    </li>
+                    <li>
+                        <code>SecRemoteRules</code>, <code>SecRemoteRulesFailAction</code> — fetching
+                        rules over HTTP at start-up isn&rsquo;t wired in coraza-proxy-wasm.
+                    </li>
+                    <li>
+                        <strong>Audit log file output.</strong> <code>SecAuditLog /var/log/...</code>{' '}
+                        and <code>SecAuditLogStorageDir</code> are silent no-ops; logs always go to
+                        Envoy stdout. <code>SecAuditLogType Concurrent</code> is unusable.
+                    </li>
+                    <li>
+                        <code>SecAuditLogParts</code> — parts <strong>D, G, I, J</strong> are not
+                        generated. Safe set: <code>ABCFHZ</code> (or <code>ABCEFHKZ</code> with
+                        request body if you need it).
+                    </li>
+                    <li>
+                        <code>SecRequestBodyNoFilesLimit</code> — parsed but not enforced.
+                    </li>
+                    <li>
+                        <code>SecUploadDir</code>, <code>SecUploadKeepFiles</code>,{' '}
+                        <code>SecUploadFileMode</code> — file-system-bound, no place to put files.
+                    </li>
+                    <li>
+                        <code>SecCookieFormat</code>, <code>SecArgumentSeparator</code> — Coraza
+                        doesn&rsquo;t implement these.
+                    </li>
+                    <li>
+                        <code>hashEngine</code> / <code>hashEnforcement</code> ctl options — TBI in
+                        Coraza upstream.
+                    </li>
+                </ul>
+
+                <Alert
+                    type="info"
+                    showIcon
+                    style={{ marginTop: 8 }}
+                    message="Mental model"
+                    description={
+                        <Text style={{ fontSize: 12 }}>
+                            Anything that needs to <strong>remember state across requests</strong>{' '}
+                            (counters, sessions, IP-based throttling) or{' '}
+                            <strong>touch external resources</strong> (files, scripts, remote URLs,
+                            GeoIP) is unsupported here. Coraza-proxy-wasm is best at{' '}
+                            <em>per-request, content-inspection</em> rules — exactly what OWASP CRS
+                            uses it for.
+                        </Text>
+                    }
+                />
 
                 {/* Glossary */}
                 <SectionHeader
@@ -719,6 +947,23 @@ SecRequestBodyLimitAction Reject`}
                     <li>
                         <strong>libinjection</strong> — purpose-built parser used by{' '}
                         <code>@detectSQLi</code> / <code>@detectXSS</code> instead of regex.
+                    </li>
+                    <li>
+                        <strong>Persistent collection</strong> — <code>IP</code>, <code>SESSION</code>,
+                        <code>USER</code>, <code>GLOBAL</code>, <code>RESOURCE</code> in ModSecurity:
+                        store data across requests. <strong>Not functional in WASM</strong> — no
+                        backing store. Don&rsquo;t build rate-limiting on these.
+                    </li>
+                    <li>
+                        <strong>Proxy-Wasm</strong> — the WebAssembly ABI that Envoy uses to load
+                        filters like coraza. Sandboxed: no filesystem writes, no shell, no arbitrary
+                        outbound network.
+                    </li>
+                    <li>
+                        <strong>libinjection / wasilibs</strong> — <code>coraza-wasilibs</code> ports
+                        the heavy operators (<code>@rx</code>, <code>@pm</code>, libinjection
+                        SQLi/XSS) to WASM with C-bindings; everything else falls back to pure-Go
+                        which TinyGo compiles directly.
                     </li>
                 </ul>
                 <Space style={{ marginTop: 24 }}>

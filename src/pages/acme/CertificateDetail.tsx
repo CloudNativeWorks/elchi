@@ -317,11 +317,28 @@ const CertificateDetail: React.FC = () => {
                   Click "Retry Verification" below to try again.
                 </div>
               )}
-              {certificate.status === 'renewal_failed' && (
-                <div style={{ marginTop: 8, fontSize: 12 }}>
-                  Certificate renewal failed. The certificate is still active but will expire soon.
-                </div>
-              )}
+              {certificate.status === 'renewal_failed' && (() => {
+                // Compare actual expiry against now so we don't lie to the
+                // user when the cert has already expired (the BE leaves the
+                // status at `renewal_failed` until the next scheduled run).
+                const expiresAt = certificate.expires_at
+                    ? new Date(certificate.expires_at)
+                    : null;
+                const now = new Date();
+                const isExpired = expiresAt != null && expiresAt.getTime() <= now.getTime();
+                const daysUntil = expiresAt
+                    ? Math.ceil((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+                    : null;
+                return (
+                    <div style={{ marginTop: 8, fontSize: 12 }}>
+                        {isExpired
+                            ? 'The certificate has already expired. Renew it as soon as possible to restore TLS for the affected domains.'
+                            : daysUntil != null && daysUntil <= 7
+                                ? `The certificate is still active but expires in ${daysUntil} day${daysUntil === 1 ? '' : 's'}. Renew it before then.`
+                                : 'The certificate is still active for now, but renewal will keep retrying — check the error above and fix the underlying issue.'}
+                    </div>
+                );
+              })()}
             </div>
           }
           type="error"

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Col, Divider, Upload, Button, UploadProps } from 'antd';
+import { Col, Divider, Upload, Button, UploadProps, Typography } from 'antd';
 import { useDispatch } from "react-redux";
 import { HorizonTags } from "@/elchi/components/common/HorizonTags";
 import { memorizeComponent, compareVeri } from "@/hooks/useMemoComponent";
@@ -9,7 +9,7 @@ import { handleChangeResources } from "@/redux/dispatcher";
 import { handleAddRemoveTags } from "@/elchi/helpers/tag-operations";
 import { FieldConfigType, matchesEndOrStartOf } from "@/utils/tools";
 import { Base64FromBytes } from "@/utils/typed-config-op";
-import { UploadOutlined } from '@ant-design/icons';
+import { UploadOutlined, RollbackOutlined } from '@ant-design/icons';
 import { navigateCases } from "@/elchi/helpers/navigate-cases";
 import { ResourceAction } from "@/redux/reducers/slice";
 import ECard from "@/elchi/components/common/ECard";
@@ -20,6 +20,8 @@ import { FieldTypes } from "@/common/statics/general";
 import { EForm } from "@/elchi/components/common/e-components/EForm";
 import { EFields } from "@/elchi/components/common/e-components/EFields";
 import { showErrorNotification, showSuccessNotification } from '@/common/notificationHandler';
+import { isRedactedValue, sentinelFor, RedactionField } from "./redaction";
+import RedactedFieldCard from "./RedactedFieldCard";
 
 
 type GeneralProps = {
@@ -40,6 +42,10 @@ const CommonComponentDataSource: React.FC<GeneralProps> = ({ veri }) => {
     const { vTags } = useTags(veri.version, modtag_data_source);
     const [selectedTags, setSelectedTags] = useState<string[]>(extractNestedKeys(veri.reduxStore));
     const [file, setFile] = useState<any>([])
+    // Tracks which redacted specifiers the user has chosen to overwrite. The
+    // backend returns a sentinel for these fields; we lock them by default and
+    // only let `EFields` render them once the user explicitly opts in.
+    const [unlockedFields, setUnlockedFields] = useState<Set<RedactionField>>(new Set());
 
     useEffect(() => {
         const selecTag = extractNestedKeys(veri.reduxStore)
@@ -52,6 +58,35 @@ const CommonComponentDataSource: React.FC<GeneralProps> = ({ veri }) => {
             setFile([]);
         }
     }, [veri.reduxStore, veri.fileName]);
+
+    // Sentinel detection — only redacted fields that the user hasn't unlocked.
+    const inlineStringValue = veri.reduxStore?.specifier?.inline_string;
+    const inlineBytesValue = veri.reduxStore?.specifier?.inline_bytes;
+    const lockedFields = new Set<RedactionField>();
+    if (!unlockedFields.has('inline_string') && isRedactedValue(inlineStringValue)) {
+        lockedFields.add('inline_string');
+    }
+    if (!unlockedFields.has('inline_bytes') && isRedactedValue(inlineBytesValue)) {
+        lockedFields.add('inline_bytes');
+    }
+
+    // If a refetch lands and re-injects the sentinel into a field the user
+    // had unlocked, snap the lock back. Without this, an external state
+    // change (e.g. successful save followed by a backend GET that re-redacts)
+    // would leave a "Replacing" banner pointing at a sentinel value.
+    useEffect(() => {
+        setUnlockedFields((prev) => {
+            if (prev.size === 0) return prev;
+            const next = new Set(prev);
+            if (next.has('inline_string') && isRedactedValue(inlineStringValue)) {
+                next.delete('inline_string');
+            }
+            if (next.has('inline_bytes') && isRedactedValue(inlineBytesValue)) {
+                next.delete('inline_bytes');
+            }
+            return next.size === prev.size ? prev : next;
+        });
+    }, [inlineStringValue, inlineBytesValue]);
 
     const handleChangeRedux = (keys: string, val: string | boolean | number) => {
         handleChangeResources({ version: veri.version, type: ActionType.Update, keys, val, resourceType: ResourceType.Resource }, dispatch, ResourceAction);
@@ -67,12 +102,39 @@ const CommonComponentDataSource: React.FC<GeneralProps> = ({ veri }) => {
         handleAddRemoveTags(keyPrefix, tagPrefix, tag, checked, selectedTags, setSelectedTags, handleDeleteRedux);
     }
 
+    const handleReplaceField = (f: RedactionField) => {
+        // Clear sentinel so EFields renders an empty editable field. The
+        // empty value will be sent on save; if the user types something it
+        // becomes the new value, otherwise the backend treats `''` as
+        // explicit-clear (per spec section 4).
+        handleChangeRedux(`${veri.keyPrefix}.specifier.${f}`, '');
+        setUnlockedFields((prev) => new Set(prev).add(f));
+    };
+
+    const handleCancelReplace = (f: RedactionField) => {
+        // Restore the sentinel so the backend sees it on next save and
+        // preserves the original stored value (the no-op contract).
+        handleChangeRedux(`${veri.keyPrefix}.specifier.${f}`, sentinelFor(f));
+        setUnlockedFields((prev) => {
+            const next = new Set(prev);
+            next.delete(f);
+            return next;
+        });
+    };
+
     const fieldConfigs: FieldConfigType[] = [
         ...generateFields({
             f: vTags.ds?.DataSource,
             sf: vTags.ds?.DataSource_SingleFields,
             sn: 24,
             rwr: { 'specifier.inline_string': veri.inlineStringType || FieldTypes.InputArea },
+            // Skip the auto-rendered field for any specifier currently in
+            // lock state — the redaction sentinel would otherwise leak into
+            // the textarea. The lock card below replaces it visually.
+            e: [
+                ...(lockedFields.has('inline_string') ? ['specifier.inline_string'] : []),
+                ...(lockedFields.has('inline_bytes') ? ['specifier.inline_bytes'] : []),
+            ],
         }),
         { tag: "watched_directory.path", type: FieldTypes.String, additionalTags: ["watched_directory", "path"], fieldPath: 'watched_directory.path', spanNum: 24, navigate: true },
     ];
@@ -113,6 +175,45 @@ const CommonComponentDataSource: React.FC<GeneralProps> = ({ veri }) => {
                         onlyOneTag: [['specifier.filename', 'specifier.inline_string', 'specifier.environment_variable', 'specifier.inline_bytes']]
                     }} />
                     <Divider style={{ marginTop: '8px', marginBottom: '8px' }} type="horizontal" />
+                    {/* Locked specifiers — sentinel detected, user has not opted in to replacing */}
+                    {Array.from(lockedFields).map((f) => (
+                        <RedactedFieldCard
+                            key={`locked-${f}`}
+                            field={f}
+                            title={f === 'inline_string' ? 'Inline string' : 'Inline bytes'}
+                            onReplace={() => handleReplaceField(f)}
+                        />
+                    ))}
+                    {/* "Replacing — Cancel" banner shown while at least one field is unlocked */}
+                    {Array.from(unlockedFields).map((f) => (
+                        <div
+                            key={`replacing-${f}`}
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 8,
+                                padding: '6px 10px',
+                                margin: '4px 0',
+                                fontSize: 12,
+                                background: 'var(--color-warning-bg)',
+                                border: '1px dashed var(--color-warning-border)',
+                                borderRadius: 6,
+                            }}
+                        >
+                            <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                                Replacing <code>{f}</code>. Leave empty to delete the value, or fill in a new one.
+                            </Typography.Text>
+                            <span style={{ flex: 1 }} />
+                            <Button
+                                type="link"
+                                size="small"
+                                icon={<RollbackOutlined />}
+                                onClick={() => handleCancelReplace(f)}
+                            >
+                                Cancel replace
+                            </Button>
+                        </div>
+                    ))}
                     <EForm>
                         <EFields
                             fieldConfigs={fieldConfigs}
@@ -122,7 +223,7 @@ const CommonComponentDataSource: React.FC<GeneralProps> = ({ veri }) => {
                             keyPrefix={veri.keyPrefix}
                             version={veri.version}
                         />
-                        {matchesEndOrStartOf("specifier.inline_bytes", selectedTags) &&
+                        {matchesEndOrStartOf("specifier.inline_bytes", selectedTags) && !lockedFields.has('inline_bytes') &&
                             <Upload {...props} key={"upload"}>
                                 <Button icon={<UploadOutlined />}>Upload</Button>
                             </Upload>

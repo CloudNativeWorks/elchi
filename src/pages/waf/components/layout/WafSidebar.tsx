@@ -6,6 +6,7 @@ import {
     DeleteOutlined,
     EditOutlined,
     AppstoreOutlined,
+    AppstoreAddOutlined,
     BookOutlined,
     FileTextOutlined,
     QuestionCircleOutlined,
@@ -55,7 +56,9 @@ interface WafSidebarProps {
     onOpenAdvanced: () => void;
     onOpenOverview: () => void;
     onOpenCrsSetup: () => void;
+    onOpenDemoConf: () => void;
     onOpenHowTo: () => void;
+    onOpenLoadPreset: () => void;
 }
 
 /**
@@ -65,7 +68,7 @@ interface WafSidebarProps {
  *   • CRS Library
  *   • Advanced
  */
-const WafSidebar: React.FC<WafSidebarProps> = ({ onOpenLibrary, onOpenAdvanced, onOpenOverview, onOpenCrsSetup, onOpenHowTo }) => {
+const WafSidebar: React.FC<WafSidebarProps> = ({ onOpenLibrary, onOpenAdvanced, onOpenOverview, onOpenCrsSetup, onOpenDemoConf, onOpenHowTo, onOpenLoadPreset }) => {
     const { state, dispatch } = useWafEditor();
     const { sets, defaultSetId } = state.editor;
     const { activeSetId } = state.ui;
@@ -290,6 +293,16 @@ const WafSidebar: React.FC<WafSidebarProps> = ({ onOpenLibrary, onOpenAdvanced, 
                     icon={<FileTextOutlined />}
                     label="CRS Setup"
                     onClick={onOpenCrsSetup}
+                />
+                <SectionHeader
+                    icon={<FileTextOutlined />}
+                    label="Demo Conf"
+                    onClick={onOpenDemoConf}
+                />
+                <SectionHeader
+                    icon={<AppstoreAddOutlined />}
+                    label="Load template"
+                    onClick={onOpenLoadPreset}
                 />
                 <SectionHeader
                     icon={<QuestionCircleOutlined />}

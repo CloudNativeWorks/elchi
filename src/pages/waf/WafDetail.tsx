@@ -34,7 +34,9 @@ import HistoryPane from './components/history/HistoryPane';
 import AdvancedDrawer from './components/advanced/AdvancedDrawer';
 import CrsLibraryDrawer from './components/crs-library/CrsLibraryDrawer';
 import CrsSetupDrawer from './components/crs-setup/CrsSetupDrawer';
+import DemoConfDrawer from './components/demo-conf/DemoConfDrawer';
 import HowToDrawer from './components/howto/HowToDrawer';
+import LoadPresetDrawer from './components/presets/LoadPresetDrawer';
 import PresetPickerModal from './components/presets/PresetPickerModal';
 import TemplateBuilderDrawer from './components/TemplateBuilderDrawer';
 
@@ -50,10 +52,12 @@ const WafDetailInner: React.FC = () => {
 
     const [libraryOpen, setLibraryOpen] = useState(false);
     const [setupOpen, setSetupOpen] = useState(false);
+    const [demoConfOpen, setDemoConfOpen] = useState(false);
     const [howToOpen, setHowToOpen] = useState(false);
     const [advancedOpen, setAdvancedOpen] = useState(false);
     const [templateOpen, setTemplateOpen] = useState(false);
     const [presetOpen, setPresetOpen] = useState(isCreateMode);
+    const [loadPresetOpen, setLoadPresetOpen] = useState(false);
 
     // Fetch WAF config for edit mode
     const { data: wafConfig, isLoading, error } = useQuery({
@@ -226,7 +230,9 @@ const WafDetailInner: React.FC = () => {
                         onOpenLibrary={() => setLibraryOpen(true)}
                         onOpenAdvanced={() => setAdvancedOpen(true)}
                         onOpenCrsSetup={() => setSetupOpen(true)}
+                        onOpenDemoConf={() => setDemoConfOpen(true)}
                         onOpenHowTo={() => setHowToOpen(true)}
+                        onOpenLoadPreset={() => setLoadPresetOpen(true)}
                     />
                 }
                 main={
@@ -244,7 +250,9 @@ const WafDetailInner: React.FC = () => {
 
             <CrsLibraryDrawer open={libraryOpen} onClose={() => setLibraryOpen(false)} />
             <CrsSetupDrawer open={setupOpen} onClose={() => setSetupOpen(false)} />
+            <DemoConfDrawer open={demoConfOpen} onClose={() => setDemoConfOpen(false)} />
             <HowToDrawer open={howToOpen} onClose={() => setHowToOpen(false)} />
+            <LoadPresetDrawer open={loadPresetOpen} onClose={() => setLoadPresetOpen(false)} />
             <AdvancedDrawer open={advancedOpen} onClose={() => setAdvancedOpen(false)} />
             <TemplateBuilderDrawer
                 visible={templateOpen}

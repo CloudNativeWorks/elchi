@@ -135,16 +135,40 @@ const CertificateList: React.FC = () => {
             style={{ fontSize: 14, padding: '4px 8px', height: 28 }}
             title="View"
           />
-          {record.status === 'active' && (
-            <Button
-              size="small"
-              icon={<SyncOutlined />}
-              onClick={() => handleRenew(record._id, record.secret_name)}
-              loading={renewMutation.isPending}
-              style={{ fontSize: 14, padding: '4px 8px', height: 28 }}
-              title="Renew"
-            />
-          )}
+          {/* Renew availability mirrors the backend validator:
+              - active / expired / renewal_failed  → always allowed
+              - verification_failed → allowed only if a previous body exists
+                (`secret_versions` non-empty); otherwise BE returns 400 and
+                advises retry-verification instead.
+              All other statuses are in-flight and would double-trigger. */}
+          {(() => {
+            const s = record.status;
+            const hasIssuedBody = (record.secret_versions?.length ?? 0) > 0;
+            const canRenew =
+              s === 'active' ||
+              s === 'expired' ||
+              s === 'renewal_failed' ||
+              (s === 'verification_failed' && hasIssuedBody);
+            if (!canRenew) return null;
+            const title =
+              s === 'active'
+                ? 'Renew now'
+                : s === 'renewal_failed'
+                  ? 'Retry renewal'
+                  : s === 'expired'
+                    ? 'Renew expired certificate'
+                    : 'Renew (previous version exists)';
+            return (
+              <Button
+                size="small"
+                icon={<SyncOutlined />}
+                onClick={() => handleRenew(record._id, record.secret_name)}
+                loading={renewMutation.isPending}
+                style={{ fontSize: 14, padding: '4px 8px', height: 28 }}
+                title={title}
+              />
+            );
+          })()}
         </Space>
       ),
     },

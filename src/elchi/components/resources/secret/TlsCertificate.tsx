@@ -122,7 +122,7 @@ const TlsCertificateComponent: React.FC<GeneralProps> = ({ veri }) => {
                 changeGeneralName={veri.changeGeneralName}
                 version={veri.version}
                 locationCheck={GType.createPath === location.pathname}
-                validate="Validate Certificate before save!"
+                validate="Run Envoy's certificate validation before saving. Disable this if you only edited non-cert fields (e.g. watched directory) on a config whose stored cert may be expired."
                 createUpdate={{
                     location_path: location.pathname,
                     GType: GType,

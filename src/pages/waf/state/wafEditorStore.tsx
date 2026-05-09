@@ -85,6 +85,7 @@ export type WafAction =
     | { type: 'UPDATE_DIRECTIVE'; setId: string; directiveId: string; text: string }
     | { type: 'REMOVE_DIRECTIVE'; setId: string; directiveId: string }
     | { type: 'REORDER_DIRECTIVES'; setId: string; orderedIds: string[] }
+    | { type: 'REPLACE_SET_DIRECTIVES'; setId: string; directives: string[] }
     | { type: 'SET_METRIC_LABELS'; labels: MetricLabels }
     | { type: 'SET_PER_AUTHORITY'; map: PerAuthorityDirectives }
     | { type: 'SET_LINT'; result: LintResult | null }
@@ -109,6 +110,7 @@ const UNDOABLE_ACTIONS = new Set<WafAction['type']>([
     'UPDATE_DIRECTIVE',
     'REMOVE_DIRECTIVE',
     'REORDER_DIRECTIVES',
+    'REPLACE_SET_DIRECTIVES',
     'SET_METRIC_LABELS',
     'SET_PER_AUTHORITY',
 ]);
@@ -335,6 +337,21 @@ export const wafReducer = (state: WafStoreState, action: WafAction): WafStoreSta
                         .filter((d): d is Directive => Boolean(d));
                     return { ...s, directives: reordered };
                 }),
+            );
+        }
+
+        case 'REPLACE_SET_DIRECTIVES': {
+            // Atomic swap of a set's directive list. Used by the "Load
+            // template → Replace active set" flow so the set keeps its id,
+            // name, description, and default flag while its body is replaced.
+            const target = state.editor.sets.find((s) => s.id === action.setId);
+            if (!target) return state;
+            const fresh: Directive[] = action.directives.map((text) => ({
+                id: newId('d'),
+                text,
+            }));
+            return markDirty(
+                updateSet(state, action.setId, (s) => ({ ...s, directives: fresh })),
             );
         }
 
