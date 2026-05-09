@@ -81,7 +81,7 @@ const DemoConfDrawer: React.FC<DemoConfDrawerProps> = ({ open, onClose }) => {
                 <span>
                     <FileTextOutlined style={{ marginInlineEnd: 8 }} />
                     Demo Conf Reference
-                    <Tag color="blue" style={{ marginInlineStart: 8 }}>
+                    <Tag color="blue" className='auto-width-tag' style={{ marginInlineStart: 8 }}>
                         coraza-proxy-wasm v0.6.0
                     </Tag>
                 </span>

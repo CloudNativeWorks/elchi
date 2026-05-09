@@ -81,7 +81,7 @@ const CrsSetupDrawer: React.FC<CrsSetupDrawerProps> = ({ open, onClose }) => {
                 <span>
                     <FileTextOutlined style={{ marginInlineEnd: 8 }} />
                     CRS Setup Reference
-                    <Tag color="blue" style={{ marginInlineStart: 8 }}>
+                    <Tag color="blue" className='auto-width-tag' style={{ marginInlineStart: 8 }}>
                         v4.14.0
                     </Tag>
                 </span>

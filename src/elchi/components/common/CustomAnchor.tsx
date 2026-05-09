@@ -1,4 +1,4 @@
-import { Anchor, Tag, Popover, List, Alert, Badge } from 'antd';
+import { Anchor, Tag, Popover, List, Alert, Badge, Skeleton } from 'antd';
 import { getHref, getMatchingPrefix, isOnlyOne, matchesEndOrStartOf, prettyTag, removePrefix } from "@/utils/tools";
 import { InfoCircleTwoTone, VerticalAlignMiddleOutlined, WarningOutlined } from "@ant-design/icons";
 import { compareResourceConfKeys, memorizeComponent } from "@/hooks/useMemoComponent";
@@ -6,6 +6,39 @@ import { AnchorLinkItemProps } from 'antd/es/anchor/Anchor';
 import { InType } from '@/elchi/tags/tagsType';
 import InfoBar, { InfoItem } from './InfoBar';
 import { InfoTypes } from './InfoModal';
+
+/**
+ * Placeholder rows shown while the version's tag bundle (1–2 MB lazy
+ * chunk per Envoy version) is still being downloaded by the browser.
+ *
+ * Without this the side menu rendered as an empty `<Anchor />` and the
+ * user saw a blank column on first visit, with no signal that anything
+ * was loading. The skeleton uses the same height as the real tag rows
+ * so the layout doesn't jump when the data arrives.
+ */
+const LOADING_PLACEHOLDER_ROWS = 8;
+const AnchorLoadingSkeleton: React.FC = () => (
+    <div
+        style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 8,
+            padding: '4px 5px',
+        }}
+        aria-busy
+        aria-live="polite"
+        aria-label="Loading configuration menu"
+    >
+        {Array.from({ length: LOADING_PLACEHOLDER_ROWS }).map((_, i) => (
+            <Skeleton.Button
+                key={i}
+                active
+                block
+                style={{ height: 32, opacity: 0.85 - i * 0.06 }}
+            />
+        ))}
+    </div>
+);
 
 
 const { CheckableTag } = Tag;
@@ -119,6 +152,19 @@ const CustomAnchor = ({
         info_type: InfoTypes.FieldInfo,
         data: resourceConfKeys
     }, ...(infoBar ?? [])]
+
+    // Loading state: the per-version tag bundle hasn't arrived yet (it's a
+    // lazy chunk, often 1–2 MB). Render a skeleton so the user sees the
+    // page is alive instead of a blank column. Once the bundle resolves
+    // and `resourceConfKeys` becomes an array, the real Anchor takes over.
+    if (resourceConfKeys === undefined) {
+        return (
+            <>
+                <InfoBar Infos={infoBars} />
+                <AnchorLoadingSkeleton />
+            </>
+        );
+    }
 
     const createAnchorLinkItem = (tag: string, isChecked: boolean, newTagPrefix: string | null, orginTag: string, isDeprecated: boolean) => {
         if (hiddenTags?.includes(tag)) { return null }
