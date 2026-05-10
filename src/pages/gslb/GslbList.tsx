@@ -523,7 +523,7 @@ const GslbList: React.FC = () => {
                                 style={{ width: 120 }}
                                 min={1}
                                 max={86400}
-                                addonAfter="s"
+                                suffix={<span style={{ color: 'var(--text-secondary)' }}>s</span>}
                             />
                         </Col>
                     </Row>

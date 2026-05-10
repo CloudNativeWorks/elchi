@@ -217,9 +217,9 @@ const ServiceLogToolbar: React.FC<ServiceLogToolbarProps> = ({
                         step={10}
                         value={pendingLogLineCount}
                         onChange={v => onPendingLogLineCountChange(Number(v) || 100)}
-                        style={{ width: 120 }}
+                        style={{ width: 130 }}
                         placeholder="Lines"
-                        addonBefore="Lines"
+                        prefix={<span style={{ color: 'var(--text-secondary)' }}>Lines</span>}
                         size="middle"
                     />
 

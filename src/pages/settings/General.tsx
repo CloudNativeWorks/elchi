@@ -50,13 +50,13 @@ const General: React.FC = () => {
                                     alignItems: 'center',
                                     justifyContent: 'center'
                                 }}>
-                                    <img 
-                                        src="/favicon.ico" 
-                                        alt="Elchi Logo" 
-                                        style={{ 
-                                            width: '24px', 
+                                    <img
+                                        src="/favicon.ico"
+                                        alt="Elchi Logo"
+                                        style={{
+                                            width: '24px',
                                             height: '24px'
-                                        }} 
+                                        }}
                                     />
                                 </div>
                                 <div>
@@ -65,13 +65,13 @@ const General: React.FC = () => {
                                     </Text>
                                     <br />
                                     <Text style={{ color: 'var(--text-on-gradient, rgba(255,255,255,0.9))', fontSize: '14px' }}>
-                                        Proxy Management Platform
+                                        Traffic Management Platform
                                     </Text>
                                 </div>
                             </Space>
-                            
+
                             <Divider style={{ borderColor: 'var(--header-divider, rgba(255,255,255,0.3))', margin: '12px 0' }} />
-                            
+
                             <Space direction="vertical" size="small" style={{ width: '100%' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <Text style={{ color: 'var(--text-on-gradient, rgba(255,255,255,0.9))', fontSize: '14px' }}>
@@ -147,22 +147,22 @@ const General: React.FC = () => {
                                     </Text>
                                 </div>
                             </Space>
-                            
+
                             <Divider style={{ margin: '12px 0' }} />
-                            
-                            <div style={{ 
-                                display: 'flex', 
-                                flexWrap: 'wrap', 
+
+                            <div style={{
+                                display: 'flex',
+                                flexWrap: 'wrap',
                                 gap: '8px',
                                 maxHeight: '120px',
                                 overflowY: 'auto',
                                 padding: '4px'
                             }}>
                                 {appInfo.supportedEnvoyVersions.map((version) => (
-                                    <Tag 
+                                    <Tag
                                         key={version}
                                         color={getVersionAntdColor(version)}
-                                        style={{ 
+                                        style={{
                                             fontSize: '11px',
                                             fontWeight: '500',
                                             margin: 0,
@@ -173,7 +173,7 @@ const General: React.FC = () => {
                                     </Tag>
                                 ))}
                             </div>
-                            
+
                             <div style={{
                                 marginTop: '8px',
                                 padding: '8px 12px',

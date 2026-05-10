@@ -1,6 +1,6 @@
-import React from 'react';
-import { Card, Tabs, Typography, Space } from 'antd';
-import { UserOutlined, TeamOutlined, ProjectOutlined, SettingOutlined, AppstoreOutlined, KeyOutlined, RobotOutlined, CloudOutlined, SafetyOutlined, SafetyCertificateOutlined, ToolOutlined, GlobalOutlined } from '@ant-design/icons';
+import React, { useEffect, useRef, useState } from 'react';
+import { Button, Card, Dropdown, Tabs, Typography, Space } from 'antd';
+import { AuditOutlined, CheckOutlined, MoreOutlined, UserOutlined, TeamOutlined, ProjectOutlined, SettingOutlined, AppstoreOutlined, KeyOutlined, RobotOutlined, CloudOutlined, SafetyOutlined, SafetyCertificateOutlined, ToolOutlined, GlobalOutlined } from '@ant-design/icons';
 import { useSearchParams } from 'react-router-dom';
 import General from './General';
 import Users from './users';
@@ -13,12 +13,15 @@ import LdapConfig from './LdapConfig';
 import GSLBConfig from './GSLBConfig';
 import Licensing from './Licensing';
 import Maintenance from './Maintenance';
+import SyslogConfig from './SyslogConfig';
 
 const { Title, Text } = Typography;
 
+const SETTINGS_TABS_CLASS = 'settings-tabs-overflow';
+
 const Settings: React.FC = () => {
     const [searchParams, setSearchParams] = useSearchParams();
-    
+
     // Direct computation without state to prevent flicker
     const activeTab = searchParams.get('tab') || 'general';
 
@@ -32,6 +35,52 @@ const Settings: React.FC = () => {
         }
         setSearchParams(newParams, { replace: true }); // Use replace to avoid history pollution
     };
+
+    // Detect when the tab strip overflows the visible area. When it does,
+    // we surface a "…" dropdown on the right that lets the user pick any
+    // tab without horizontal scrolling. ResizeObserver keeps it accurate
+    // when the viewport changes.
+    const tabsWrapperRef = useRef<HTMLDivElement>(null);
+    const [isOverflowing, setIsOverflowing] = useState(false);
+
+    useEffect(() => {
+        const root = tabsWrapperRef.current;
+        if (!root) return;
+
+        let cleanupObservers: (() => void) | null = null;
+
+        const measure = (navWrap: HTMLElement, navList: HTMLElement) => {
+            // The list overflows when its content is wider than the wrap.
+            setIsOverflowing(navList.scrollWidth > navWrap.clientWidth + 1);
+        };
+
+        const attach = () => {
+            const navWrap = root.querySelector('.ant-tabs-nav-wrap') as HTMLElement | null;
+            const navList = root.querySelector('.ant-tabs-nav-list') as HTMLElement | null;
+            if (!navWrap || !navList) return false;
+
+            const ro = new ResizeObserver(() => measure(navWrap, navList));
+            ro.observe(navWrap);
+            ro.observe(navList);
+            measure(navWrap, navList);
+
+            cleanupObservers = () => ro.disconnect();
+            return true;
+        };
+
+        // Antd renders the nav lazily; retry once after the first paint if
+        // it isn't in the DOM yet.
+        if (!attach()) {
+            const t = setTimeout(attach, 0);
+            return () => {
+                clearTimeout(t);
+                cleanupObservers?.();
+            };
+        }
+        return () => {
+            cleanupObservers?.();
+        };
+    }, []);
 
     const tabItems = [
         {
@@ -125,6 +174,16 @@ const Settings: React.FC = () => {
             children: <GSLBConfig />
         },
         {
+            key: 'audit-forwarding',
+            label: (
+                <span className="tabLabel">
+                    <AuditOutlined style={{ fontSize: 18 }} />
+                    Audit Forwarding
+                </span>
+            ),
+            children: <SyslogConfig />
+        },
+        {
             key: 'license',
             label: (
                 <span className="tabLabel">
@@ -172,15 +231,59 @@ const Settings: React.FC = () => {
                     body: { padding: 12 }
                 }}
             >
-                <Tabs
-                    activeKey={activeTab}
-                    onChange={handleTabChange}
-                    items={tabItems}
-                    size="large"
-                    tabPosition="top"
-                    style={{ minHeight: '400px' }}
-                    destroyOnHidden
-                />
+                {/* Hide antd's built-in `…` overflow popover (click-only,
+                    looks subtle) so we can surface our own hover-triggered
+                    Dropdown on the right when the tab strip overflows.
+                    Scoped to this Tabs instance via the className so other
+                    Tabs in the app keep antd defaults. */}
+                <style>{`
+                    .${SETTINGS_TABS_CLASS} .ant-tabs-nav-operations { display: none !important; }
+                `}</style>
+                <div ref={tabsWrapperRef}>
+                    <Tabs
+                        className={SETTINGS_TABS_CLASS}
+                        activeKey={activeTab}
+                        onChange={handleTabChange}
+                        items={tabItems}
+                        size="large"
+                        tabPosition="top"
+                        style={{ minHeight: '400px' }}
+                        destroyOnHidden
+                        tabBarExtraContent={{
+                            right: isOverflowing ? (
+                                <Dropdown
+                                    trigger={['hover']}
+                                    placement="bottomRight"
+                                    menu={{
+                                        items: tabItems.map((t) => ({
+                                            key: t.key,
+                                            label: t.label,
+                                            icon: t.key === activeTab ? (
+                                                <CheckOutlined
+                                                    style={{ color: 'var(--color-primary)' }}
+                                                />
+                                            ) : undefined,
+                                        })),
+                                        onClick: ({ key }) => handleTabChange(key),
+                                        selectedKeys: [activeTab],
+                                        style: { maxHeight: '60vh', overflow: 'auto' },
+                                    }}
+                                >
+                                    <Button
+                                        type="text"
+                                        size="small"
+                                        icon={<MoreOutlined />}
+                                        style={{
+                                            marginLeft: 4,
+                                            color: 'var(--text-secondary)',
+                                        }}
+                                        aria-label="All tabs"
+                                    />
+                                </Dropdown>
+                            ) : null,
+                        }}
+                    />
+                </div>
             </Card>
         </>
     );
