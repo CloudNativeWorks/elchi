@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { Modal, Select, Space, Typography, Checkbox, Alert, message, Tag } from 'antd';
+import { App as AntdApp, Modal, Select, Space, Typography, Checkbox, Alert, message, Tag } from 'antd';
 import { ExclamationCircleFilled } from '@ant-design/icons';
 import ElchiButton from './ElchiButton';
 import { useCustomApiMutation } from '@/common/custom-api';
 import { useNavigate } from 'react-router-dom';
 
 const { Title, Text } = Typography;
-const { confirm } = Modal;
 
 interface ListenerUpgradeModalProps {
     visible: boolean;
@@ -68,6 +67,10 @@ const ListenerUpgradeModal: React.FC<ListenerUpgradeModalProps> = ({
 
     const upgradeMutation = useCustomApiMutation();
     const navigate = useNavigate();
+    // Use context-aware modal (App.useApp) instead of the static Modal.confirm
+    // so the confirmation dialog picks up the dark/light theme from
+    // ConfigProvider. Static calls render outside the theme context.
+    const { modal } = AntdApp.useApp();
 
     const handleClose = () => {
         setTargetVersion('');
@@ -86,7 +89,7 @@ const ListenerUpgradeModal: React.FC<ListenerUpgradeModalProps> = ({
             return;
         }
 
-        confirm({
+        modal.confirm({
             title: 'Confirm Listener Upgrade',
             icon: <ExclamationCircleFilled />,
             content: (

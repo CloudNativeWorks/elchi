@@ -1257,7 +1257,22 @@ const JobDetail: React.FC = () => {
               </Text>
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {job.metadata.upgrade_config.client_responses.flat().map((response: any, idx: number) => (
+              {job.metadata.upgrade_config.client_responses.flat().map((response: any, idx: number) => {
+                // Response shape varies across backend versions. The current
+                // contract returns a flat `client_id`; an earlier shape nested
+                // it under `identity.{clientname, clientid}`. Read defensively
+                // from whichever is present so the page never crashes on
+                // refresh when only one is populated.
+                const clientId: string =
+                  response?.identity?.clientid ??
+                  response?.client_id ??
+                  '';
+                const clientName: string =
+                  response?.identity?.clientname ??
+                  response?.client_name ??
+                  '';
+                const idShort = clientId ? `${clientId.substring(0, 8)}…` : '';
+                return (
                 <div
                   key={idx}
                   style={{
@@ -1275,12 +1290,16 @@ const JobDetail: React.FC = () => {
                     >
                       {response.success ? 'Success' : 'Failed'}
                     </Tag>
-                    <Text strong style={{ fontSize: 13 }}>
-                      {response.identity.clientname}
-                    </Text>
-                    <Text type="secondary" style={{ fontSize: 11 }}>
-                      ({response.identity.clientid.substring(0, 8)}...)
-                    </Text>
+                    {clientName && (
+                      <Text strong style={{ fontSize: 13 }}>
+                        {clientName}
+                      </Text>
+                    )}
+                    {(clientName ? idShort : clientId) && (
+                      <Text type="secondary" style={{ fontSize: 11 }}>
+                        {clientName ? `(${idShort})` : clientId}
+                      </Text>
+                    )}
                   </div>
 
                   {response.result?.upgradelistener && (
@@ -1316,7 +1335,8 @@ const JobDetail: React.FC = () => {
                     />
                   )}
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}
