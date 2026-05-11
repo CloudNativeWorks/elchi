@@ -1258,20 +1258,24 @@ const JobDetail: React.FC = () => {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {job.metadata.upgrade_config.client_responses.flat().map((response: any, idx: number) => {
-                // Response shape varies across backend versions. The current
-                // contract returns a flat `client_id`; an earlier shape nested
-                // it under `identity.{clientname, clientid}`. Read defensively
-                // from whichever is present so the page never crashes on
-                // refresh when only one is populated.
+                // client_responses item shape varies:
+                //  - failure entries are flat: { client_id, error, success: false }
+                //  - success entries (new): { client_id, success: true, result: { identity, upgrade_listener, ... } }
+                //  - success entries (older): the raw CommandResponse at the top level (identity, upgrade_listener, ...)
+                // Read defensively so a mixed array doesn't crash.
+                const result = response?.result ?? response;
                 const clientId: string =
-                  response?.identity?.clientid ??
+                  result?.identity?.clientid ??
                   response?.client_id ??
                   '';
                 const clientName: string =
-                  response?.identity?.clientname ??
+                  result?.identity?.clientname ??
                   response?.client_name ??
                   '';
                 const idShort = clientId ? `${clientId.substring(0, 8)}…` : '';
+                const upgradeListener =
+                  result?.upgrade_listener ??
+                  result?.upgradelistener;
                 return (
                 <div
                   key={idx}
@@ -1302,7 +1306,7 @@ const JobDetail: React.FC = () => {
                     )}
                   </div>
 
-                  {response.result?.upgradelistener && (
+                  {upgradeListener && (
                     <div style={{
                       background: 'var(--card-bg)',
                       borderRadius: 6,
@@ -1311,17 +1315,31 @@ const JobDetail: React.FC = () => {
                       fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace'
                     }}>
                       <div style={{ marginBottom: 4 }}>
-                        <Text strong>Listener:</Text> {response.result.upgradelistener.name}
+                        <Text strong>Listener:</Text> {upgradeListener.name}
                       </div>
+                      {upgradeListener.port !== undefined && (
+                        <div style={{ marginBottom: 4 }}>
+                          <Text strong>Port:</Text> {upgradeListener.port}
+                        </div>
+                      )}
                       <div style={{ marginBottom: 4 }}>
-                        <Text strong>Port:</Text> {response.result.upgradelistener.port}
+                        <Text strong>Version:</Text> {upgradeListener.from_version ?? upgradeListener.fromversion} → {upgradeListener.to_version ?? upgradeListener.toversion}
                       </div>
-                      <div style={{ marginBottom: 4 }}>
-                        <Text strong>Version:</Text> {response.result.upgradelistener.fromversion} → {response.result.upgradelistener.toversion}
-                      </div>
-                      <div style={{ marginBottom: 4 }}>
-                        <Text strong>Restart:</Text> {response.result.upgradelistener.graceful ? 'Graceful' : 'Hard'} - {response.result.upgradelistener.envoyrestarted}
-                      </div>
+                      {upgradeListener.graceful !== undefined && (
+                        <div style={{ marginBottom: 4 }}>
+                          <Text strong>Restart:</Text> {upgradeListener.graceful ? 'Graceful' : 'Hard'}
+                        </div>
+                      )}
+                      {(upgradeListener.systemd_service_updated ?? upgradeListener.systemdserviceupdated) !== undefined && (
+                        <div style={{ marginBottom: 4 }}>
+                          <Text strong>Systemd:</Text> {String(upgradeListener.systemd_service_updated ?? upgradeListener.systemdserviceupdated)}
+                        </div>
+                      )}
+                      {(upgradeListener.envoy_restarted ?? upgradeListener.envoyrestarted) !== undefined && (
+                        <div style={{ marginBottom: 4 }}>
+                          <Text strong>Envoy Restarted:</Text> {String(upgradeListener.envoy_restarted ?? upgradeListener.envoyrestarted)}
+                        </div>
+                      )}
                     </div>
                   )}
 
