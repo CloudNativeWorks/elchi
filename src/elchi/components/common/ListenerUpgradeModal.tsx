@@ -17,7 +17,6 @@ interface ListenerUpgradeModalProps {
 }
 
 interface UpgradeOptions {
-    auto_create_missing: boolean;
     validate_clients: boolean;
     update_bootstrap: boolean;
     dry_run: boolean;
@@ -42,7 +41,6 @@ const ListenerUpgradeModal: React.FC<ListenerUpgradeModalProps> = ({
 }) => {
     const [targetVersion, setTargetVersion] = useState<string>('');
     const [options, setOptions] = useState<UpgradeOptions>({
-        auto_create_missing: true,
         validate_clients: true, // Always true, not shown in UI
         update_bootstrap: true, // Always true, not shown in UI
         dry_run: false
@@ -75,7 +73,6 @@ const ListenerUpgradeModal: React.FC<ListenerUpgradeModalProps> = ({
     const handleClose = () => {
         setTargetVersion('');
         setOptions({
-            auto_create_missing: true,
             validate_clients: true, // Always true
             update_bootstrap: true, // Always true
             dry_run: false
@@ -250,12 +247,6 @@ const ListenerUpgradeModal: React.FC<ListenerUpgradeModalProps> = ({
                         Upgrade Options
                     </Text>
                     <Space direction="vertical" size={4} style={{ width: '100%' }}>
-                        <Checkbox
-                            checked={options.auto_create_missing}
-                            onChange={(e) => setOptions({ ...options, auto_create_missing: e.target.checked })}
-                        >
-                            <Text style={{ fontSize: 12 }}>Auto-create missing resources</Text>
-                        </Checkbox>
                         <Checkbox
                             checked={options.dry_run}
                             onChange={(e) => setOptions({ ...options, dry_run: e.target.checked })}
