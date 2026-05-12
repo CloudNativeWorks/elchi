@@ -804,9 +804,8 @@ const JobDetail: React.FC = () => {
             />
           </Card>
 
-          {/* Actions - Hidden for RESOURCE_UPGRADE and ACME verification jobs */}
+          {/* Actions - Hidden for dry-run upgrades and ACME verification jobs */}
           {(canRetry || hasFailedSnapshots) &&
-           job.type !== 'RESOURCE_UPGRADE' &&
            job.type !== 'RESOURCE_UPGRADE(DRY)' &&
            job.type !== 'ACME_VERIFICATION' && (
             <Card
