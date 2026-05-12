@@ -1057,73 +1057,204 @@ const JobDetail: React.FC = () => {
                     </Tag>
                   )}
                 </div>
-                {/* Content Section */}
+                {/* Content Section — execution-aware */}
                 <div style={{ padding: 16, background: 'var(--card-bg)' }}>
-                  <Row gutter={16}>
-                    {/* Missing Resources */}
-                    {listener.missing_resources && listener.missing_resources.length > 0 && (
-                      <Col span={12}>
-                        <div style={{ marginBottom: 12 }}>
-                          <Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 8 }}>
-                            Missing Resources ({listener.missing_resources.length})
-                          </Text>
-                          <div style={{ maxHeight: 200, overflow: 'auto' }}>
-                            {listener.missing_resources.map((res, resIdx: number) => (
-                              <div
-                                key={resIdx}
-                                style={{
-                                  background: 'var(--color-warning-light)',
-                                  border: '1px solid var(--color-warning-border)',
-                                  borderRadius: 6,
-                                  padding: 8,
-                                  marginBottom: 6
-                                }}
-                              >
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 0 }}>
-                                  <Tag className='auto-width-tag' color="orange" style={{ fontSize: 10, margin: 0 }}>
-                                    {res.gtype.split('.').pop()}
-                                  </Tag>
-                                  <Text strong style={{ fontSize: 12 }}>{res.name}</Text>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </Col>
-                    )}
+                  {(() => {
+                    // When the job has actually run (COMPLETED/FAILED with
+                    // created_resources populated) we surface the execution
+                    // result per-dependency rather than the analysis snapshot,
+                    // so a retry job doesn't render stale "missing" cards for
+                    // resources that were already created in the prior run.
+                    const upgradeCfg = job.metadata.upgrade_config as any;
+                    const executed: any[] = upgradeCfg?.created_resources || [];
+                    const bootstrapUpdates: any[] = upgradeCfg?.bootstrap_updates || [];
+                    const isExecuted = ['COMPLETED', 'FAILED'].includes(job.status) && executed.length > 0;
+                    const fromVersion = (job.metadata as any)?.source_resource?.version ?? (job as any).version;
+                    const toVersion = upgradeCfg?.target_version;
+                    const shortGType = (g?: string, fallback?: string) =>
+                      (g?.split('.').pop()) || fallback || 'Resource';
 
-                    {/* Existing Resources */}
-                    {listener.existing_resources && listener.existing_resources.length > 0 && (
-                      <Col span={12}>
-                        <div style={{ marginBottom: 12 }}>
-                          <Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 8 }}>
-                            Existing Resources ({listener.existing_resources.length})
-                          </Text>
-                          <div style={{ maxHeight: 200, overflow: 'auto' }}>
-                            {listener.existing_resources.map((res, resIdx: number) => (
-                              <div
-                                key={resIdx}
-                                style={{
-                                  background: 'var(--color-success-light)',
-                                  border: '1px solid var(--color-success-border)',
-                                  borderRadius: 6,
-                                  padding: 8,
-                                  marginBottom: 6
-                                }}
-                              >
-                                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 0 }}>
-                                  <Tag className='auto-width-tag' color="green" style={{ fontSize: 10, margin: 0 }}>
-                                    {res.gtype.split('.').pop()}
+                    const analysisMissing: any[] = (listener as any).missing_resources || [];
+                    const analysisExisting: any[] = (listener as any).existing_resources || [];
+
+                    type DepItem = {
+                      name: string;
+                      gtypeShort: string;
+                      bgColor: string;
+                      borderColor: string;
+                      tagColor: string;
+                      badgeText: string;
+                    };
+                    const depItems: DepItem[] = [];
+
+                    if (isExecuted) {
+                      const listenerDepNames = new Set<string>([
+                        ...analysisMissing.map((r: any) => r.name),
+                        ...analysisExisting.map((r: any) => r.name),
+                      ]);
+                      const listenerExecuted = executed.filter(
+                        (r: any) => listenerDepNames.has(r.name) && r.collection !== 'listeners'
+                      );
+                      const executedNames = new Set(listenerExecuted.map((r: any) => r.name));
+
+                      listenerExecuted.forEach((r: any) => {
+                        // Skipped = resource was already at target version, no-op.
+                        // Render with a transparent fill + green outline so it
+                        // visually differs from freshly "Created" (filled green)
+                        // in both light and dark themes — bg-elevated equals
+                        // card-bg in light mode and would otherwise be invisible.
+                        depItems.push({
+                          name: r.name,
+                          gtypeShort: shortGType(r.gtype, r.collection),
+                          bgColor: r.skipped ? 'transparent' : 'var(--color-success-light)',
+                          borderColor: 'var(--color-success-border)',
+                          tagColor: r.skipped ? 'default' : 'green',
+                          badgeText: r.skipped ? '✓ Already in target' : '✚ Created',
+                        });
+                      });
+
+                      analysisExisting
+                        .filter((e: any) => !executedNames.has(e.name))
+                        .forEach((e: any) => {
+                          depItems.push({
+                            name: e.name,
+                            gtypeShort: shortGType(e.gtype, e.collection),
+                            bgColor: 'transparent',
+                            borderColor: 'var(--border-default)',
+                            tagColor: 'default',
+                            badgeText: '◇ Pre-existing',
+                          });
+                        });
+                    } else {
+                      analysisMissing.forEach((r: any) => {
+                        depItems.push({
+                          name: r.name,
+                          gtypeShort: shortGType(r.gtype, r.collection),
+                          bgColor: 'var(--color-warning-light)',
+                          borderColor: 'var(--color-warning-border)',
+                          tagColor: 'orange',
+                          badgeText: '⏳ Will be created',
+                        });
+                      });
+                      analysisExisting.forEach((e: any) => {
+                        depItems.push({
+                          name: e.name,
+                          gtypeShort: shortGType(e.gtype, e.collection),
+                          bgColor: 'var(--color-success-light)',
+                          borderColor: 'var(--color-success-border)',
+                          tagColor: 'green',
+                          badgeText: '◇ Already exists',
+                        });
+                      });
+                    }
+
+                    const listenerSelfEntry = isExecuted
+                      ? executed.find(
+                          (r: any) =>
+                            r.collection === 'listeners' && r.name === (listener as any).listener_name
+                        )
+                      : null;
+
+                    const listenerBootstrapUpdates = bootstrapUpdates.filter(
+                      (b: any) => b.listener_name === (listener as any).listener_name
+                    );
+
+                    return (
+                      <>
+                        {depItems.length > 0 && (
+                          <div style={{ marginBottom: listenerSelfEntry || listenerBootstrapUpdates.length > 0 ? 12 : 0 }}>
+                            <Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 8 }}>
+                              Dependencies ({depItems.length})
+                            </Text>
+                            <div style={{ maxHeight: 260, overflow: 'auto', display: 'flex', flexDirection: 'column', gap: 6 }}>
+                              {depItems.map((item, i) => (
+                                <div
+                                  key={i}
+                                  style={{
+                                    background: item.bgColor,
+                                    border: `1px solid ${item.borderColor}`,
+                                    borderRadius: 6,
+                                    padding: 8,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 6,
+                                    flexWrap: 'wrap'
+                                  }}
+                                >
+                                  <Tag className='auto-width-tag' color={item.tagColor} style={{ fontSize: 10, margin: 0 }}>
+                                    {item.gtypeShort}
                                   </Tag>
-                                  <Text strong style={{ fontSize: 12 }}>{res.name}</Text>
+                                  <Text strong style={{ fontSize: 12, flex: '1 1 auto', minWidth: 0, wordBreak: 'break-all' }}>{item.name}</Text>
+                                  <Text type="secondary" style={{ fontSize: 11, whiteSpace: 'nowrap' }}>{item.badgeText}</Text>
                                 </div>
-                              </div>
-                            ))}
+                              ))}
+                            </div>
                           </div>
-                        </div>
-                      </Col>
-                    )}
-                  </Row>
+                        )}
+
+                        {listenerSelfEntry && (
+                          <div style={{ marginBottom: listenerBootstrapUpdates.length > 0 ? 12 : 0 }}>
+                            <Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 8 }}>
+                              Listener
+                            </Text>
+                            <div
+                              style={{
+                                background: 'var(--color-info-light, var(--bg-elevated))',
+                                border: '1px solid var(--color-primary-border, var(--border-default))',
+                                borderRadius: 6,
+                                padding: 8,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 6,
+                                flexWrap: 'wrap'
+                              }}
+                            >
+                              <Tag className='auto-width-tag' color="blue" style={{ fontSize: 10, margin: 0 }}>
+                                Listener
+                              </Tag>
+                              <Text strong style={{ fontSize: 12, flex: '1 1 auto', minWidth: 0, wordBreak: 'break-all' }}>{listenerSelfEntry.name}</Text>
+                              <Text type="secondary" style={{ fontSize: 11, whiteSpace: 'nowrap' }}>
+                                ↑ Updated ({fromVersion} → {toVersion})
+                              </Text>
+                            </div>
+                          </div>
+                        )}
+
+                        {listenerBootstrapUpdates.length > 0 && (
+                          <div>
+                            <Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 8 }}>
+                              Bootstrap ({listenerBootstrapUpdates.length})
+                            </Text>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                              {listenerBootstrapUpdates.map((b: any, i: number) => (
+                                <div
+                                  key={i}
+                                  style={{
+                                    background: b.success ? 'var(--color-success-light)' : 'var(--color-danger-light)',
+                                    border: `1px solid ${b.success ? 'var(--color-success-border)' : 'var(--color-danger-border)'}`,
+                                    borderRadius: 6,
+                                    padding: 8,
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 6,
+                                    flexWrap: 'wrap'
+                                  }}
+                                >
+                                  <Tag className='auto-width-tag' color={b.success ? 'blue' : 'red'} style={{ fontSize: 10, margin: 0 }}>
+                                    Bootstrap
+                                  </Tag>
+                                  <Text strong style={{ fontSize: 12, flex: '1 1 auto', minWidth: 0, wordBreak: 'break-all' }}>{b.bootstrap_name}</Text>
+                                  <Text type="secondary" style={{ fontSize: 11, whiteSpace: 'nowrap' }}>
+                                    {b.success ? `↑ Updated to ${b.to_version}` : `✗ ${b.error}`}
+                                  </Text>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
             ))}
