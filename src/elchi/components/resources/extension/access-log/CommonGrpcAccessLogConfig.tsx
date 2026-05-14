@@ -5,9 +5,6 @@ import { EForm } from '@/elchi/components/common/e-components/EForm';
 import { EFields } from '@/elchi/components/common/e-components/EFields';
 import ECard from '@/elchi/components/common/ECard';
 import { useTags } from '@/hooks/useTags';
-import { useLoading } from '@/hooks/loadingContext';
-import { useManagedLoading } from '@/hooks/useManageLoading';
-import RenderLoading from '@/elchi/components/common/Loading';
 import { modtag_http_grpc_access_log } from './_modtag_';
 import { generateFields } from '@/common/generate-fields';
 import useResourceForm from '@/hooks/useResourceForm';
@@ -29,8 +26,7 @@ type Props = {
 
 const ComponentCommonGrpcAccessLogConfig: React.FC<Props> = ({ veri }) => {
     const { version, reduxStore, keyPrefix, reduxAction, tagMatchPrefix } = veri;
-    const { vTags, loading } = useTags(version, modtag_http_grpc_access_log);
-    const { loadingCount } = useLoading();
+    const { vTags } = useTags(version, modtag_http_grpc_access_log);
     const { selectedTags, handleChangeRedux, handleChangeTag } = useResourceForm({
         version,
         reduxStore,
@@ -43,11 +39,6 @@ const ComponentCommonGrpcAccessLogConfig: React.FC<Props> = ({ veri }) => {
             e: ['grpc_service', 'grpc_stream_retry_policy', 'custom_tags'],
         }),
     ];
-
-    useManagedLoading(loading);
-    if (loadingCount > 0) {
-        return <RenderLoading checkPage={true} isLoadingQuery={true} error={""} />;
-    }
 
     return (
         <ECard title="Common gRPC Access Log Config">

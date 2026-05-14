@@ -22,8 +22,8 @@ const { Text } = Typography;
 const JsonValue: React.FC<{
     value: any;
     style?: React.CSSProperties;
-    isDark?: boolean;
-}> = ({ value, style = {}, isDark = false }) => {
+}> = ({ value, style = {} }) => {
+    const { isDark } = useTheme();
     // Check if value is JSON object/array
     const isJson = typeof value === 'object' && value !== null;
 
