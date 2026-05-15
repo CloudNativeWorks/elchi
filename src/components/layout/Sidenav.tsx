@@ -145,12 +145,6 @@ const menuConfig = [
 		label: "Discovery",
 	},
 	{
-		key: "/registry",
-		to: "/registry",
-		icon: "DatabaseOutlined",
-		label: "Registry",
-	},
-	{
 		key: "/waf",
 		to: "/waf",
 		icon: "FireOutlined",
@@ -191,6 +185,12 @@ const menuConfig = [
 		to: "/clients",
 		icon: "CloudServerOutlined",
 		label: "Clients",
+	},
+	{
+		key: "/registry",
+		to: "/registry",
+		icon: "DatabaseOutlined",
+		label: "Registry",
 	},
 	{
 		key: "/jobs",

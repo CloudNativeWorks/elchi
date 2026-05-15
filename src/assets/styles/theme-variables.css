@@ -746,10 +746,29 @@ body {
   background: var(--bg-hover) !important;
 }
 
-/* Multiple select tags */
+/* Multiple select tags — chip clipping fix
+ * compactAlgorithm shrinks chip dimensions so descenders (g/y/p) clip.
+ * Matches the working `.domains-select` override in app.css: chip itself
+ * needs +2px height to fit the full glyph; inner content line-height
+ * follows. Do NOT add padding to the selector or the row gets taller.
+ */
+.ant-select-multiple .ant-select-selection-item {
+  height: 20px !important;
+  line-height: 18px !important;
+  padding: 1px 4px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+.ant-select-multiple .ant-select-selection-item-content {
+  line-height: 18px !important;
+}
+
 [data-theme="dark"] .ant-select-multiple .ant-select-selection-item {
   background: var(--bg-elevated) !important;
-  border-color: var(--border-default) !important;
+  /* border-default equals bg-elevated in dark mode → chips look borderless.
+     Use a one-step-lighter slate so the chip is clearly delineated. */
+  border-color: #475569 !important;
 }
 
 [data-theme="dark"] .ant-select-multiple .ant-select-selection-item-remove {
