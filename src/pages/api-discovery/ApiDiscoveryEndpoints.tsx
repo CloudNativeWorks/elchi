@@ -991,6 +991,7 @@ const ApiDiscoveryEndpoints: React.FC = () => {
                     className="api-discovery-endpoints-table"
                     rowKey="_id"
                     columns={columns}
+                    scroll={{ x: 'max-content' }}
                     dataSource={data?.data ?? []}
                     loading={isLoading}
                     size="middle"

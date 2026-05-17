@@ -1068,6 +1068,7 @@ const EventsTab: React.FC<{ id: string; methods: string[] }> = ({ id, methods })
                 <Table<RawEvent>
                     rowKey="event_id"
                     columns={columns}
+                    scroll={{ x: 'max-content' }}
                     dataSource={data?.data ?? []}
                     loading={isLoading}
                     size="small"

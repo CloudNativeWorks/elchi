@@ -269,6 +269,7 @@ const PiiInventoryDashboard: React.FC = () => {
                     className="api-discovery-table"
                     rowKey="_id"
                     columns={columns}
+                    scroll={{ x: 'max-content' }}
                     dataSource={filteredEndpoints}
                     loading={isLoading}
                     size="middle"

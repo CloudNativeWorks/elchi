@@ -456,6 +456,7 @@ const ApiDiscoveryListeners: React.FC = () => {
                     className="api-discovery-listeners-table"
                     rowKey={(r) => `${r.project_id}:${r.listener_name}`}
                     columns={columns}
+                    scroll={{ x: 'max-content' }}
                     dataSource={rows}
                     loading={isLoading}
                     size="middle"

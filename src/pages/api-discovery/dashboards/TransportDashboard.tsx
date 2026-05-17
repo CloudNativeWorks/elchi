@@ -353,6 +353,7 @@ const TransportDashboard: React.FC = () => {
                     className="api-discovery-table"
                     rowKey={(r) => `${r.listener_name}|${r.normalized_path}|${r.tls_version}|${r.protocol}`}
                     columns={columns}
+                    scroll={{ x: 'max-content' }}
                     dataSource={weak}
                     loading={isLoading}
                     size="middle"
