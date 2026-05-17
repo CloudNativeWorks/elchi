@@ -33,6 +33,9 @@ import Metrics from './pages/metrics/metrics';
 import Logs from './pages/logs/Logs';
 import AIConfigGenerator from './ai/AIConfigGenerator';
 import Discovery from './pages/discovery/Discovery';
+import ApiDiscoveryListeners from './pages/api-discovery/ApiDiscoveryListeners';
+import ApiDiscoveryEndpoints from './pages/api-discovery/ApiDiscoveryEndpoints';
+import ApiDiscoveryEndpointDetail from './pages/api-discovery/ApiDiscoveryEndpointDetail';
 import JobList from './pages/jobs/JobList';
 import JobDetail from './pages/jobs/JobDetail';
 import AuditList from './pages/audit/AuditList';
@@ -128,6 +131,11 @@ const AppRoutes: React.FC = () => (
 
                 {/* Discovery Route */}
                 <Route path="/discovery" element={<Discovery />} />
+
+                {/* API Discovery Routes */}
+                <Route path="/api-discovery" element={<ApiDiscoveryListeners />} />
+                <Route path="/api-discovery/:listenerName" element={<ApiDiscoveryEndpoints />} />
+                <Route path="/api-discovery/:listenerName/endpoints/:id" element={<ApiDiscoveryEndpointDetail />} />
 
                 {/* Jobs Routes */}
                 <Route path="/jobs" element={<JobList />} />

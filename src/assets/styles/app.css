@@ -180,12 +180,28 @@ com-1password-button {
 
 .ant-card-head {
     background: var(--gradient-primary) !important;
-    color: var(--text-inverse) !important;
+    /* The head is the primary (blue) gradient in BOTH themes — text must
+       be white in both. `--text-inverse` flips to dark in dark mode, so
+       use a literal white here. */
+    color: #ffffff !important;
 }
 
 .ant-card-head {
     min-height: 32px !important;
     font-size: 12px !important;
+}
+
+/* antd sets its own (dark) colour on `.ant-card-head-title`, so a node
+   title — and any Typography inside it — ends up dark on the gradient.
+   Force the title + its Typography to white in both themes. Icons
+   `inherit` so InfoLabel's ⓘ turns white while a coloured Tag's own
+   icon keeps the tag's theme. */
+.ant-card-head-title,
+.ant-card-head-title .ant-typography {
+    color: #ffffff !important;
+}
+.ant-card-head-title .anticon {
+    color: inherit !important;
 }
 
 .ant-menu-inline,

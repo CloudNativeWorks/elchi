@@ -31,6 +31,9 @@ interface RenderFormItemProps {
     wafConfig?: string;
     changeWafConfig?: (wafName: string) => void;
     wafConfigs?: Array<{ name: string; id: string }>;
+    // Optional API Discovery toggle - for HCM only
+    apiDiscovery?: boolean;
+    changeApiDiscovery?: (enabled: boolean) => void;
 }
 
 type createUpdate = {
@@ -47,7 +50,7 @@ type createUpdate = {
     rawQuery?: any;
 }
 
-export const HeadOfResource = ({ generalName, version, changeGeneralName, locationCheck, createUpdate, managed, changeGeneralManaged, callBack, validate, changeGeneralValidate, wafConfig, changeWafConfig, wafConfigs }: RenderFormItemProps) => {
+export const HeadOfResource = ({ generalName, version, changeGeneralName, locationCheck, createUpdate, managed, changeGeneralManaged, callBack, validate, changeGeneralValidate, wafConfig, changeWafConfig, wafConfigs, apiDiscovery, changeApiDiscovery }: RenderFormItemProps) => {
     const dispatch = useDispatch();
     const [showHowTo, setShowHowTo] = useState(false);
     const [showDiscovery, setShowDiscovery] = useState(false);
@@ -64,10 +67,11 @@ export const HeadOfResource = ({ generalName, version, changeGeneralName, locati
 
 
     // These parameters are used conditionally in JSX
-    void managed; void changeGeneralManaged; void callBack; void validate; void changeGeneralValidate; void wafConfig; void changeWafConfig; void wafConfigs;
+    void managed; void changeGeneralManaged; void callBack; void validate; void changeGeneralValidate; void wafConfig; void changeWafConfig; void wafConfigs; void apiDiscovery; void changeApiDiscovery;
 
     const isEndpointType = createUpdate.gtype === "envoy.config.endpoint.v3.ClusterLoadAssignment";
     const isWasmType = createUpdate.gtype === "envoy.extensions.filters.http.wasm.v3.Wasm";
+    const isHcmType = createUpdate.gtype === "envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager";
 
     // Check if this is create mode (not update/edit mode)
     const isCreateMode = createUpdate.location_path === createUpdate.GType.createPath;
@@ -286,6 +290,40 @@ export const HeadOfResource = ({ generalName, version, changeGeneralName, locati
                                 </div>
                             </Col>
                         )}
+                        {isHcmType && changeApiDiscovery && (
+                            <Col span={4}>
+                                <div>
+                                    <Space style={{ marginBottom: 6 }}>
+                                        <Text style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)' }}>
+                                            API Discovery
+                                        </Text>
+                                        <Tooltip title="When enabled, this listener's access logs are forwarded to the elchi-collector for API inventory and risk analysis.">
+                                            <InfoCircleOutlined style={{ color: 'var(--text-tertiary)', fontSize: 12 }} />
+                                        </Tooltip>
+                                    </Space>
+                                    <div style={{
+                                        background: apiDiscovery ? 'var(--color-primary-light)' : 'var(--bg-active)',
+                                        border: `1px solid ${apiDiscovery ? 'var(--color-primary-border)' : 'var(--border-default)'}`,
+                                        borderRadius: 6,
+                                        padding: '4px 12px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        height: 32,
+                                        fontSize: 14
+                                    }}>
+                                        <Text style={{ fontSize: 13, color: apiDiscovery ? 'var(--color-primary)' : 'var(--text-secondary)' }}>
+                                            {apiDiscovery ? 'Enabled' : 'Disabled'}
+                                        </Text>
+                                        <Switch
+                                            size="small"
+                                            checked={!!apiDiscovery}
+                                            onChange={(val) => changeApiDiscovery(val)}
+                                        />
+                                    </div>
+                                </div>
+                            </Col>
+                        )}
                         <Col span={4}>
                             <div>
                                 <Text style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>
@@ -331,6 +369,7 @@ export const HeadOfResource = ({ generalName, version, changeGeneralName, locati
                             managed={managed}
                             validate={validateEnabled}
                             waf={wafConfig}
+                            api_discovery={apiDiscovery}
                         />
                     </div>
                 </Col>

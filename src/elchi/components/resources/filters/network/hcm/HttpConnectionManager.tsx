@@ -71,6 +71,16 @@ const ComponentHttpConnectionManager: React.FC<GeneralProps> = ({ veri }) => {
         setSelectedTags(extractNestedKeys(reduxStore));
     }, [veri.version, reduxStore]);
 
+    // api_discovery lives on the resource's `general` block (not the proto
+    // body), so we hydrate it from queryResource and keep a local mirror.
+    // It's persisted via the next PUT — see CreateUpdate.tsx / api.tsx.
+    const [apiDiscovery, setApiDiscovery] = useState<boolean>(
+        !!veri.queryResource?.general?.api_discovery,
+    );
+    useEffect(() => {
+        setApiDiscovery(!!veri.queryResource?.general?.api_discovery);
+    }, [veri.queryResource?.general?.api_discovery]);
+
     const handleChangeRedux = (keys: string, val?: string | boolean | number) => {
         handleChangeResources({ version: veri.version, type: ActionType.Delete, keys, val, resourceType: ResourceType.Resource }, dispatch, ResourceAction);
     };
@@ -115,6 +125,8 @@ const ComponentHttpConnectionManager: React.FC<GeneralProps> = ({ veri }) => {
                         gtype: reduxStore?.$type,
                         configDiscovery: configDiscoveryReduxStore,
                     }}
+                    apiDiscovery={apiDiscovery}
+                    changeApiDiscovery={setApiDiscovery}
                 />
                 <Divider type="horizontal" orientation="left" orientationMargin="0">HCM Configuration</Divider>
                 <Row>

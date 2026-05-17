@@ -166,7 +166,7 @@ export const useCustomMutation = () => {
         const {
             name, envoyVersion, type: type, gtype, canonical_name, metadata, category,
             resource, version, method, path, config_discovery, managed, service, collection,
-            elchi_discovery, waf, showAutoSuccess, customSuccessMessage, successTitle, validate
+            elchi_discovery, waf, api_discovery, showAutoSuccess, customSuccessMessage, successTitle, validate
         } = options;
 
         const general: General = {
@@ -188,6 +188,7 @@ export const useCustomMutation = () => {
             collection,
             elchi_discovery: elchi_discovery || [],
             waf: waf || "", // Always include waf field (empty string if not set)
+            api_discovery: api_discovery ?? false, // HCM-only toggle; defaults false for every other extension
         };
 
         const data = {

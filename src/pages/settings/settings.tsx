@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Button, Card, Dropdown, Tabs, Typography, Space } from 'antd';
-import { AuditOutlined, CheckOutlined, MoreOutlined, UserOutlined, TeamOutlined, ProjectOutlined, SettingOutlined, AppstoreOutlined, KeyOutlined, RobotOutlined, CloudOutlined, SafetyOutlined, SafetyCertificateOutlined, ToolOutlined, GlobalOutlined } from '@ant-design/icons';
+import { AuditOutlined, CheckOutlined, MoreOutlined, UserOutlined, TeamOutlined, ProjectOutlined, SettingOutlined, AppstoreOutlined, KeyOutlined, RobotOutlined, CloudOutlined, SafetyOutlined, SafetyCertificateOutlined, ToolOutlined, GlobalOutlined, ApiOutlined } from '@ant-design/icons';
 import { useSearchParams } from 'react-router-dom';
 import General from './General';
 import Users from './users';
@@ -14,6 +14,7 @@ import GSLBConfig from './GSLBConfig';
 import Licensing from './Licensing';
 import Maintenance from './Maintenance';
 import SyslogConfig from './SyslogConfig';
+import ApiDiscoveryConfig from './ApiDiscoveryConfig';
 
 const { Title, Text } = Typography;
 
@@ -172,6 +173,16 @@ const Settings: React.FC = () => {
                 </span>
             ),
             children: <GSLBConfig />
+        },
+        {
+            key: 'api-discovery',
+            label: (
+                <span className="tabLabel">
+                    <ApiOutlined style={{ fontSize: 18 }} />
+                    API Discovery
+                </span>
+            ),
+            children: <ApiDiscoveryConfig />
         },
         {
             key: 'audit-forwarding',

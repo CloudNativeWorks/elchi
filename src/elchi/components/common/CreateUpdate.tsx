@@ -34,6 +34,7 @@ interface RenderFormItemProps {
     rawQuery?: any;
     validate?: boolean;
     waf?: string; // WAF config name for Wasm filter
+    api_discovery?: boolean; // HCM-only: ALS injection toggle
 }
 
 export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
@@ -144,6 +145,7 @@ export const MemorizedRenderCreateUpdate = (options: RenderFormItemProps) => {
             managed: options?.managed,
             elchi_discovery: elchiDiscovery,
             waf: options?.waf,
+            api_discovery: options?.api_discovery,
             validate: options?.validate,
             customSuccessMessage: method === 'post' ?
                 `${options.GType.type} "${options.name}" created successfully!` :

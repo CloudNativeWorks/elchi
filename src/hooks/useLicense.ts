@@ -126,7 +126,9 @@ export const PLAN_COLORS: Record<string, PlanColorTheme> = {
         border: 'rgba(22, 119, 255, 0.4)',
     },
     enterprise: {
-        fg: '#722ed1',
+        // White text + icon read clearly on both the gradient header and the
+        // purple-tinted bg; keeps the purple identity through bg/border.
+        fg: '#ffffff',
         bg: 'rgba(114, 46, 209, 0.12)',
         border: 'rgba(114, 46, 209, 0.4)',
     },
