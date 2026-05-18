@@ -20,6 +20,8 @@ import {
     Table,
     Descriptions,
     Segmented,
+    Dropdown,
+    Modal,
     message,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
@@ -31,6 +33,8 @@ import {
     WarningOutlined,
     SafetyOutlined,
     ExportOutlined,
+    MoreOutlined,
+    DeleteOutlined,
 } from '@ant-design/icons';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import ComponentLoadErrorBoundary from '@/components/ComponentLoadErrorBoundary';
@@ -47,7 +51,10 @@ import {
     useApiInventoryEvents,
     useApiInventoryStats,
     useApiInventoryGeo,
+    useApiInventoryDeleteEndpoint,
+    useApiInventoryResetEndpoint,
 } from '@/hooks/useApiDiscovery';
+import useAuth from '@/hooks/useUserDetails';
 import { useChartTheme } from '@/utils/chartTheme';
 import LatencyBucketsChart from './components/LatencyBucketsChart';
 import MetricLineChart, { type MetricLineSeries } from './components/MetricLineChart';
@@ -269,7 +276,27 @@ const OverviewTab: React.FC<{ doc: InventoryDoc }> = ({ doc }) => {
         <>
             <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
                 <Col xs={12} md={6}>
-                    <KpiTile label={<InfoLabel info="Total number of requests collected for this exact endpoint since first_seen.">Total Calls</InfoLabel>}>
+                    <KpiTile
+                        label={
+                            <InfoLabel
+                                info={
+                                    <span>
+                                        All-time cumulative request count for this exact endpoint
+                                        (method + normalized path + host + listener). A running
+                                        counter the collector increments on every observed request —
+                                        it is <strong>not</strong> time-windowed.
+                                        {doc.first_seen
+                                            ? ` Counted since the endpoint was first seen: ${new Date(
+                                                  doc.first_seen,
+                                              ).toLocaleString()}.`
+                                            : ''}
+                                    </span>
+                                }
+                            >
+                                Total Calls
+                            </InfoLabel>
+                        }
+                    >
                         <Tooltip title={(doc.seen_count ?? 0).toLocaleString()}>
                             <Title level={3} style={{ margin: 0 }}>
                                 {formatCompactNumber(doc.seen_count ?? 0)}
@@ -313,7 +340,7 @@ const OverviewTab: React.FC<{ doc: InventoryDoc }> = ({ doc }) => {
             {/* Response-size KPIs — cumulative egress, peak, derived mean. */}
             <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
                 <Col xs={12} md={8}>
-                    <KpiTile label={<InfoLabel info="Cumulative response body bytes sent across every call to this endpoint since first_seen. A running $inc counter — useful for spotting heavy data egress.">Total Egress</InfoLabel>}>
+                    <KpiTile label={<InfoLabel info="Cumulative response body bytes sent across every call to this endpoint since it was first seen. A running counter (not time-windowed) — useful for spotting heavy data egress.">Total Egress</InfoLabel>}>
                         <Tooltip title={`${(doc.response_bytes_total ?? 0).toLocaleString()} bytes`}>
                             <Title level={3} style={{ margin: 0 }}>
                                 {formatBytes(doc.response_bytes_total ?? 0)}
@@ -2609,6 +2636,14 @@ const InsightsTab: React.FC<{ id: string; doc: InventoryDoc; methods: string[] }
 
 // ---------- Wrapper ----------
 
+// 403 → role message; otherwise surface the backend's error text.
+const inventoryErrMsg = (e: any, fallback: string): string => {
+    const s = e?.response?.status;
+    if (s === 403) return 'Only an Admin or Owner can manage the API inventory.';
+    if (s === 404) return 'Endpoint not found — it may already be gone.';
+    return e?.response?.data?.error || e?.response?.data?.message || e?.message || fallback;
+};
+
 const ApiDiscoveryEndpointDetail: React.FC = () => {
     const { project } = useProjectVariable();
     const { listenerName: encodedName, id } = useParams<{
@@ -2626,8 +2661,62 @@ const ApiDiscoveryEndpointDetail: React.FC = () => {
         setSearchParams(next, { replace: true });
     };
 
-    const { data, isLoading, error } = useApiInventoryDetail(id, !!project);
+    const { data, isLoading, error, refetch } = useApiInventoryDetail(id, !!project);
     const doc = data?.data;
+
+    // Inventory cleanup actions — Admin/Owner only.
+    const userDetail = useAuth();
+    const isAdminOrOwner = ['owner', 'admin'].includes(userDetail?.role?.toLowerCase() || '');
+    const deleteMut = useApiInventoryDeleteEndpoint();
+    const resetMut = useApiInventoryResetEndpoint();
+
+    const handleReset = () => {
+        if (!id) return;
+        Modal.confirm({
+            title: 'Reset counters & risk flags?',
+            content:
+                'Zeroes the call / byte / latency counters, status distribution, and the ' +
+                'accumulated risk flags & score. first_seen and discovery metadata ' +
+                '(methods, clusters, routes…) are kept. This is not a permanent freeze — the ' +
+                'collector resumes accumulating from the next event.',
+            okText: 'Reset',
+            async onOk() {
+                try {
+                    const res = await resetMut.mutateAsync(id);
+                    message.success(res.message || 'Counters reset');
+                    if (res.note) message.info(res.note, 6);
+                    refetch();
+                } catch (e) {
+                    message.error(inventoryErrMsg(e, 'Failed to reset endpoint'));
+                    throw e;
+                }
+            },
+        });
+    };
+
+    const handleDelete = () => {
+        if (!id) return;
+        Modal.confirm({
+            title: 'Delete this endpoint?',
+            content:
+                'Removes this endpoint document from the inventory. If the endpoint still ' +
+                'receives traffic, the collector will recreate it on the next request — ' +
+                'permanent deletion only applies once its traffic has stopped.',
+            okText: 'Delete',
+            okButtonProps: { danger: true },
+            async onOk() {
+                try {
+                    const res = await deleteMut.mutateAsync(id);
+                    message.success(res.message || 'Endpoint deleted');
+                    if (res.warning) message.warning(res.warning, 6);
+                    navigate(`/api-discovery/${encodeURIComponent(listenerName)}`);
+                } catch (e) {
+                    message.error(inventoryErrMsg(e, 'Failed to delete endpoint'));
+                    throw e;
+                }
+            },
+        });
+    };
 
     return (
         <div style={{ padding: '0px' }}>
@@ -2755,10 +2844,19 @@ const ApiDiscoveryEndpointDetail: React.FC = () => {
                                         {doc.protocol}
                                     </Tag>
                                 )}
+                                {doc.first_seen && (
+                                    <Tooltip title={new Date(doc.first_seen).toLocaleString()}>
+                                        <Text type="secondary" style={{ fontSize: 12 }}>
+                                            First seen {formatDistanceToNow(new Date(doc.first_seen), { addSuffix: true })}
+                                        </Text>
+                                    </Tooltip>
+                                )}
                                 {doc.last_seen && (
-                                    <Text type="secondary" style={{ fontSize: 12 }}>
-                                        Last seen {formatDistanceToNow(new Date(doc.last_seen), { addSuffix: true })}
-                                    </Text>
+                                    <Tooltip title={new Date(doc.last_seen).toLocaleString()}>
+                                        <Text type="secondary" style={{ fontSize: 12 }}>
+                                            Last seen {formatDistanceToNow(new Date(doc.last_seen), { addSuffix: true })}
+                                        </Text>
+                                    </Tooltip>
                                 )}
                             </Space>
                         )}
@@ -2798,6 +2896,30 @@ const ApiDiscoveryEndpointDetail: React.FC = () => {
                                         : '#d4a012'
                             }
                         />
+                        {isAdminOrOwner && (
+                            <Dropdown
+                                trigger={['click']}
+                                menu={{
+                                    items: [
+                                        {
+                                            key: 'reset',
+                                            icon: <ReloadOutlined />,
+                                            label: 'Reset counters & risk',
+                                            onClick: handleReset,
+                                        },
+                                        {
+                                            key: 'delete',
+                                            icon: <DeleteOutlined />,
+                                            label: 'Delete endpoint',
+                                            danger: true,
+                                            onClick: handleDelete,
+                                        },
+                                    ],
+                                }}
+                            >
+                                <Button icon={<MoreOutlined />}>Actions</Button>
+                            </Dropdown>
+                        )}
                     </Space>
                 )}
             </div>

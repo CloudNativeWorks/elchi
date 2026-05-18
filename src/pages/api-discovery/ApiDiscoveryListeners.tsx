@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { Card, Table, Input, Button, Space, Typography, Tag, Tooltip, Empty, Tabs } from 'antd';
+import { Card, Table, Input, Button, Space, Typography, Tag, Tooltip, Empty, Tabs, Modal, InputNumber, message } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
     EyeOutlined,
@@ -17,11 +17,13 @@ import {
     LockOutlined,
     WarningOutlined,
     ReadOutlined,
+    ClearOutlined,
 } from '@ant-design/icons';
 import { Link, useSearchParams } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
-import { useApiInventoryListeners } from '@/hooks/useApiDiscovery';
+import { useApiInventoryListeners, useApiInventoryCleanupStale } from '@/hooks/useApiDiscovery';
+import useAuth from '@/hooks/useUserDetails';
 import StatusDistBar from './components/StatusDistBar';
 import RiskFlagChips from './components/RiskFlagChips';
 import InfoLabel from './components/InfoLabel';
@@ -109,9 +111,95 @@ const HostChips: React.FC<{ hosts: string[] }> = ({ hosts }) => {
     );
 };
 
+// Project-level bulk cleanup of endpoints not seen for N days. Admin/
+// Owner only — gated at the call site. The backend clamps `days` to
+// [7, 3650] and echoes the value it actually used.
+const StaleCleanupAction: React.FC<{ onDone: () => void }> = ({ onDone }) => {
+    const [open, setOpen] = useState(false);
+    const [days, setDays] = useState(90);
+    const cleanupMut = useApiInventoryCleanupStale();
+
+    const submit = async () => {
+        try {
+            const res = await cleanupMut.mutateAsync(days);
+            setOpen(false);
+            Modal.success({
+                title: 'Stale cleanup complete',
+                content: (
+                    <span>
+                        {res.deleted_count.toLocaleString()} endpoint
+                        {res.deleted_count === 1 ? '' : 's'} deleted — not seen for {res.days} day
+                        {res.days === 1 ? '' : 's'} (before{' '}
+                        {new Date(res.cutoff).toLocaleString()}).
+                        {res.days !== days
+                            ? ` Your input of ${days} was clamped to the allowed ${res.days}.`
+                            : ''}
+                    </span>
+                ),
+            });
+            if (res.warning) message.warning(res.warning, 6);
+            onDone();
+        } catch (e: any) {
+            const s = e?.response?.status;
+            message.error(
+                s === 403
+                    ? 'Only an Admin or Owner can clean up the API inventory.'
+                    : e?.response?.data?.error || e?.response?.data?.message || e?.message ||
+                          'Stale cleanup failed',
+            );
+        }
+    };
+
+    return (
+        <>
+            <Button icon={<ClearOutlined />} onClick={() => setOpen(true)}>
+                Cleanup stale
+            </Button>
+            <Modal
+                open={open}
+                title="Delete stale endpoints"
+                okText="Delete stale endpoints"
+                okButtonProps={{ danger: true, loading: cleanupMut.isPending }}
+                onOk={submit}
+                onCancel={() => setOpen(false)}
+            >
+                <Text style={{ fontSize: 13 }}>
+                    Permanently deletes every endpoint in this project whose last request is
+                    older than the window below. Endpoints still receiving traffic are recreated
+                    by the collector on the next request — so this only clears genuinely dead
+                    entries. The exact number removed is not known in advance.
+                </Text>
+                <div style={{ marginTop: 14 }}>
+                    <Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 4 }}>
+                        Not seen for at least
+                    </Text>
+                    <InputNumber
+                        min={7}
+                        max={3650}
+                        value={days}
+                        onChange={(v) => setDays(typeof v === 'number' ? v : 90)}
+                        addonAfter="days"
+                        style={{ width: 160 }}
+                    />
+                    <div>
+                        <Text type="secondary" style={{ fontSize: 11 }}>
+                            Allowed range 7–3650 days (default 90). Out-of-range values are
+                            clamped by the server.
+                        </Text>
+                    </div>
+                </div>
+            </Modal>
+        </>
+    );
+};
+
 const ApiDiscoveryListeners: React.FC = () => {
     const { project } = useProjectVariable();
     const [searchParams, setSearchParams] = useSearchParams();
+
+    // Stale cleanup is Admin/Owner only.
+    const userDetail = useAuth();
+    const isAdminOrOwner = ['owner', 'admin'].includes(userDetail?.role?.toLowerCase() || '');
 
     const urlListener = searchParams.get('listener_name') ?? '';
     const urlHost = searchParams.get('host') ?? '';
@@ -395,6 +483,7 @@ const ApiDiscoveryListeners: React.FC = () => {
                     <Link to="/api-discovery/risks">
                         <Button icon={<ReadOutlined />}>Risk guide</Button>
                     </Link>
+                    {isAdminOrOwner && <StaleCleanupAction onDone={() => refetch()} />}
                     <Button
                         icon={<ReloadOutlined spin={isFetching} />}
                         onClick={() => refetch()}

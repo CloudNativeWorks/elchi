@@ -1,4 +1,4 @@
-import { useQuery, type UseQueryOptions } from '@tanstack/react-query';
+import { useMutation, useQuery, type UseQueryOptions } from '@tanstack/react-query';
 import { api, useCustomGetQuery } from '@/common/api';
 import Config from '@/conf';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
@@ -365,4 +365,63 @@ export const useApiInventoryErrors = (
         path,
         enabled && !!project,
     );
+};
+
+// ---------- Inventory cleanup / reset (Admin/Owner only) ----------
+// Mutations against the Mongo api_inventory collection. They never
+// touch ClickHouse events or the collector config. The backend gates
+// on Admin/Owner and returns 403 otherwise; the UI also hides them.
+
+export interface InventoryDeleteResponse {
+    message: string;
+    deleted_count: number;
+    warning?: string;
+}
+export interface InventoryResetResponse {
+    message: string;
+    note?: string;
+}
+export interface InventoryCleanupResponse {
+    message: string;
+    deleted_count: number;
+    days: number;
+    cutoff: string;
+    warning?: string;
+}
+
+// DELETE /inventory/:id — remove a single endpoint document. A still-
+// trafficked endpoint is recreated by the collector on the next request.
+export const useApiInventoryDeleteEndpoint = () =>
+    useMutation({
+        mutationFn: async (id: string): Promise<InventoryDeleteResponse> => {
+            const res = await api.delete(`${Config.baseApi}${INVENTORY_PATH}/${id}`);
+            return res.data;
+        },
+    });
+
+// POST /inventory/:id/reset — zero the counters / risk fields but keep
+// the row and first_seen. The only way to clear monotonic risk flags.
+export const useApiInventoryResetEndpoint = () =>
+    useMutation({
+        mutationFn: async (id: string): Promise<InventoryResetResponse> => {
+            const res = await api.post(`${Config.baseApi}${INVENTORY_PATH}/${id}/reset`);
+            return res.data;
+        },
+    });
+
+// POST /inventory/cleanup-stale — bulk-delete endpoints not seen for
+// `days` days. Backend clamps days to [7, 3650]; the response echoes
+// the clamped value actually used.
+export const useApiInventoryCleanupStale = () => {
+    const { project } = useProjectVariable();
+    return useMutation({
+        mutationFn: async (days: number): Promise<InventoryCleanupResponse> => {
+            const res = await api.post(
+                `${Config.baseApi}${INVENTORY_PATH}/cleanup-stale?project=${encodeURIComponent(
+                    project,
+                )}&days=${days}`,
+            );
+            return res.data;
+        },
+    });
 };
