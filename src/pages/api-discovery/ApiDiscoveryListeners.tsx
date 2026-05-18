@@ -49,7 +49,7 @@ const gb = (name: string, node: React.ReactNode): React.ReactNode => (
 );
 
 const DEFAULT_LIMIT = 20;
-const MAX_HOSTS_INLINE = 3;
+const MAX_HOSTS_INLINE = 1;
 
 // Compact host chip with subtle hostname styling — IPs vs FQDNs read
 // differently at a glance so we don't rely on the chip alone for parsing.

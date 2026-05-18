@@ -193,12 +193,6 @@ export const RISK_FLAG_CATALOG: Record<string, RiskFlagMeta> = {
         description:
             'The endpoint’s error rate spiked well above its self-learned baseline (behavioural anomaly detector). Possible outage, bad deploy, or attack.',
     },
-    ua_mismatch: {
-        severity: 'medium',
-        class: 'attack_pattern',
-        description:
-            'The User-Agent changed within a single session / token — possible token theft or replay from a different client.',
-    },
     permissive_cors: {
         severity: 'medium',
         class: 'transport',

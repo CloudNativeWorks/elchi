@@ -53,6 +53,10 @@ interface DetectorWindow {
     enabled: boolean;
     threshold: number;
     window_seconds: number;
+    // Detector-specific extras (only the named detector carries each).
+    threshold_ip?: number;   // brute_force — IP-fallback threshold
+    min_forbidden?: number;  // bola — 403/404s required before flagging
+    skip_mtls?: boolean;     // geo_spread — exclude mTLS machine identities
 }
 interface ResponseSizeConfig {
     enabled: boolean;
@@ -60,6 +64,8 @@ interface ResponseSizeConfig {
     min_baseline_bytes: number;
     min_event_bytes: number;
     warmup_samples: number;
+    sigma: number;
+    consecutive_n: number;
 }
 interface ToggleConfig {
     enabled: boolean;
@@ -70,6 +76,7 @@ interface BehaviorLatency {
     enabled: boolean;
     sigma: number;
     min_latency_ms: number;
+    consecutive_n: number;
 }
 interface BehaviorErrorRate {
     enabled: boolean;
@@ -77,10 +84,12 @@ interface BehaviorErrorRate {
     slow_alpha: number;
     multiplier: number;
     min_rate: number;
+    consecutive_n: number;
 }
 interface BehaviorConfig {
     enabled: boolean;
     warmup_samples: number;
+    startup_suppress_seconds: number;
     latency: BehaviorLatency;
     error_rate: BehaviorErrorRate;
 }
@@ -92,10 +101,12 @@ interface PolicyConfig {
     store_raw_source_ip: boolean;
     store_raw_user_agent: boolean;
     ingest_deny_patterns: string[];
+    trusted_proxy_cidrs: string[];
 }
 interface DetectionConfig {
     detect_pii: boolean;
     extract_consumer_fingerprint: boolean;
+    service_account_patterns: string[];
     bola: DetectorWindow;
     brute_force: DetectorWindow;
     rate_anomaly: DetectorWindow;
@@ -139,18 +150,20 @@ const DEFAULT_POLICY: PolicyConfig = {
     store_raw_source_ip: true,
     store_raw_user_agent: true,
     ingest_deny_patterns: [],
+    trusted_proxy_cidrs: [],
 };
 
 const DEFAULT_DETECTION: DetectionConfig = {
     detect_pii: true,
     extract_consumer_fingerprint: true,
-    bola: win(true, 50, 60),
-    brute_force: win(true, 10, 60),
+    service_account_patterns: [],
+    bola: { ...win(true, 50, 60), min_forbidden: 3 },
+    brute_force: { ...win(true, 10, 60), threshold_ip: 100 },
     rate_anomaly: win(false, 1000, 60),
-    payment_abuse: win(true, 20, 60),
-    replay: win(true, 2, 300),
+    payment_abuse: win(true, 10, 60),
+    replay: win(true, 3, 300),
     path_scan: win(true, 40, 60),
-    geo_spread: win(true, 3, 3600),
+    geo_spread: { ...win(true, 2, 3600), skip_mtls: true },
     ip_rate: win(false, 1000, 60),
     response_size: {
         enabled: true,
@@ -158,17 +171,21 @@ const DEFAULT_DETECTION: DetectionConfig = {
         min_baseline_bytes: 1024,
         min_event_bytes: 65536,
         warmup_samples: 10,
+        sigma: 4,
+        consecutive_n: 2,
     },
     behavior: {
         enabled: true,
         warmup_samples: 50,
-        latency: { enabled: true, sigma: 4, min_latency_ms: 200 },
+        startup_suppress_seconds: 600,
+        latency: { enabled: true, sigma: 5, min_latency_ms: 200, consecutive_n: 3 },
         error_rate: {
             enabled: true,
             fast_alpha: 0.3,
             slow_alpha: 0.02,
             multiplier: 3,
             min_rate: 0.25,
+            consecutive_n: 2,
         },
     },
     missing_hsts: { enabled: true },
@@ -176,16 +193,43 @@ const DEFAULT_DETECTION: DetectionConfig = {
     weak_token_ttl_seconds: 2592000,
 };
 
+// One detector-specific extra control beyond {enabled, threshold, window}.
+interface DetectorExtra {
+    field: 'threshold_ip' | 'min_forbidden' | 'skip_mtls';
+    label: string;
+    kind: 'number' | 'switch';
+    hint: string;
+}
+
 // The 8 sliding-window behavioural detectors — each {enabled, threshold,
-// window_seconds}. `unit` labels what the threshold counts.
-const DETECTORS: { key: keyof DetectionConfig; label: string; unit: string; desc: string }[] = [
-    { key: 'bola', label: 'BOLA', unit: 'distinct IDs', desc: 'One consumer enumerating many object IDs on a single endpoint (OWASP API1).' },
-    { key: 'brute_force', label: 'Brute Force', unit: 'auth 4xx', desc: 'Repeated auth-endpoint failures from one consumer / IP (OWASP API2).' },
+// window_seconds}. `unit` labels what the threshold counts; `extra` is an
+// optional detector-specific knob.
+const DETECTORS: {
+    key: keyof DetectionConfig;
+    label: string;
+    unit: string;
+    desc: string;
+    extra?: DetectorExtra;
+}[] = [
+    {
+        key: 'bola', label: 'BOLA', unit: 'distinct IDs',
+        desc: 'One consumer enumerating many object IDs on a single endpoint (OWASP API1).',
+        extra: { field: 'min_forbidden', label: 'Min forbidden', kind: 'number', hint: '403/404 responses required before enumeration is flagged.' },
+    },
+    {
+        key: 'brute_force', label: 'Brute Force', unit: 'auth 4xx',
+        desc: 'Repeated auth-endpoint failures from one consumer / IP (OWASP API2).',
+        extra: { field: 'threshold_ip', label: 'IP threshold', kind: 'number', hint: 'Fallback threshold when no consumer identity is available — counts per source IP.' },
+    },
     { key: 'rate_anomaly', label: 'Rate Anomaly', unit: 'requests', desc: 'A consumer exceeding the per-consumer request-rate threshold (OWASP API4).' },
     { key: 'payment_abuse', label: 'Payment Abuse', unit: 'requests', desc: 'A consumer hammering a payment endpoint beyond expected volume (OWASP API6).' },
     { key: 'replay', label: 'Replay', unit: 'duplicates', desc: 'The same request_id seen more than threshold times in the window.' },
     { key: 'path_scan', label: 'Path Scan', unit: 'distinct 4xx paths', desc: 'One IP/consumer hitting many distinct paths returning 4xx — content discovery.' },
-    { key: 'geo_spread', label: 'Geo Spread', unit: 'countries', desc: 'One consumer/IP appearing from too many countries — impossible travel.' },
+    {
+        key: 'geo_spread', label: 'Geo Spread', unit: 'countries',
+        desc: 'One consumer/IP appearing from too many countries — impossible travel.',
+        extra: { field: 'skip_mtls', label: 'Skip mTLS identities', kind: 'switch', hint: 'Exclude mTLS machine identities — they legitimately appear from many regions.' },
+    },
     { key: 'ip_rate', label: 'IP Rate', unit: 'requests', desc: 'A single source IP exceeding the per-IP request-rate threshold.' },
 ];
 
@@ -221,10 +265,14 @@ const validate = (policy: PolicyConfig, detection: DetectionConfig): string | nu
 // ─── Helpers ─────────────────────────────────────────────────────────
 
 // Fill any missing keys from a partial server object with the defaults
-// so the form always has every control bound.
+// so the form always has every control bound. `fallback` carries the
+// detector-specific extras (min_forbidden / threshold_ip / skip_mtls);
+// the raw server values override when present.
 const mergeWindow = (raw: unknown, fallback: DetectorWindow): DetectorWindow => {
-    const r = (raw ?? {}) as Partial<DetectorWindow>;
+    const r = (raw && typeof raw === 'object' ? raw : {}) as Partial<DetectorWindow>;
     return {
+        ...fallback,
+        ...r,
         enabled: r.enabled ?? fallback.enabled,
         threshold: r.threshold ?? fallback.threshold,
         window_seconds: r.window_seconds ?? fallback.window_seconds,
@@ -239,6 +287,24 @@ const formatSeconds = (s: number): string => {
     return `${s} s`;
 };
 
+const isPlainObject = (v: unknown): v is Record<string, unknown> =>
+    typeof v === 'object' && v !== null && !Array.isArray(v);
+
+// Deep-merge — form edits win, but any key the form does not render (a
+// newer collector field) is carried through at every nesting level so a
+// whole-sub-tree $set never silently drops it. Arrays are leaves.
+const deepMerge = (raw: unknown, edited: unknown): unknown => {
+    if (!isPlainObject(raw) || !isPlainObject(edited)) return edited;
+    const out: Record<string, unknown> = { ...raw };
+    for (const k of Object.keys(edited)) {
+        out[k] =
+            isPlainObject(raw[k]) && isPlainObject(edited[k])
+                ? deepMerge(raw[k], edited[k])
+                : edited[k];
+    }
+    return out;
+};
+
 // ─── Sub-components ──────────────────────────────────────────────────
 
 const DetectorCard: React.FC<{
@@ -247,9 +313,10 @@ const DetectorCard: React.FC<{
     desc: string;
     value: DetectorWindow;
     disabled: boolean;
+    extra?: DetectorExtra;
     // eslint-disable-next-line no-unused-vars
     onChange: (next: DetectorWindow) => void;
-}> = ({ label, unit, desc, value, disabled, onChange }) => (
+}> = ({ label, unit, desc, value, disabled, extra, onChange }) => (
     <Card
         size="small"
         style={{
@@ -303,6 +370,45 @@ const DetectorCard: React.FC<{
                 <Text type="secondary" style={{ fontSize: 10 }}>{formatSeconds(value.window_seconds)}</Text>
             </Col>
         </Row>
+        {extra && (
+            <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid var(--border-default)' }}>
+                {extra.kind === 'switch' ? (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <Space size={6}>
+                            <Text style={{ fontSize: 11.5 }}>{extra.label}</Text>
+                            <Tooltip title={extra.hint}>
+                                <InfoCircleOutlined style={{ color: 'var(--text-tertiary)', fontSize: 11 }} />
+                            </Tooltip>
+                        </Space>
+                        <Switch
+                            size="small"
+                            checked={!!value[extra.field]}
+                            disabled={disabled || !value.enabled}
+                            onChange={(v) => onChange({ ...value, [extra.field]: v })}
+                        />
+                    </div>
+                ) : (
+                    <>
+                        <Space size={6}>
+                            <Text type="secondary" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                                {extra.label}
+                            </Text>
+                            <Tooltip title={extra.hint}>
+                                <InfoCircleOutlined style={{ color: 'var(--text-tertiary)', fontSize: 11 }} />
+                            </Tooltip>
+                        </Space>
+                        <InputNumber
+                            size="small"
+                            min={0}
+                            style={{ width: '100%' }}
+                            value={(value[extra.field] as number) ?? 0}
+                            disabled={disabled || !value.enabled}
+                            onChange={(v) => onChange({ ...value, [extra.field]: typeof v === 'number' ? v : 0 })}
+                        />
+                    </>
+                )}
+            </div>
+        )}
     </Card>
 );
 
@@ -369,6 +475,7 @@ const ApiDiscoveryConfigInner: React.FC = () => {
             store_raw_source_ip: (p.store_raw_source_ip as boolean) ?? DEFAULT_POLICY.store_raw_source_ip,
             store_raw_user_agent: (p.store_raw_user_agent as boolean) ?? DEFAULT_POLICY.store_raw_user_agent,
             ingest_deny_patterns: (p.ingest_deny_patterns as string[]) ?? [],
+            trusted_proxy_cidrs: (p.trusted_proxy_cidrs as string[]) ?? [],
         });
         const rs = (d.response_size ?? {}) as Partial<ResponseSizeConfig>;
         const bh = (d.behavior ?? {}) as Partial<BehaviorConfig>;
@@ -379,6 +486,7 @@ const ApiDiscoveryConfigInner: React.FC = () => {
             detect_pii: (d.detect_pii as boolean) ?? DEFAULT_DETECTION.detect_pii,
             extract_consumer_fingerprint:
                 (d.extract_consumer_fingerprint as boolean) ?? DEFAULT_DETECTION.extract_consumer_fingerprint,
+            service_account_patterns: (d.service_account_patterns as string[]) ?? [],
             bola: mergeWindow(d.bola, DEFAULT_DETECTION.bola),
             brute_force: mergeWindow(d.brute_force, DEFAULT_DETECTION.brute_force),
             rate_anomaly: mergeWindow(d.rate_anomaly, DEFAULT_DETECTION.rate_anomaly),
@@ -393,14 +501,18 @@ const ApiDiscoveryConfigInner: React.FC = () => {
                 min_baseline_bytes: rs.min_baseline_bytes ?? DEFAULT_DETECTION.response_size.min_baseline_bytes,
                 min_event_bytes: rs.min_event_bytes ?? DEFAULT_DETECTION.response_size.min_event_bytes,
                 warmup_samples: rs.warmup_samples ?? DEFAULT_DETECTION.response_size.warmup_samples,
+                sigma: rs.sigma ?? DEFAULT_DETECTION.response_size.sigma,
+                consecutive_n: rs.consecutive_n ?? DEFAULT_DETECTION.response_size.consecutive_n,
             },
             behavior: {
                 enabled: bh.enabled ?? DB.enabled,
                 warmup_samples: bh.warmup_samples ?? DB.warmup_samples,
+                startup_suppress_seconds: bh.startup_suppress_seconds ?? DB.startup_suppress_seconds,
                 latency: {
                     enabled: bhLat.enabled ?? DB.latency.enabled,
                     sigma: bhLat.sigma ?? DB.latency.sigma,
                     min_latency_ms: bhLat.min_latency_ms ?? DB.latency.min_latency_ms,
+                    consecutive_n: bhLat.consecutive_n ?? DB.latency.consecutive_n,
                 },
                 error_rate: {
                     enabled: bhErr.enabled ?? DB.error_rate.enabled,
@@ -408,6 +520,7 @@ const ApiDiscoveryConfigInner: React.FC = () => {
                     slow_alpha: bhErr.slow_alpha ?? DB.error_rate.slow_alpha,
                     multiplier: bhErr.multiplier ?? DB.error_rate.multiplier,
                     min_rate: bhErr.min_rate ?? DB.error_rate.min_rate,
+                    consecutive_n: bhErr.consecutive_n ?? DB.error_rate.consecutive_n,
                 },
             },
             missing_hsts: {
@@ -428,14 +541,15 @@ const ApiDiscoveryConfigInner: React.FC = () => {
     const saveMutation = useMutation({
         mutationFn: async () => {
             // Whole-object PUT — the backend $sets each sub-tree verbatim
-            // and bumps `version`. Spread the raw server objects first so
-            // unknown / future keys survive the round-trip.
-            const detectionBody: Record<string, unknown> = { ...rawDetection, ...detection };
+            // and bumps `version`. deepMerge the raw server objects with
+            // the form state so any key the form does not render (a newer
+            // collector field) survives the round-trip at every depth.
+            const detectionBody = deepMerge(rawDetection, detection) as Record<string, unknown>;
             // custom_rules was removed from the collector — drop it so the
             // whole-sub-tree $set clears any leftover from an old document.
             delete detectionBody.custom_rules;
             const body = {
-                policy: { ...rawPolicy, ...policy },
+                policy: deepMerge(rawPolicy, policy),
                 detection: detectionBody,
             };
             const res = await api.put('/api/v3/setting/api_discovery', body);
@@ -597,6 +711,24 @@ const ApiDiscoveryConfigInner: React.FC = () => {
                                 onChange={(v) => setPolicy({ ...policy, ingest_deny_patterns: v })}
                             />
                         </div>
+                        <div style={{ paddingTop: 14 }}>
+                            <Text style={{ fontSize: 13, fontWeight: 500 }}>Trusted proxy CIDRs</Text>
+                            <div>
+                                <Text type="secondary" style={{ fontSize: 11 }}>
+                                    NAT / CGNAT / load-balancer egress ranges — IPs inside them are not
+                                    treated as distinct clients (IPv4 / IPv6 CIDR).
+                                </Text>
+                            </div>
+                            <Select
+                                mode="tags"
+                                style={{ width: '100%', marginTop: 6 }}
+                                placeholder="10.0.0.0/8, 2001:db8::/32 …"
+                                value={policy.trusted_proxy_cidrs}
+                                disabled={saving}
+                                tokenSeparators={[',', ' ', '\n']}
+                                onChange={(v) => setPolicy({ ...policy, trusted_proxy_cidrs: v })}
+                            />
+                        </div>
                     </Card>
                 </Col>
 
@@ -622,6 +754,24 @@ const ApiDiscoveryConfigInner: React.FC = () => {
                             disabled={saving}
                             onChange={(v) => setDetection({ ...detection, extract_consumer_fingerprint: v })}
                         />
+                        <div style={{ padding: '10px 0 2px' }}>
+                            <Text style={{ fontSize: 13, fontWeight: 500 }}>Service-account patterns</Text>
+                            <div>
+                                <Text type="secondary" style={{ fontSize: 11 }}>
+                                    JWT-subject substrings — matching consumers are excluded from
+                                    geo-spread (machine identities legitimately roam regions).
+                                </Text>
+                            </div>
+                            <Select
+                                mode="tags"
+                                style={{ width: '100%', marginTop: 6 }}
+                                placeholder="svc-, -worker, ci@ …"
+                                value={detection.service_account_patterns}
+                                disabled={saving}
+                                tokenSeparators={[',', ' ', '\n']}
+                                onChange={(v) => setDetection({ ...detection, service_account_patterns: v })}
+                            />
+                        </div>
 
                         <Divider style={{ margin: '12px 0 10px' }} orientation="left" orientationMargin={0}>
                             <Text type="secondary" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5 }}>
@@ -635,6 +785,7 @@ const ApiDiscoveryConfigInner: React.FC = () => {
                                         label={d.label}
                                         unit={d.unit}
                                         desc={d.desc}
+                                        extra={d.extra}
                                         value={detection[d.key] as DetectorWindow}
                                         disabled={saving}
                                         onChange={(next) => setDetection({ ...detection, [d.key]: next })}
@@ -668,11 +819,13 @@ const ApiDiscoveryConfigInner: React.FC = () => {
                             <Row gutter={[8, 8]}>
                                 {([
                                     ['multiplier', 'Multiplier', '×'],
+                                    ['sigma', 'Sigma', 'σ'],
+                                    ['consecutive_n', 'Consecutive', 'events'],
                                     ['min_baseline_bytes', 'Min baseline', 'bytes'],
                                     ['min_event_bytes', 'Min event', 'bytes'],
                                     ['warmup_samples', 'Warm-up', 'samples'],
                                 ] as const).map(([field, label, unit]) => (
-                                    <Col key={field} xs={12} md={6}>
+                                    <Col key={field} xs={12} md={8}>
                                         <Text type="secondary" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5 }}>
                                             {label}
                                         </Text>
@@ -740,6 +893,32 @@ const ApiDiscoveryConfigInner: React.FC = () => {
                                     />
                                     <Text type="secondary" style={{ fontSize: 10 }}>samples</Text>
                                 </Col>
+                                <Col xs={12} md={9}>
+                                    <Space size={6}>
+                                        <Text type="secondary" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                                            Startup suppress
+                                        </Text>
+                                        <Tooltip title="After a config reload the detector only learns — no alerts — for this many seconds.">
+                                            <InfoCircleOutlined style={{ color: 'var(--text-tertiary)', fontSize: 11 }} />
+                                        </Tooltip>
+                                    </Space>
+                                    <InputNumber
+                                        size="small"
+                                        min={0}
+                                        style={{ width: '100%' }}
+                                        value={detection.behavior.startup_suppress_seconds}
+                                        disabled={saving || !detection.behavior.enabled}
+                                        onChange={(v) =>
+                                            setDetection({
+                                                ...detection,
+                                                behavior: { ...detection.behavior, startup_suppress_seconds: typeof v === 'number' ? v : 0 },
+                                            })
+                                        }
+                                    />
+                                    <Text type="secondary" style={{ fontSize: 10 }}>
+                                        {formatSeconds(detection.behavior.startup_suppress_seconds)}
+                                    </Text>
+                                </Col>
                             </Row>
 
                             {/* Latency sub-detector */}
@@ -765,8 +944,9 @@ const ApiDiscoveryConfigInner: React.FC = () => {
                                     {([
                                         ['sigma', 'Sigma', 'σ', 0.1],
                                         ['min_latency_ms', 'Min latency', 'ms', 1],
+                                        ['consecutive_n', 'Consecutive', 'breaches', 1],
                                     ] as const).map(([field, label, unit, step]) => (
-                                        <Col key={field} xs={12} md={6}>
+                                        <Col key={field} xs={12} md={8}>
                                             <Text type="secondary" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5 }}>
                                                 {label}
                                             </Text>
@@ -821,6 +1001,7 @@ const ApiDiscoveryConfigInner: React.FC = () => {
                                         ['slow_alpha', 'Slow α', '', 0.01],
                                         ['multiplier', 'Multiplier', '×', 0.1],
                                         ['min_rate', 'Min rate', '', 0.01],
+                                        ['consecutive_n', 'Consecutive', 'breaches', 1],
                                     ] as const).map(([field, label, unit, step]) => (
                                         <Col key={field} xs={12} md={6}>
                                             <Text type="secondary" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5 }}>

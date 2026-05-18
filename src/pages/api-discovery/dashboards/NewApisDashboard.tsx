@@ -130,8 +130,22 @@ const NewApisDashboard: React.FC = () => {
     return (
         <div>
             <Card size="small" style={{ marginBottom: 12, borderRadius: 10 }}>
-                <Space wrap size={12}>
-                    <RocketOutlined style={{ color: 'var(--color-primary)', fontSize: 18 }} />
+                <Space wrap size={16}>
+                    <div
+                        style={{
+                            width: 48,
+                            height: 48,
+                            borderRadius: 12,
+                            background: 'rgba(10, 127, 218, 0.15)',
+                            color: 'var(--color-primary)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: 24,
+                        }}
+                    >
+                        <RocketOutlined />
+                    </div>
                     <div>
                         <Text
                             type="secondary"

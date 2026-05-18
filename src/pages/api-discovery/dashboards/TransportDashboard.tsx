@@ -20,7 +20,7 @@ import { PieChart } from 'echarts/charts';
 import { TooltipComponent, LegendComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { ReloadOutlined, LockOutlined } from '@ant-design/icons';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { useChartTheme } from '@/utils/chartTheme';
 import { useApiInventoryTransport } from '@/hooks/useApiDiscovery';
@@ -142,7 +142,13 @@ const TransportDashboard: React.FC = () => {
             title: 'Path',
             dataIndex: 'normalized_path',
             key: 'normalized_path',
-            render: (p: string) => <EndpointPath path={p || '—'} />,
+            render: (p: string, r) => (
+                <Link
+                    to={`/api-discovery/${encodeURIComponent(r.listener_name)}?normalized_path=${encodeURIComponent(p)}`}
+                >
+                    <EndpointPath path={p || '—'} />
+                </Link>
+            ),
         },
         {
             title: 'Listener',

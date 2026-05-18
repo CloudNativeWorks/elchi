@@ -7,23 +7,21 @@ const { Text } = Typography;
 // ({id}, {uuid}, {objectid}, {ulid}, {token}, {dynamic}, {traversal}, {pii}).
 const PLACEHOLDER_RE = /^\{.+\}$/;
 
+const MONO = 'Monaco, Menlo, "Ubuntu Mono", monospace';
+
 interface Props {
     /** The normalized path, e.g. "/api/v1/users/{id}". */
     path: string;
-    /** Font size in px. Default 12.5. */
+    /** Base font size in px. Default 13.5. */
     size?: number;
 }
 
-// Renders a normalized API path with visual hierarchy so long paths read
-// at a glance:
-//   - `/` separators dimmed,
-//   - intermediate segments in secondary text colour,
-//   - the leaf segment emphasised (primary colour, bold),
-//   - templated placeholders ({id}, {pii}, …) as accent pills.
-// Designed to sit inside a <Link> — the inner spans set explicit colours
-// so they win over the link's default blue while the link keeps its
-// hover affordance.
-const EndpointPath: React.FC<Props> = ({ path, size = 12.5 }) => {
+// Renders a normalized API path as an inline code chip:
+//   - the whole path sits in a subtle shaded code box (monospace),
+//   - `/` separators are slightly muted so segments stay distinguishable,
+//   - the leaf segment is bold — the endpoint name reads first,
+//   - templated placeholders ({id}, {pii}, …) are tinted.
+const EndpointPath: React.FC<Props> = ({ path, size = 13 }) => {
     if (!path) return <Text type="secondary">—</Text>;
 
     const segments = path.split('/');
@@ -39,16 +37,22 @@ const EndpointPath: React.FC<Props> = ({ path, size = 12.5 }) => {
     return (
         <span
             style={{
-                fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+                fontFamily: MONO,
                 fontSize: size,
+                color: 'var(--text-primary)',
                 wordBreak: 'break-all',
                 lineHeight: 1.5,
+                display: 'inline-block',
+                background: 'var(--code-bg, var(--bg-elevated))',
+                border: '1px solid var(--border-default)',
+                borderRadius: 6,
+                padding: '3px 9px',
             }}
         >
             {segments.map((seg, i) => {
                 const sep =
                     i > 0 ? (
-                        <span key={`sep${i}`} style={{ color: 'var(--text-tertiary)', opacity: 0.6 }}>
+                        <span key={`sep${i}`} style={{ color: 'var(--text-tertiary)' }}>
                             /
                         </span>
                     ) : null;
@@ -62,17 +66,8 @@ const EndpointPath: React.FC<Props> = ({ path, size = 12.5 }) => {
                         <span
                             style={
                                 isPlaceholder
-                                    ? {
-                                        color: '#a855f7',
-                                        background: 'rgba(168, 85, 247, 0.14)',
-                                        borderRadius: 3,
-                                        padding: '0 4px',
-                                        fontWeight: 600,
-                                    }
-                                    : {
-                                        color: isLeaf ? 'var(--text-primary)' : 'var(--text-secondary)',
-                                        fontWeight: isLeaf ? 600 : 400,
-                                    }
+                                    ? { color: '#a855f7', fontWeight: isLeaf ? 700 : 600 }
+                                    : { color: 'var(--text-primary)', fontWeight: isLeaf ? 700 : 400 }
                             }
                         >
                             {seg}
