@@ -16,6 +16,7 @@ import {
     AlertOutlined,
     LockOutlined,
     WarningOutlined,
+    ReadOutlined,
 } from '@ant-design/icons';
 import { Link, useSearchParams } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
@@ -391,6 +392,9 @@ const ApiDiscoveryListeners: React.FC = () => {
                         value={formatCompactNumber(headerStats.withRisk)}
                         accent="var(--color-warning)"
                     />
+                    <Link to="/api-discovery/risks">
+                        <Button icon={<ReadOutlined />}>Risk guide</Button>
+                    </Link>
                     <Button
                         icon={<ReloadOutlined spin={isFetching} />}
                         onClick={() => refetch()}

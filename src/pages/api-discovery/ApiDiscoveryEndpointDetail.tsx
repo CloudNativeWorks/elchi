@@ -30,8 +30,9 @@ import {
     LineChartOutlined,
     WarningOutlined,
     SafetyOutlined,
+    ExportOutlined,
 } from '@ant-design/icons';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import ComponentLoadErrorBoundary from '@/components/ComponentLoadErrorBoundary';
 import ReactEChartsCore from 'echarts-for-react/lib/core';
 import * as echarts from 'echarts/core';
@@ -64,6 +65,7 @@ import {
     PII_CATEGORY_META,
     KNOWN_RISK_FLAGS,
 } from './lib/riskFlagCatalog';
+import { buildActionPlan, MITIGATION_TYPE_META } from './lib/riskRemediationGuide';
 import { countryFlag } from './lib/countryFlag';
 import { antdToSort, columnSortOrder, type SortState } from './lib/tableSort';
 import type {
@@ -478,6 +480,78 @@ const OverviewTab: React.FC<{ doc: InventoryDoc }> = ({ doc }) => {
                     </Card>
                 </Col>
             </Row>
+
+            {(() => {
+                // Consolidated Envoy remediation for this endpoint's flags.
+                const actionGroups = buildActionPlan(doc.risk_flags ?? []);
+                if (actionGroups.length === 0) return null;
+                return (
+                    <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
+                        <Col span={24}>
+                            <Card
+                                size="small"
+                                title={
+                                    <InfoLabel info="Consolidated remediation for the risk flags observed on this endpoint — grouped so one Envoy change can close several at once. Each flag links to its full guide.">
+                                        How to fix this endpoint
+                                    </InfoLabel>
+                                }
+                                style={{ borderRadius: 8 }}
+                            >
+                                <Space direction="vertical" size={12} style={{ width: '100%' }}>
+                                    {actionGroups.map((g) => {
+                                        const kindMeta = MITIGATION_TYPE_META[g.fix.kind];
+                                        return (
+                                            <div
+                                                key={g.fix.key}
+                                                style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}
+                                            >
+                                                <div style={{ flex: 1, minWidth: 220 }}>
+                                                    <Space size={8} wrap style={{ marginBottom: 6 }}>
+                                                        <Text style={{ fontSize: 13, fontWeight: 600 }}>
+                                                            {g.fix.label}
+                                                        </Text>
+                                                        <Tag
+                                                            className="auto-width-tag"
+                                                            style={{
+                                                                margin: 0,
+                                                                fontSize: 10,
+                                                                color: kindMeta.color,
+                                                                borderColor: `${kindMeta.color}55`,
+                                                                background: `${kindMeta.color}14`,
+                                                            }}
+                                                        >
+                                                            {kindMeta.label}
+                                                        </Tag>
+                                                    </Space>
+                                                    <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                                                        {g.flags.map((f) => (
+                                                            <Link key={f} to={`/api-discovery/risks/${f}`}>
+                                                                <Tag
+                                                                    className="auto-width-tag"
+                                                                    style={{ margin: 0, fontSize: 10, cursor: 'pointer' }}
+                                                                >
+                                                                    {riskFlagLabel(f)}
+                                                                </Tag>
+                                                            </Link>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                                {g.fix.link && (
+                                                    <Link to={g.fix.link.to}>
+                                                        <Button size="small" icon={<ExportOutlined />}>
+                                                            {g.fix.link.label}
+                                                        </Button>
+                                                    </Link>
+                                                )}
+                                            </div>
+                                        );
+                                    })}
+                                </Space>
+                            </Card>
+                        </Col>
+                    </Row>
+                );
+            })()}
 
             {doc.consumers?.length ? (
                 <Card size="small" title="Consumers (hashed)" style={{ borderRadius: 8, marginBottom: 16 }}>

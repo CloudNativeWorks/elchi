@@ -1,5 +1,6 @@
 import React from 'react';
 import { Tag, Tooltip } from 'antd';
+import { Link } from 'react-router-dom';
 import {
     riskFlagColor,
     riskFlagLabel,
@@ -47,17 +48,34 @@ const RiskFlagChips: React.FC<Props> = ({ flags, max = 3, size = 'sm' }) => {
 
     return (
         <span style={{ display: 'inline-flex', flexWrap: 'wrap', gap: 4, alignItems: 'center' }}>
-            {visible.map((f) => (
-                <Tooltip key={f} title={<FlagTooltipBody flag={f} meta={riskFlagMeta(f)} />}>
+            {visible.map((f) => {
+                const meta = riskFlagMeta(f);
+                const tag = (
                     <Tag
                         className="auto-width-tag"
                         color={riskFlagColor(f)}
-                        style={{ fontSize, margin: 0, cursor: 'help' }}
+                        style={{ fontSize, margin: 0, cursor: meta ? 'pointer' : 'help' }}
                     >
                         {riskFlagLabel(f)}
                     </Tag>
-                </Tooltip>
-            ))}
+                );
+                return (
+                    <Tooltip key={f} title={<FlagTooltipBody flag={f} meta={meta} />}>
+                        {meta ? (
+                            // Known flag — deep-link into the Risk Guide detail page.
+                            <Link
+                                to={`/api-discovery/risks/${f}`}
+                                onClick={(e) => e.stopPropagation()}
+                                style={{ display: 'inline-flex' }}
+                            >
+                                {tag}
+                            </Link>
+                        ) : (
+                            tag
+                        )}
+                    </Tooltip>
+                );
+            })}
             {overflow.length > 0 && (
                 <Tooltip
                     title={

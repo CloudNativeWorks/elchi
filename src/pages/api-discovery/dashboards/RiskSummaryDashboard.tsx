@@ -13,7 +13,8 @@ import {
     Input,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { ReloadOutlined, SafetyCertificateOutlined, AlertOutlined } from '@ant-design/icons';
+import { ReloadOutlined, SafetyCertificateOutlined, AlertOutlined, ReadOutlined } from '@ant-design/icons';
+import { Link } from 'react-router-dom';
 import ReactEChartsCore from 'echarts-for-react/lib/core';
 import * as echarts from 'echarts/core';
 import { PieChart } from 'echarts/charts';
@@ -124,18 +125,22 @@ const RiskSummaryDashboard: React.FC = () => {
             key: 'flag',
             render: (flag: string) => {
                 const meta = RISK_FLAG_CATALOG[flag];
+                const label = (
+                    <Text
+                        style={{
+                            fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+                            fontSize: 12.5,
+                            fontWeight: 500,
+                            cursor: meta ? 'pointer' : 'help',
+                            color: meta ? 'var(--color-primary)' : undefined,
+                        }}
+                    >
+                        {riskFlagLabel(flag)}
+                    </Text>
+                );
                 return (
                     <Tooltip title={meta?.description ?? 'Flag emitted by a newer collector — not in this UI build.'}>
-                        <Text
-                            style={{
-                                fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
-                                fontSize: 12.5,
-                                fontWeight: 500,
-                                cursor: 'help',
-                            }}
-                        >
-                            {riskFlagLabel(flag)}
-                        </Text>
+                        {meta ? <Link to={`/api-discovery/risks/${flag}`}>{label}</Link> : label}
                     </Tooltip>
                 );
             },
@@ -282,6 +287,9 @@ const RiskSummaryDashboard: React.FC = () => {
                             style={{ width: 220 }}
                             onSearch={(v) => setListenerName(v.trim())}
                         />
+                        <Link to="/api-discovery/risks">
+                            <Button icon={<ReadOutlined />}>Risk guide</Button>
+                        </Link>
                         <Button
                             icon={<ReloadOutlined spin={isFetching} />}
                             onClick={() => refetch()}

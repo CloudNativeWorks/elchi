@@ -36,6 +36,8 @@ import Discovery from './pages/discovery/Discovery';
 import ApiDiscoveryListeners from './pages/api-discovery/ApiDiscoveryListeners';
 import ApiDiscoveryEndpoints from './pages/api-discovery/ApiDiscoveryEndpoints';
 import ApiDiscoveryEndpointDetail from './pages/api-discovery/ApiDiscoveryEndpointDetail';
+import ApiDiscoveryRiskGuide from './pages/api-discovery/ApiDiscoveryRiskGuide';
+import ApiDiscoveryRiskDetail from './pages/api-discovery/ApiDiscoveryRiskDetail';
 import JobList from './pages/jobs/JobList';
 import JobDetail from './pages/jobs/JobDetail';
 import AuditList from './pages/audit/AuditList';
@@ -134,6 +136,8 @@ const AppRoutes: React.FC = () => (
 
                 {/* API Discovery Routes */}
                 <Route path="/api-discovery" element={<ApiDiscoveryListeners />} />
+                <Route path="/api-discovery/risks" element={<ApiDiscoveryRiskGuide />} />
+                <Route path="/api-discovery/risks/:flagId" element={<ApiDiscoveryRiskDetail />} />
                 <Route path="/api-discovery/:listenerName" element={<ApiDiscoveryEndpoints />} />
                 <Route path="/api-discovery/:listenerName/endpoints/:id" element={<ApiDiscoveryEndpointDetail />} />
 
