@@ -21,6 +21,7 @@ import {
     Switch,
     InputNumber,
     Select,
+    Input,
     Button,
     Typography,
     Spin,
@@ -38,6 +39,8 @@ import {
     ReloadOutlined,
     ApiOutlined,
     InfoCircleOutlined,
+    PlusOutlined,
+    DeleteOutlined,
 } from '@ant-design/icons';
 import { useMutation } from '@tanstack/react-query';
 import { api, useCustomGetQuery } from '@/common/api';
@@ -93,6 +96,12 @@ interface BehaviorConfig {
     latency: BehaviorLatency;
     error_rate: BehaviorErrorRate;
 }
+// Operator-defined rule that rewrites a literal path segment matching
+// `regex` into the chosen `{placeholder}` token.
+interface PathNormalizePattern {
+    regex: string;
+    placeholder: string;
+}
 interface PolicyConfig {
     store_headers: boolean;
     header_allowlist: string[];
@@ -102,7 +111,14 @@ interface PolicyConfig {
     store_raw_user_agent: boolean;
     ingest_deny_patterns: string[];
     trusted_proxy_cidrs: string[];
+    path_normalize_patterns: PathNormalizePattern[];
 }
+
+// Placeholders the collector accepts (traversal is detector-only).
+const NORMALIZE_PLACEHOLDERS = ['id', 'uuid', 'objectid', 'ulid', 'token', 'dynamic'] as const;
+const MAX_NORMALIZE_PATTERNS = 64;
+const MAX_NORMALIZE_REGEX_LEN = 256;
+const MAX_NORMALIZE_QUANTIFIERS = 4;
 interface DetectionConfig {
     detect_pii: boolean;
     extract_consumer_fingerprint: boolean;
@@ -151,6 +167,7 @@ const DEFAULT_POLICY: PolicyConfig = {
     store_raw_user_agent: true,
     ingest_deny_patterns: [],
     trusted_proxy_cidrs: [],
+    path_normalize_patterns: [],
 };
 
 const DEFAULT_DETECTION: DetectionConfig = {
@@ -257,6 +274,26 @@ const validate = (policy: PolicyConfig, detection: DetectionConfig): string | nu
             RegExp(p);
         } catch {
             return `Ingest deny pattern is not a valid regex: ${p}`;
+        }
+    }
+    const normPatterns = policy.path_normalize_patterns.filter((p) => p.regex.trim() !== '');
+    if (normPatterns.length > MAX_NORMALIZE_PATTERNS) {
+        return `Path normalization: at most ${MAX_NORMALIZE_PATTERNS} patterns are allowed.`;
+    }
+    for (const p of normPatterns) {
+        if (!(NORMALIZE_PLACEHOLDERS as readonly string[]).includes(p.placeholder)) {
+            return `Path normalization: "${p.placeholder}" is not a valid placeholder.`;
+        }
+        if (p.regex.length > MAX_NORMALIZE_REGEX_LEN) {
+            return `Path normalization: regex must be ${MAX_NORMALIZE_REGEX_LEN} characters or fewer.`;
+        }
+        if ((p.regex.match(/[+*?{]/g) ?? []).length > MAX_NORMALIZE_QUANTIFIERS) {
+            return `Path normalization: regex "${p.regex}" has too many quantifiers (max ${MAX_NORMALIZE_QUANTIFIERS}).`;
+        }
+        try {
+            RegExp(p.regex);
+        } catch {
+            return `Path normalization: not a valid regex: ${p.regex}`;
         }
     }
     return null;
@@ -476,6 +513,15 @@ const ApiDiscoveryConfigInner: React.FC = () => {
             store_raw_user_agent: (p.store_raw_user_agent as boolean) ?? DEFAULT_POLICY.store_raw_user_agent,
             ingest_deny_patterns: (p.ingest_deny_patterns as string[]) ?? [],
             trusted_proxy_cidrs: (p.trusted_proxy_cidrs as string[]) ?? [],
+            path_normalize_patterns: Array.isArray(p.path_normalize_patterns)
+                ? (p.path_normalize_patterns as unknown[]).map((e) => {
+                      const o = (e && typeof e === 'object' ? e : {}) as Record<string, unknown>;
+                      return {
+                          regex: typeof o.regex === 'string' ? o.regex : '',
+                          placeholder: typeof o.placeholder === 'string' ? o.placeholder : 'id',
+                      };
+                  })
+                : [],
         });
         const rs = (d.response_size ?? {}) as Partial<ResponseSizeConfig>;
         const bh = (d.behavior ?? {}) as Partial<BehaviorConfig>;
@@ -548,8 +594,15 @@ const ApiDiscoveryConfigInner: React.FC = () => {
             // custom_rules was removed from the collector — drop it so the
             // whole-sub-tree $set clears any leftover from an old document.
             delete detectionBody.custom_rules;
+            // Drop blank-regex rows — the collector skips them anyway.
+            const cleanedPolicy: PolicyConfig = {
+                ...policy,
+                path_normalize_patterns: policy.path_normalize_patterns
+                    .filter((p) => p.regex.trim() !== '')
+                    .map((p) => ({ regex: p.regex.trim(), placeholder: p.placeholder })),
+            };
             const body = {
-                policy: deepMerge(rawPolicy, policy),
+                policy: deepMerge(rawPolicy, cleanedPolicy),
                 detection: detectionBody,
             };
             const res = await api.put('/api/v3/setting/api_discovery', body);
@@ -728,6 +781,80 @@ const ApiDiscoveryConfigInner: React.FC = () => {
                                 tokenSeparators={[',', ' ', '\n']}
                                 onChange={(v) => setPolicy({ ...policy, trusted_proxy_cidrs: v })}
                             />
+                        </div>
+                        <div style={{ paddingTop: 14 }}>
+                            <Text style={{ fontSize: 13, fontWeight: 500 }}>
+                                Path normalization patterns
+                            </Text>
+                            <div>
+                                <Text type="secondary" style={{ fontSize: 11 }}>
+                                    When the built-in detectors leave an ID-like segment literal,
+                                    your regex rewrites it to the chosen placeholder. Matches a whole
+                                    segment — no <code>^</code>/<code>$</code> needed. Example:{' '}
+                                    <code>TK-\d+</code> → <code>{'/api/orders/{id}'}</code>
+                                </Text>
+                            </div>
+                            {policy.path_normalize_patterns.map((p, i) => (
+                                <Space.Compact key={i} style={{ display: 'flex', marginTop: 6 }}>
+                                    <Input
+                                        placeholder="TK-\d+"
+                                        value={p.regex}
+                                        disabled={saving}
+                                        onChange={(e) => {
+                                            const next = [...policy.path_normalize_patterns];
+                                            next[i] = { ...next[i], regex: e.target.value };
+                                            setPolicy({ ...policy, path_normalize_patterns: next });
+                                        }}
+                                    />
+                                    <Select
+                                        style={{ width: 132 }}
+                                        value={p.placeholder}
+                                        disabled={saving}
+                                        options={NORMALIZE_PLACEHOLDERS.map((v) => ({
+                                            value: v,
+                                            label: `{${v}}`,
+                                        }))}
+                                        onChange={(v) => {
+                                            const next = [...policy.path_normalize_patterns];
+                                            next[i] = { ...next[i], placeholder: v };
+                                            setPolicy({ ...policy, path_normalize_patterns: next });
+                                        }}
+                                    />
+                                    <Button
+                                        icon={<DeleteOutlined />}
+                                        disabled={saving}
+                                        onClick={() =>
+                                            setPolicy({
+                                                ...policy,
+                                                path_normalize_patterns:
+                                                    policy.path_normalize_patterns.filter(
+                                                        (_, j) => j !== i,
+                                                    ),
+                                            })
+                                        }
+                                    />
+                                </Space.Compact>
+                            ))}
+                            <Button
+                                size="small"
+                                icon={<PlusOutlined />}
+                                disabled={
+                                    saving ||
+                                    policy.path_normalize_patterns.length >= MAX_NORMALIZE_PATTERNS
+                                }
+                                style={{ marginTop: 8 }}
+                                onClick={() =>
+                                    setPolicy({
+                                        ...policy,
+                                        path_normalize_patterns: [
+                                            ...policy.path_normalize_patterns,
+                                            { regex: '', placeholder: 'id' },
+                                        ],
+                                    })
+                                }
+                            >
+                                Add pattern
+                            </Button>
                         </div>
                     </Card>
                 </Col>
