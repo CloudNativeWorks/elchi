@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect } from 'react';
-import { Card, Table, Input, Button, Space, Typography, Tag, Tooltip, Empty, Tabs, Modal, InputNumber, message } from 'antd';
+import { Card, Table, Input, Button, Space, Typography, Tag, Tooltip, Empty, Tabs, Modal, InputNumber, Select, message } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
     EyeOutlined,
@@ -18,11 +18,18 @@ import {
     WarningOutlined,
     ReadOutlined,
     ClearOutlined,
+    PlusOutlined,
+    CheckCircleOutlined,
 } from '@ant-design/icons';
 import { Link, useSearchParams } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
-import { useApiInventoryListeners, useApiInventoryCleanupStale } from '@/hooks/useApiDiscovery';
+import {
+    useApiInventoryListeners,
+    useApiInventoryCleanupStale,
+    useApiInventoryNormalizeGaps,
+    useAddNormalizePattern,
+} from '@/hooks/useApiDiscovery';
 import useAuth from '@/hooks/useUserDetails';
 import StatusDistBar from './components/StatusDistBar';
 import RiskFlagChips from './components/RiskFlagChips';
@@ -40,7 +47,7 @@ import SecurityScoreDashboard from './dashboards/SecurityScoreDashboard';
 import TransportDashboard from './dashboards/TransportDashboard';
 import ErrorsDashboard from './dashboards/ErrorsDashboard';
 import ComponentLoadErrorBoundary from '@/components/ComponentLoadErrorBoundary';
-import type { ListenerSummary, ListenerSortField } from './types';
+import type { ListenerSummary, ListenerSortField, NormalizeGap } from './types';
 
 const { Title, Text } = Typography;
 
@@ -190,6 +197,181 @@ const StaleCleanupAction: React.FC<{ onDone: () => void }> = ({ onDone }) => {
                 </div>
             </Modal>
         </>
+    );
+};
+
+const NORMALIZE_PLACEHOLDER_OPTS = ['id', 'uuid', 'objectid', 'ulid', 'token', 'dynamic'];
+
+// Lists "ballooning" un-normalized path prefixes the collector flagged.
+// Each row offers a one-click action (Admin/Owner) to append a
+// path_normalize_patterns rule to the collector config.
+const NormalizeGapsPanel: React.FC = () => {
+    const { data, isLoading, isFetching, refetch } = useApiInventoryNormalizeGaps();
+    const userDetail = useAuth();
+    const isAdminOrOwner = ['owner', 'admin'].includes(userDetail?.role?.toLowerCase() || '');
+    const addMut = useAddNormalizePattern();
+
+    const [editing, setEditing] = useState<NormalizeGap | null>(null);
+    const [ruleRegex, setRuleRegex] = useState('');
+    const [rulePlaceholder, setRulePlaceholder] = useState('id');
+
+    const gaps = data?.data ?? [];
+
+    const openModal = (gap: NormalizeGap) => {
+        setEditing(gap);
+        setRuleRegex('');
+        setRulePlaceholder('id');
+    };
+
+    const submit = async () => {
+        const r = ruleRegex.trim();
+        if (!r) {
+            message.error('Enter a regex for the dynamic segment.');
+            return;
+        }
+        try {
+            await addMut.mutateAsync({ regex: r, placeholder: rulePlaceholder });
+            message.success('Normalization rule added — the collector applies it within ~2 min.');
+            setEditing(null);
+            refetch();
+        } catch (e: any) {
+            const s = e?.response?.status;
+            message.error(
+                s === 403
+                    ? 'Only an Admin or Owner can change the collector configuration.'
+                    : e?.response?.data?.error ||
+                          e?.response?.data?.message ||
+                          e?.message ||
+                          'Failed to add the rule',
+            );
+        }
+    };
+
+    // Clean state — a compact single line.
+    if (!isLoading && gaps.length === 0) {
+        return (
+            <Card size="small" style={{ marginBottom: 16, borderRadius: 10 }}>
+                <Space>
+                    <CheckCircleOutlined style={{ color: 'var(--color-success)' }} />
+                    <Text style={{ fontSize: 13 }}>
+                        No normalization gaps — all path prefixes look healthy.
+                    </Text>
+                </Space>
+            </Card>
+        );
+    }
+
+    return (
+        <Card
+            size="small"
+            loading={isLoading}
+            style={{ marginBottom: 16, borderRadius: 10 }}
+            title={
+                <Space size={8}>
+                    <WarningOutlined style={{ color: '#fff' }} />
+                    <Text style={{ fontSize: 13.5, fontWeight: 600, color: '#fff' }}>
+                        Normalization Gaps
+                    </Text>
+                    {gaps.length > 0 && (
+                        <Tag color="orange" style={{ margin: 0 }}>
+                            {gaps.length}
+                        </Tag>
+                    )}
+                </Space>
+            }
+            extra={
+                <Button
+                    size="small"
+                    icon={<ReloadOutlined spin={isFetching} />}
+                    onClick={() => refetch()}
+                    loading={isFetching}
+                >
+                    Refresh
+                </Button>
+            }
+        >
+            <Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 4 }}>
+                These path prefixes are accumulating many distinct un-normalized child segments — a
+                likely ID format the built-in detectors don’t recognise. Add a normalization rule so
+                the segment collapses into one endpoint.
+            </Text>
+            {gaps.map((g) => (
+                <div
+                    key={g.prefix}
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 12,
+                        padding: '8px 0',
+                        borderTop: '1px solid var(--border-default)',
+                    }}
+                >
+                    <code style={{ flex: 1, minWidth: 0, fontSize: 12, wordBreak: 'break-all' }}>
+                        {g.prefix}
+                    </code>
+                    {g.updated_at && (
+                        <Text type="secondary" style={{ fontSize: 11, flexShrink: 0 }}>
+                            updated {formatDistanceToNow(new Date(g.updated_at), { addSuffix: true })}
+                        </Text>
+                    )}
+                    {isAdminOrOwner && (
+                        <Button
+                            size="small"
+                            icon={<PlusOutlined />}
+                            onClick={() => openModal(g)}
+                            style={{ flexShrink: 0 }}
+                        >
+                            Add normalize rule
+                        </Button>
+                    )}
+                </div>
+            ))}
+            <Modal
+                open={!!editing}
+                title="Add normalization rule"
+                okText="Add rule"
+                okButtonProps={{ loading: addMut.isPending }}
+                onOk={submit}
+                onCancel={() => setEditing(null)}
+            >
+                <Text type="secondary" style={{ fontSize: 12 }}>
+                    Gap prefix:
+                </Text>
+                <div style={{ marginBottom: 12 }}>
+                    <code style={{ fontSize: 12, wordBreak: 'break-all' }}>{editing?.prefix}</code>
+                </div>
+                <Text style={{ fontSize: 13, fontWeight: 500 }}>Segment regex</Text>
+                <div>
+                    <Text type="secondary" style={{ fontSize: 11 }}>
+                        RE2 regex matching the whole dynamic segment — no <code>^</code>/
+                        <code>$</code> needed. e.g. <code>{'TK-\\d+'}</code>,{' '}
+                        <code>{'[0-9a-f-]{36}'}</code>.
+                    </Text>
+                </div>
+                <Input
+                    value={ruleRegex}
+                    onChange={(e) => setRuleRegex(e.target.value)}
+                    placeholder="\d+"
+                    disabled={addMut.isPending}
+                    style={{ marginTop: 6 }}
+                />
+                <div style={{ marginTop: 12 }}>
+                    <Text style={{ fontSize: 13, fontWeight: 500 }}>Placeholder</Text>
+                    <div>
+                        <Select
+                            value={rulePlaceholder}
+                            onChange={setRulePlaceholder}
+                            disabled={addMut.isPending}
+                            style={{ width: 160, marginTop: 6 }}
+                            options={NORMALIZE_PLACEHOLDER_OPTS.map((v) => ({
+                                value: v,
+                                label: `{${v}}`,
+                            }))}
+                        />
+                    </div>
+                </div>
+            </Modal>
+        </Card>
     );
 };
 
@@ -493,6 +675,9 @@ const ApiDiscoveryListeners: React.FC = () => {
                     </Button>
                 </Space>
             </div>
+
+            {/* Normalization gaps — un-normalized path prefixes to fix */}
+            <NormalizeGapsPanel />
 
             {/* Search bar */}
             <Card

@@ -102,6 +102,17 @@ interface PathNormalizePattern {
     regex: string;
     placeholder: string;
 }
+// Ingest exclusion rules — an event matching ANY non-empty dimension is
+// dropped before it reaches any detector or api_events_raw. Stronger
+// than trusted_proxy_cidrs (which only skips IP-keyed signal).
+interface ExcludeConfig {
+    methods: string[];        // exact (uppercase)
+    hosts: string[];          // RE2 regex, matched against lower-cased host
+    user_agents: string[];    // RE2 regex, case-sensitive
+    source_cidrs: string[];   // CIDR prefixes
+    listeners: string[];      // exact Envoy listener name
+    projects: string[];       // exact project id
+}
 interface PolicyConfig {
     store_headers: boolean;
     header_allowlist: string[];
@@ -112,6 +123,10 @@ interface PolicyConfig {
     ingest_deny_patterns: string[];
     trusted_proxy_cidrs: string[];
     path_normalize_patterns: PathNormalizePattern[];
+    exclude: ExcludeConfig;
+    // 0/1 = store every raw event; N≥2 = store only 1/N of benign 2xx
+    // events (risky events are always stored in full).
+    raw_sample_rate: number;
 }
 
 // Placeholders the collector accepts (traversal is detector-only).
@@ -119,6 +134,8 @@ const NORMALIZE_PLACEHOLDERS = ['id', 'uuid', 'objectid', 'ulid', 'token', 'dyna
 const MAX_NORMALIZE_PATTERNS = 64;
 const MAX_NORMALIZE_REGEX_LEN = 256;
 const MAX_NORMALIZE_QUANTIFIERS = 4;
+// HTTP methods offered in the exclusion method multi-select.
+const EXCLUDE_HTTP_METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'];
 interface DetectionConfig {
     detect_pii: boolean;
     extract_consumer_fingerprint: boolean;
@@ -131,6 +148,7 @@ interface DetectionConfig {
     path_scan: DetectorWindow;
     geo_spread: DetectorWindow;
     ip_rate: DetectorWindow;
+    normalize_gap: DetectorWindow;
     response_size: ResponseSizeConfig;
     behavior: BehaviorConfig;
     missing_hsts: ToggleConfig;
@@ -168,6 +186,15 @@ const DEFAULT_POLICY: PolicyConfig = {
     ingest_deny_patterns: [],
     trusted_proxy_cidrs: [],
     path_normalize_patterns: [],
+    exclude: {
+        methods: [],
+        hosts: [],
+        user_agents: [],
+        source_cidrs: [],
+        listeners: [],
+        projects: [],
+    },
+    raw_sample_rate: 0,
 };
 
 const DEFAULT_DETECTION: DetectionConfig = {
@@ -182,6 +209,7 @@ const DEFAULT_DETECTION: DetectionConfig = {
     path_scan: win(true, 40, 60),
     geo_spread: { ...win(true, 2, 3600), skip_mtls: true },
     ip_rate: win(false, 1000, 60),
+    normalize_gap: win(true, 64, 3600),
     response_size: {
         enabled: true,
         multiplier: 10,
@@ -248,9 +276,62 @@ const DETECTORS: {
         extra: { field: 'skip_mtls', label: 'Skip mTLS identities', kind: 'switch', hint: 'Exclude mTLS machine identities — they legitimately appear from many regions.' },
     },
     { key: 'ip_rate', label: 'IP Rate', unit: 'requests', desc: 'A single source IP exceeding the per-IP request-rate threshold.' },
+    { key: 'normalize_gap', label: 'Normalize Gap', unit: 'distinct child paths', desc: 'A path prefix accumulating many distinct un-normalized child segments — a likely missing path-normalization rule.' },
 ];
 
 // ─── Validation (mirrors collector Doc.Validate) ─────────────────────
+
+// Read the six exclude dimensions defensively from a raw server object.
+const seedExclude = (raw: unknown): ExcludeConfig => {
+    const ex = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
+    const arr = (v: unknown): string[] =>
+        Array.isArray(v) ? (v.filter((x) => typeof x === 'string') as string[]) : [];
+    return {
+        methods: arr(ex.methods),
+        hosts: arr(ex.hosts),
+        user_agents: arr(ex.user_agents),
+        source_cidrs: arr(ex.source_cidrs),
+        listeners: arr(ex.listeners),
+        projects: arr(ex.projects),
+    };
+};
+
+// Lenient client-side CIDR check — the backend is authoritative (400).
+const isLikelyCidr = (s: string): boolean => {
+    const slash = s.indexOf('/');
+    if (slash < 0) return false;
+    const addr = s.slice(0, slash);
+    const prefix = s.slice(slash + 1);
+    if (!/^\d+$/.test(prefix)) return false;
+    const pfx = Number(prefix);
+    if (addr.includes(':')) {
+        return pfx >= 0 && pfx <= 128 && /^[0-9a-fA-F:]{2,}$/.test(addr);
+    }
+    const m = addr.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+    if (!m) return false;
+    if (!m.slice(1).every((o) => Number(o) <= 255)) return false;
+    return pfx >= 0 && pfx <= 32;
+};
+
+// Validate a list of RE2 regex strings against the collector's caps.
+const checkExcludeRegexList = (list: string[], label: string): string | null => {
+    for (const r of list) {
+        const s = r.trim();
+        if (!s) continue;
+        if (s.length > MAX_NORMALIZE_REGEX_LEN) {
+            return `${label}: a regex exceeds ${MAX_NORMALIZE_REGEX_LEN} characters.`;
+        }
+        if ((s.match(/[+*?{]/g) ?? []).length > MAX_NORMALIZE_QUANTIFIERS) {
+            return `${label}: a regex has too many quantifiers (max ${MAX_NORMALIZE_QUANTIFIERS}) — likely a DoS pattern.`;
+        }
+        try {
+            RegExp(s);
+        } catch {
+            return `${label}: "${s}" is not a valid regex.`;
+        }
+    }
+    return null;
+};
 
 const validate = (policy: PolicyConfig, detection: DetectionConfig): string | null => {
     for (const d of DETECTORS) {
@@ -295,6 +376,20 @@ const validate = (policy: PolicyConfig, detection: DetectionConfig): string | nu
         } catch {
             return `Path normalization: not a valid regex: ${p.regex}`;
         }
+    }
+    const ex = policy.exclude;
+    const hostErr = checkExcludeRegexList(ex.hosts, 'Exclusion hosts');
+    if (hostErr) return hostErr;
+    const uaErr = checkExcludeRegexList(ex.user_agents, 'Exclusion user-agents');
+    if (uaErr) return uaErr;
+    for (const c of ex.source_cidrs) {
+        const s = c.trim();
+        if (s && !isLikelyCidr(s)) {
+            return `Exclusion source CIDR "${s}" is not a valid CIDR.`;
+        }
+    }
+    if (!Number.isInteger(policy.raw_sample_rate) || policy.raw_sample_rate < 0) {
+        return 'Raw sample rate must be a whole number ≥ 0.';
     }
     return null;
 };
@@ -477,6 +572,34 @@ const ToggleRow: React.FC<{
     </div>
 );
 
+// One exclusion dimension rendered as a tags-mode multi-line list.
+const ExcludeTagField: React.FC<{
+    label: string;
+    desc: React.ReactNode;
+    placeholder: string;
+    value: string[];
+    disabled: boolean;
+    tokenSeparators: string[];
+    // eslint-disable-next-line no-unused-vars
+    onChange: (v: string[]) => void;
+}> = ({ label, desc, placeholder, value, disabled, tokenSeparators, onChange }) => (
+    <div>
+        <Text style={{ fontSize: 13, fontWeight: 500 }}>{label}</Text>
+        <div>
+            <Text type="secondary" style={{ fontSize: 11 }}>{desc}</Text>
+        </div>
+        <Select
+            mode="tags"
+            style={{ width: '100%', marginTop: 6 }}
+            placeholder={placeholder}
+            value={value}
+            disabled={disabled}
+            tokenSeparators={tokenSeparators}
+            onChange={onChange}
+        />
+    </div>
+);
+
 // ─── Main component ──────────────────────────────────────────────────
 
 const ApiDiscoveryConfigInner: React.FC = () => {
@@ -522,6 +645,9 @@ const ApiDiscoveryConfigInner: React.FC = () => {
                       };
                   })
                 : [],
+            exclude: seedExclude(p.exclude),
+            raw_sample_rate:
+                typeof p.raw_sample_rate === 'number' ? p.raw_sample_rate : 0,
         });
         const rs = (d.response_size ?? {}) as Partial<ResponseSizeConfig>;
         const bh = (d.behavior ?? {}) as Partial<BehaviorConfig>;
@@ -541,6 +667,7 @@ const ApiDiscoveryConfigInner: React.FC = () => {
             path_scan: mergeWindow(d.path_scan, DEFAULT_DETECTION.path_scan),
             geo_spread: mergeWindow(d.geo_spread, DEFAULT_DETECTION.geo_spread),
             ip_rate: mergeWindow(d.ip_rate, DEFAULT_DETECTION.ip_rate),
+            normalize_gap: mergeWindow(d.normalize_gap, DEFAULT_DETECTION.normalize_gap),
             response_size: {
                 enabled: rs.enabled ?? DEFAULT_DETECTION.response_size.enabled,
                 multiplier: rs.multiplier ?? DEFAULT_DETECTION.response_size.multiplier,
@@ -594,12 +721,22 @@ const ApiDiscoveryConfigInner: React.FC = () => {
             // custom_rules was removed from the collector — drop it so the
             // whole-sub-tree $set clears any leftover from an old document.
             delete detectionBody.custom_rules;
-            // Drop blank-regex rows — the collector skips them anyway.
+            // Drop blank rows — the collector's Normalize() skips them anyway.
+            const cleanList = (l: string[]): string[] =>
+                l.map((x) => x.trim()).filter((x) => x !== '');
             const cleanedPolicy: PolicyConfig = {
                 ...policy,
                 path_normalize_patterns: policy.path_normalize_patterns
                     .filter((p) => p.regex.trim() !== '')
                     .map((p) => ({ regex: p.regex.trim(), placeholder: p.placeholder })),
+                exclude: {
+                    methods: policy.exclude.methods,
+                    hosts: cleanList(policy.exclude.hosts),
+                    user_agents: cleanList(policy.exclude.user_agents),
+                    source_cidrs: cleanList(policy.exclude.source_cidrs),
+                    listeners: cleanList(policy.exclude.listeners),
+                    projects: cleanList(policy.exclude.projects),
+                },
             };
             const body = {
                 policy: deepMerge(rawPolicy, cleanedPolicy),
@@ -690,7 +827,7 @@ const ApiDiscoveryConfigInner: React.FC = () => {
                     <Card
                         size="small"
                         title="Policy"
-                        style={{ borderRadius: 10, height: '100%' }}
+                        style={{ borderRadius: 10 }}
                         styles={{ body: { padding: '4px 14px 14px' } }}
                     >
                         <ToggleRow
@@ -747,6 +884,46 @@ const ApiDiscoveryConfigInner: React.FC = () => {
                             disabled={saving}
                             onChange={(v) => setPolicy({ ...policy, store_raw_user_agent: v })}
                         />
+                        <div style={{ padding: '10px 0', borderBottom: '1px solid var(--border-default)' }}>
+                            <Text style={{ fontSize: 13, fontWeight: 500 }}>Raw sample rate</Text>
+                            <div>
+                                <Text type="secondary" style={{ fontSize: 11 }}>
+                                    <code>0</code> or <code>1</code> stores every raw event. <code>N ≥ 2</code>{' '}
+                                    stores only <code>1/N</code> of benign 2xx events — risky events
+                                    (non-2xx, or carrying an attack / PII / behavior flag) are always
+                                    stored in full.
+                                </Text>
+                            </div>
+                            <InputNumber
+                                min={0}
+                                step={1}
+                                precision={0}
+                                style={{ width: 140, marginTop: 6 }}
+                                value={policy.raw_sample_rate}
+                                disabled={saving}
+                                onChange={(v) =>
+                                    setPolicy({
+                                        ...policy,
+                                        raw_sample_rate: typeof v === 'number' ? v : 0,
+                                    })
+                                }
+                            />
+                            {policy.raw_sample_rate >= 2 && (
+                                <Alert
+                                    type="warning"
+                                    showIcon
+                                    style={{ marginTop: 8 }}
+                                    message={
+                                        <span style={{ fontSize: 12 }}>
+                                            <code>api_events_raw</code> is no longer a census for benign
+                                            traffic — only ~1/{policy.raw_sample_rate} of healthy 2xx
+                                            events are kept. Request volume must always be read from{' '}
+                                            <code>seen_count</code>, never from raw-event counts.
+                                        </span>
+                                    }
+                                />
+                            )}
+                        </div>
                         <div style={{ paddingTop: 10 }}>
                             <Text style={{ fontSize: 13, fontWeight: 500 }}>Ingest deny patterns</Text>
                             <div>
@@ -856,6 +1033,155 @@ const ApiDiscoveryConfigInner: React.FC = () => {
                                 Add pattern
                             </Button>
                         </div>
+                    </Card>
+
+                    {/* ── Exclusions — stacked under Policy ─────────── */}
+                    <Card
+                        size="small"
+                        title="Exclusions"
+                        style={{ borderRadius: 10, marginTop: 12 }}
+                        styles={{ body: { padding: '12px 14px 14px' } }}
+                    >
+                        <Alert
+                            type="warning"
+                            showIcon
+                            style={{ marginBottom: 14 }}
+                            message="Excluded traffic is dropped before any analysis"
+                            description={
+                                <span style={{ fontSize: 12 }}>
+                                    An event matching <strong>any</strong> dimension below never
+                                    enters the pipeline — no detector sees it (BOLA, brute-force,
+                                    path-scan, geo-spread, replay, behavior…) and it is not written
+                                    to <code>api_events_raw</code>. This is stronger than “Trusted
+                                    proxy CIDRs”, which only skips IP-keyed signal. Use{' '}
+                                    <strong>hosts</strong> and <strong>source CIDRs</strong> only for
+                                    genuine noise (CORS pre-flight, monitoring probes) and fully
+                                    trusted sources — all attack detection goes blind for them.
+                                </span>
+                            }
+                        />
+                        <Row gutter={[16, 14]}>
+                            <Col xs={24}>
+                                <Text style={{ fontSize: 13, fontWeight: 500 }}>Methods</Text>
+                                <div>
+                                    <Text type="secondary" style={{ fontSize: 11 }}>
+                                        Exact match. Common case: drop CORS pre-flight{' '}
+                                        <code>OPTIONS</code>.
+                                    </Text>
+                                </div>
+                                <Select
+                                    mode="multiple"
+                                    allowClear
+                                    style={{ width: '100%', marginTop: 6 }}
+                                    placeholder="OPTIONS, HEAD …"
+                                    value={policy.exclude.methods}
+                                    disabled={saving}
+                                    options={EXCLUDE_HTTP_METHODS.map((m) => ({
+                                        value: m,
+                                        label: m,
+                                    }))}
+                                    onChange={(v) =>
+                                        setPolicy({
+                                            ...policy,
+                                            exclude: { ...policy.exclude, methods: v },
+                                        })
+                                    }
+                                />
+                            </Col>
+                            <Col xs={24}>
+                                <ExcludeTagField
+                                    label="Hosts"
+                                    desc={
+                                        <>
+                                            RE2 regex, one per line. Matched against the lower-cased
+                                            host — write patterns in lower-case.
+                                        </>
+                                    }
+                                    placeholder="^health\.internal$ …"
+                                    value={policy.exclude.hosts}
+                                    disabled={saving}
+                                    tokenSeparators={['\n']}
+                                    onChange={(v) =>
+                                        setPolicy({
+                                            ...policy,
+                                            exclude: { ...policy.exclude, hosts: v },
+                                        })
+                                    }
+                                />
+                            </Col>
+                            <Col xs={24}>
+                                <ExcludeTagField
+                                    label="User-agents"
+                                    desc="RE2 regex, one per line. Case-sensitive (the UA is an opaque token)."
+                                    placeholder="^kube-probe/ …"
+                                    value={policy.exclude.user_agents}
+                                    disabled={saving}
+                                    tokenSeparators={['\n']}
+                                    onChange={(v) =>
+                                        setPolicy({
+                                            ...policy,
+                                            exclude: { ...policy.exclude, user_agents: v },
+                                        })
+                                    }
+                                />
+                            </Col>
+                            <Col xs={24}>
+                                <ExcludeTagField
+                                    label="Source CIDRs"
+                                    desc="An event is dropped when its source IP falls inside one of these ranges (IPv4 / IPv6)."
+                                    placeholder="10.0.0.0/8, 2001:db8::/32 …"
+                                    value={policy.exclude.source_cidrs}
+                                    disabled={saving}
+                                    tokenSeparators={[',', ' ', '\n']}
+                                    onChange={(v) =>
+                                        setPolicy({
+                                            ...policy,
+                                            exclude: { ...policy.exclude, source_cidrs: v },
+                                        })
+                                    }
+                                />
+                            </Col>
+                            <Col xs={24}>
+                                <ExcludeTagField
+                                    label="Listeners"
+                                    desc="Exact Envoy listener name — excludes every event from that listener."
+                                    placeholder="listener_8080 …"
+                                    value={policy.exclude.listeners}
+                                    disabled={saving}
+                                    tokenSeparators={[',', ' ', '\n']}
+                                    onChange={(v) =>
+                                        setPolicy({
+                                            ...policy,
+                                            exclude: { ...policy.exclude, listeners: v },
+                                        })
+                                    }
+                                />
+                            </Col>
+                            <Col xs={24}>
+                                <ExcludeTagField
+                                    label="Projects"
+                                    desc="Exact project id — excludes every event in that project."
+                                    placeholder="project id …"
+                                    value={policy.exclude.projects}
+                                    disabled={saving}
+                                    tokenSeparators={[',', ' ', '\n']}
+                                    onChange={(v) =>
+                                        setPolicy({
+                                            ...policy,
+                                            exclude: { ...policy.exclude, projects: v },
+                                        })
+                                    }
+                                />
+                            </Col>
+                        </Row>
+                        <Text
+                            type="secondary"
+                            style={{ fontSize: 11, display: 'block', marginTop: 12 }}
+                        >
+                            Path-based exclusion is configured as “Ingest deny patterns” in the
+                            Policy panel above. All sub-lists are optional — an empty dimension is
+                            off, and changes take effect within ~2 minutes of saving.
+                        </Text>
                     </Card>
                 </Col>
 

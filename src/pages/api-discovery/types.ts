@@ -653,3 +653,17 @@ export interface InventoryErrorsParams {
     include_series?: boolean;
     series_granularity?: '1m' | '1h' | '1d';
 }
+
+// ---------- /inventory/normalize-gaps — path-normalization gaps ----------
+
+/** One suspicious un-normalized path prefix the collector has flagged. */
+export interface NormalizeGap {
+    /** The "ballooning" path prefix, e.g. /api/v1/tickets/by-ticket-number. */
+    prefix: string;
+    updated_at: string;
+}
+
+export interface NormalizeGapsResponse {
+    data: NormalizeGap[];
+    count: number;
+}

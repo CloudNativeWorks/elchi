@@ -33,6 +33,7 @@ import type {
     InventoryTransportParams,
     ErrorsResponse,
     InventoryErrorsParams,
+    NormalizeGapsResponse,
 } from '@/pages/api-discovery/types';
 
 const INVENTORY_PATH = 'inventory'; // Config.baseApi already adds /api/v3/
@@ -365,6 +366,55 @@ export const useApiInventoryErrors = (
         path,
         enabled && !!project,
     );
+};
+
+// ---------- /inventory/normalize-gaps — path-normalization gaps ----------
+
+export const useApiInventoryNormalizeGaps = (enabled = true) => {
+    const { project } = useProjectVariable();
+    return useCustomGetQuery({
+        queryKey: `inventory_normalize_gaps_${project}`,
+        enabled: enabled && !!project,
+        path: `${INVENTORY_PATH}/normalize-gaps?project=${encodeURIComponent(project)}`,
+    }) as ReturnType<typeof useCustomGetQuery> & {
+        data?: NormalizeGapsResponse;
+    };
+};
+
+// Append one {regex, placeholder} rule to the collector's
+// policy.path_normalize_patterns via read-modify-write of the config
+// singleton. Admin/Owner only (backend 403 otherwise).
+export const useAddNormalizePattern = () =>
+    useMutation({
+        mutationFn: async (pattern: { regex: string; placeholder: string }) => {
+            const cur = await api.get('/api/v3/setting/api_discovery');
+            const cfg = (cur.data?.config ?? {}) as Record<string, any>;
+            const policy = (cfg.policy ?? {}) as Record<string, any>;
+            const patterns = Array.isArray(policy.path_normalize_patterns)
+                ? policy.path_normalize_patterns
+                : [];
+            const body = {
+                policy: { ...policy, path_normalize_patterns: [...patterns, pattern] },
+                detection: cfg.detection ?? {},
+            };
+            const res = await api.put('/api/v3/setting/api_discovery', body);
+            return res.data;
+        },
+    });
+
+// raw_sample_rate from the collector config singleton — drives the
+// "sampled" badge on distribution panels. Shares the config query cache
+// key with the Settings → API Discovery page.
+export const useApiCollectorSampleRate = (): number => {
+    const q = useCustomGetQuery({
+        queryKey: 'setting-api-discovery',
+        enabled: true,
+        path: 'setting/api_discovery',
+    }) as ReturnType<typeof useCustomGetQuery> & {
+        data?: { config?: { policy?: { raw_sample_rate?: number } } | null };
+    };
+    const rate = q.data?.config?.policy?.raw_sample_rate;
+    return typeof rate === 'number' ? rate : 0;
 };
 
 // ---------- Inventory cleanup / reset (Admin/Owner only) ----------

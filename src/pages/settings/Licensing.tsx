@@ -100,10 +100,10 @@ const LicenseCard: React.FC<LicenseCardProps> = ({ license, onRefetch, canManage
         >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, flexWrap: 'wrap', gap: 12 }}>
                 <Space size={12} align="center">
-                    <SafetyCertificateOutlined style={{ fontSize: 22, color: colors.fg }} />
+                    <SafetyCertificateOutlined style={{ fontSize: 22, color: colors.accent }} />
                     <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <Text strong style={{ fontSize: 18, color: colors.fg }}>{planName}</Text>
+                            <Text strong style={{ fontSize: 18, color: 'var(--text-primary)' }}>{planName}</Text>
                             {license.valid ? (
                                 <Tag color="success" style={{ margin: 0 }}>Active</Tag>
                             ) : (
@@ -129,7 +129,7 @@ const LicenseCard: React.FC<LicenseCardProps> = ({ license, onRefetch, canManage
                 <div style={{ marginBottom: 12 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 4 }}>
                         <Text type="secondary" style={{ fontSize: 12 }}>Connected clients</Text>
-                        <Text strong style={{ fontSize: 13, color: colors.fg }}>
+                        <Text strong style={{ fontSize: 13, color: 'var(--text-primary)' }}>
                             {usage}
                             {hasLimit ? ` / ${license.client_limit}` : ''}
                             {!hasLimit && (
@@ -452,24 +452,6 @@ const Licensing: React.FC = () => {
             <Space direction="vertical" style={{ width: '100%' }} size={16}>
                 {license && (
                     <LicenseCard license={license} onRefetch={refetch} canManage={canManage} />
-                )}
-
-                {license?.last_error && (
-                    <Alert
-                        type="warning"
-                        showIcon
-                        message="Last license validation attempt failed"
-                        description={
-                            <Space direction="vertical" size={4}>
-                                <Text>{license.last_error}</Text>
-                                {license.expires_at && (
-                                    <Text type="secondary" style={{ fontSize: 12 }}>
-                                        The cached license remains valid until {formatDate(license.expires_at)}. The system will retry every 24 hours.
-                                    </Text>
-                                )}
-                            </Space>
-                        }
-                    />
                 )}
 
                 {expiryWarning}

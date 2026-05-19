@@ -49,11 +49,6 @@ const TooltipBody: React.FC<TooltipBodyProps> = ({ license }) => {
                     Last checked: {new Date(license.last_checked_at).toLocaleString()}
                 </div>
             )}
-            {license.last_error && (
-                <div style={{ marginTop: 6, color: '#ffa940' }}>
-                    ⚠ Last sync failed; cached license still in use.
-                </div>
-            )}
             <div style={{ marginTop: 8, opacity: 0.7 }}>Click to open License settings</div>
         </div>
     );
@@ -71,7 +66,9 @@ const LicenseBadge: React.FC = () => {
     const days = getDaysUntilExpiry(license);
     const expiringSoon = typeof days === 'number' && days >= 0 && days <= 7;
     const expired = typeof days === 'number' && days < 0;
-    const showWarning = !!license.last_error || expiringSoon || expired || !license.valid;
+    // A transient validation sync failure (last_error) is not surfaced —
+    // the cached license stays valid; only real expiry/invalid states warn.
+    const showWarning = expiringSoon || expired || !license.valid;
 
     const handleClick = () => {
         navigate('/settings?tab=license');

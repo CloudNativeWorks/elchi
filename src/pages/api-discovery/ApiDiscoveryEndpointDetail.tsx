@@ -64,6 +64,7 @@ import AuthPostureBadge from './components/AuthPostureBadge';
 import InfoLabel from './components/InfoLabel';
 import KpiPill from './components/KpiPill';
 import BackButton from './components/BackButton';
+import SamplingBadge from './components/SamplingBadge';
 import { formatCompactNumber, formatBytes } from './lib/formatNumber';
 import {
     riskFlagLabel,
@@ -1853,6 +1854,7 @@ const InsightsTab: React.FC<{ id: string; doc: InventoryDoc; methods: string[] }
                 >
                     Refresh
                 </Button>
+                <SamplingBadge />
             </Space>
         </Card>
     );

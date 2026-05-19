@@ -17,6 +17,7 @@ import { useSearchParams } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { useApiInventorySecurityScore } from '@/hooks/useApiDiscovery';
 import InfoLabel from '../components/InfoLabel';
+import SamplingBadge from '../components/SamplingBadge';
 import { formatCompactNumber } from '../lib/formatNumber';
 import { WIN_OPTIONS, readWin } from '../lib/timeWindow';
 import type { SecurityGrade, SecurityScoreComponent } from '../types';
@@ -158,6 +159,7 @@ const SecurityScoreDashboard: React.FC = () => {
                         </div>
                     </Space>
                     <Space size={8}>
+                        <SamplingBadge />
                         <Segmented
                             options={WIN_OPTIONS}
                             value={rangeMin}

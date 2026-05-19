@@ -25,6 +25,7 @@ import dayjs from 'dayjs';
 import { useChartTheme } from '@/utils/chartTheme';
 import { useApiInventoryTransport } from '@/hooks/useApiDiscovery';
 import InfoLabel from '../components/InfoLabel';
+import SamplingBadge from '../components/SamplingBadge';
 import EndpointPath from '../components/EndpointPath';
 import { formatCompactNumber } from '../lib/formatNumber';
 import { riskFlagLabel } from '../lib/riskFlagCatalog';
@@ -288,6 +289,7 @@ const TransportDashboard: React.FC = () => {
                         </div>
                     </Space>
                     <Space size={8}>
+                        <SamplingBadge />
                         <Segmented options={WIN_OPTIONS} value={rangeMin} onChange={(v) => changeRange(Number(v))} />
                         <Button icon={<ReloadOutlined spin={isFetching} />} onClick={() => refetch()} loading={isFetching}>
                             Refresh

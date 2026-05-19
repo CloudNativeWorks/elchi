@@ -109,7 +109,11 @@ export const useDeleteLicense = () => {
 };
 
 export interface PlanColorTheme {
+    /** Text/icon colour on the dark nav header (LicenseBadge). */
     fg: string;
+    /** Solid plan-identity colour — readable on a light-tinted surface
+     *  in both light and dark mode (LicenseCard icon/accents). */
+    accent: string;
     bg: string;
     border: string;
 }
@@ -117,23 +121,27 @@ export interface PlanColorTheme {
 export const PLAN_COLORS: Record<string, PlanColorTheme> = {
     free: {
         fg: '#6b7280',
+        accent: '#6b7280',
         bg: 'rgba(107, 114, 128, 0.12)',
         border: 'rgba(107, 114, 128, 0.4)',
     },
     advance: {
         fg: 'var(--color-primary)',
+        accent: 'var(--color-primary)',
         bg: 'rgba(22, 119, 255, 0.12)',
         border: 'rgba(22, 119, 255, 0.4)',
     },
     enterprise: {
-        // White text + icon read clearly on both the gradient header and the
-        // purple-tinted bg; keeps the purple identity through bg/border.
+        // White reads on the dark nav header; the solid purple accent
+        // reads on the light purple-tinted card in both themes.
         fg: '#ffffff',
+        accent: '#722ed1',
         bg: 'rgba(114, 46, 209, 0.12)',
         border: 'rgba(114, 46, 209, 0.4)',
     },
     invalid: {
         fg: 'var(--color-danger)',
+        accent: 'var(--color-danger)',
         bg: 'rgba(255, 77, 79, 0.12)',
         border: 'rgba(255, 77, 79, 0.4)',
     },
