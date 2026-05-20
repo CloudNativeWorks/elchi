@@ -2735,13 +2735,12 @@ const ApiDiscoveryEndpointDetail: React.FC = () => {
                     padding: '20px 24px',
                     marginBottom: 16,
                     display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    flexWrap: 'wrap',
-                    gap: 16,
+                    flexDirection: 'column',
+                    gap: 14,
                 }}
             >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14, minWidth: 0 }}>
+                {/* Top row — identity (back, icon, title, meta). */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, minWidth: 0, flexWrap: 'wrap' }}>
                     <BackButton
                         onClick={() => navigate(`/api-discovery/${encodeURIComponent(listenerName)}`)}
                     />
@@ -2866,38 +2865,51 @@ const ApiDiscoveryEndpointDetail: React.FC = () => {
                 </div>
 
                 {doc && (
-                    <Space size={20} wrap>
-                        <Tooltip title={`Exact: ${(doc.seen_count ?? 0).toLocaleString()}`}>
-                            <div>
-                                <KpiPill
-                                    label="Calls"
-                                    value={formatCompactNumber(doc.seen_count ?? 0)}
-                                    accent="var(--color-primary)"
-                                />
-                            </div>
-                        </Tooltip>
-                        <KpiPill
-                            label="Max latency"
-                            value={
-                                doc.latency_max_ms
-                                    ? doc.latency_max_ms < 1000
-                                        ? `${doc.latency_max_ms.toFixed(0)}ms`
-                                        : `${(doc.latency_max_ms / 1000).toFixed(1)}s`
-                                    : '—'
-                            }
-                            accent="var(--color-warning)"
-                        />
-                        <KpiPill
-                            label="Risk"
-                            value={String(doc.max_risk_score ?? 0)}
-                            accent={
-                                (doc.max_risk_score ?? 0) >= 25
-                                    ? 'var(--color-error)'
-                                    : (doc.max_risk_score ?? 0) >= 10
-                                        ? 'var(--color-warning)'
-                                        : '#d4a012'
-                            }
-                        />
+                    /* Bottom row — KPIs left, actions right, divider above. */
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            flexWrap: 'wrap',
+                            gap: 12,
+                            paddingTop: 14,
+                            borderTop: '1px solid var(--border-default)',
+                        }}
+                    >
+                        <Space size={24} wrap>
+                            <Tooltip title={`Exact: ${(doc.seen_count ?? 0).toLocaleString()}`}>
+                                <div>
+                                    <KpiPill
+                                        label="Calls"
+                                        value={formatCompactNumber(doc.seen_count ?? 0)}
+                                        accent="var(--color-primary)"
+                                    />
+                                </div>
+                            </Tooltip>
+                            <KpiPill
+                                label="Max latency"
+                                value={
+                                    doc.latency_max_ms
+                                        ? doc.latency_max_ms < 1000
+                                            ? `${doc.latency_max_ms.toFixed(0)}ms`
+                                            : `${(doc.latency_max_ms / 1000).toFixed(1)}s`
+                                        : '—'
+                                }
+                                accent="var(--color-warning)"
+                            />
+                            <KpiPill
+                                label="Risk"
+                                value={String(doc.max_risk_score ?? 0)}
+                                accent={
+                                    (doc.max_risk_score ?? 0) >= 25
+                                        ? 'var(--color-error)'
+                                        : (doc.max_risk_score ?? 0) >= 10
+                                            ? 'var(--color-warning)'
+                                            : '#d4a012'
+                                }
+                            />
+                        </Space>
                         {isAdminOrOwner && (
                             <Dropdown
                                 trigger={['click']}
@@ -2922,7 +2934,7 @@ const ApiDiscoveryEndpointDetail: React.FC = () => {
                                 <Button icon={<MoreOutlined />}>Actions</Button>
                             </Dropdown>
                         )}
-                    </Space>
+                    </div>
                 )}
             </div>
 

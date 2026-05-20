@@ -44,7 +44,7 @@ import {
     riskFlagLabel,
 } from './lib/riskFlagCatalog';
 import EndpointPath from './components/EndpointPath';
-import type { InventoryDoc, InventoryListParams, InventoryListSortField } from './types';
+import type { InventoryDoc, InventoryListParams, InventoryListSortField, ListenerSummary } from './types';
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -242,7 +242,9 @@ const ApiDiscoveryEndpoints: React.FC = () => {
         { listener_name: listenerName, limit: 1, offset: 0 },
         !!project && !!listenerName,
     );
-    const summary = summaryQuery.data?.data?.find((s) => s.listener_name === listenerName);
+    const summary = summaryQuery.data?.data?.find(
+        (s: ListenerSummary) => s.listener_name === listenerName,
+    );
 
     // ---------- Inventory list ----------
     const listParams = useMemo<InventoryListParams>(
@@ -539,45 +541,51 @@ const ApiDiscoveryEndpoints: React.FC = () => {
                     marginBottom: 16,
                 }}
             >
+                {/* Top row — identity (back, icon, title, subtitle). */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+                    <BackButton onClick={() => navigate('/api-discovery')} />
+                    <div
+                        style={{
+                            width: 44,
+                            height: 44,
+                            borderRadius: 10,
+                            background: 'var(--color-primary)',
+                            color: '#fff',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: 22,
+                            boxShadow: '0 4px 12px rgba(10, 127, 218, 0.25)',
+                            flexShrink: 0,
+                        }}
+                    >
+                        <EyeOutlined />
+                    </div>
+                    <div style={{ minWidth: 0 }}>
+                        <Title level={3} style={{ margin: 0, lineHeight: 1.2 }}>
+                            {listenerName}
+                        </Title>
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                            Endpoints discovered under this listener. Click any path to drill into
+                            its events, analytics, and geo insights.
+                        </Text>
+                    </div>
+                </div>
+
+                {/* KPI / action row — divider above; KPIs left, Refresh right. */}
                 <div
                     style={{
                         display: 'flex',
-                        alignItems: 'center',
                         justifyContent: 'space-between',
+                        alignItems: 'center',
                         flexWrap: 'wrap',
-                        gap: 16,
+                        gap: 12,
+                        marginTop: 14,
+                        paddingTop: 14,
+                        borderTop: '1px solid var(--border-default)',
                     }}
                 >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                        <BackButton onClick={() => navigate('/api-discovery')} />
-                        <div
-                            style={{
-                                width: 44,
-                                height: 44,
-                                borderRadius: 10,
-                                background: 'var(--color-primary)',
-                                color: '#fff',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontSize: 22,
-                                boxShadow: '0 4px 12px rgba(10, 127, 218, 0.25)',
-                            }}
-                        >
-                            <EyeOutlined />
-                        </div>
-                        <div>
-                            <Title level={3} style={{ margin: 0, lineHeight: 1.2 }}>
-                                {listenerName}
-                            </Title>
-                            <Text type="secondary" style={{ fontSize: 12 }}>
-                                Endpoints discovered under this listener. Click any path to drill into
-                                its events, analytics, and geo insights.
-                            </Text>
-                        </div>
-                    </div>
-
-                    <Space size={20} wrap>
+                    <Space size={24} wrap>
                         <KpiPill
                             label="Endpoints"
                             value={formatCompactNumber(summary?.normalized_path_count ?? 0)}
@@ -593,17 +601,17 @@ const ApiDiscoveryEndpoints: React.FC = () => {
                             value={formatCompactNumber(summary?.risk_flags?.length ?? 0)}
                             accent="var(--color-warning)"
                         />
-                        <Button
-                            icon={<ReloadOutlined spin={isFetching || summaryQuery.isFetching} />}
-                            onClick={() => {
-                                summaryQuery.refetch();
-                                refetch();
-                            }}
-                            loading={isFetching || summaryQuery.isFetching}
-                        >
-                            Refresh
-                        </Button>
                     </Space>
+                    <Button
+                        icon={<ReloadOutlined spin={isFetching || summaryQuery.isFetching} />}
+                        onClick={() => {
+                            summaryQuery.refetch();
+                            refetch();
+                        }}
+                        loading={isFetching || summaryQuery.isFetching}
+                    >
+                        Refresh
+                    </Button>
                 </div>
 
                 {/* Sub-strip — visual extras (hosts chips, status bar, risk chips)
@@ -626,7 +634,7 @@ const ApiDiscoveryEndpoints: React.FC = () => {
                                     Hosts
                                 </Text>
                                 <Space size={[6, 6]} wrap>
-                                    {summary.hostnames.slice(0, 6).map((h) => (
+                                    {summary.hostnames.slice(0, 6).map((h: string) => (
                                         <Tag
                                             key={h}
                                             className="auto-width-tag"
@@ -1028,16 +1036,27 @@ const ApiDiscoveryEndpoints: React.FC = () => {
                         // when the column has a dataIndex (the Risk column has
                         // a `key` but no dataIndex) — prefer columnKey.
                         const field = String(s?.columnKey ?? s?.field ?? '');
+                        let nextBy = sortBy;
+                        let nextOrder: 'asc' | 'desc';
                         if (s?.order && SORT_FIELDS.includes(field as InventoryListSortField)) {
-                            const order = s.order === 'descend' ? 'desc' : 'asc';
-                            setSortBy(field as InventoryListSortField);
-                            setSortOrder(order);
-                            const next = new URLSearchParams(searchParams);
-                            next.set('sort_by', field);
-                            next.set('sort_order', order);
-                            next.set('offset', '0'); // reset on sort change
-                            setSearchParams(next, { replace: true });
+                            // A column reported a concrete ascend/descend.
+                            nextBy = field as InventoryListSortField;
+                            nextOrder = s.order === 'descend' ? 'desc' : 'asc';
+                        } else {
+                            // antd's 3rd-click "cancel sorting" — but a
+                            // server-sorted table must always stay sorted, so
+                            // reinterpret the cancel as flipping the active
+                            // column's direction (otherwise the column gets
+                            // stuck and can't be toggled back).
+                            nextOrder = sortOrder === 'desc' ? 'asc' : 'desc';
                         }
+                        setSortBy(nextBy);
+                        setSortOrder(nextOrder);
+                        const next = new URLSearchParams(searchParams);
+                        next.set('sort_by', nextBy);
+                        next.set('sort_order', nextOrder);
+                        next.set('offset', '0'); // reset on sort change
+                        setSearchParams(next, { replace: true });
                     }}
                     pagination={{
                         current: data?.current_page ?? 1,

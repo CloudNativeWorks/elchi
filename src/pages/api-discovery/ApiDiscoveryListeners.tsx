@@ -601,13 +601,12 @@ const ApiDiscoveryListeners: React.FC = () => {
                     padding: '20px 24px',
                     marginBottom: 16,
                     display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    flexWrap: 'wrap',
-                    gap: 16,
+                    flexDirection: 'column',
+                    gap: 14,
                 }}
             >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                {/* Top row — identity (icon + title + subtitle). */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
                     <div
                         style={{
                             width: 44,
@@ -620,11 +619,12 @@ const ApiDiscoveryListeners: React.FC = () => {
                             justifyContent: 'center',
                             fontSize: 22,
                             boxShadow: '0 4px 12px rgba(10, 127, 218, 0.25)',
+                            flexShrink: 0,
                         }}
                     >
                         <EyeOutlined />
                     </div>
-                    <div>
+                    <div style={{ minWidth: 0 }}>
                         <Title level={3} style={{ margin: 0, lineHeight: 1.2 }}>
                             API Discovery
                         </Title>
@@ -645,35 +645,49 @@ const ApiDiscoveryListeners: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Inline KPI summary — page-scoped quick glance */}
-                <Space size={20} wrap>
-                    <KpiPill
-                        label="Listeners"
-                        value={formatCompactNumber(totalCount)}
-                        accent="var(--color-primary)"
-                    />
-                    <KpiPill
-                        label="Endpoints"
-                        value={formatCompactNumber(headerStats.totalEndpoints)}
-                        accent="var(--color-success)"
-                    />
-                    <KpiPill
-                        label="With risk"
-                        value={formatCompactNumber(headerStats.withRisk)}
-                        accent="var(--color-warning)"
-                    />
-                    <Link to="/api-discovery/risks">
-                        <Button icon={<ReadOutlined />}>Risk guide</Button>
-                    </Link>
-                    {isAdminOrOwner && <StaleCleanupAction onDone={() => refetch()} />}
-                    <Button
-                        icon={<ReloadOutlined spin={isFetching} />}
-                        onClick={() => refetch()}
-                        loading={isFetching}
-                    >
-                        Refresh
-                    </Button>
-                </Space>
+                {/* KPI / action row — divider above; KPIs left, actions right. */}
+                <div
+                    style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        flexWrap: 'wrap',
+                        gap: 12,
+                        paddingTop: 14,
+                        borderTop: '1px solid var(--border-default)',
+                    }}
+                >
+                    <Space size={24} wrap>
+                        <KpiPill
+                            label="Listeners"
+                            value={formatCompactNumber(totalCount)}
+                            accent="var(--color-primary)"
+                        />
+                        <KpiPill
+                            label="Endpoints"
+                            value={formatCompactNumber(headerStats.totalEndpoints)}
+                            accent="var(--color-success)"
+                        />
+                        <KpiPill
+                            label="With risk"
+                            value={formatCompactNumber(headerStats.withRisk)}
+                            accent="var(--color-warning)"
+                        />
+                    </Space>
+                    <Space size={8} wrap>
+                        <Link to="/api-discovery/risks">
+                            <Button icon={<ReadOutlined />}>Risk guide</Button>
+                        </Link>
+                        {isAdminOrOwner && <StaleCleanupAction onDone={() => refetch()} />}
+                        <Button
+                            icon={<ReloadOutlined spin={isFetching} />}
+                            onClick={() => refetch()}
+                            loading={isFetching}
+                        >
+                            Refresh
+                        </Button>
+                    </Space>
+                </div>
             </div>
 
             {/* Normalization gaps — un-normalized path prefixes to fix */}
