@@ -34,6 +34,8 @@ import type {
     ErrorsResponse,
     InventoryErrorsParams,
     NormalizeGapsResponse,
+    OperationsResponse,
+    OperationsListParams,
 } from '@/pages/api-discovery/types';
 
 const INVENTORY_PATH = 'inventory'; // Config.baseApi already adds /api/v3/
@@ -93,6 +95,38 @@ export const useApiInventory = (
         path: `${INVENTORY_PATH}?${buildQuery(project, params)}`,
     }) as ReturnType<typeof useCustomGetQuery> & {
         data?: PaginatedResponse<InventoryDoc>;
+    };
+};
+
+// ---------- /inventory/attack-surface — confirmed:false probe/scanner noise ----------
+// Same flat schema as /inventory; only un-confirmed docs.
+export const useApiInventoryAttackSurface = (
+    params: InventoryListParams = {},
+    enabled = true,
+) => {
+    const { project } = useProjectVariable();
+    return useCustomGetQuery({
+        queryKey: `inventory_attack_surface_${project}_${stableKey(params)}`,
+        enabled: enabled && !!project,
+        path: `${INVENTORY_PATH}/attack-surface?${buildQuery(project, params)}`,
+    }) as ReturnType<typeof useCustomGetQuery> & {
+        data?: PaginatedResponse<InventoryDoc>;
+    };
+};
+
+// ---------- /inventory/operations — path-grouped catalog ----------
+// One row per (host, normalized_path); methods nested under operations[].
+export const useApiInventoryOperations = (
+    params: OperationsListParams = {},
+    enabled = true,
+) => {
+    const { project } = useProjectVariable();
+    return useCustomGetQuery({
+        queryKey: `inventory_operations_${project}_${stableKey(params)}`,
+        enabled: enabled && !!project,
+        path: `${INVENTORY_PATH}/operations?${buildQuery(project, params)}`,
+    }) as ReturnType<typeof useCustomGetQuery> & {
+        data?: OperationsResponse;
     };
 };
 

@@ -16,21 +16,30 @@ import {
     Row,
     Col,
     Divider,
+    Segmented,
+    Dropdown,
+    message,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
     EyeOutlined,
     ReloadOutlined,
     FilterOutlined,
+    DownloadOutlined,
 } from '@ant-design/icons';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import dayjs from 'dayjs';
 import { formatDistanceToNow } from 'date-fns';
+import { api } from '@/common/api';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import {
     useApiInventory,
     useApiInventoryListeners,
+    useApiInventoryAttackSurface,
+    useApiInventoryOperations,
 } from '@/hooks/useApiDiscovery';
+import AuthPostureBadge from './components/AuthPostureBadge';
+import AuthSchemesBadge from './components/AuthSchemesBadge';
 import StatusDistBar from './components/StatusDistBar';
 import RiskFlagChips from './components/RiskFlagChips';
 import InfoLabel from './components/InfoLabel';
@@ -44,7 +53,15 @@ import {
     riskFlagLabel,
 } from './lib/riskFlagCatalog';
 import EndpointPath from './components/EndpointPath';
-import type { InventoryDoc, InventoryListParams, InventoryListSortField, ListenerSummary } from './types';
+import type {
+    InventoryDoc,
+    InventoryListParams,
+    InventoryListSortField,
+    ListenerSummary,
+    OperationGroup,
+    OperationsListParams,
+    OperationsSortField,
+} from './types';
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -104,6 +121,14 @@ const SORT_FIELDS: InventoryListSortField[] = [
     'max_risk_score',
     'seen_count',
     'latency_max_ms',
+];
+
+// Sort whitelist for the path-grouped /operations endpoint.
+const OPERATIONS_SORT_FIELDS: OperationsSortField[] = [
+    'last_seen',
+    'total_seen',
+    'max_risk_score',
+    'operation_count',
 ];
 
 const DEFAULT_FILTERS: FilterState = {
@@ -166,9 +191,9 @@ const ApiDiscoveryEndpoints: React.FC = () => {
 
         const hasUrl = Array.from(searchParams.keys()).some((k) =>
             ['method', 'protocol', 'risk_flag', 'pii_category', 'endpoint_category',
-             'min_risk_score', 'max_risk_score', 'host', 'normalized_path',
-             'last_seen_from', 'last_seen_to', 'country', 'asn',
-             'source_ip', 'user_agent'].includes(k),
+                'min_risk_score', 'max_risk_score', 'host', 'normalized_path',
+                'last_seen_from', 'last_seen_to', 'country', 'asn',
+                'source_ip', 'user_agent'].includes(k),
         );
         if (hasUrl) return { ...DEFAULT_FILTERS, ...fromUrl } as FilterState;
         return DEFAULT_FILTERS;
@@ -176,16 +201,48 @@ const ApiDiscoveryEndpoints: React.FC = () => {
 
     const [filters, setFilters] = useState<FilterState>(hydrate);
     const [draftFilters, setDraftFilters] = useState<FilterState>(filters);
-    const [sortBy, setSortBy] = useState<InventoryListSortField>(() => {
-        const fromUrl = searchParams.get('sort_by') as InventoryListSortField | null;
-        return fromUrl && SORT_FIELDS.includes(fromUrl) ? fromUrl : 'last_seen';
-    });
+    const [sortBy, setSortBy] = useState<string>(() => searchParams.get('sort_by') || 'last_seen');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(
         (searchParams.get('sort_order') as any) ?? 'desc',
     );
     const urlLimit =
         parseInt(searchParams.get('limit') ?? String(DEFAULT_LIMIT), 10) || DEFAULT_LIMIT;
     const urlOffset = parseInt(searchParams.get('offset') ?? '0', 10) || 0;
+
+    // ---------- Catalog source + layout (URL-synced) ----------
+    // source: confirmed (real endpoints, /inventory) vs attack (probe /
+    // scanner noise, /attack-surface). layout: flat per-operation vs
+    // path-grouped (/operations) — grouped only applies to confirmed.
+    const source: 'confirmed' | 'attack' =
+        searchParams.get('source') === 'attack' ? 'attack' : 'confirmed';
+    const layout: 'flat' | 'grouped' =
+        source === 'confirmed' && searchParams.get('layout') === 'grouped' ? 'grouped' : 'flat';
+    const isAttack = source === 'attack';
+    const isGrouped = layout === 'grouped';
+
+    // Switching catalog source / layout resets pagination + sort (the sort
+    // whitelists differ between flat and grouped endpoints).
+    const switchView = (next: URLSearchParams) => {
+        next.set('offset', '0');
+        next.set('sort_by', 'last_seen');
+        next.set('sort_order', 'desc');
+        setSortBy('last_seen');
+        setSortOrder('desc');
+        setSearchParams(next, { replace: true });
+    };
+    const setSource = (next: 'confirmed' | 'attack') => {
+        const np = new URLSearchParams(searchParams);
+        if (next === 'confirmed') np.delete('source');
+        else np.set('source', next);
+        np.delete('layout'); // grouped is confirmed-only
+        switchView(np);
+    };
+    const setLayout = (next: 'flat' | 'grouped') => {
+        const np = new URLSearchParams(searchParams);
+        if (next === 'flat') np.delete('layout');
+        else np.set('layout', next);
+        switchView(np);
+    };
 
     const applyFilters = () => {
         setFilters(draftFilters);
@@ -267,7 +324,7 @@ const ApiDiscoveryEndpoints: React.FC = () => {
             asn: filters.asn?.trim() || undefined,
             source_ip: filters.source_ip?.trim() || undefined,
             user_agent: filters.user_agent?.trim() || undefined,
-            sort_by: sortBy,
+            sort_by: sortBy as InventoryListSortField,
             sort_order: sortOrder,
             limit: urlLimit,
             offset: urlOffset,
@@ -275,10 +332,61 @@ const ApiDiscoveryEndpoints: React.FC = () => {
         [listenerName, filters, sortBy, sortOrder, urlLimit, urlOffset],
     );
 
-    const { data, isLoading, isFetching, refetch, error } = useApiInventory(
-        listParams,
-        !!project && !!listenerName,
+    // Path-grouped query params — /operations shares the exact /inventory
+    // filter parser (same SINGULAR param names), so we reuse listParams and
+    // only swap in the operations-specific sort field.
+    const opsParams = useMemo<OperationsListParams>(
+        () => ({ ...listParams, sort_by: sortBy as OperationsSortField }),
+        [listParams, sortBy],
     );
+
+    const ready = !!project && !!listenerName;
+    // Only the active view's query runs (the others are disabled).
+    const flatQuery = useApiInventory(listParams, ready && source === 'confirmed' && !isGrouped);
+    const attackQuery = useApiInventoryAttackSurface(listParams, ready && isAttack);
+    const opsQuery = useApiInventoryOperations(opsParams, ready && isGrouped);
+
+    // The flat table is shared by confirmed-flat and attack-surface views.
+    const flatActive = isAttack ? attackQuery : flatQuery;
+    const flatData = flatActive.data;
+    const opsData = opsQuery.data;
+    const isLoading = isGrouped ? opsQuery.isLoading : flatActive.isLoading;
+    const isFetching = isGrouped ? opsQuery.isFetching : flatActive.isFetching;
+    const error = isGrouped ? opsQuery.error : flatActive.error;
+    const refetch = () => (isGrouped ? opsQuery.refetch() : flatActive.refetch());
+
+    // ---------- OpenAPI export ----------
+    // Auth is a Bearer header, so a plain <a download> would 401 — fetch the
+    // spec through the axios instance as a blob, then trigger the download.
+    const [exporting, setExporting] = useState(false);
+    const exportOpenApi = async (format: 'yaml' | 'json') => {
+        if (!project) return;
+        setExporting(true);
+        try {
+            const qp = new URLSearchParams({ project, format });
+            if (listenerName) qp.set('listener_name', listenerName);
+            if (filters.host?.trim()) qp.set('host', filters.host.trim());
+            const res = await api.get(`/api/v3/inventory/openapi?${qp.toString()}`, {
+                responseType: 'blob',
+            });
+            const cd = String(res.headers?.['content-disposition'] ?? '');
+            const m = /filename="?([^"]+)"?/.exec(cd);
+            const filename = m?.[1] || `openapi-${project}.${format}`;
+            const url = URL.createObjectURL(res.data as Blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+            message.success(`OpenAPI spec downloaded (${format.toUpperCase()})`);
+        } catch {
+            message.error('OpenAPI export failed.');
+        } finally {
+            setExporting(false);
+        }
+    };
 
     const columns: ColumnsType<InventoryDoc> = [
         {
@@ -524,6 +632,208 @@ const ApiDiscoveryEndpoints: React.FC = () => {
         },
     ];
 
+    // Per-operation breakdown shown when a path-group is expanded.
+    // A lightweight custom layout (not a nested antd Table) — an inline
+    // table-in-a-table renders a heavy second header that looks out of place.
+    const renderOperationsExpand = (group: OperationGroup) => {
+        const W = { method: 80, protocol: 76, calls: 70, auth: 158, last: 120, detail: 56 };
+        const head = (label: string, w?: number, align: 'left' | 'right' = 'left') => (
+            <div
+                style={{
+                    width: w,
+                    flex: w ? undefined : 1,
+                    minWidth: w ? undefined : 180,
+                    textAlign: align,
+                    fontSize: 10,
+                    textTransform: 'uppercase',
+                    letterSpacing: 0.6,
+                    color: 'var(--text-tertiary)',
+                    fontWeight: 600,
+                }}
+            >
+                {label}
+            </div>
+        );
+        const ops = group.operations ?? [];
+        return (
+            <div>
+                {/* light header row */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '0 2px 8px', borderBottom: '1px solid var(--border-default)' }}>
+                    {head('Method', W.method)}
+                    {head('Protocol', W.protocol)}
+                    {head('Calls', W.calls)}
+                    {head('Auth', W.auth)}
+                    {head('Risk')}
+                    {head('Last seen', W.last, 'right')}
+                    <div style={{ width: W.detail }} />
+                </div>
+                {ops.map((op, i) => (
+                    <div
+                        key={`${op.method}__${op._id ?? op.protocol}__${i}`}
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: 14,
+                            padding: '9px 2px',
+                            borderTop: i === 0 ? 'none' : '1px solid var(--border-default)',
+                        }}
+                    >
+                        <div style={{ width: W.method }}>
+                            <Tag color={METHOD_COLOR[op.method] ?? 'default'} className="auto-width-tag" style={{ margin: 0, fontSize: 11 }}>
+                                {op.method || '—'}
+                            </Tag>
+                        </div>
+                        <div style={{ width: W.protocol }}>
+                            <Text style={{ fontSize: 12 }}>{op.protocol || '—'}</Text>
+                        </div>
+                        <div style={{ width: W.calls }}>
+                            <Text style={{ fontSize: 12, fontVariantNumeric: 'tabular-nums' }}>{formatCompactNumber(op.seen_count ?? 0)}</Text>
+                        </div>
+                        <div style={{ width: W.auth }}>
+                            <Space direction="vertical" size={2}>
+                                <AuthPostureBadge authObserved={op.auth_observed} noauthObserved={op.noauth_observed} size="sm" />
+                                <AuthSchemesBadge schemes={op.auth_schemes} size="sm" />
+                            </Space>
+                        </div>
+                        <div style={{ flex: 1, minWidth: 180 }}>
+                            <Space size={6} wrap>
+                                <Tag style={{ margin: 0, fontSize: 11 }}>{op.max_risk_score ?? 0}</Tag>
+                                <RiskFlagChips flags={op.risk_flags} max={3} />
+                            </Space>
+                        </div>
+                        <div style={{ width: W.last, textAlign: 'right' }}>
+                            {op.last_seen ? (
+                                <Tooltip title={new Date(op.last_seen).toISOString()}>
+                                    <Text type="secondary" style={{ fontSize: 12 }}>
+                                        {formatDistanceToNow(new Date(op.last_seen), { addSuffix: true })}
+                                    </Text>
+                                </Tooltip>
+                            ) : (
+                                <Text type="secondary">—</Text>
+                            )}
+                        </div>
+                        <div style={{ width: W.detail, textAlign: 'right' }}>
+                            {/* operations[] carries _id only if the backend adds
+                               it to the $push; until then this stays empty
+                               rather than a column of dashes. */}
+                            {op._id && (
+                                <Link to={`/api-discovery/${encodeURIComponent(listenerName)}/endpoints/${op._id}`}>
+                                    <Tooltip title="Open operation detail">
+                                        <Button type="link" size="small" icon={<EyeOutlined />} style={{ padding: 0 }} />
+                                    </Tooltip>
+                                </Link>
+                            )}
+                        </div>
+                    </div>
+                ))}
+            </div>
+        );
+    };
+
+    // Mode-aware sort whitelist + shared handler (cancel-click flips the
+    // direction so a server-sorted table never gets stuck).
+    const activeSortFields: string[] = isGrouped ? OPERATIONS_SORT_FIELDS : SORT_FIELDS;
+    const handleTableSort = (sorter: any, extra: { action: string }) => {
+        if (extra.action !== 'sort') return;
+        const s = Array.isArray(sorter) ? sorter[0] : sorter;
+        const field = String(s?.columnKey ?? s?.field ?? '');
+        let nextBy = sortBy;
+        let nextOrder: 'asc' | 'desc';
+        if (s?.order && activeSortFields.includes(field)) {
+            nextBy = field;
+            nextOrder = s.order === 'descend' ? 'desc' : 'asc';
+        } else {
+            nextOrder = sortOrder === 'desc' ? 'asc' : 'desc';
+        }
+        setSortBy(nextBy);
+        setSortOrder(nextOrder);
+        const next = new URLSearchParams(searchParams);
+        next.set('sort_by', nextBy);
+        next.set('sort_order', nextOrder);
+        next.set('offset', '0');
+        setSearchParams(next, { replace: true });
+    };
+
+    const opsColumns: ColumnsType<OperationGroup> = [
+        {
+            title: 'Path',
+            dataIndex: 'normalized_path',
+            key: 'normalized_path',
+            render: (p: string) => <EndpointPath path={p} />,
+        },
+        {
+            title: 'Host',
+            dataIndex: 'host',
+            key: 'host',
+            width: 200,
+            ellipsis: true,
+            render: (h: string) =>
+                h ? (
+                    <Text style={{ fontSize: 12, fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace', color: 'var(--text-secondary)' }}>{h}</Text>
+                ) : (
+                    <Text type="secondary" style={{ fontSize: 11 }}>—</Text>
+                ),
+        },
+        {
+            title: 'Methods',
+            dataIndex: 'methods',
+            key: 'methods',
+            width: 200,
+            render: (methods: string[]) => (
+                <Space size={4} wrap>
+                    {(methods ?? []).map((m) => (
+                        <Tag key={m} color={METHOD_COLOR[m] ?? 'default'} className="auto-width-tag" style={{ margin: 0, fontSize: 10 }}>
+                            {m}
+                        </Tag>
+                    ))}
+                </Space>
+            ),
+        },
+        {
+            title: 'Ops',
+            dataIndex: 'operation_count',
+            key: 'operation_count',
+            width: 80,
+            sorter: true,
+            sortOrder: sortBy === 'operation_count' ? (sortOrder === 'desc' ? 'descend' : 'ascend') : null,
+            render: (n: number) => <Text style={{ fontSize: 12, fontVariantNumeric: 'tabular-nums' }}>{n ?? 0}</Text>,
+        },
+        {
+            title: 'Calls',
+            dataIndex: 'total_seen',
+            key: 'total_seen',
+            width: 110,
+            sorter: true,
+            sortOrder: sortBy === 'total_seen' ? (sortOrder === 'desc' ? 'descend' : 'ascend') : null,
+            render: (n: number) => <Text style={{ fontSize: 12, fontVariantNumeric: 'tabular-nums' }}>{formatCompactNumber(n ?? 0)}</Text>,
+        },
+        {
+            title: 'Risk',
+            dataIndex: 'max_risk_score',
+            key: 'max_risk_score',
+            width: 90,
+            sorter: true,
+            sortOrder: sortBy === 'max_risk_score' ? (sortOrder === 'desc' ? 'descend' : 'ascend') : null,
+            render: (n: number) => <Tag className='auto-width-tag' style={{ margin: 0, fontSize: 11 }}>{n ?? 0}</Tag>,
+        },
+        {
+            title: 'Last Seen',
+            dataIndex: 'last_seen',
+            key: 'last_seen',
+            width: 150,
+            sorter: true,
+            sortOrder: sortBy === 'last_seen' ? (sortOrder === 'desc' ? 'descend' : 'ascend') : null,
+            render: (ts: string) =>
+                ts ? (
+                    <Tooltip title={new Date(ts).toISOString()}>
+                        <Text type="secondary" style={{ fontSize: 12 }}>{formatDistanceToNow(new Date(ts), { addSuffix: true })}</Text>
+                    </Tooltip>
+                ) : (
+                    <Text type="secondary">—</Text>
+                ),
+        },
+    ];
+
     return (
         <div style={{ padding: '0px' }}>
             {/* Hero header — same pattern as Page 1: gradient bg, icon
@@ -602,16 +912,32 @@ const ApiDiscoveryEndpoints: React.FC = () => {
                             accent="var(--color-warning)"
                         />
                     </Space>
-                    <Button
-                        icon={<ReloadOutlined spin={isFetching || summaryQuery.isFetching} />}
-                        onClick={() => {
-                            summaryQuery.refetch();
-                            refetch();
-                        }}
-                        loading={isFetching || summaryQuery.isFetching}
-                    >
-                        Refresh
-                    </Button>
+                    <Space size={8} wrap>
+                        <Dropdown
+                            trigger={['click']}
+                            disabled={exporting}
+                            menu={{
+                                items: [
+                                    { key: 'yaml', label: 'Download YAML', onClick: () => exportOpenApi('yaml') },
+                                    { key: 'json', label: 'Download JSON', onClick: () => exportOpenApi('json') },
+                                ],
+                            }}
+                        >
+                            <Button icon={<DownloadOutlined />} loading={exporting}>
+                                Export OpenAPI
+                            </Button>
+                        </Dropdown>
+                        <Button
+                            icon={<ReloadOutlined spin={isFetching || summaryQuery.isFetching} />}
+                            onClick={() => {
+                                summaryQuery.refetch();
+                                refetch();
+                            }}
+                            loading={isFetching || summaryQuery.isFetching}
+                        >
+                            Refresh
+                        </Button>
+                    </Space>
                 </div>
 
                 {/* Sub-strip — visual extras (hosts chips, status bar, risk chips)
@@ -948,9 +1274,9 @@ const ApiDiscoveryEndpoints: React.FC = () => {
                                                 value={
                                                     draftFilters.last_seen_from && draftFilters.last_seen_to
                                                         ? [
-                                                              dayjs(draftFilters.last_seen_from),
-                                                              dayjs(draftFilters.last_seen_to),
-                                                          ]
+                                                            dayjs(draftFilters.last_seen_from),
+                                                            dayjs(draftFilters.last_seen_to),
+                                                        ]
                                                         : null
                                                 }
                                                 onChange={(dates) => {
@@ -993,88 +1319,124 @@ const ApiDiscoveryEndpoints: React.FC = () => {
                 />
             </Card>
 
+            {/* Catalog controls — confirmed vs attack-surface, flat vs grouped */}
+            <div
+                className="api-discovery-toggles"
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16, marginBottom: 12 }}
+            >
+                <Space size={24} wrap>
+                    <Space size={10}>
+                        <span className="toggle-label">Catalog</span>
+                        <Segmented
+                            value={source}
+                            onChange={(v) => setSource(v as 'confirmed' | 'attack')}
+                            options={[
+                                { label: 'Confirmed', value: 'confirmed' },
+                                { label: 'Attack surface', value: 'attack' },
+                            ]}
+                        />
+                    </Space>
+                    {!isAttack && (
+                        <Space size={10}>
+                            <span className="toggle-label">View</span>
+                            <Segmented
+                                value={layout}
+                                onChange={(v) => setLayout(v as 'flat' | 'grouped')}
+                                options={[
+                                    { label: 'Flat', value: 'flat' },
+                                    { label: 'Group by path', value: 'grouped' },
+                                ]}
+                            />
+                        </Space>
+                    )}
+                </Space>
+                {isAttack && (
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                        Probe / scanner noise (unconfirmed) — <code>/.env</code>, <code>/cgi-bin</code> probes, SPA-fallback 200s. Not part of the real API catalog.
+                    </Text>
+                )}
+            </div>
+
             {/* Table */}
             <Card size="small" style={{ borderRadius: 10, border: '1px solid var(--border-default)' }} styles={{ body: { padding: 0 } }}>
-                <Table<InventoryDoc>
-                    className="api-discovery-endpoints-table"
-                    rowKey="_id"
-                    columns={columns}
-                    scroll={{ x: 'max-content' }}
-                    dataSource={data?.data ?? []}
-                    loading={isLoading}
-                    size="middle"
-                    rowClassName={() => 'api-discovery-endpoint-row'}
-                    locale={{
-                        emptyText: error ? (
-                            <Empty
-                                description={
-                                    <Text type="secondary">Failed to load endpoints. Try Refresh.</Text>
-                                }
-                            />
-                        ) : (
-                            <Empty
-                                description={
-                                    <Text type="secondary">
-                                        No endpoints match the current filters.
-                                    </Text>
-                                }
-                            />
-                        ),
-                    }}
-                    onChange={(_pag, _filt, sorter, extra) => {
-                        // antd fires Table.onChange for every change kind
-                        // (paginate / sort / filter). We only care about
-                        // sort here — otherwise this handler races with
-                        // pagination.onChange below: it reads the *stale*
-                        // searchParams from closure and re-applies it,
-                        // wiping the offset update the paginate handler
-                        // just wrote. The `extra.action === 'sort'` guard
-                        // is the documented way to scope to sort events.
-                        if (extra.action !== 'sort') return;
-                        const s = Array.isArray(sorter) ? sorter[0] : sorter;
-                        // columnKey is set for every column; field is only set
-                        // when the column has a dataIndex (the Risk column has
-                        // a `key` but no dataIndex) — prefer columnKey.
-                        const field = String(s?.columnKey ?? s?.field ?? '');
-                        let nextBy = sortBy;
-                        let nextOrder: 'asc' | 'desc';
-                        if (s?.order && SORT_FIELDS.includes(field as InventoryListSortField)) {
-                            // A column reported a concrete ascend/descend.
-                            nextBy = field as InventoryListSortField;
-                            nextOrder = s.order === 'descend' ? 'desc' : 'asc';
-                        } else {
-                            // antd's 3rd-click "cancel sorting" — but a
-                            // server-sorted table must always stay sorted, so
-                            // reinterpret the cancel as flipping the active
-                            // column's direction (otherwise the column gets
-                            // stuck and can't be toggled back).
-                            nextOrder = sortOrder === 'desc' ? 'asc' : 'desc';
-                        }
-                        setSortBy(nextBy);
-                        setSortOrder(nextOrder);
-                        const next = new URLSearchParams(searchParams);
-                        next.set('sort_by', nextBy);
-                        next.set('sort_order', nextOrder);
-                        next.set('offset', '0'); // reset on sort change
-                        setSearchParams(next, { replace: true });
-                    }}
-                    pagination={{
-                        current: data?.current_page ?? 1,
-                        pageSize: urlLimit,
-                        total: data?.total_count ?? 0,
-                        showSizeChanger: true,
-                        pageSizeOptions: ['10', '20', '50', '100'],
-                        showQuickJumper: true,
-                        showTotal: (total, range) =>
-                            `${range[0]}–${range[1]} of ${total.toLocaleString()} endpoints`,
-                        onChange: (page, size) => {
-                            const next = new URLSearchParams(searchParams);
-                            next.set('limit', String(size));
-                            next.set('offset', String((page - 1) * size));
-                            setSearchParams(next, { replace: true });
-                        },
-                    }}
-                />
+                {isGrouped ? (
+                    <Table<OperationGroup>
+                        className="api-discovery-endpoints-table"
+                        rowKey={(g) => `${g.host}__${g.normalized_path}`}
+                        columns={opsColumns}
+                        scroll={{ x: 'max-content' }}
+                        dataSource={opsData?.data ?? []}
+                        loading={isLoading}
+                        size="middle"
+                        expandable={{ expandedRowRender: renderOperationsExpand }}
+                        locale={{
+                            emptyText: error ? (
+                                <Empty description={<Text type="secondary">Failed to load endpoints. Try Refresh.</Text>} />
+                            ) : (
+                                <Empty description={<Text type="secondary">No endpoints match the current filters.</Text>} />
+                            ),
+                        }}
+                        onChange={(_pag, _filt, sorter, extra) => handleTableSort(sorter, extra)}
+                        pagination={{
+                            current: opsData?.current_page ?? 1,
+                            pageSize: urlLimit,
+                            total: opsData?.total_count ?? 0,
+                            showSizeChanger: true,
+                            pageSizeOptions: ['10', '20', '50', '100'],
+                            showQuickJumper: true,
+                            showTotal: (total, range) => `${range[0]}–${range[1]} of ${total.toLocaleString()} paths`,
+                            onChange: (page, size) => {
+                                const next = new URLSearchParams(searchParams);
+                                next.set('limit', String(size));
+                                next.set('offset', String((page - 1) * size));
+                                setSearchParams(next, { replace: true });
+                            },
+                        }}
+                    />
+                ) : (
+                    <Table<InventoryDoc>
+                        className="api-discovery-endpoints-table"
+                        rowKey="_id"
+                        columns={columns}
+                        scroll={{ x: 'max-content' }}
+                        dataSource={flatData?.data ?? []}
+                        loading={isLoading}
+                        size="middle"
+                        rowClassName={() => 'api-discovery-endpoint-row'}
+                        locale={{
+                            emptyText: error ? (
+                                <Empty description={<Text type="secondary">Failed to load endpoints. Try Refresh.</Text>} />
+                            ) : (
+                                <Empty
+                                    description={
+                                        <Text type="secondary">
+                                            {isAttack
+                                                ? 'No attack-surface activity — no probe / scanner noise recorded.'
+                                                : 'No endpoints match the current filters.'}
+                                        </Text>
+                                    }
+                                />
+                            ),
+                        }}
+                        onChange={(_pag, _filt, sorter, extra) => handleTableSort(sorter, extra)}
+                        pagination={{
+                            current: flatData?.current_page ?? 1,
+                            pageSize: urlLimit,
+                            total: flatData?.total_count ?? 0,
+                            showSizeChanger: true,
+                            pageSizeOptions: ['10', '20', '50', '100'],
+                            showQuickJumper: true,
+                            showTotal: (total, range) =>
+                                `${range[0]}–${range[1]} of ${total.toLocaleString()} endpoints`,
+                            onChange: (page, size) => {
+                                const next = new URLSearchParams(searchParams);
+                                next.set('limit', String(size));
+                                next.set('offset', String((page - 1) * size));
+                                setSearchParams(next, { replace: true });
+                            },
+                        }}
+                    />
+                )}
             </Card>
 
             <style>{`
@@ -1093,6 +1455,29 @@ const ApiDiscoveryEndpoints: React.FC = () => {
                 .api-discovery-endpoints-table .ant-table-thead > tr > th:last-child,
                 .api-discovery-endpoints-table .ant-table-tbody > tr > td:last-child {
                     padding-right: 20px !important;
+                }
+                /* Expanded path-grouped row: a clean tinted inset holding the
+                 * custom per-operation layout. The outer first/last-cell
+                 * padding (descendant selector) would leak onto this single
+                 * expanded cell, so we set an even inset explicitly. */
+                .api-discovery-endpoints-table .ant-table-expanded-row > td {
+                    background: var(--bg-elevated) !important;
+                    padding: 10px 18px !important;
+                }
+                /* Catalog / View are field titles, not interactive controls. */
+                .api-discovery-toggles .toggle-label {
+                    font-size: 11px;
+                    font-weight: 600;
+                    text-transform: uppercase;
+                    letter-spacing: 0.6px;
+                    color: var(--text-tertiary);
+                    cursor: default;
+                    user-select: none;
+                }
+                /* Separate the segmented options so they don't read as one
+                 * joined bar (and so adjacent hover backgrounds don't merge). */
+                .api-discovery-toggles .ant-segmented .ant-segmented-group {
+                    gap: 4px;
                 }
             `}</style>
         </div>

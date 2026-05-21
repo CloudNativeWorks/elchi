@@ -72,15 +72,21 @@ export interface InventoryDoc {
     endpoint_categories: string[];
     auth_observed: boolean;
     noauth_observed: boolean;
+    /** Observed consumer auth schemes: jwt | mtls | apikey | none. Absent
+     *  when the collector's consumer fingerprinting is disabled. */
+    auth_schemes?: string[];
     consumers: string[];          // hashed
     sample_event_ids: string[];   // hex ObjectIDs (≤5)
-    methods: string[];
     clusters: string[];
     routes: string[];
     content_types: string[];
     /** Web origins (SPA / site) observed calling this endpoint — from the
      *  request Origin header. Absent on docs written by older collectors. */
     origins?: string[];
+    /** true = a real, confirmed endpoint; false = scanner / attack-surface
+     *  noise. The main catalog returns only confirmed docs; the
+     *  /attack-surface endpoint returns the rest. */
+    confirmed?: boolean;
 }
 
 // One row from GET /api/v3/inventory/:id/events (api_events_raw via ClickHouse).
@@ -205,6 +211,64 @@ export interface InventoryListParams {
     /** Raw value cross-filter — exact-match User-Agent string. */
     user_agent?: string;
 }
+
+// ---------- /inventory/operations — path-grouped catalog ----------
+// Each row is one (host, normalized_path) path; its methods are nested
+// under `operations[]`, one entry per HTTP method / gRPC operation.
+
+export interface OperationEntry {
+    /** Mongo _id of the underlying per-operation inventory doc — used to
+     *  deep-link into the endpoint detail page. NOTE: the backend does not
+     *  yet include this in the operations[] $push, so it is currently
+     *  absent; the deep-link is rendered only when present. */
+    _id?: string;
+    method: string;
+    protocol: string;
+    grpc_service: string;
+    grpc_method: string;
+    listener_name?: string;
+    seen_count: number;
+    max_risk_score: number;
+    risk_flags: string[];
+    pii_categories: string[];
+    endpoint_categories: string[];
+    auth_observed: boolean;
+    noauth_observed: boolean;
+    auth_schemes?: string[];
+    latency_max_ms: number;
+    last_seen: string;
+}
+
+export interface OperationGroup {
+    host: string;
+    normalized_path: string;
+    /** The same (host, path) can exist under multiple listeners — the
+     *  backend returns the full set, not a single listener_name. */
+    listeners?: string[];
+    methods: string[];            // the path's method set
+    operation_count: number;
+    total_seen: number;           // path-wide call count
+    max_risk_score: number;
+    first_seen: string;
+    last_seen: string;
+    operations: OperationEntry[];
+}
+
+export type OperationsSortField =
+    | 'last_seen'
+    | 'total_seen'
+    | 'max_risk_score'
+    | 'operation_count';
+
+// /operations shares the exact /inventory filter parser, so its params are
+// identical (SINGULAR risk_flag / endpoint_category / pii_category) — only
+// the sort_by whitelist differs.
+export type OperationsListParams = Omit<InventoryListParams, 'sort_by'> & {
+    sort_by?: OperationsSortField;
+};
+
+// /operations returns the standard pagination envelope (total_count, …).
+export type OperationsResponse = PaginatedResponse<OperationGroup>;
 
 // Backend `/inventory/:id/events` sort whitelist (rawEventsOrderBy).
 export type EventsSortField = 'ts' | 'duration_ms' | 'status_code' | 'risk_score';

@@ -65,6 +65,7 @@ import InfoLabel from './components/InfoLabel';
 import KpiPill from './components/KpiPill';
 import BackButton from './components/BackButton';
 import SamplingBadge from './components/SamplingBadge';
+import AuthSchemesBadge from './components/AuthSchemesBadge';
 import { formatCompactNumber, formatBytes } from './lib/formatNumber';
 import {
     riskFlagLabel,
@@ -462,13 +463,32 @@ const OverviewTab: React.FC<{ doc: InventoryDoc }> = ({ doc }) => {
                                 color="cyan"
                             />
                             <ChipCluster
-                                items={doc.methods}
+                                items={doc.method ? [doc.method] : []}
                                 label={
-                                    <InfoLabel info="Distinct HTTP methods observed on this endpoint URL template.">
-                                        Methods
+                                    <InfoLabel info="The HTTP method of this operation. Each inventory document is a single (method, path, host) operation.">
+                                        Method
                                     </InfoLabel>
                                 }
                             />
+                            {doc.auth_schemes?.length ? (
+                                <div>
+                                    <div style={{ marginBottom: 6 }}>
+                                        <Text type="secondary" style={{ fontSize: 11 }}>
+                                            <InfoLabel info="Consumer auth schemes fingerprinted on this operation. “None” = anonymous or non-fingerprintable auth (Basic / opaque Bearer) — not necessarily unauthenticated. Multiple schemes (e.g. JWT + None) mean some calls were authed and some were not.">
+                                                Auth schemes
+                                            </InfoLabel>
+                                        </Text>
+                                    </div>
+                                    <Space size={6} wrap>
+                                        <AuthSchemesBadge schemes={doc.auth_schemes} />
+                                        {doc.auth_schemes.includes('none') && doc.noauth_observed && (
+                                            <Tooltip title="Requests reached this endpoint with no auth header and a none / unrecognised scheme — it is anonymously reachable.">
+                                                <Tag color="error" style={{ margin: 0 }}>Anonymously reachable</Tag>
+                                            </Tooltip>
+                                        )}
+                                    </Space>
+                                </div>
+                            ) : null}
                             <ChipCluster
                                 items={doc.clusters}
                                 label={
@@ -2983,7 +3003,7 @@ const ApiDiscoveryEndpointDetail: React.FC = () => {
                             ),
                             children: (
                                 <ComponentLoadErrorBoundary componentName="Events">
-                                    <EventsTab id={id!} methods={doc.methods ?? []} />
+                                    <EventsTab id={id!} methods={doc.method ? [doc.method] : []} />
                                 </ComponentLoadErrorBoundary>
                             ),
                         },
@@ -2996,7 +3016,7 @@ const ApiDiscoveryEndpointDetail: React.FC = () => {
                             ),
                             children: (
                                 <ComponentLoadErrorBoundary componentName="Analytics">
-                                    <AnalyticsTab id={id!} doc={doc} methods={doc.methods ?? []} />
+                                    <AnalyticsTab id={id!} doc={doc} methods={doc.method ? [doc.method] : []} />
                                 </ComponentLoadErrorBoundary>
                             ),
                         },
@@ -3009,7 +3029,7 @@ const ApiDiscoveryEndpointDetail: React.FC = () => {
                             ),
                             children: (
                                 <ComponentLoadErrorBoundary componentName="Insights">
-                                    <InsightsTab id={id!} doc={doc} methods={doc.methods ?? []} />
+                                    <InsightsTab id={id!} doc={doc} methods={doc.method ? [doc.method] : []} />
                                 </ComponentLoadErrorBoundary>
                             ),
                         },
