@@ -69,7 +69,6 @@ import AuthSchemesBadge from './components/AuthSchemesBadge';
 import { formatCompactNumber, formatBytes } from './lib/formatNumber';
 import {
     riskFlagLabel,
-    RISK_SCORE_LEGEND,
     ENDPOINT_CATEGORY_META,
     PII_CATEGORY_META,
     KNOWN_RISK_FLAGS,
@@ -242,6 +241,11 @@ const KpiTile: React.FC<{ label: React.ReactNode; children: React.ReactNode }> =
 const riskColor = (s: number): string =>
     s >= 40 ? '#ef4444' : s >= 25 ? '#fa541c' : s >= 10 ? '#f59e0b' : s > 0 ? '#fbbf24' : '#9ca3af';
 
+// Exposure (max_posture_score) — distinct blue/purple ramp so the two
+// axes never read as the same scale.
+const postureColor = (s: number): string =>
+    s >= 40 ? '#c41d7f' : s >= 25 ? '#722ed1' : s >= 10 ? '#1677ff' : s > 0 ? '#69b1ff' : '#9ca3af';
+
 const OverviewTab: React.FC<{ doc: InventoryDoc }> = ({ doc }) => {
     const [overviewParams, setOverviewParams] = useSearchParams();
     // Deep-link into the Events tab in sample mode.
@@ -251,28 +255,6 @@ const OverviewTab: React.FC<{ doc: InventoryDoc }> = ({ doc }) => {
         np.set('sample', '1');
         setOverviewParams(np, { replace: true });
     };
-
-    const riskScoreInfo = (
-        <div>
-            <div style={{ fontWeight: 600, marginBottom: 4 }}>How Risk Score is computed</div>
-            <div style={{ marginBottom: 6 }}>
-                Each event evaluates a set of risk flags (e.g. unauthenticated, weak_tls_version,
-                pii_observed). Every flag carries a severity weight: Low=1, Medium=4, High=7,
-                Critical=10. The event score is the sum of those weights. This number is the
-                MAX of all event scores ever observed for this endpoint, clamped to 255.
-            </div>
-            <div>
-                <strong>Bands:</strong>
-                <ul style={{ margin: '4px 0 0', paddingLeft: 16 }}>
-                    {RISK_SCORE_LEGEND.map((b) => (
-                        <li key={b.label}>
-                            <span style={{ color: b.color, fontWeight: 600 }}>{b.label}</span> — {b.range}
-                        </li>
-                    ))}
-                </ul>
-            </div>
-        </div>
-    );
 
     return (
         <>
@@ -318,12 +300,46 @@ const OverviewTab: React.FC<{ doc: InventoryDoc }> = ({ doc }) => {
                     </KpiTile>
                 </Col>
                 <Col xs={12} md={6}>
-                    <KpiTile label={<InfoLabel info={riskScoreInfo}>Risk Score (max)</InfoLabel>}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                            <Title level={3} style={{ margin: 0, color: riskColor(doc.max_risk_score ?? 0) }}>
-                                {doc.max_risk_score ?? 0}
-                            </Title>
-                            <Text type="secondary" style={{ fontSize: 11 }}>/ 255</Text>
+                    <KpiTile
+                        label={
+                            <InfoLabel
+                                info={
+                                    <div>
+                                        <div style={{ fontWeight: 600, marginBottom: 4 }}>Two-axis score — lifetime max, 0–255</div>
+                                        <div style={{ marginBottom: 4 }}>
+                                            <strong>T — Threat:</strong> is something dangerous happening? BOLA, BFLA, brute-force, scanner / vuln-probe, replay, rate anomaly, PII leak, behaviour anomaly.
+                                        </div>
+                                        <div style={{ marginBottom: 4 }}>
+                                            <strong>E — Exposure:</strong> how open is it? Anonymous access, plain-text / weak TLS, missing security headers, permissive CORS, weak token TTL. Recurs on most requests, so it gets its own axis.
+                                        </div>
+                                        <div style={{ opacity: 0.8 }}>
+                                            Each flag has a severity (Low 1 · Med 4 · High 7 · Critical 10); per request the relevant flags’ severities are summed, and this is the highest sum ever seen on this endpoint.
+                                        </div>
+                                    </div>
+                                }
+                            >
+                                Threat / Exposure
+                            </InfoLabel>
+                        }
+                    >
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
+                            <Tooltip title="Threat (max_risk_score)">
+                                <span style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+                                    <Title level={3} style={{ margin: 0, color: riskColor(doc.max_risk_score ?? 0) }}>
+                                        {doc.max_risk_score ?? 0}
+                                    </Title>
+                                    <Text type="secondary" style={{ fontSize: 10 }}>T</Text>
+                                </span>
+                            </Tooltip>
+                            <Text type="secondary" style={{ fontSize: 14 }}>/</Text>
+                            <Tooltip title="Exposure (max_posture_score)">
+                                <span style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+                                    <Title level={3} style={{ margin: 0, color: postureColor(doc.max_posture_score ?? 0) }}>
+                                        {doc.max_posture_score ?? 0}
+                                    </Title>
+                                    <Text type="secondary" style={{ fontSize: 10 }}>E</Text>
+                                </span>
+                            </Tooltip>
                         </div>
                     </KpiTile>
                 </Col>
@@ -2919,7 +2935,7 @@ const ApiDiscoveryEndpointDetail: React.FC = () => {
                                 accent="var(--color-warning)"
                             />
                             <KpiPill
-                                label="Risk"
+                                label="Threat"
                                 value={String(doc.max_risk_score ?? 0)}
                                 accent={
                                     (doc.max_risk_score ?? 0) >= 25
@@ -2927,6 +2943,17 @@ const ApiDiscoveryEndpointDetail: React.FC = () => {
                                         : (doc.max_risk_score ?? 0) >= 10
                                             ? 'var(--color-warning)'
                                             : '#d4a012'
+                                }
+                            />
+                            <KpiPill
+                                label="Exposure"
+                                value={String(doc.max_posture_score ?? 0)}
+                                accent={
+                                    (doc.max_posture_score ?? 0) >= 25
+                                        ? '#c41d7f'
+                                        : (doc.max_posture_score ?? 0) >= 10
+                                            ? '#531dab'
+                                            : '#1677ff'
                                 }
                             />
                         </Space>

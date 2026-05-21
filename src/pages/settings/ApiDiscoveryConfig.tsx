@@ -249,12 +249,18 @@ interface DetectorExtra {
 // The 8 sliding-window behavioural detectors — each {enabled, threshold,
 // window_seconds}. `unit` labels what the threshold counts; `extra` is an
 // optional detector-specific knob.
+// Detectors backed by the collector's 128-slot DistinctTracker ring — a
+// threshold above 128 can never fire, so the backend rejects it (400).
+const DISTINCT_TRACKER_MAX = 128;
+
 const DETECTORS: {
     key: keyof DetectionConfig;
     label: string;
     unit: string;
     desc: string;
     extra?: DetectorExtra;
+    /** Hard cap on the threshold input (collector ring size). */
+    maxThreshold?: number;
 }[] = [
     {
         key: 'bola', label: 'BOLA', unit: 'distinct IDs',
@@ -269,14 +275,15 @@ const DETECTORS: {
     { key: 'rate_anomaly', label: 'Rate Anomaly', unit: 'requests', desc: 'A consumer exceeding the per-consumer request-rate threshold (OWASP API4).' },
     { key: 'payment_abuse', label: 'Payment Abuse', unit: 'requests', desc: 'A consumer hammering a payment endpoint beyond expected volume (OWASP API6).' },
     { key: 'replay', label: 'Replay', unit: 'duplicates', desc: 'The same request_id seen more than threshold times in the window.' },
-    { key: 'path_scan', label: 'Path Scan', unit: 'distinct 4xx paths', desc: 'One IP/consumer hitting many distinct paths returning 4xx — content discovery.' },
+    { key: 'path_scan', label: 'Path Scan', unit: 'distinct 4xx paths', desc: 'One IP/consumer hitting many distinct paths returning 4xx — content discovery.', maxThreshold: DISTINCT_TRACKER_MAX },
     {
         key: 'geo_spread', label: 'Geo Spread', unit: 'countries',
         desc: 'One consumer/IP appearing from too many countries — impossible travel.',
         extra: { field: 'skip_mtls', label: 'Skip mTLS identities', kind: 'switch', hint: 'Exclude mTLS machine identities — they legitimately appear from many regions.' },
+        maxThreshold: DISTINCT_TRACKER_MAX,
     },
     { key: 'ip_rate', label: 'IP Rate', unit: 'requests', desc: 'A single source IP exceeding the per-IP request-rate threshold.' },
-    { key: 'normalize_gap', label: 'Normalize Gap', unit: 'distinct child paths', desc: 'A path prefix accumulating many distinct un-normalized child segments — a likely missing path-normalization rule.' },
+    { key: 'normalize_gap', label: 'Normalize Gap', unit: 'distinct child paths', desc: 'A path prefix accumulating many distinct un-normalized child segments — a likely missing path-normalization rule.', maxThreshold: DISTINCT_TRACKER_MAX },
 ];
 
 // ─── Validation (mirrors collector Doc.Validate) ─────────────────────
@@ -341,6 +348,9 @@ const validate = (policy: PolicyConfig, detection: DetectionConfig): string | nu
         }
         if (w.enabled && (w.threshold <= 0 || w.window_seconds <= 0)) {
             return `${d.label} is enabled — threshold and window must both be greater than 0.`;
+        }
+        if (d.maxThreshold && w.threshold > d.maxThreshold) {
+            return `${d.label}: threshold cannot exceed ${d.maxThreshold} (collector DistinctTracker ring size).`;
         }
     }
     const rs = detection.response_size;
@@ -446,9 +456,10 @@ const DetectorCard: React.FC<{
     value: DetectorWindow;
     disabled: boolean;
     extra?: DetectorExtra;
+    maxThreshold?: number;
     // eslint-disable-next-line no-unused-vars
     onChange: (next: DetectorWindow) => void;
-}> = ({ label, unit, desc, value, disabled, extra, onChange }) => (
+}> = ({ label, unit, desc, value, disabled, extra, maxThreshold, onChange }) => (
     <Card
         size="small"
         style={{
@@ -480,12 +491,15 @@ const DetectorCard: React.FC<{
                 <InputNumber
                     size="small"
                     min={0}
+                    max={maxThreshold}
                     style={{ width: '100%' }}
                     value={value.threshold}
                     disabled={disabled || !value.enabled}
                     onChange={(v) => onChange({ ...value, threshold: typeof v === 'number' ? v : 0 })}
                 />
-                <Text type="secondary" style={{ fontSize: 10 }}>{unit}</Text>
+                <Text type="secondary" style={{ fontSize: 10 }}>
+                    {unit}{maxThreshold ? ` · max ${maxThreshold}` : ''}
+                </Text>
             </Col>
             <Col span={12}>
                 <Text type="secondary" style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5 }}>
@@ -1239,6 +1253,7 @@ const ApiDiscoveryConfigInner: React.FC = () => {
                                         unit={d.unit}
                                         desc={d.desc}
                                         extra={d.extra}
+                                        maxThreshold={d.maxThreshold}
                                         value={detection[d.key] as DetectorWindow}
                                         disabled={saving}
                                         onChange={(next) => setDetection({ ...detection, [d.key]: next })}

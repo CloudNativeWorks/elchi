@@ -287,6 +287,16 @@ export const RISK_SCORE_LEGEND = [
     { label: 'Critical', range: '40+', color: 'var(--color-error)' },
 ];
 
+// ── Two-axis score badge colours (collector v0.1.5) ──
+// THREAT = max_risk_score (active attack/abuse) — red family.
+// EXPOSURE = max_posture_score (config hygiene) — distinct blue/purple
+// family so the two axes never read as the same scale.
+export const threatTagColor = (s: number): string =>
+    s >= 40 ? 'red' : s >= 25 ? 'volcano' : s >= 10 ? 'orange' : s >= 1 ? 'gold' : 'default';
+
+export const postureTagColor = (s: number): string =>
+    s >= 40 ? 'magenta' : s >= 25 ? 'purple' : s >= 10 ? 'geekblue' : s >= 1 ? 'blue' : 'default';
+
 // ── Lookup helpers ──
 
 export const riskFlagMeta = (flag: string): RiskFlagMeta | undefined =>

@@ -67,7 +67,8 @@ export interface InventoryDoc {
     };
     status_dist: Record<string, number>;
     risk_flags: string[];
-    max_risk_score: number;       // UInt8 0–255
+    max_risk_score: number;       // THREAT axis — active attack/abuse (0–255)
+    max_posture_score?: number;   // EXPOSURE axis — config hygiene (0–255)
     pii_categories: string[];
     endpoint_categories: string[];
     auth_observed: boolean;
@@ -180,6 +181,7 @@ export interface InventoryListenersParams {
 export type InventoryListSortField =
     | 'last_seen'
     | 'max_risk_score'
+    | 'max_posture_score'
     | 'seen_count'
     | 'latency_max_ms';
 
@@ -228,7 +230,8 @@ export interface OperationEntry {
     grpc_method: string;
     listener_name?: string;
     seen_count: number;
-    max_risk_score: number;
+    max_risk_score: number;       // threat
+    max_posture_score?: number;   // exposure
     risk_flags: string[];
     pii_categories: string[];
     endpoint_categories: string[];
@@ -248,7 +251,8 @@ export interface OperationGroup {
     methods: string[];            // the path's method set
     operation_count: number;
     total_seen: number;           // path-wide call count
-    max_risk_score: number;
+    max_risk_score: number;       // threat (path rollup)
+    max_posture_score?: number;   // exposure (path rollup)
     first_seen: string;
     last_seen: string;
     operations: OperationEntry[];
@@ -258,6 +262,7 @@ export type OperationsSortField =
     | 'last_seen'
     | 'total_seen'
     | 'max_risk_score'
+    | 'max_posture_score'
     | 'operation_count';
 
 // /operations shares the exact /inventory filter parser, so its params are

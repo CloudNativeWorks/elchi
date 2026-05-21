@@ -18,6 +18,7 @@ import {
     Divider,
     Segmented,
     Dropdown,
+    Popover,
     message,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
@@ -26,6 +27,7 @@ import {
     ReloadOutlined,
     FilterOutlined,
     DownloadOutlined,
+    QuestionCircleOutlined,
 } from '@ant-design/icons';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import dayjs from 'dayjs';
@@ -51,6 +53,8 @@ import {
     KNOWN_PII_CATEGORIES,
     KNOWN_ENDPOINT_CATEGORIES,
     riskFlagLabel,
+    threatTagColor,
+    postureTagColor,
 } from './lib/riskFlagCatalog';
 import EndpointPath from './components/EndpointPath';
 import type {
@@ -119,6 +123,7 @@ interface FilterState {
 const SORT_FIELDS: InventoryListSortField[] = [
     'last_seen',
     'max_risk_score',
+    'max_posture_score',
     'seen_count',
     'latency_max_ms',
 ];
@@ -128,6 +133,7 @@ const OPERATIONS_SORT_FIELDS: OperationsSortField[] = [
     'last_seen',
     'total_seen',
     'max_risk_score',
+    'max_posture_score',
     'operation_count',
 ];
 
@@ -140,6 +146,52 @@ const DEFAULT_FILTERS: FilterState = {
     min_risk_score: 0,
     max_risk_score: 255,
 };
+
+// The two-axis scoring cheat-sheet shown behind the "Scoring guide" popover
+// on the catalog toolbar.
+const SCORING_MATRIX_CELL: React.CSSProperties = {
+    border: '1px solid var(--border-default)',
+    padding: '5px 9px',
+    textAlign: 'left',
+    verticalAlign: 'top',
+};
+const SCORING_GUIDE = (
+    <div style={{ maxWidth: 400, fontSize: 12, lineHeight: 1.5 }}>
+        <div style={{ marginBottom: 6 }}>
+            <Tag color="volcano" className="auto-width-tag" style={{ margin: '0 6px 0 0' }}>Threat</Tag>
+            active attack / abuse — “is something dangerous happening?”
+        </div>
+        <div style={{ marginBottom: 10 }}>
+            <Tag color="geekblue" className="auto-width-tag" style={{ margin: '0 6px 0 0' }}>Exposure</Tag>
+            standing config hygiene — “how open is the endpoint?”
+        </div>
+        <table style={{ borderCollapse: 'collapse', width: '100%', fontSize: 12 }}>
+            <thead>
+                <tr>
+                    <th style={SCORING_MATRIX_CELL} />
+                    <th style={SCORING_MATRIX_CELL}>Low exposure</th>
+                    <th style={SCORING_MATRIX_CELL}>High exposure</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th style={SCORING_MATRIX_CELL}>Low threat</th>
+                    <td style={SCORING_MATRIX_CELL}>✅ Clean</td>
+                    <td style={SCORING_MATRIX_CELL}>🔵 Boring but open → harden</td>
+                </tr>
+                <tr>
+                    <th style={SCORING_MATRIX_CELL}>High threat</th>
+                    <td style={SCORING_MATRIX_CELL}>🔴 Solid but under attack</td>
+                    <td style={SCORING_MATRIX_CELL}>⛔ Open &amp; under attack — top priority</td>
+                </tr>
+            </tbody>
+        </table>
+        <div style={{ marginTop: 10, opacity: 0.85 }}>
+            In short: <strong>Threat</strong> = “is it being attacked?”, <strong>Exposure</strong> ={' '}
+            “is it vulnerable?”. One is an <em>event</em>, the other a <em>state</em>.
+        </div>
+    </div>
+);
 
 // Compute status code sum for 5xx range
 const sum5xx = (dist?: Record<string, number>): number => {
@@ -540,19 +592,25 @@ const ApiDiscoveryEndpoints: React.FC = () => {
             title: (
                 <InfoLabel info={
                     <div>
-                        <div style={{ fontWeight: 600, marginBottom: 4 }}>Risk flags + max score</div>
+                        <div style={{ fontWeight: 600, marginBottom: 4 }}>Threat — is something dangerous happening?</div>
                         <div style={{ marginBottom: 6 }}>
-                            Each flag carries a severity (Low=1, Medium=4, High=7, Critical=10). The numeric badge is the sum of severities observed across all events for this endpoint, clamped to 255.
+                            The THREAT axis (<code>max_risk_score</code>, 0–255). Active attack / abuse:
+                            BOLA, BFLA, brute-force, scanner / vuln-probe / path-scan, replay,
+                            rate &amp; IP anomalies, PII leak, oversized response, latency / error-rate
+                            anomaly, sensitive-path, threat-intel hit.
                         </div>
                         <div style={{ marginBottom: 6, opacity: 0.85 }}>
-                            Bands: 1–9 Low · 10–24 Medium · 25–69 High · 70+ Critical.
+                            <strong>How:</strong> each flag has a severity (Low 1 · Med 4 · High 7 ·
+                            Critical 10). Per request the threat flags’ severities are summed; the
+                            badge is the highest such sum ever seen on this endpoint (lifetime max,
+                            not windowed). Config-hygiene issues live in the separate Exposure column.
                         </div>
                         <div style={{ opacity: 0.7, fontStyle: 'italic' }}>
-                            Click the header to sort by score.
+                            Click the header to sort by threat score.
                         </div>
                     </div>
                 }>
-                    Risk
+                    Threat
                 </InfoLabel>
             ),
             // Backend supports sort_by=max_risk_score. The `key` doubles as
@@ -597,6 +655,46 @@ const ApiDiscoveryEndpoints: React.FC = () => {
                             </Tooltip>
                         )}
                     </Space>
+                );
+            },
+        },
+        {
+            title: (
+                <InfoLabel info={
+                    <div>
+                        <div style={{ fontWeight: 600, marginBottom: 4 }}>Exposure — how open is the endpoint?</div>
+                        <div style={{ marginBottom: 6 }}>
+                            The EXPOSURE axis (<code>max_posture_score</code>, 0–255). Standing config
+                            hygiene, independent of any active attack: anonymous access, plain-text
+                            transport, weak / legacy TLS, missing HSTS / CSP / X-Frame /
+                            X-Content-Type-Options, permissive CORS, version disclosure, weak token
+                            TTL, internal / external host.
+                        </div>
+                        <div style={{ marginBottom: 6, opacity: 0.85 }}>
+                            <strong>How:</strong> same severity weights (Low 1 · Med 4 · High 7 ·
+                            Critical 10), but these “posture” flags get their own axis — they recur on
+                            almost every request, so summing them into Threat would drown a real
+                            attack. Badge = lifetime max of the per-request posture sum.
+                        </div>
+                        <div style={{ opacity: 0.7, fontStyle: 'italic' }}>
+                            High exposure + low threat = “boring but open”; act on hardening. Click to
+                            sort by exposure.
+                        </div>
+                    </div>
+                }>
+                    Exposure
+                </InfoLabel>
+            ),
+            key: 'max_posture_score',
+            sorter: true,
+            sortOrder: sortBy === 'max_posture_score' ? (sortOrder === 'desc' ? 'descend' : 'ascend') : null,
+            width: 110,
+            render: (_: any, r: InventoryDoc) => {
+                const score = r.max_posture_score ?? 0;
+                return score > 0 ? (
+                    <Tag color={postureTagColor(score)} className="auto-width-tag" style={{ margin: 0, fontVariantNumeric: 'tabular-nums' }}>{score}</Tag>
+                ) : (
+                    <Text type="secondary" style={{ fontSize: 11 }}>—</Text>
                 );
             },
         },
@@ -663,7 +761,7 @@ const ApiDiscoveryEndpoints: React.FC = () => {
                     {head('Protocol', W.protocol)}
                     {head('Calls', W.calls)}
                     {head('Auth', W.auth)}
-                    {head('Risk')}
+                    {head('Threat / Exposure')}
                     {head('Last seen', W.last, 'right')}
                     <div style={{ width: W.detail }} />
                 </div>
@@ -697,7 +795,18 @@ const ApiDiscoveryEndpoints: React.FC = () => {
                         </div>
                         <div style={{ flex: 1, minWidth: 180 }}>
                             <Space size={6} wrap>
-                                <Tag style={{ margin: 0, fontSize: 11 }}>{op.max_risk_score ?? 0}</Tag>
+                                <Tooltip title="Threat score (max_risk_score)">
+                                    <Tag color={threatTagColor(op.max_risk_score ?? 0)} className="auto-width-tag" style={{ margin: 0, fontSize: 11 }}>
+                                        T {op.max_risk_score ?? 0}
+                                    </Tag>
+                                </Tooltip>
+                                {(op.max_posture_score ?? 0) > 0 && (
+                                    <Tooltip title="Exposure score (max_posture_score)">
+                                        <Tag className='auto-width-tag' color={postureTagColor(op.max_posture_score ?? 0)} style={{ margin: 0, fontSize: 11 }}>
+                                            E {op.max_posture_score}
+                                        </Tag>
+                                    </Tooltip>
+                                )}
                                 <RiskFlagChips flags={op.risk_flags} max={3} />
                             </Space>
                         </div>
@@ -807,13 +916,24 @@ const ApiDiscoveryEndpoints: React.FC = () => {
             render: (n: number) => <Text style={{ fontSize: 12, fontVariantNumeric: 'tabular-nums' }}>{formatCompactNumber(n ?? 0)}</Text>,
         },
         {
-            title: 'Risk',
+            title: <InfoLabel info="Threat axis (max_risk_score) — active attack / abuse, path rollup.">Threat</InfoLabel>,
             dataIndex: 'max_risk_score',
             key: 'max_risk_score',
             width: 90,
             sorter: true,
             sortOrder: sortBy === 'max_risk_score' ? (sortOrder === 'desc' ? 'descend' : 'ascend') : null,
-            render: (n: number) => <Tag className='auto-width-tag' style={{ margin: 0, fontSize: 11 }}>{n ?? 0}</Tag>,
+            render: (n: number) => <Tag color={threatTagColor(n ?? 0)} className='auto-width-tag' style={{ margin: 0, fontSize: 11 }}>{n ?? 0}</Tag>,
+        },
+        {
+            title: <InfoLabel info="Exposure axis (max_posture_score) — config hygiene (anonymous, plaintext, missing headers, CORS, weak TTL), path rollup.">Exposure</InfoLabel>,
+            dataIndex: 'max_posture_score',
+            key: 'max_posture_score',
+            width: 100,
+            sorter: true,
+            sortOrder: sortBy === 'max_posture_score' ? (sortOrder === 'desc' ? 'descend' : 'ascend') : null,
+            render: (n?: number) => (n ?? 0) > 0
+                ? <Tag className='auto-width-tag' style={{ margin: 0, fontSize: 11, }} color={postureTagColor(n ?? 0)}>{n}</Tag>
+                : <Text type="secondary" style={{ fontSize: 11 }}>—</Text>,
         },
         {
             title: 'Last Seen',
@@ -1348,6 +1468,11 @@ const ApiDiscoveryEndpoints: React.FC = () => {
                             />
                         </Space>
                     )}
+                    <Popover content={SCORING_GUIDE} trigger="click" placement="bottomLeft">
+                        <Button size="small" type="text" icon={<QuestionCircleOutlined />}>
+                            Scoring guide
+                        </Button>
+                    </Popover>
                 </Space>
                 {isAttack && (
                     <Text type="secondary" style={{ fontSize: 12 }}>
