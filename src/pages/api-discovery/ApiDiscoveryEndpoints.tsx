@@ -829,8 +829,9 @@ const ApiDiscoveryEndpoints: React.FC = () => {
                         <div style={{ flex: 1, minWidth: 180 }}>
                             {(() => {
                                 const { threat, posture } = splitFlagsByAxis(op.risk_flags);
+                                const showExposure = (op.max_posture_score ?? 0) > 0 || posture.length > 0;
                                 return (
-                                    <Space direction="vertical" size={4} style={{ width: '100%' }}>
+                                    <div style={{ width: '100%' }}>
                                         <Space size={6} wrap>
                                             <Tooltip title="Threat — active findings (max_risk_score)">
                                                 <Tag color={threatTagColor(op.max_risk_score ?? 0)} className="auto-width-tag" style={{ margin: 0, fontSize: 11 }}>
@@ -839,17 +840,20 @@ const ApiDiscoveryEndpoints: React.FC = () => {
                                             </Tooltip>
                                             <RiskFlagChips flags={threat} max={3} />
                                         </Space>
-                                        {((op.max_posture_score ?? 0) > 0 || posture.length > 0) && (
-                                            <Space size={6} wrap>
-                                                <Tooltip title="Exposure — config hygiene (max_posture_score)">
-                                                    <Tag color={postureTagColor(op.max_posture_score ?? 0)} className="auto-width-tag" style={{ margin: 0, fontSize: 11 }}>
-                                                        E {op.max_posture_score ?? 0}
-                                                    </Tag>
-                                                </Tooltip>
-                                                <RiskFlagChips flags={posture} max={3} />
-                                            </Space>
+                                        {showExposure && (
+                                            <>
+                                                <Divider style={{ margin: '6px 0' }} />
+                                                <Space size={6} wrap>
+                                                    <Tooltip title="Exposure — config hygiene (max_posture_score)">
+                                                        <Tag color={postureTagColor(op.max_posture_score ?? 0)} className="auto-width-tag" style={{ margin: 0, fontSize: 11 }}>
+                                                            E {op.max_posture_score ?? 0}
+                                                        </Tag>
+                                                    </Tooltip>
+                                                    <RiskFlagChips flags={posture} max={3} />
+                                                </Space>
+                                            </>
                                         )}
-                                    </Space>
+                                    </div>
                                 );
                             })()}
                         </div>
