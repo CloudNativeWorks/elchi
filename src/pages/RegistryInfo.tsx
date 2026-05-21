@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Card, Typography, Spin, Alert, Tag, Space, Collapse, Badge, Table, Input, Row, Col, Statistic, Pagination, Progress, Tooltip, Empty, Divider, Button, Drawer, message, Tabs, App as AntdApp } from 'antd';
 import MonacoEditor from '@monaco-editor/react';
-import { DatabaseOutlined, ClusterOutlined, ControlOutlined, SearchOutlined, GlobalOutlined, NodeIndexOutlined, TeamOutlined, ApiOutlined, EyeOutlined, DeleteOutlined, ExclamationCircleOutlined, ShareAltOutlined, AimOutlined, AppstoreOutlined, CloudOutlined, SettingOutlined, KeyOutlined, ReloadOutlined } from '@ant-design/icons';
+import { DatabaseOutlined, ClusterOutlined, ControlOutlined, SearchOutlined, GlobalOutlined, NodeIndexOutlined, TeamOutlined, ApiOutlined, EyeOutlined, DeleteOutlined, ExclamationCircleOutlined, ShareAltOutlined, AimOutlined, AppstoreOutlined, CloudOutlined, SettingOutlined, KeyOutlined, ReloadOutlined, CrownOutlined, DeploymentUnitOutlined } from '@ant-design/icons';
 import { useCustomGetQuery, api } from '@/common/api';
 import { useMutation } from '@tanstack/react-query';
 import ElchiButton from '@/elchi/components/common/ElchiButton';
@@ -70,6 +70,60 @@ interface RegistryData {
     message: string;
 }
 
+// One self-registered registry server (M1/M2/M3) from
+// GET /api/v3/registry/instances.
+interface RegistryInstance {
+    id: string;
+    hostname: string;
+    version: string;
+    grpc_addr: string;
+    is_leader: boolean;
+    started_at: string;
+    last_seen: string;
+    uptime_sec: number;
+    last_seen_age_sec: number;
+}
+
+interface RegistryInstancesData {
+    data: {
+        instances: RegistryInstance[];
+        instance_count: number;
+        leader: {
+            holder_id: string;
+            hostname: string;
+            acquired_at: string;
+            expires_at: string;
+            lease_remaining_sec: number;
+            lease_valid: boolean;
+        } | null;
+        has_leader: boolean;
+        timestamp: string;
+    };
+    message: string;
+}
+
+// uptime_sec → "2d 5h" / "15m" / "42s".
+const formatUptime = (sec?: number): string => {
+    if (sec == null || sec < 0) return '—';
+    const d = Math.floor(sec / 86400);
+    const h = Math.floor((sec % 86400) / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    if (d > 0) return `${d}d ${h}h`;
+    if (h > 0) return `${h}h ${m}m`;
+    if (m > 0) return `${m}m`;
+    return `${sec}s`;
+};
+
+// last_seen_age_sec → "4s ago" / "2m ago" / "1h ago".
+const formatAge = (sec?: number): string => {
+    if (sec == null || sec < 0) return '—';
+    if (sec < 60) return `${sec}s ago`;
+    const m = Math.floor(sec / 60);
+    if (m < 60) return `${m}m ago`;
+    const h = Math.floor(m / 60);
+    return `${h}h ago`;
+};
+
 const formatTimestamp = (seconds: number, nanos: number) => {
     if (seconds == null || nanos == null || isNaN(seconds) || isNaN(nanos)) {
         return 'N/A';
@@ -77,7 +131,7 @@ const formatTimestamp = (seconds: number, nanos: number) => {
     try {
         const date = new Date(seconds * 1000 + nanos / 1000000);
         return date.toLocaleString('en-US');
-    } catch (error) {
+    } catch {
         return 'Invalid Date';
     }
 };
@@ -123,6 +177,31 @@ const RegistryInfo: React.FC = () => {
         directApi: false,
         refetchOnWindowFocus: false
     });
+
+    // Registry instances + leader election (self-register heartbeat).
+    const {
+        data: instancesResp,
+        isLoading: instancesLoading,
+        error: instancesError,
+        refetch: refetchInstances,
+    } = useCustomGetQuery({
+        queryKey: 'registry_instances',
+        enabled: true,
+        path: 'registry/instances',
+        directApi: false,
+        refetchOnWindowFocus: false
+    });
+    const instancesData: RegistryInstancesData | undefined = instancesResp;
+    const instances = useMemo(
+        () =>
+            [...(instancesData?.data?.instances ?? [])].sort(
+                (a, b) => Number(b?.is_leader) - Number(a?.is_leader),
+            ),
+        [instancesData],
+    );
+    const leader = instancesData?.data?.leader ?? null;
+    const hasLeader = !!instancesData?.data?.has_leader && !!leader?.lease_valid;
+    const instanceCount = instancesData?.data?.instance_count ?? instances.length;
 
     // Snapshot API hooks
     const { data: snapshotData, isLoading: snapshotLoading } = useCustomGetQuery({
@@ -315,7 +394,16 @@ const RegistryInfo: React.FC = () => {
 
     const handleRefresh = () => {
         refetch();
+        refetchInstances();
         messageApi.info('Registry data refreshed');
+    };
+
+    // last_seen age → health colour for an instance.
+    const getInstanceStatusColor = (ageSec?: number) => {
+        if (ageSec == null) return 'var(--text-tertiary)';
+        if (ageSec < 30) return 'var(--color-success)';
+        if (ageSec < 60) return 'var(--color-warning)';
+        return 'var(--color-danger)';
     };
 
     // Filter functions - moved inside useMemo to avoid recreating on every render
@@ -813,24 +901,74 @@ const RegistryInfo: React.FC = () => {
                                 styles={{ body: { padding: '24px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' } }}
                             >
                                 <div>
-                                    <Space align="center" style={{ marginBottom: 16 }}>
-                                        <DatabaseOutlined style={{ fontSize: '24px', color: 'white' }} />
-                                        <Text style={{ color: 'white', fontSize: '18px', fontWeight: '600' }}>
-                                            Registry Status
-                                        </Text>
-                                    </Space>
-                                    <div style={{ marginBottom: 12 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 12 }}>
+                                        <Space align="center">
+                                            <DatabaseOutlined style={{ fontSize: '22px', color: 'white' }} />
+                                            <Text style={{ color: 'white', fontSize: '17px', fontWeight: '600' }}>
+                                                Registry Status
+                                            </Text>
+                                        </Space>
                                         <Tag
                                             className='auto-width-tag'
                                             color={registryData?.data?.status === 'connected' ? 'success' : 'error'}
-                                            style={{ fontSize: '11px', fontWeight: '600', marginBottom: 8 }}
+                                            style={{ fontSize: '11px', fontWeight: '600', margin: 0 }}
                                         >
                                             {registryData?.data?.status === 'connected' ? 'CONNECTED' : 'DISCONNECTED'}
                                         </Tag>
-                                        <div style={{ color: 'var(--text-on-gradient)', fontSize: '13px', fontWeight: '500' }}>
-                                            {registryData?.data?.registry_address || 'N/A'}
-                                        </div>
                                     </div>
+                                    <div style={{ color: 'var(--text-on-gradient)', fontSize: '12px', fontWeight: '500', marginBottom: 12 }}>
+                                        {registryData?.data?.registry_address || 'N/A'}
+                                    </div>
+                                    {/* Instance / leader summary — fills the card with live state. */}
+                                    <Space size={10} wrap>
+                                        <div
+                                            style={{
+                                                background: 'rgba(255,255,255,0.14)',
+                                                border: '1px solid rgba(255,255,255,0.22)',
+                                                borderRadius: 8,
+                                                padding: '5px 12px',
+                                                minWidth: 78,
+                                            }}
+                                        >
+                                            <div style={{ fontSize: 9, letterSpacing: 0.6, textTransform: 'uppercase', color: 'rgba(255,255,255,0.75)' }}>
+                                                Instances
+                                            </div>
+                                            <div style={{ fontSize: 18, fontWeight: 700, color: '#fff', lineHeight: 1.2 }}>
+                                                {instancesLoading ? '…' : instanceCount}
+                                            </div>
+                                        </div>
+                                        <div
+                                            style={{
+                                                background: 'rgba(255,255,255,0.14)',
+                                                border: '1px solid rgba(255,255,255,0.22)',
+                                                borderRadius: 8,
+                                                padding: '5px 12px',
+                                                maxWidth: 200,
+                                            }}
+                                        >
+                                            <div style={{ fontSize: 9, letterSpacing: 0.6, textTransform: 'uppercase', color: 'rgba(255,255,255,0.75)' }}>
+                                                Leader
+                                            </div>
+                                            <div
+                                                style={{
+                                                    fontSize: 14,
+                                                    fontWeight: 700,
+                                                    color: '#fff',
+                                                    lineHeight: 1.3,
+                                                    whiteSpace: 'nowrap',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                }}
+                                                title={hasLeader && leader ? leader.hostname : undefined}
+                                            >
+                                                {hasLeader && leader ? (
+                                                    <><CrownOutlined style={{ marginRight: 6 }} />{leader.hostname}</>
+                                                ) : (
+                                                    'None'
+                                                )}
+                                            </div>
+                                        </div>
+                                    </Space>
                                 </div>
                                 <Text style={{ color: 'var(--text-on-gradient)', fontSize: '12px' }}>
                                     Last updated: {registryData?.data?.timestamp ?
@@ -920,6 +1058,223 @@ const RegistryInfo: React.FC = () => {
                             style={{ borderRadius: '8px' }}
                         />
                     )}
+
+                    {/* Registry Instances & Leader Election */}
+                    <Card
+                        style={{
+                            background: 'var(--bg-surface)',
+                            border: '1px solid var(--border-default)',
+                            borderRadius: 8,
+                            margin: 0
+                        }}
+                        styles={{ body: { padding: '20px' } }}
+                        title={
+                            <Space size={8}>
+                                <DeploymentUnitOutlined style={{ color: 'var(--color-primary)' }} />
+                                <span style={{ fontSize: 15, fontWeight: 600 }}>Registry Instances</span>
+                                <Badge
+                                    count={instanceCount}
+                                    showZero
+                                    style={{
+                                        backgroundColor: instanceCount > 0 ? 'var(--color-primary)' : 'var(--border-default)',
+                                        color: instanceCount > 0 ? '#fff' : 'var(--text-disabled)',
+                                    }}
+                                />
+                            </Space>
+                        }
+                        extra={
+                            hasLeader && leader ? (
+                                <Tag icon={<CrownOutlined />} color="gold" style={{ margin: 0 }}>
+                                    Leader: {leader.hostname}
+                                </Tag>
+                            ) : (
+                                <Tag color="warning" style={{ margin: 0 }}>No active leader</Tag>
+                            )
+                        }
+                    >
+                        {instancesLoading ? (
+                            <div style={{ textAlign: 'center', padding: '32px 0' }}>
+                                <Spin />
+                            </div>
+                        ) : instancesError ? (
+                            <Alert
+                                type="warning"
+                                showIcon
+                                message="Registry instances unavailable"
+                                description="Instance presence is read from the registry database — it returns 503 when the database is unreachable."
+                                style={{ borderRadius: 8 }}
+                            />
+                        ) : (
+                            <>
+                                {/* Leader election banner */}
+                                <div
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        flexWrap: 'wrap',
+                                        gap: 16,
+                                        padding: '12px 16px',
+                                        marginBottom: 16,
+                                        borderRadius: 8,
+                                        border: `1px solid ${hasLeader ? 'var(--color-success-border, rgba(82,196,26,0.4))' : 'var(--color-warning-border, rgba(250,173,20,0.4))'}`,
+                                        background: hasLeader
+                                            ? 'var(--color-success-light, rgba(82,196,26,0.08))'
+                                            : 'var(--color-warning-light, rgba(250,173,20,0.08))',
+                                    }}
+                                >
+                                    <div
+                                        style={{
+                                            width: 36,
+                                            height: 36,
+                                            borderRadius: '50%',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            background: hasLeader ? 'rgba(82,196,26,0.16)' : 'rgba(250,173,20,0.16)',
+                                            color: hasLeader ? 'var(--color-success)' : 'var(--color-warning)',
+                                            fontSize: 18,
+                                            flexShrink: 0,
+                                        }}
+                                    >
+                                        <CrownOutlined />
+                                    </div>
+                                    {hasLeader && leader ? (
+                                        <>
+                                            <div>
+                                                <Text type="secondary" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5, display: 'block' }}>
+                                                    Current leader
+                                                </Text>
+                                                <Text strong style={{ fontSize: 15 }}>{leader.hostname}</Text>
+                                            </div>
+                                            <Divider type="vertical" style={{ height: 32 }} />
+                                            <Tooltip title={`Lease expires at ${new Date(leader.expires_at).toLocaleString('en-US')}`}>
+                                                <div>
+                                                    <Text type="secondary" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5, display: 'block' }}>
+                                                        Lease remaining
+                                                    </Text>
+                                                    <Text strong style={{ fontSize: 15, color: 'var(--color-success)' }}>
+                                                        {Math.max(0, leader.lease_remaining_sec)}s
+                                                    </Text>
+                                                </div>
+                                            </Tooltip>
+                                            <Divider type="vertical" style={{ height: 32 }} />
+                                            <div>
+                                                <Text type="secondary" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5, display: 'block' }}>
+                                                    Acquired
+                                                </Text>
+                                                <Text style={{ fontSize: 13 }}>
+                                                    {new Date(leader.acquired_at).toLocaleString('en-US')}
+                                                </Text>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <div>
+                                            <Text strong style={{ fontSize: 14, color: 'var(--color-warning)' }}>
+                                                No active leader
+                                            </Text>
+                                            <div>
+                                                <Text type="secondary" style={{ fontSize: 12 }}>
+                                                    The leadership lease has expired or an election is in progress — a new leader is elected within seconds.
+                                                </Text>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <Table
+                                    rowKey={(r: RegistryInstance) => r.id}
+                                    dataSource={instances}
+                                    size="small"
+                                    pagination={false}
+                                    scroll={{ x: true }}
+                                    style={{
+                                        backgroundColor: 'var(--bg-elevated)',
+                                        borderRadius: 6,
+                                        overflow: 'hidden',
+                                    }}
+                                    locale={{
+                                        emptyText: (
+                                            <Empty
+                                                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                                                description="No registry instances reporting — they may still be starting up."
+                                            />
+                                        ),
+                                    }}
+                                    columns={[
+                                        {
+                                            title: '',
+                                            key: 'status',
+                                            width: 28,
+                                            render: (_: any, r: RegistryInstance) => (
+                                                <Tooltip title={`Last heartbeat ${formatAge(r.last_seen_age_sec)}`}>
+                                                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: getInstanceStatusColor(r.last_seen_age_sec) }} />
+                                                </Tooltip>
+                                            ),
+                                        },
+                                        {
+                                            title: 'Instance',
+                                            dataIndex: 'hostname',
+                                            key: 'hostname',
+                                            render: (hostname: string, r: RegistryInstance) => (
+                                                <div>
+                                                    <Text strong style={{ fontSize: 13 }}>{hostname || 'N/A'}</Text>
+                                                    <div>
+                                                        <Text code style={{ fontSize: 10, color: 'var(--text-tertiary)' }}>{r.id}</Text>
+                                                    </div>
+                                                </div>
+                                            ),
+                                            sorter: (a: RegistryInstance, b: RegistryInstance) => safeStringCompare(a?.hostname, b?.hostname),
+                                        },
+                                        {
+                                            title: 'Role',
+                                            dataIndex: 'is_leader',
+                                            key: 'is_leader',
+                                            width: 120,
+                                            render: (isLeader: boolean) =>
+                                                isLeader ? (
+                                                    <Tag icon={<CrownOutlined />} color="gold" style={{ margin: 0 }}>Leader</Tag>
+                                                ) : (
+                                                    <Tag style={{ margin: 0 }}>Follower</Tag>
+                                                ),
+                                            sorter: (a: RegistryInstance, b: RegistryInstance) => Number(b?.is_leader) - Number(a?.is_leader),
+                                        },
+                                        {
+                                            title: 'gRPC Address',
+                                            dataIndex: 'grpc_addr',
+                                            key: 'grpc_addr',
+                                            render: (addr: string) => (
+                                                <Text code style={{ fontSize: 11 }}>{addr || 'N/A'}</Text>
+                                            ),
+                                        },
+                                        {
+                                            title: 'Uptime',
+                                            dataIndex: 'uptime_sec',
+                                            key: 'uptime_sec',
+                                            width: 110,
+                                            render: (sec: number, r: RegistryInstance) => (
+                                                <Tooltip title={`Started ${r.started_at ? new Date(r.started_at).toLocaleString('en-US') : 'N/A'}`}>
+                                                    <Text style={{ fontSize: 12 }}>{formatUptime(sec)}</Text>
+                                                </Tooltip>
+                                            ),
+                                            sorter: (a: RegistryInstance, b: RegistryInstance) => safeNumberCompare(a?.uptime_sec, b?.uptime_sec),
+                                        },
+                                        {
+                                            title: 'Last Seen',
+                                            dataIndex: 'last_seen_age_sec',
+                                            key: 'last_seen_age_sec',
+                                            width: 120,
+                                            render: (age: number, r: RegistryInstance) => (
+                                                <Tooltip title={r.last_seen ? new Date(r.last_seen).toLocaleString('en-US') : 'N/A'}>
+                                                    <Text style={{ fontSize: 12, color: getInstanceStatusColor(age) }}>{formatAge(age)}</Text>
+                                                </Tooltip>
+                                            ),
+                                            sorter: (a: RegistryInstance, b: RegistryInstance) => safeNumberCompare(a?.last_seen_age_sec, b?.last_seen_age_sec),
+                                        },
+                                    ]}
+                                />
+                            </>
+                        )}
+                    </Card>
 
                     {/* Control Planes & Controllers Tabs */}
                     <Card
