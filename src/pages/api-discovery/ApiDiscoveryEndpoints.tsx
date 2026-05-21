@@ -55,6 +55,7 @@ import {
     riskFlagLabel,
     threatTagColor,
     postureTagColor,
+    splitFlagsByAxis,
 } from './lib/riskFlagCatalog';
 import EndpointPath from './components/EndpointPath';
 import type {
@@ -203,6 +204,40 @@ const sum5xx = (dist?: Record<string, number>): number => {
     }
     return s;
 };
+
+// Score band → hex. Threat uses the red family, Exposure a distinct blue/
+// purple family so the two axes never read as the same scale.
+const threatScoreHex = (s: number): string =>
+    s >= 25 ? 'var(--color-error)' : s >= 10 ? 'var(--color-warning)' : s > 0 ? '#d4a012' : 'var(--text-tertiary)';
+const exposureScoreHex = (s: number): string =>
+    s >= 40 ? '#c41d7f' : s >= 25 ? '#722ed1' : s >= 10 ? '#1677ff' : s > 0 ? '#69b1ff' : 'var(--text-tertiary)';
+
+// Shared right-aligned score badge — a bordered monospace box. Same shape
+// for both axes so the columns line up.
+const ScoreBadge: React.FC<{ score: number; color: string; title: string }> = ({ score, color, title }) => (
+    <Tooltip title={title}>
+        <span
+            style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                minWidth: 24,
+                padding: '1px 6px',
+                borderRadius: 4,
+                background: 'var(--bg-elevated)',
+                border: `1px solid ${color}33`,
+                fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
+                fontSize: 11,
+                fontWeight: 600,
+                color,
+                lineHeight: '16px',
+                flexShrink: 0,
+            }}
+        >
+            {score}
+        </span>
+    </Tooltip>
+);
 
 const ApiDiscoveryEndpoints: React.FC = () => {
     const { project } = useProjectVariable();
@@ -627,34 +662,21 @@ const ApiDiscoveryEndpoints: React.FC = () => {
             width: 280,
             render: (_: any, r: InventoryDoc) => {
                 const score = r.max_risk_score ?? 0;
-                const scoreColor =
-                    score >= 25 ? 'var(--color-error)' : score >= 10 ? 'var(--color-warning)' : score > 0 ? '#d4a012' : 'var(--text-tertiary)';
+                const threatFlags = splitFlagsByAxis(r.risk_flags).threat;
+                if (score === 0 && threatFlags.length === 0) {
+                    return <Text type="secondary" style={{ fontSize: 11 }}>—</Text>;
+                }
                 return (
-                    <Space size={6} align="center">
-                        <RiskFlagChips flags={r.risk_flags} />
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, width: '100%' }}>
+                        <RiskFlagChips flags={threatFlags} />
                         {score > 0 && (
-                            <Tooltip title={`Max risk score (sum of severities, capped at 255)`}>
-                                <span
-                                    style={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        gap: 4,
-                                        padding: '1px 6px',
-                                        borderRadius: 4,
-                                        background: 'var(--bg-elevated)',
-                                        border: `1px solid ${scoreColor}33`,
-                                        fontFamily: 'Monaco, Menlo, "Ubuntu Mono", monospace',
-                                        fontSize: 11,
-                                        fontWeight: 600,
-                                        color: scoreColor,
-                                        lineHeight: '16px',
-                                    }}
-                                >
-                                    {score}
-                                </span>
-                            </Tooltip>
+                            <ScoreBadge
+                                score={score}
+                                color={threatScoreHex(score)}
+                                title="Max threat score (sum of active-finding severities, capped at 255)"
+                            />
                         )}
-                    </Space>
+                    </div>
                 );
             },
         },
@@ -688,13 +710,24 @@ const ApiDiscoveryEndpoints: React.FC = () => {
             key: 'max_posture_score',
             sorter: true,
             sortOrder: sortBy === 'max_posture_score' ? (sortOrder === 'desc' ? 'descend' : 'ascend') : null,
-            width: 110,
+            width: 260,
             render: (_: any, r: InventoryDoc) => {
                 const score = r.max_posture_score ?? 0;
-                return score > 0 ? (
-                    <Tag color={postureTagColor(score)} className="auto-width-tag" style={{ margin: 0, fontVariantNumeric: 'tabular-nums' }}>{score}</Tag>
-                ) : (
-                    <Text type="secondary" style={{ fontSize: 11 }}>—</Text>
+                const postureFlags = splitFlagsByAxis(r.risk_flags).posture;
+                if (score === 0 && postureFlags.length === 0) {
+                    return <Text type="secondary" style={{ fontSize: 11 }}>—</Text>;
+                }
+                return (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, width: '100%' }}>
+                        <RiskFlagChips flags={postureFlags} />
+                        {score > 0 && (
+                            <ScoreBadge
+                                score={score}
+                                color={exposureScoreHex(score)}
+                                title="Max exposure score (sum of posture-flag severities, capped at 255)"
+                            />
+                        )}
+                    </div>
                 );
             },
         },
@@ -794,21 +827,31 @@ const ApiDiscoveryEndpoints: React.FC = () => {
                             </Space>
                         </div>
                         <div style={{ flex: 1, minWidth: 180 }}>
-                            <Space size={6} wrap>
-                                <Tooltip title="Threat score (max_risk_score)">
-                                    <Tag color={threatTagColor(op.max_risk_score ?? 0)} className="auto-width-tag" style={{ margin: 0, fontSize: 11 }}>
-                                        T {op.max_risk_score ?? 0}
-                                    </Tag>
-                                </Tooltip>
-                                {(op.max_posture_score ?? 0) > 0 && (
-                                    <Tooltip title="Exposure score (max_posture_score)">
-                                        <Tag className='auto-width-tag' color={postureTagColor(op.max_posture_score ?? 0)} style={{ margin: 0, fontSize: 11 }}>
-                                            E {op.max_posture_score}
-                                        </Tag>
-                                    </Tooltip>
-                                )}
-                                <RiskFlagChips flags={op.risk_flags} max={3} />
-                            </Space>
+                            {(() => {
+                                const { threat, posture } = splitFlagsByAxis(op.risk_flags);
+                                return (
+                                    <Space direction="vertical" size={4} style={{ width: '100%' }}>
+                                        <Space size={6} wrap>
+                                            <Tooltip title="Threat — active findings (max_risk_score)">
+                                                <Tag color={threatTagColor(op.max_risk_score ?? 0)} className="auto-width-tag" style={{ margin: 0, fontSize: 11 }}>
+                                                    T {op.max_risk_score ?? 0}
+                                                </Tag>
+                                            </Tooltip>
+                                            <RiskFlagChips flags={threat} max={3} />
+                                        </Space>
+                                        {((op.max_posture_score ?? 0) > 0 || posture.length > 0) && (
+                                            <Space size={6} wrap>
+                                                <Tooltip title="Exposure — config hygiene (max_posture_score)">
+                                                    <Tag color={postureTagColor(op.max_posture_score ?? 0)} className="auto-width-tag" style={{ margin: 0, fontSize: 11 }}>
+                                                        E {op.max_posture_score ?? 0}
+                                                    </Tag>
+                                                </Tooltip>
+                                                <RiskFlagChips flags={posture} max={3} />
+                                            </Space>
+                                        )}
+                                    </Space>
+                                );
+                            })()}
                         </div>
                         <div style={{ width: W.last, textAlign: 'right' }}>
                             {op.last_seen ? (

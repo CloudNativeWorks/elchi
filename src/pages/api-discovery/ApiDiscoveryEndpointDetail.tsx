@@ -72,6 +72,7 @@ import {
     ENDPOINT_CATEGORY_META,
     PII_CATEGORY_META,
     KNOWN_RISK_FLAGS,
+    splitFlagsByAxis,
 } from './lib/riskFlagCatalog';
 import { buildActionPlan, MITIGATION_TYPE_META } from './lib/riskRemediationGuide';
 import { countryFlag } from './lib/countryFlag';
@@ -428,16 +429,37 @@ const OverviewTab: React.FC<{ doc: InventoryDoc }> = ({ doc }) => {
                     >
                         <Space direction="vertical" size={12} style={{ width: '100%' }}>
                             {doc.risk_flags?.length ? (
-                                <div>
-                                    <div style={{ marginBottom: 6 }}>
-                                        <Text type="secondary" style={{ fontSize: 11 }}>
-                                            <InfoLabel info="Hover any flag chip for severity, class, and what triggers it. The risk score (KPI tile above) is the sum of these flags' severity weights.">
-                                                Risk Flags
-                                            </InfoLabel>
-                                        </Text>
-                                    </div>
-                                    <RiskFlagChips flags={doc.risk_flags} max={doc.risk_flags.length} size="md" />
-                                </div>
+                                (() => {
+                                    const { threat, posture } = splitFlagsByAxis(doc.risk_flags);
+                                    return (
+                                        <>
+                                            {threat.length > 0 && (
+                                                <div>
+                                                    <div style={{ marginBottom: 6 }}>
+                                                        <Text type="secondary" style={{ fontSize: 11 }}>
+                                                            <InfoLabel info="Active-finding flags — they feed the THREAT score (max_risk_score). Hover a chip for severity & meaning.">
+                                                                Threat flags
+                                                            </InfoLabel>
+                                                        </Text>
+                                                    </div>
+                                                    <RiskFlagChips flags={threat} max={threat.length} size="md" />
+                                                </div>
+                                            )}
+                                            {posture.length > 0 && (
+                                                <div>
+                                                    <div style={{ marginBottom: 6 }}>
+                                                        <Text type="secondary" style={{ fontSize: 11 }}>
+                                                            <InfoLabel info="Config-hygiene (posture) flags — they feed the EXPOSURE score (max_posture_score), not Threat. Hover a chip for severity & meaning.">
+                                                                Exposure flags
+                                                            </InfoLabel>
+                                                        </Text>
+                                                    </div>
+                                                    <RiskFlagChips flags={posture} max={posture.length} size="md" />
+                                                </div>
+                                            )}
+                                        </>
+                                    );
+                                })()
                             ) : null}
                             <ChipCluster
                                 items={doc.pii_categories}

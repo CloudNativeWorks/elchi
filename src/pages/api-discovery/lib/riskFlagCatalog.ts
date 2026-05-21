@@ -297,6 +297,39 @@ export const threatTagColor = (s: number): string =>
 export const postureTagColor = (s: number): string =>
     s >= 40 ? 'magenta' : s >= 25 ? 'purple' : s >= 10 ? 'geekblue' : s >= 1 ? 'blue' : 'default';
 
+// Mirror of elchi-collector internal/policy/sampling.go `samplingPostureFlags`.
+// Flags in this set describe STANDING config hygiene and feed the EXPOSURE
+// axis (max_posture_score). Every other flag is an active finding and feeds
+// the THREAT axis (max_risk_score). Keep in lockstep with the collector — a
+// flag not listed here is treated as threat (the safe default).
+export const POSTURE_FLAGS = new Set<string>([
+    'internal_host',
+    'external_host',
+    'unauthenticated',
+    'plain_text_transport',
+    'legacy_protocol',
+    'weak_tls_version',
+    'missing_hsts',
+    'missing_csp',
+    'missing_x_frame_options',
+    'missing_x_content_type_options',
+    'version_disclosure',
+    'permissive_cors',
+    'weak_token_ttl',
+]);
+
+export const isPostureFlag = (flag: string): boolean => POSTURE_FLAGS.has(flag);
+
+// Split a flag list into its two scoring axes (threat vs exposure/posture).
+export const splitFlagsByAxis = (
+    flags: string[] | undefined,
+): { threat: string[]; posture: string[] } => {
+    const threat: string[] = [];
+    const posture: string[] = [];
+    (flags ?? []).forEach((f) => (POSTURE_FLAGS.has(f) ? posture : threat).push(f));
+    return { threat, posture };
+};
+
 // ── Lookup helpers ──
 
 export const riskFlagMeta = (flag: string): RiskFlagMeta | undefined =>
