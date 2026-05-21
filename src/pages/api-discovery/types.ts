@@ -217,10 +217,10 @@ export interface InventoryListParams {
 // under `operations[]`, one entry per HTTP method / gRPC operation.
 
 export interface OperationEntry {
-    /** Mongo _id of the underlying per-operation inventory doc — used to
-     *  deep-link into the endpoint detail page. NOTE: the backend does not
-     *  yet include this in the operations[] $push, so it is currently
-     *  absent; the deep-link is rendered only when present. */
+    /** Mongo _id (hex string) of the underlying per-operation inventory
+     *  doc — deep-links into the endpoint detail page (/inventory/:id).
+     *  Identity is at the operation level; the path group itself has no
+     *  single _id. Optional only for forward-compat safety. */
     _id?: string;
     method: string;
     protocol: string;

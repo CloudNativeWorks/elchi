@@ -713,9 +713,8 @@ const ApiDiscoveryEndpoints: React.FC = () => {
                             )}
                         </div>
                         <div style={{ width: W.detail, textAlign: 'right' }}>
-                            {/* operations[] carries _id only if the backend adds
-                               it to the $push; until then this stays empty
-                               rather than a column of dashes. */}
+                            {/* Per-operation deep-link — operations[]._id (hex)
+                               is the inventory doc id for the detail page. */}
                             {op._id && (
                                 <Link to={`/api-discovery/${encodeURIComponent(listenerName)}/endpoints/${op._id}`}>
                                     <Tooltip title="Open operation detail">
