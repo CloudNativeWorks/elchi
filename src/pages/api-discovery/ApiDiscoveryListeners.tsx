@@ -22,6 +22,7 @@ import {
     CheckCircleOutlined,
     SwapOutlined,
     TeamOutlined,
+    RedoOutlined,
 } from '@ant-design/icons';
 import { Link, useSearchParams } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
@@ -29,6 +30,7 @@ import { useProjectVariable } from '@/hooks/useProjectVariable';
 import {
     useApiInventoryListeners,
     useApiInventoryCleanupStale,
+    useApiInventoryRebaselineScores,
     useApiInventoryNormalizeGaps,
     useAddNormalizePattern,
 } from '@/hooks/useApiDiscovery';
@@ -198,6 +200,74 @@ const StaleCleanupAction: React.FC<{ onDone: () => void }> = ({ onDone }) => {
                             clamped by the server.
                         </Text>
                     </div>
+                </div>
+            </Modal>
+        </>
+    );
+};
+
+// Project-wide bulk reset of both monotonic score axes. The catalog's
+// max_risk_score / max_posture_score only ever rise, so after a collector
+// scoring change they read stale-high; this re-baselines the whole project
+// and the collector re-accumulates from the next event. Admin/Owner only.
+const RebaselineScoresAction: React.FC<{ onDone: () => void }> = ({ onDone }) => {
+    const [open, setOpen] = useState(false);
+    const rebaselineMut = useApiInventoryRebaselineScores();
+
+    const submit = async () => {
+        try {
+            const res = await rebaselineMut.mutateAsync();
+            setOpen(false);
+            Modal.success({
+                title: 'Risk scores reset',
+                content: (
+                    <span>
+                        {res.modified_count.toLocaleString()} of {res.matched_count.toLocaleString()} endpoint
+                        {res.matched_count === 1 ? '' : 's'} re-baselined. The collector re-accumulates the
+                        correct threat &amp; exposure scores from the next event onward — low-traffic endpoints
+                        may read 0 until then.
+                    </span>
+                ),
+            });
+            onDone();
+        } catch (e: any) {
+            const s = e?.response?.status;
+            message.error(
+                s === 403
+                    ? 'Only an Admin or Owner can rebaseline inventory scores.'
+                    : e?.response?.data?.error || e?.response?.data?.message || e?.message ||
+                          'Rebaseline failed',
+            );
+        }
+    };
+
+    return (
+        <>
+            <Button icon={<RedoOutlined />} onClick={() => setOpen(true)}>
+                Reset risk scores
+            </Button>
+            <Modal
+                open={open}
+                title="Reset risk scores (project-wide)"
+                okText="Reset scores"
+                okButtonProps={{ danger: true, loading: rebaselineMut.isPending }}
+                onOk={submit}
+                onCancel={() => setOpen(false)}
+            >
+                <Text style={{ fontSize: 13 }}>
+                    Zeroes the threat (<code>max_risk_score</code>) and exposure
+                    (<code>max_posture_score</code>) of every endpoint in this project. Catalog
+                    scores are monotonic — they only ever rise — so after a collector scoring change
+                    they can read stale-high. Resetting lets the collector re-accumulate the correct
+                    value from the next observed request.
+                </Text>
+                <div style={{ marginTop: 12 }}>
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                        Nothing is deleted — call counters, risk flags and discovery metadata are
+                        untouched. Low-traffic endpoints may briefly show a score of 0 until their
+                        next event. For an up-to-the-window answer, use the “current posture” panel
+                        on an endpoint’s detail page.
+                    </Text>
                 </div>
             </Modal>
         </>
@@ -682,6 +752,7 @@ const ApiDiscoveryListeners: React.FC = () => {
                         <Link to="/api-discovery/risks">
                             <Button icon={<ReadOutlined />}>Risk guide</Button>
                         </Link>
+                        {isAdminOrOwner && <RebaselineScoresAction onDone={() => refetch()} />}
                         {isAdminOrOwner && <StaleCleanupAction onDone={() => refetch()} />}
                         <Button
                             icon={<ReloadOutlined spin={isFetching} />}

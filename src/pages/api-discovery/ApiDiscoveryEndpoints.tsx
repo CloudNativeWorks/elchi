@@ -28,6 +28,8 @@ import {
     FilterOutlined,
     DownloadOutlined,
     QuestionCircleOutlined,
+    ArrowDownOutlined,
+    MoonOutlined,
 } from '@ant-design/icons';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import dayjs from 'dayjs';
@@ -191,6 +193,12 @@ const SCORING_GUIDE = (
             In short: <strong>Threat</strong> = “is it being attacked?”, <strong>Exposure</strong> ={' '}
             “is it vulnerable?”. One is an <em>event</em>, the other a <em>state</em>.
         </div>
+        <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid var(--border-default)', opacity: 0.85 }}>
+            The Threat badge shows the <strong>current</strong> max (last 7d) when ClickHouse is
+            available, falling back to the <strong>lifetime</strong> max otherwise. A moon = dormant
+            (no recent traffic); a green ↓ = current is below the all-time peak (improved). Sorting
+            is always on the lifetime score.
+        </div>
     </div>
 );
 
@@ -238,6 +246,78 @@ const ScoreBadge: React.FC<{ score: number; color: string; title: string }> = ({
         </span>
     </Tooltip>
 );
+
+// Current-vs-ever threat badge. With `with_current=true` each row carries a
+// windowed current_max_risk (null when dormant). This renders the CURRENT
+// score as the headline when available, the lifetime "_ever" max otherwise:
+//   - dormant (no traffic in window) → ever max greyed + moon, tooltip explains
+//   - active & current < ever        → current + a green ↓ (improved/remediated)
+//   - current unavailable (CH off)   → plain ever max (legacy behaviour)
+// Two visuals: 'badge' (bordered box, flat catalog) and 'tag' (the grouped
+// table's compact axis tag, optional "T " prefix).
+const ThreatBadge: React.FC<{
+    ever: number;
+    currentAvailable: boolean;
+    currentMaxRisk?: number | null;
+    currentDormant?: boolean;
+    variant?: 'badge' | 'tag';
+    prefix?: string;
+}> = ({ ever, currentAvailable, currentMaxRisk, currentDormant, variant = 'badge', prefix = '' }) => {
+    const usingCurrent =
+        currentAvailable && currentDormant === false && typeof currentMaxRisk === 'number';
+    const dormant = currentAvailable && currentDormant === true;
+    const shown = usingCurrent ? (currentMaxRisk as number) : ever;
+    const improved = usingCurrent && (currentMaxRisk as number) < ever;
+
+    let title: string;
+    if (dormant) {
+        title = `Dormant — no traffic in the current window (last 7d). Lifetime max threat: ${ever}.`;
+    } else if (usingCurrent) {
+        title = improved
+            ? `Current threat ${currentMaxRisk} (last 7d) · lifetime max ${ever} — improved.`
+            : `Current threat ${currentMaxRisk} (last 7d) · lifetime max ${ever}.`;
+    } else {
+        title = 'Lifetime max threat score. Current window unavailable (ClickHouse offline).';
+    }
+
+    if (variant === 'tag') {
+        return (
+            <Tooltip title={title}>
+                <Tag
+                    color={dormant ? 'default' : threatTagColor(shown)}
+                    className="auto-width-tag"
+                    style={{ margin: 0, fontSize: 11, opacity: dormant ? 0.6 : 1 }}
+                >
+                    {dormant && <MoonOutlined style={{ marginRight: 4, fontSize: 10 }} />}
+                    {prefix}
+                    {dormant ? ever : shown}
+                    {improved && <ArrowDownOutlined style={{ marginLeft: 3, color: 'var(--color-success)' }} />}
+                </Tag>
+            </Tooltip>
+        );
+    }
+    return (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+            {dormant && (
+                <Tooltip title={title}>
+                    <MoonOutlined style={{ color: 'var(--text-tertiary)', fontSize: 11 }} />
+                </Tooltip>
+            )}
+            <span style={{ opacity: dormant ? 0.55 : 1 }}>
+                <ScoreBadge
+                    score={dormant ? ever : shown}
+                    color={dormant ? 'var(--text-tertiary)' : threatScoreHex(shown)}
+                    title={title}
+                />
+            </span>
+            {improved && (
+                <Tooltip title={`Improved — current ${currentMaxRisk} is below the lifetime max ${ever}.`}>
+                    <ArrowDownOutlined style={{ color: 'var(--color-success)', fontSize: 11 }} />
+                </Tooltip>
+            )}
+        </span>
+    );
+};
 
 const ApiDiscoveryEndpoints: React.FC = () => {
     const { project } = useProjectVariable();
@@ -306,6 +386,19 @@ const ApiDiscoveryEndpoints: React.FC = () => {
         source === 'confirmed' && searchParams.get('layout') === 'grouped' ? 'grouped' : 'flat';
     const isAttack = source === 'attack';
     const isGrouped = layout === 'grouped';
+
+    // Maturity gate (URL-synced): hide one-off scanner hits the route-aware
+    // `confirmed` promotes on a single match. min_seen=5 when on. Confirmed
+    // views only (attack-surface is the noise view by definition).
+    const MATURE_MIN_SEEN = 5;
+    const mature = searchParams.get('mature') === '1';
+    const setMature = (next: boolean) => {
+        const np = new URLSearchParams(searchParams);
+        if (next) np.set('mature', '1');
+        else np.delete('mature');
+        np.set('offset', '0');
+        setSearchParams(np, { replace: true });
+    };
 
     // Switching catalog source / layout resets pagination + sort (the sort
     // whitelists differ between flat and grouped endpoints).
@@ -403,6 +496,9 @@ const ApiDiscoveryEndpoints: React.FC = () => {
                 : undefined,
             min_risk_score: filters.min_risk_score > 0 ? filters.min_risk_score : undefined,
             max_risk_score: filters.max_risk_score < 255 ? filters.max_risk_score : undefined,
+            // Maturity gate — confirmed views only (the backend ignores it on
+            // /attack-surface, so omit it there to keep the query string clean).
+            min_seen: !isAttack && mature ? MATURE_MIN_SEEN : undefined,
             host: filters.host?.trim() || undefined,
             normalized_path: filters.normalized_path?.trim() || undefined,
             last_seen_from: filters.last_seen_from,
@@ -416,20 +512,28 @@ const ApiDiscoveryEndpoints: React.FC = () => {
             limit: urlLimit,
             offset: urlOffset,
         }),
-        [listenerName, filters, sortBy, sortOrder, urlLimit, urlOffset],
+        [listenerName, filters, sortBy, sortOrder, urlLimit, urlOffset, isAttack, mature],
+    );
+
+    // Confirmed catalog → overlay current-vs-ever (with_current). The
+    // attack-surface view keeps the bare listParams: current risk on probe
+    // noise is meaningless and the handler doesn't compute it.
+    const flatParams = useMemo<InventoryListParams>(
+        () => ({ ...listParams, with_current: true }),
+        [listParams],
     );
 
     // Path-grouped query params — /operations shares the exact /inventory
     // filter parser (same SINGULAR param names), so we reuse listParams and
-    // only swap in the operations-specific sort field.
+    // only swap in the operations-specific sort field (+ current overlay).
     const opsParams = useMemo<OperationsListParams>(
-        () => ({ ...listParams, sort_by: sortBy as OperationsSortField }),
+        () => ({ ...listParams, sort_by: sortBy as OperationsSortField, with_current: true }),
         [listParams, sortBy],
     );
 
     const ready = !!project && !!listenerName;
     // Only the active view's query runs (the others are disabled).
-    const flatQuery = useApiInventory(listParams, ready && source === 'confirmed' && !isGrouped);
+    const flatQuery = useApiInventory(flatParams, ready && source === 'confirmed' && !isGrouped);
     const attackQuery = useApiInventoryAttackSurface(listParams, ready && isAttack);
     const opsQuery = useApiInventoryOperations(opsParams, ready && isGrouped);
 
@@ -441,6 +545,14 @@ const ApiDiscoveryEndpoints: React.FC = () => {
     const isFetching = isGrouped ? opsQuery.isFetching : flatActive.isFetching;
     const error = isGrouped ? opsQuery.error : flatActive.error;
     const refetch = () => (isGrouped ? opsQuery.refetch() : flatActive.refetch());
+
+    // current-vs-ever overlay status (confirmed views only). `=== true` means
+    // the ClickHouse rollup enrichment ran; `=== false` means CH is offline /
+    // the enrich failed → rows fall back to the lifetime "_ever" max.
+    const flatCurrentAvailable = !isAttack && flatData?.current_available === true;
+    const opsCurrentAvailable = opsData?.current_available === true;
+    const activeCurrent = isGrouped ? opsData : isAttack ? undefined : flatData;
+    const currentUnavailable = !isAttack && activeCurrent?.current_available === false;
 
     // ---------- OpenAPI export ----------
     // Auth is a Bearer header, so a plain <a download> would 401 — fetch the
@@ -636,12 +748,14 @@ const ApiDiscoveryEndpoints: React.FC = () => {
                         </div>
                         <div style={{ marginBottom: 6, opacity: 0.85 }}>
                             <strong>How:</strong> each flag has a severity (Low 1 · Med 4 · High 7 ·
-                            Critical 10). Per request the threat flags’ severities are summed; the
-                            badge is the highest such sum ever seen on this endpoint (lifetime max,
-                            not windowed). Config-hygiene issues live in the separate Exposure column.
+                            Critical 10). Per request the threat flags’ severities are summed.
+                            The badge shows the <strong>current</strong> max (last 7d) when available,
+                            and dims to a moon for <strong>dormant</strong> endpoints (no recent
+                            traffic) — hover for the lifetime max. A green ↓ means the current score
+                            is below the all-time peak (improved). Config-hygiene lives in Exposure.
                         </div>
                         <div style={{ opacity: 0.7, fontStyle: 'italic' }}>
-                            Click the header to sort by threat score.
+                            Click the header to sort by lifetime threat score.
                         </div>
                     </div>
                 }>
@@ -670,10 +784,11 @@ const ApiDiscoveryEndpoints: React.FC = () => {
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, width: '100%' }}>
                         <RiskFlagChips flags={threatFlags} />
                         {score > 0 && (
-                            <ScoreBadge
-                                score={score}
-                                color={threatScoreHex(score)}
-                                title="Max threat score (sum of active-finding severities, capped at 255)"
+                            <ThreatBadge
+                                ever={score}
+                                currentAvailable={flatCurrentAvailable}
+                                currentMaxRisk={r.current_max_risk}
+                                currentDormant={r.current_dormant}
                             />
                         )}
                     </div>
@@ -833,11 +948,14 @@ const ApiDiscoveryEndpoints: React.FC = () => {
                                 return (
                                     <div style={{ width: '100%' }}>
                                         <Space size={6} wrap>
-                                            <Tooltip title="Threat — active findings (max_risk_score)">
-                                                <Tag color={threatTagColor(op.max_risk_score ?? 0)} className="auto-width-tag" style={{ margin: 0, fontSize: 11 }}>
-                                                    T {op.max_risk_score ?? 0}
-                                                </Tag>
-                                            </Tooltip>
+                                            <ThreatBadge
+                                                ever={op.max_risk_score ?? 0}
+                                                currentAvailable={opsCurrentAvailable}
+                                                currentMaxRisk={op.current_max_risk}
+                                                currentDormant={op.current_dormant}
+                                                variant="tag"
+                                                prefix="T "
+                                            />
                                             <RiskFlagChips flags={threat} max={3} />
                                         </Space>
                                         {showExposure && (
@@ -963,13 +1081,21 @@ const ApiDiscoveryEndpoints: React.FC = () => {
             render: (n: number) => <Text style={{ fontSize: 12, fontVariantNumeric: 'tabular-nums' }}>{formatCompactNumber(n ?? 0)}</Text>,
         },
         {
-            title: <InfoLabel info="Threat axis (max_risk_score) — active attack / abuse, path rollup.">Threat</InfoLabel>,
+            title: <InfoLabel info="Threat axis (max_risk_score) — active attack / abuse, path rollup. Shows the current max (last 7d) when available; a moon = dormant (hover for the lifetime max), a green ↓ = improved.">Threat</InfoLabel>,
             dataIndex: 'max_risk_score',
             key: 'max_risk_score',
-            width: 90,
+            width: 100,
             sorter: true,
             sortOrder: sortBy === 'max_risk_score' ? (sortOrder === 'desc' ? 'descend' : 'ascend') : null,
-            render: (n: number) => <Tag color={threatTagColor(n ?? 0)} className='auto-width-tag' style={{ margin: 0, fontSize: 11 }}>{n ?? 0}</Tag>,
+            render: (n: number, r: OperationGroup) => (
+                <ThreatBadge
+                    ever={n ?? 0}
+                    currentAvailable={opsCurrentAvailable}
+                    currentMaxRisk={r.current_max_risk}
+                    currentDormant={r.current_dormant}
+                    variant="tag"
+                />
+            ),
         },
         {
             title: <InfoLabel info="Exposure axis (max_posture_score) — config hygiene (anonymous, plaintext, missing headers, CORS, weak TTL), path rollup.">Exposure</InfoLabel>,
@@ -1515,17 +1641,41 @@ const ApiDiscoveryEndpoints: React.FC = () => {
                             />
                         </Space>
                     )}
+                    {!isAttack && (
+                        <Space size={10}>
+                            <span className="toggle-label">
+                                <InfoLabel info={`Maturity gate. "Mature" hides operations seen fewer than ${MATURE_MIN_SEEN} times — route-aware confirmation promotes an endpoint on a single match, so a one-off scanner hit against a real route can slip into the catalog. Turn on to drop those.`}>
+                                    Maturity
+                                </InfoLabel>
+                            </span>
+                            <Segmented
+                                value={mature ? 'mature' : 'all'}
+                                onChange={(v) => setMature(v === 'mature')}
+                                options={[
+                                    { label: 'All', value: 'all' },
+                                    { label: `Mature ≥${MATURE_MIN_SEEN}`, value: 'mature' },
+                                ]}
+                            />
+                        </Space>
+                    )}
                     <Popover content={SCORING_GUIDE} trigger="click" placement="bottomLeft">
                         <Button size="small" type="text" icon={<QuestionCircleOutlined />}>
                             Scoring guide
                         </Button>
                     </Popover>
                 </Space>
-                {isAttack && (
+                {isAttack ? (
                     <Text type="secondary" style={{ fontSize: 12 }}>
                         Probe / scanner noise (unconfirmed) — <code>/.env</code>, <code>/cgi-bin</code> probes, SPA-fallback 200s. Not part of the real API catalog.
                     </Text>
-                )}
+                ) : currentUnavailable ? (
+                    <Tooltip title="The current-vs-ever overlay needs ClickHouse. With it offline, threat scores show the lifetime maximum (which never self-lowers) instead of the recent window.">
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                            <MoonOutlined style={{ marginRight: 6 }} />
+                            Current risk unavailable (ClickHouse offline) — showing lifetime max.
+                        </Text>
+                    </Tooltip>
+                ) : null}
             </div>
 
             {/* Table */}

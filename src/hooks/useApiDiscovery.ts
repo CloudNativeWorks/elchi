@@ -36,6 +36,7 @@ import type {
     NormalizeGapsResponse,
     OperationsResponse,
     OperationsListParams,
+    CurrentPostureResponse,
     DriftChangesResponse,
     DriftChangesParams,
     SnapshotsResponse,
@@ -146,6 +147,27 @@ export const useApiInventoryDetail = (id: string | undefined, enabled = true) =>
         path: `${INVENTORY_PATH}/${id}?project=${encodeURIComponent(project)}`,
     }) as ReturnType<typeof useCustomGetQuery> & {
         data?: SingleResponse<InventoryDoc>;
+    };
+};
+
+// ---------- /inventory/:id/current-posture — current vs ever ----------
+// Pairs the doc's monotonic "_ever" scores with a ClickHouse-windowed
+// "current" snapshot ("is this endpoint STILL bad?"). Always returns 200 —
+// ClickHouse offline or a query error degrades to current_available:false
+// rather than erroring, so a plain GET (not useClickhouseQuery) is correct.
+
+export const useApiInventoryCurrentPosture = (
+    id: string | undefined,
+    windowDays?: number,
+    enabled = true,
+) => {
+    const { project } = useProjectVariable();
+    return useCustomGetQuery({
+        queryKey: `inventory_current_posture_${project}_${id}_${windowDays ?? 'def'}`,
+        enabled: enabled && !!project && !!id,
+        path: `${INVENTORY_PATH}/${id}/current-posture?${buildQuery(project, { window_days: windowDays })}`,
+    }) as ReturnType<typeof useCustomGetQuery> & {
+        data?: CurrentPostureResponse;
     };
 };
 
@@ -478,6 +500,11 @@ export interface InventoryCleanupResponse {
     cutoff: string;
     warning?: string;
 }
+export interface InventoryRebaselineResponse {
+    message: string;
+    matched_count: number;
+    modified_count: number;
+}
 
 // DELETE /inventory/:id — remove a single endpoint document. A still-
 // trafficked endpoint is recreated by the collector on the next request.
@@ -510,6 +537,24 @@ export const useApiInventoryCleanupStale = () => {
                 `${Config.baseApi}${INVENTORY_PATH}/cleanup-stale?project=${encodeURIComponent(
                     project,
                 )}&days=${days}`,
+            );
+            return res.data;
+        },
+    });
+};
+
+// POST /inventory/rebaseline-scores — bulk-zero both monotonic score axes
+// (max_risk_score + max_posture_score) across the project; the collector
+// re-accumulates from the next event. The fleet-wide fix for "scores look
+// inflated / collector scoring changed". Admin/Owner only (403 otherwise).
+export const useApiInventoryRebaselineScores = () => {
+    const { project } = useProjectVariable();
+    return useMutation({
+        mutationFn: async (): Promise<InventoryRebaselineResponse> => {
+            const res = await api.post(
+                `${Config.baseApi}${INVENTORY_PATH}/rebaseline-scores?project=${encodeURIComponent(
+                    project,
+                )}`,
             );
             return res.data;
         },

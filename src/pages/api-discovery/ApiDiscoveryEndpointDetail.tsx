@@ -48,6 +48,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import {
     useApiInventoryDetail,
+    useApiInventoryCurrentPosture,
     useApiInventoryEvents,
     useApiInventoryStats,
     useApiInventoryGeo,
@@ -66,6 +67,7 @@ import KpiPill from './components/KpiPill';
 import BackButton from './components/BackButton';
 import SamplingBadge from './components/SamplingBadge';
 import AuthSchemesBadge from './components/AuthSchemesBadge';
+import CurrentPostureCard from './components/CurrentPostureCard';
 import { CONSUMER_INFO } from './lib/consumerInfo';
 import { formatCompactNumber, formatBytes } from './lib/formatNumber';
 import {
@@ -80,6 +82,7 @@ import { countryFlag } from './lib/countryFlag';
 import { antdToSort, columnSortOrder, type SortState } from './lib/tableSort';
 import type {
     InventoryDoc,
+    CurrentPostureResponse,
     RawEvent,
     Granularity,
     GeoCountry,
@@ -248,7 +251,11 @@ const riskColor = (s: number): string =>
 const postureColor = (s: number): string =>
     s >= 40 ? '#c41d7f' : s >= 25 ? '#722ed1' : s >= 10 ? '#1677ff' : s > 0 ? '#69b1ff' : '#9ca3af';
 
-const OverviewTab: React.FC<{ doc: InventoryDoc }> = ({ doc }) => {
+const OverviewTab: React.FC<{
+    doc: InventoryDoc;
+    posture?: CurrentPostureResponse;
+    postureLoading?: boolean;
+}> = ({ doc, posture, postureLoading }) => {
     const [overviewParams, setOverviewParams] = useSearchParams();
     // Deep-link into the Events tab in sample mode.
     const openSampleEvents = () => {
@@ -260,6 +267,10 @@ const OverviewTab: React.FC<{ doc: InventoryDoc }> = ({ doc }) => {
 
     return (
         <>
+            {/* Current vs ever — "is this endpoint STILL bad?" before the
+                monotonic lifetime KPIs below. */}
+            <CurrentPostureCard doc={doc} posture={posture} loading={postureLoading} />
+
             <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
                 <Col xs={12} md={6}>
                     <KpiTile
@@ -2725,6 +2736,14 @@ const ApiDiscoveryEndpointDetail: React.FC = () => {
     const { data, isLoading, error, refetch } = useApiInventoryDetail(id, !!project);
     const doc = data?.data;
 
+    // Current-vs-ever posture (ClickHouse-windowed; always 200, degrades to
+    // current_available:false). Rendered at the top of the Overview tab.
+    const { data: postureData, isLoading: postureLoading } = useApiInventoryCurrentPosture(
+        id,
+        undefined,
+        !!project && !!id,
+    );
+
     // Inventory cleanup actions — Admin/Owner only.
     const userDetail = useAuth();
     const isAdminOrOwner = ['owner', 'admin'].includes(userDetail?.role?.toLowerCase() || '');
@@ -3040,7 +3059,7 @@ const ApiDiscoveryEndpointDetail: React.FC = () => {
                             ),
                             children: (
                                 <ComponentLoadErrorBoundary componentName="Overview">
-                                    <OverviewTab doc={doc} />
+                                    <OverviewTab doc={doc} posture={postureData} postureLoading={postureLoading} />
                                 </ComponentLoadErrorBoundary>
                             ),
                         },

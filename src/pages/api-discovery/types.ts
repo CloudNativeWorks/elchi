@@ -23,6 +23,16 @@ export interface PaginatedResponse<T> {
      *  which ordering the server actually applied. */
     sort_by?: string;
     sort_order?: SortOrder;
+    /** Present only on catalog lists requested with `with_current=true`:
+     *  whether the current-vs-ever overlay (ClickHouse 1h rollup) succeeded.
+     *  false → the per-row current_* fields are absent; render the monotonic
+     *  "_ever" max_risk_score instead. */
+    current_available?: boolean;
+    /** Whether the current EXPOSURE axis is available. Always false for now —
+     *  the collector ships risk_score (threat) to ClickHouse but not
+     *  posture_score (exposure), so exposure stays "_ever" only. Read it so
+     *  the UI flips automatically once the collector mirrors posture_score. */
+    posture_current_available?: boolean;
 }
 
 export interface SingleResponse<T> {
@@ -88,6 +98,63 @@ export interface InventoryDoc {
      *  noise. The main catalog returns only confirmed docs; the
      *  /attack-surface endpoint returns the rest. */
     confirmed?: boolean;
+    /** Current (windowed) THREAT max from the 1h rollup — present only when
+     *  the list was requested with `with_current=true` and the response's
+     *  current_available is true. null = dormant (no traffic in the window);
+     *  see current_dormant. Always ≤ max_risk_score (the lifetime max). */
+    current_max_risk?: number | null;
+    /** true = no traffic in the current window (dormant) → current_max_risk
+     *  is null; show the "_ever" max greyed out. */
+    current_dormant?: boolean;
+}
+
+// ---------- /inventory/:id/current-posture — current vs ever ----------
+// The inventory doc only stores monotonic ($max) "ever observed" scores, so a
+// remediated endpoint stays red forever. This endpoint answers "is it STILL
+// bad?" by pairing the doc's "_ever" scores with a ClickHouse-windowed
+// "current" snapshot. Always 200 (graceful) — never blocks the "_ever" answer.
+
+export interface CurrentPosture {
+    active: boolean;
+    window_days: number;
+    /** Windowed THREAT max — read from raw with the full host-precise key
+     *  (sampling-safe: the collector only ever drops benign events). */
+    max_risk_score: number;
+    /** Windowed EXPOSURE max — absent until the collector ships posture_score
+     *  to the time-series store (gated by posture_current_available). Read it
+     *  now so current exposure renders automatically once it arrives. */
+    max_posture_score?: number | null;
+    /** Flags STILL seen in the window (raw, ≤ retention). */
+    risk_flags: string[];
+    pii_categories: string[];
+    auth_observed: boolean;       // ≥1 authenticated request in window
+    noauth_observed: boolean;     // ≥1 UNauthenticated request (posture signal)
+    event_count: number;
+    last_active: string;          // RFC3339
+}
+
+export interface CurrentPostureResponse {
+    /** false → ClickHouse offline / query failed; `current` is null, fall
+     *  back to `ever`. The request still returns 200. */
+    current_available: boolean;
+    /** true → ClickHouse is reachable but the window had no traffic; `current`
+     *  is null. "clean because quiet" ≠ "clean because remediated". */
+    dormant?: boolean;
+    window_days?: number;
+    /** Null when dormant or current_available is false. */
+    current: CurrentPosture | null;
+    /** Monotonic scores from the inventory doc (always present). */
+    ever: {
+        max_risk_score: number;
+        max_posture_score: number;
+    };
+    /** Current EXPOSURE axis — always false for now (collector doesn't ship
+     *  posture_score to ClickHouse). When it flips true, `current` gains a
+     *  max_posture_score and the UI shows current exposure too. */
+    posture_current_available: boolean;
+    /** Set when current_available is false due to a query error (not a
+     *  missing ClickHouse). */
+    current_error?: string;
 }
 
 // One row from GET /api/v3/inventory/:id/events (api_events_raw via ClickHouse).
@@ -196,6 +263,18 @@ export interface InventoryListParams {
     pii_category?: string[];
     min_risk_score?: number;
     max_risk_score?: number;
+    /** Read-side maturity gate (opt-in). Keeps only operations seen ≥ this
+     *  many times — filters one-off scanner hits that route-aware `confirmed`
+     *  promotes into the catalog. Omit / 0 = off. */
+    min_seen?: number;
+    /** Overlay each row with its current (windowed) THREAT max from the 1h
+     *  rollup so the catalog defaults to CURRENT risk, not the monotonic
+     *  "_ever" max. Adds current_max_risk / current_dormant per row +
+     *  current_available at the response root. */
+    with_current?: boolean;
+    /** Window (days) for the with_current overlay. Default 7, max 7 — current
+     *  is read from the raw event table, which is bounded by ~7d retention. */
+    current_window_days?: number;
     last_seen_from?: string;
     last_seen_to?: string;
     sort_by?: InventoryListSortField;
@@ -240,6 +319,10 @@ export interface OperationEntry {
     auth_schemes?: string[];
     latency_max_ms: number;
     last_seen: string;
+    /** Current (windowed) THREAT max for this operation — present only with
+     *  `with_current=true`. null = dormant. See current_dormant. */
+    current_max_risk?: number | null;
+    current_dormant?: boolean;
 }
 
 export interface OperationGroup {
@@ -256,6 +339,11 @@ export interface OperationGroup {
     first_seen: string;
     last_seen: string;
     operations: OperationEntry[];
+    /** Path-row current THREAT max = the max across this path's ACTIVE
+     *  operations (null when every operation is dormant). Present only with
+     *  `with_current=true`. */
+    current_max_risk?: number | null;
+    current_dormant?: boolean;
 }
 
 export type OperationsSortField =
