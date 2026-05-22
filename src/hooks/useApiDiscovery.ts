@@ -36,6 +36,12 @@ import type {
     NormalizeGapsResponse,
     OperationsResponse,
     OperationsListParams,
+    DriftChangesResponse,
+    DriftChangesParams,
+    SnapshotsResponse,
+    ConsumersResponse,
+    ConsumerDetail,
+    ConsumersParams,
 } from '@/pages/api-discovery/types';
 
 const INVENTORY_PATH = 'inventory'; // Config.baseApi already adds /api/v3/
@@ -508,4 +514,77 @@ export const useApiInventoryCleanupStale = () => {
             return res.data;
         },
     });
+};
+
+// ---------- /inventory/changes + /snapshots — API drift detection ----------
+// `since` selects the baseline (most recent snapshot at-or-before it); 404
+// means "no baseline yet" and is handled inline, so suppress the global toast.
+
+export const useApiInventoryChanges = (params: DriftChangesParams = {}, enabled = true) => {
+    const { project } = useProjectVariable();
+    return useQuery<DriftChangesResponse>({
+        queryKey: [`inventory_changes_${project}_${stableKey(params)}`],
+        enabled: enabled && !!project,
+        refetchOnWindowFocus: false,
+        retry: false,
+        queryFn: () =>
+            api
+                .get(`${Config.baseApi}${INVENTORY_PATH}/changes?${buildQuery(project, params)}`, {
+                    _skipGlobalErrorNotification: true,
+                } as any)
+                .then((res) => res.data as DriftChangesResponse),
+    });
+};
+
+export const useApiInventorySnapshots = (enabled = true) => {
+    const { project } = useProjectVariable();
+    return useQuery<SnapshotsResponse>({
+        queryKey: [`inventory_snapshots_${project}`],
+        enabled: enabled && !!project,
+        refetchOnWindowFocus: false,
+        queryFn: () =>
+            api
+                .get(`${Config.baseApi}${INVENTORY_PATH}/snapshots?project=${encodeURIComponent(project)}`)
+                .then((res) => res.data as SnapshotsResponse),
+    });
+};
+
+// POST /inventory/snapshots — manual baseline (Admin/Owner; 403 otherwise).
+export const useCreateInventorySnapshot = () => {
+    const { project } = useProjectVariable();
+    return useMutation({
+        mutationFn: async () => {
+            const res = await api.post(
+                `${Config.baseApi}${INVENTORY_PATH}/snapshots?project=${encodeURIComponent(project)}`,
+            );
+            return res.data as { snapshot_id: string; operation_count: number; project_id: string };
+        },
+    });
+};
+
+// ---------- /inventory/consumers — consumer (identity) analytics ----------
+// ClickHouse-backed → 503 when not configured (handled by useClickhouseQuery).
+
+export const useApiInventoryConsumers = (params: ConsumersParams = {}, enabled = true) => {
+    const { project } = useProjectVariable();
+    const path = `${INVENTORY_PATH}/consumers?${buildQuery(project, params)}`;
+    return useClickhouseQuery<ConsumersResponse>(
+        `inventory_consumers_${project}_${stableKey(params)}`,
+        path,
+        enabled && !!project,
+    );
+};
+
+export const useApiInventoryConsumerDetail = (
+    hash: string | undefined,
+    params: ConsumersParams = {},
+    enabled = true,
+) => {
+    const { project } = useProjectVariable();
+    const path = `${INVENTORY_PATH}/consumers/${hash}?${buildQuery(project, params)}`;
+    return useClickhouseQuery<ConsumerDetail>(
+        `inventory_consumer_${project}_${hash}_${stableKey(params)}`,
+        path,
+        enabled && !!project && !!hash,
+    );
 };

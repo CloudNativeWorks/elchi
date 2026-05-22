@@ -736,3 +736,131 @@ export interface NormalizeGapsResponse {
     data: NormalizeGap[];
     count: number;
 }
+
+// ---------- /inventory/changes — API drift / change detection ----------
+
+export type DriftChangeType =
+    | 'new_operation'
+    | 'new_method'
+    | 'removed_operation'
+    | 'auth_downgrade'
+    | 'new_pii_category'
+    | 'new_risk_flag'
+    | 'risk_increase'
+    | 'status_regress'
+    | 'zombie_resurrection';
+
+export type DriftMode =
+    | 'all'
+    | 'new'
+    | 'removed'
+    | 'auth'
+    | 'pii'
+    | 'risk'
+    | 'status'
+    | 'zombie';
+
+/** One drift signal. `detail` shape varies by `type` (see the guide). */
+export interface DriftChange {
+    type: DriftChangeType;
+    listener_name: string;
+    protocol: string;
+    host: string;
+    method: string;
+    normalized_path: string;
+    grpc_service?: string;
+    grpc_method?: string;
+    last_seen: string;
+    detail?: Record<string, any>;
+}
+
+export interface DriftChangesResponse {
+    data: DriftChange[];
+    count: number;
+    total_count: number;
+    since: string;
+    baseline_snapshot_id: string;
+    baseline_snapshot_at: string;
+    mode: string;
+    limit: number;
+    offset: number;
+}
+
+export interface DriftChangesParams {
+    since?: string;
+    mode?: DriftMode;
+    limit?: number;
+    offset?: number;
+}
+
+export interface InventorySnapshot {
+    snapshot_id: string;
+    snapshot_at: string;
+    operation_count: number;
+}
+
+export interface SnapshotsResponse {
+    data: InventorySnapshot[];
+    count: number;
+}
+
+// ---------- /inventory/consumers — consumer (identity) analytics ----------
+
+export interface ConsumerRow {
+    consumer_hash: string;
+    events: number;
+    max_risk_score: number;
+    distinct_ips: number;
+    distinct_endpoints: number;
+    ti_hits: number;
+    first_seen: string;
+    last_seen: string;
+    percentage: number;          // share of NAMED (non-anonymous) events
+}
+
+export interface ConsumersResponse {
+    total_events: number;
+    anonymous_events: number;
+    top_consumers: ConsumerRow[];
+}
+
+export interface ConsumerEndpoint {
+    listener_name: string;
+    normalized_path: string;
+    method: string;
+    count: number;
+    max_risk_score: number;
+}
+
+export interface ConsumerSourceIP {
+    /** Raw IP — only populated when collector Policy.StoreRawSourceIP is on;
+     *  "" otherwise (fall back to `hash`). */
+    ip: string;
+    hash: string;        // source_ip_hash — always present
+    count: number;
+}
+
+export interface ConsumerDetail {
+    consumer_hash: string;
+    total_events: number;
+    distinct_endpoints: number;
+    distinct_ips: number;
+    max_risk_score: number;
+    critical_events: number;     // risk_score >= 10
+    ti_hits: number;
+    first_seen: string;
+    last_seen: string;
+    geo_country?: string;
+    geo_asn?: string;
+    geo_asn_org?: string;
+    method_dist: Record<string, number>;
+    status_dist: Record<string, number>;
+    top_endpoints: ConsumerEndpoint[];
+    top_source_ips?: ConsumerSourceIP[];
+}
+
+export interface ConsumersParams {
+    from?: string;
+    to?: string;
+    top?: number;
+}

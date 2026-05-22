@@ -20,6 +20,8 @@ import {
     ClearOutlined,
     PlusOutlined,
     CheckCircleOutlined,
+    SwapOutlined,
+    TeamOutlined,
 } from '@ant-design/icons';
 import { Link, useSearchParams } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
@@ -46,6 +48,8 @@ import RiskSummaryDashboard from './dashboards/RiskSummaryDashboard';
 import SecurityScoreDashboard from './dashboards/SecurityScoreDashboard';
 import TransportDashboard from './dashboards/TransportDashboard';
 import ErrorsDashboard from './dashboards/ErrorsDashboard';
+import DriftDashboard from './dashboards/DriftDashboard';
+import ConsumersDashboard from './dashboards/ConsumersDashboard';
 import ComponentLoadErrorBoundary from '@/components/ComponentLoadErrorBoundary';
 import type { ListenerSummary, ListenerSortField, NormalizeGap } from './types';
 
@@ -924,6 +928,24 @@ const ApiDiscoveryListeners: React.FC = () => {
                             </span>
                         ),
                         children: gb('Errors', <ErrorsDashboard />),
+                    },
+                    {
+                        key: 'drift',
+                        label: (
+                            <span>
+                                <SwapOutlined /> Drift
+                            </span>
+                        ),
+                        children: gb('Drift', <DriftDashboard />),
+                    },
+                    {
+                        key: 'consumers',
+                        label: (
+                            <span>
+                                <TeamOutlined /> Consumers
+                            </span>
+                        ),
+                        children: gb('Consumers', <ConsumersDashboard />),
                     },
                 ]}
             />

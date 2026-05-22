@@ -66,6 +66,7 @@ import KpiPill from './components/KpiPill';
 import BackButton from './components/BackButton';
 import SamplingBadge from './components/SamplingBadge';
 import AuthSchemesBadge from './components/AuthSchemesBadge';
+import { CONSUMER_INFO } from './lib/consumerInfo';
 import { formatCompactNumber, formatBytes } from './lib/formatNumber';
 import {
     riskFlagLabel,
@@ -640,7 +641,7 @@ const OverviewTab: React.FC<{ doc: InventoryDoc }> = ({ doc }) => {
             })()}
 
             {doc.consumers?.length ? (
-                <Card size="small" title="Consumers (hashed)" style={{ borderRadius: 8, marginBottom: 16 }}>
+                <Card size="small" title={<InfoLabel info={CONSUMER_INFO}>Consumers (hashed)</InfoLabel>} style={{ borderRadius: 8, marginBottom: 16 }}>
                     <Space size={[6, 6]} wrap>
                         {doc.consumers.slice(0, 10).map((c) => (
                             <Tag
