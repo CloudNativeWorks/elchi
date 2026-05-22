@@ -292,12 +292,13 @@ const ConsumersDashboard: React.FC = () => {
             key: 'consumer_hash',
             render: (h: string) => {
                 const ok = HASH_RE.test(h);
-                return (
-                    <Tooltip title={ok ? h : 'Invalid hash format — cannot open the consumer profile.'}>
-                        <Text code style={{ fontSize: 11, cursor: ok ? 'pointer' : 'default', opacity: ok ? 1 : 0.65 }}>
-                            {shortHash(h)}
-                        </Text>
-                    </Tooltip>
+                const text = (
+                    <Text code style={{ fontSize: 11, cursor: ok ? 'pointer' : 'default', opacity: ok ? 1 : 0.65 }}>
+                        {h || '—'}
+                    </Text>
+                );
+                return ok ? text : (
+                    <Tooltip title="Invalid hash format — cannot open the consumer profile.">{text}</Tooltip>
                 );
             },
         },

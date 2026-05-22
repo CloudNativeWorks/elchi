@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography } from 'antd';
+import { Typography, Tooltip } from 'antd';
 
 const { Text } = Typography;
 
@@ -14,6 +14,11 @@ interface Props {
     path: string;
     /** Base font size in px. Default 13.5. */
     size?: number;
+    /** Wrap so no line exceeds this many monospace chars. Default 40. */
+    maxChars?: number;
+    /** Hard-truncate paths longer than this many chars with "…" (full path
+     *  shown on hover). Default 100. */
+    truncateAt?: number;
 }
 
 // Renders a normalized API path as an inline code chip:
@@ -21,10 +26,13 @@ interface Props {
 //   - `/` separators are slightly muted so segments stay distinguishable,
 //   - the leaf segment is bold — the endpoint name reads first,
 //   - templated placeholders ({id}, {pii}, …) are tinted.
-const EndpointPath: React.FC<Props> = ({ path, size = 13 }) => {
+const EndpointPath: React.FC<Props> = ({ path, size = 13, maxChars = 40, truncateAt = 100 }) => {
     if (!path) return <Text type="secondary">—</Text>;
 
-    const segments = path.split('/');
+    const truncated = path.length > truncateAt;
+    const shown = truncated ? path.slice(0, truncateAt) : path;
+
+    const segments = shown.split('/');
     // Last non-empty segment — so a trailing slash doesn't steal emphasis.
     let leafIdx = -1;
     for (let i = segments.length - 1; i >= 0; i -= 1) {
@@ -34,7 +42,7 @@ const EndpointPath: React.FC<Props> = ({ path, size = 13 }) => {
         }
     }
 
-    return (
+    const chip = (
         <span
             style={{
                 fontFamily: MONO,
@@ -43,6 +51,7 @@ const EndpointPath: React.FC<Props> = ({ path, size = 13 }) => {
                 wordBreak: 'break-all',
                 lineHeight: 1.5,
                 display: 'inline-block',
+                maxWidth: `${maxChars}ch`,
                 background: 'var(--code-bg, var(--bg-elevated))',
                 border: '1px solid var(--border-default)',
                 borderRadius: 6,
@@ -75,7 +84,17 @@ const EndpointPath: React.FC<Props> = ({ path, size = 13 }) => {
                     </React.Fragment>
                 );
             })}
+            {truncated && <span style={{ color: 'var(--text-tertiary)' }}>…</span>}
         </span>
+    );
+
+    // Over the truncate threshold → reveal the full path on hover.
+    return truncated ? (
+        <Tooltip title={path} styles={{ body: { maxWidth: 520, wordBreak: 'break-all', fontFamily: MONO, fontSize: 11 } }}>
+            {chip}
+        </Tooltip>
+    ) : (
+        chip
     );
 };
 
