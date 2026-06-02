@@ -219,26 +219,6 @@ const ErrorsDashboard: React.FC = () => {
                 );
             },
         },
-        {
-            title: 'Top statuses',
-            dataIndex: 'top_statuses',
-            key: 'top_statuses',
-            width: 220,
-            render: (rows: ErrorHotspot['top_statuses']) => (
-                <Space size={[4, 4]} wrap>
-                    {(rows ?? []).map((s) => (
-                        <Tag
-                            key={s.status}
-                            className="auto-width-tag"
-                            color={s.status >= 500 ? 'red' : 'orange'}
-                            style={{ margin: 0, fontSize: 11 }}
-                        >
-                            {s.status} · {formatCompactNumber(s.count)}
-                        </Tag>
-                    ))}
-                </Space>
-            ),
-        },
     ];
 
     if (isClickhouseUnavailable) {

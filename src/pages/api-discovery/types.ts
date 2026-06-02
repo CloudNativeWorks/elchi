@@ -755,11 +755,6 @@ export interface InventoryTransportParams {
 
 // ---------- /inventory/errors — 4xx / 5xx analysis ----------
 
-export interface ErrorStatusCount {
-    status: number;
-    count: number;
-}
-
 export interface ErrorHotspot {
     listener_name: string;
     normalized_path: string;
@@ -768,7 +763,9 @@ export interface ErrorHotspot {
     error_4xx: number;
     error_5xx: number;
     error_rate: number;          // 0–100
-    top_statuses: ErrorStatusCount[];
+    // NOTE: no per-status breakdown — the backend's ErrorHotspot
+    // (pkg/clickhouse/models.go) intentionally omits it; drill into
+    // /inventory/:id/events?status_min=400 for exact codes.
 }
 
 export interface ErrorSummary {
