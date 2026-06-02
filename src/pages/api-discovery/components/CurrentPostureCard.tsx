@@ -32,9 +32,9 @@ const POSTURE_INFO = (
         </div>
         <div style={{ opacity: 0.85 }}>
             <strong>Dormant</strong> = no traffic in the window (clean because quiet, not
-            necessarily remediated). <strong>Exposure</strong> has no current value yet — the
-            collector ships only the threat axis to the time-series store, so exposure is shown as
-            the lifetime max.
+            necessarily remediated). Both <strong>threat</strong> and <strong>exposure</strong> show
+            their current windowed value when the endpoint has recent traffic, and fall back to the
+            lifetime max when it's dormant.
         </div>
     </div>
 );
@@ -82,9 +82,9 @@ const CurrentPostureCard: React.FC<Props> = ({ doc, posture, loading }) => {
     const curThreat = cur?.max_risk_score ?? 0;
     const improved = !!cur && curThreat < everThreat;
 
-    // Current EXPOSURE — only when the collector ships posture_score to the
-    // time-series store (posture_current_available). false today → exposure is
-    // shown as the lifetime max; reading it now means no UI change when it lands.
+    // Current EXPOSURE — rendered when posture_current_available is true (the
+    // collector now ships posture_score to the time-series store) AND the window
+    // has traffic. Falls back to the lifetime max when the endpoint is dormant.
     const postureCurrentAvailable = posture?.posture_current_available === true;
     const curExposure = cur?.max_posture_score;
     const showCurExposure = postureCurrentAvailable && !!cur && typeof curExposure === 'number';
@@ -199,7 +199,7 @@ const CurrentPostureCard: React.FC<Props> = ({ doc, posture, loading }) => {
                                 {showCurExposure ? (
                                     `Exposure · current (${windowDays}d)`
                                 ) : (
-                                    <InfoLabel info="Exposure (config hygiene) has no current value yet — the collector ships only the threat axis to the time-series store. Shown as the lifetime max.">
+                                    <InfoLabel info="No traffic in the current window — showing the lifetime max (config-hygiene exposure). Current exposure appears again once the endpoint sees traffic.">
                                         Exposure · lifetime
                                     </InfoLabel>
                                 )}

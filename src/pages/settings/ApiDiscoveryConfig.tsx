@@ -249,9 +249,10 @@ interface DetectorExtra {
 // The 8 sliding-window behavioural detectors — each {enabled, threshold,
 // window_seconds}. `unit` labels what the threshold counts; `extra` is an
 // optional detector-specific knob.
-// Detectors backed by the collector's 128-slot DistinctTracker ring — a
-// threshold above 128 can never fire, so the backend rejects it (400).
-const DISTINCT_TRACKER_MAX = 128;
+// Detectors backed by a collector 128-slot tracking ring (DistinctTracker for
+// path_scan / geo_spread / normalize_gap, BOLATracker for bola) — a threshold
+// above 128 can never fire, so the backend rejects it (400).
+const RING_THRESHOLD_MAX = 128;
 
 const DETECTORS: {
     key: keyof DetectionConfig;
@@ -266,6 +267,7 @@ const DETECTORS: {
         key: 'bola', label: 'BOLA', unit: 'distinct IDs',
         desc: 'One consumer enumerating many object IDs on a single endpoint (OWASP API1).',
         extra: { field: 'min_forbidden', label: 'Min forbidden', kind: 'number', hint: '403/404 responses required before enumeration is flagged.' },
+        maxThreshold: RING_THRESHOLD_MAX,
     },
     {
         key: 'brute_force', label: 'Brute Force', unit: 'auth 4xx',
@@ -275,15 +277,15 @@ const DETECTORS: {
     { key: 'rate_anomaly', label: 'Rate Anomaly', unit: 'requests', desc: 'A consumer exceeding the per-consumer request-rate threshold (OWASP API4).' },
     { key: 'payment_abuse', label: 'Payment Abuse', unit: 'requests', desc: 'A consumer hammering a payment endpoint beyond expected volume (OWASP API6).' },
     { key: 'replay', label: 'Replay', unit: 'duplicates', desc: 'The same request_id seen more than threshold times in the window.' },
-    { key: 'path_scan', label: 'Path Scan', unit: 'distinct 4xx paths', desc: 'One IP/consumer hitting many distinct paths returning 4xx — content discovery.', maxThreshold: DISTINCT_TRACKER_MAX },
+    { key: 'path_scan', label: 'Path Scan', unit: 'distinct 4xx paths', desc: 'One IP/consumer hitting many distinct paths returning 4xx — content discovery.', maxThreshold: RING_THRESHOLD_MAX },
     {
         key: 'geo_spread', label: 'Geo Spread', unit: 'countries',
         desc: 'One consumer/IP appearing from too many countries — impossible travel.',
         extra: { field: 'skip_mtls', label: 'Skip mTLS identities', kind: 'switch', hint: 'Exclude mTLS machine identities — they legitimately appear from many regions.' },
-        maxThreshold: DISTINCT_TRACKER_MAX,
+        maxThreshold: RING_THRESHOLD_MAX,
     },
     { key: 'ip_rate', label: 'IP Rate', unit: 'requests', desc: 'A single source IP exceeding the per-IP request-rate threshold.' },
-    { key: 'normalize_gap', label: 'Normalize Gap', unit: 'distinct child paths', desc: 'A path prefix accumulating many distinct un-normalized child segments — a likely missing path-normalization rule.', maxThreshold: DISTINCT_TRACKER_MAX },
+    { key: 'normalize_gap', label: 'Normalize Gap', unit: 'distinct child paths', desc: 'A path prefix accumulating many distinct un-normalized child segments — a likely missing path-normalization rule.', maxThreshold: RING_THRESHOLD_MAX },
 ];
 
 // ─── Validation (mirrors collector Doc.Validate) ─────────────────────
@@ -349,16 +351,28 @@ const validate = (policy: PolicyConfig, detection: DetectionConfig): string | nu
         if (w.enabled && (w.threshold <= 0 || w.window_seconds <= 0)) {
             return `${d.label} is enabled — threshold and window must both be greater than 0.`;
         }
+        // Integer-only fields — the backend writes JSON numbers to BSON as
+        // double and the collector decodes them to int/int64; a fractional
+        // value makes it silently reject the whole document, so reject early.
+        if (!Number.isInteger(w.threshold) || !Number.isInteger(w.window_seconds)) {
+            return `${d.label}: threshold and window must be whole numbers.`;
+        }
+        if (typeof w.threshold_ip === 'number' && !Number.isInteger(w.threshold_ip)) {
+            return `${d.label}: IP threshold must be a whole number.`;
+        }
+        if (typeof w.min_forbidden === 'number' && !Number.isInteger(w.min_forbidden)) {
+            return `${d.label}: min forbidden must be a whole number.`;
+        }
         if (d.maxThreshold && w.threshold > d.maxThreshold) {
-            return `${d.label}: threshold cannot exceed ${d.maxThreshold} (collector DistinctTracker ring size).`;
+            return `${d.label}: threshold cannot exceed ${d.maxThreshold} (collector tracker ring size).`;
         }
     }
     const rs = detection.response_size;
     if (rs.enabled && (rs.multiplier <= 0 || rs.min_baseline_bytes < 0 || rs.min_event_bytes < 0 || rs.warmup_samples < 0)) {
         return 'Response Size: multiplier must be > 0 and the byte / warmup fields must not be negative.';
     }
-    if (detection.weak_token_ttl_seconds < 0) {
-        return 'Weak token TTL must be 0 (disabled) or a positive number of seconds.';
+    if (detection.weak_token_ttl_seconds < 0 || !Number.isInteger(detection.weak_token_ttl_seconds)) {
+        return 'Weak token TTL must be 0 (disabled) or a whole number of seconds.';
     }
     for (const p of policy.ingest_deny_patterns) {
         try {
@@ -492,6 +506,8 @@ const DetectorCard: React.FC<{
                     size="small"
                     min={0}
                     max={maxThreshold}
+                    step={1}
+                    precision={0}
                     style={{ width: '100%' }}
                     value={value.threshold}
                     disabled={disabled || !value.enabled}
@@ -508,6 +524,8 @@ const DetectorCard: React.FC<{
                 <InputNumber
                     size="small"
                     min={0}
+                    step={1}
+                    precision={0}
                     style={{ width: '100%' }}
                     value={value.window_seconds}
                     disabled={disabled || !value.enabled}
@@ -546,6 +564,8 @@ const DetectorCard: React.FC<{
                         <InputNumber
                             size="small"
                             min={0}
+                            step={1}
+                            precision={0}
                             style={{ width: '100%' }}
                             value={(value[extra.field] as number) ?? 0}
                             disabled={disabled || !value.enabled}
@@ -1531,6 +1551,8 @@ const ApiDiscoveryConfigInner: React.FC = () => {
                             <div style={{ marginTop: 4 }}>
                                 <InputNumber
                                     min={0}
+                                    step={1}
+                                    precision={0}
                                     style={{ width: 200 }}
                                     value={detection.weak_token_ttl_seconds}
                                     disabled={saving}
