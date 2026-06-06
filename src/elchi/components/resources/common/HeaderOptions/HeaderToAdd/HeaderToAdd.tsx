@@ -152,9 +152,9 @@ const HeaderToAdd: React.FC<GeneralProps> = ({ veri }) => {
         handleChangeResources({ version: veri.version, type: ActionType.Update, keys, val, resourceType: ResourceType.Resource }, dispatch, veri.reduxAction);
     };
 
-    // Snippet apply fonksiyonu - ECard için uygun format
+    // Snippet apply function - format suitable for ECard
     const handleApplySnippet = (keys: string, data: any) => {
-        // Keys parametresini kullan (snippet'ın kendi path'i yerine current context)
+        // Use the keys parameter (current context instead of the snippet's own path)
         handleChangeResources({ version: veri.version, type: ActionType.Update, keys: keys, val: data, resourceType: ResourceType.Resource }, dispatch, veri.reduxAction);
     };
 

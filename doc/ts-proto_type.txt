@@ -1,18 +1,18 @@
-buf generate yapmadan önce aşağıdaki değişiklikleri ts-proto dosyasının type.ts içerisinde yap.
+Before running buf generate, make the following changes inside ts-proto's type.ts file.
 
 
-aşağıdaki satırı ->
+Replace the following line ->
 case ts_proto_descriptors_1.FieldDescriptorProto_Type.TYPE_BOOL:
     return (0, ts_poet_1.code) `${place} === true`;
 
 
-bununla değiştir ->
+with this ->
 case ts_proto_descriptors_1.FieldDescriptorProto_Type.TYPE_BOOL:
     return (0, ts_poet_1.code) `${place} !== undefined`;
 
 -----------------------------------------------------------------------------------------------
 
-aşağıdaki satırı -->
+Replace the following line -->
 if (options.stringEnums) {
     const enumType = messageToTypeName(ctx, field.typeName);
     const enumValue = (0, enums_1.getMemberName)(ctx, enumProto, zerothValue);
@@ -23,7 +23,7 @@ else {
 }
 
 
-bununla değiştir -->
+with this -->
 if (options.stringEnums) {
     // const enumType = messageToTypeName(ctx, field.typeName);
     // const enumValue = (0, enums_1.getMemberName)(ctx, enumProto, zerothValue);
@@ -36,6 +36,6 @@ else {
 
 
 
-envoy/api altına buf.gen.yaml kopyalanacak ts-proto node_modules içerisinde olmalı ts-proto yolu buf.gen.yaml da düzenlenecek aşağıdakiler çalıştıralacak.
+buf.gen.yaml will be copied under envoy/api. ts-proto must be present inside node_modules, and the ts-proto path in buf.gen.yaml will be updated. Then run the following.
 buf mod update
 buf generate 

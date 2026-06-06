@@ -32,7 +32,7 @@ const ComponentPermissions: React.FC<GeneralProps> = ({ veri }) => {
     const [dataSource, setDataSource] = useState<VirtualHostWithIndex[]>([]);
     const { vModels } = useModels(veri.version, modtag_rbac_permission);
 
-    // Snippet apply fonksiyonu - ECard için uygun format  
+    // Snippet apply function - format suitable for ECard
     const handleApplySnippet = (keys: string, data: any) => {
         handleChangeResources({
             version: veri.version,

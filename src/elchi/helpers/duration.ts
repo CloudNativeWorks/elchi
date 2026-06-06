@@ -14,6 +14,9 @@ async function initializeDurationModules() {
         // Explicit dynamic imports for each version
         let module
         switch (version) {
+            case 'v1.38.1':
+                module = await import('../versions/v1.38.1/models/google/protobuf/duration')
+                break
             case 'v1.36.2':
                 module = await import('../versions/v1.36.2/models/google/protobuf/duration')
                 break

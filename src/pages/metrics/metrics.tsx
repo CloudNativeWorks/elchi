@@ -47,7 +47,7 @@ const Metrics: React.FC<MetricsProps> = () => {
     // URL search params
 
 
-    // Group state - merkezi yönetim
+    // Group state - centralized management
     const [selectedGroup, setSelectedGroup] = useState<string>('all');
 
     // Main State

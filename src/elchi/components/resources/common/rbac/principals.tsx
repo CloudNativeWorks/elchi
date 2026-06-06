@@ -35,7 +35,7 @@ const ComponentPrincipals: React.FC<GeneralProps> = ({ veri }) => {
     const [ipType, setIpType] = useState<string>("direct_remote_ip");
     const { vModels } = useModels(veri.version, modtag_rbac_principal);
 
-    // Snippet apply fonksiyonu - ECard için uygun format  
+    // Snippet apply function - format suitable for ECard
     const handleApplySnippet = (keys: string, data: any) => {
         handleChangeResources({
             version: veri.version,

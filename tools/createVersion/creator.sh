@@ -35,17 +35,20 @@ yarn install
 # Build with Yarn
 yarn build
 
-# Check if protoc-gen-ts_proto is available
-# PROTOC_GEN_TS_PATH="$TMP_TS_PROTO_DIR/ts-proto/node_modules/.bin/protoc-gen-ts_proto"
-PROTOC_GEN_TS_PATH="$SCRIPT_DIR/ts-proto-debug.sh"
-
-echo $PROTOC_GEN_TS_PATH
-if [ ! -f "$PROTOC_GEN_TS_PATH" ]; then
-    echo "protoc-gen-ts_proto not found: $PROTOC_GEN_TS_PATH"
+# Resolve the protoc-gen-ts_proto binary from the freshly built ts-proto
+TS_PROTO_BIN="$TMP_TS_PROTO_DIR/ts-proto/node_modules/.bin/protoc-gen-ts_proto"
+if [ ! -f "$TS_PROTO_BIN" ]; then
+    echo "protoc-gen-ts_proto not found: $TS_PROTO_BIN"
     exit 1
 fi
 
-# export PROTOC_GEN_TS_PATH="$TMP_TS_PROTO_DIR/ts-proto/node_modules/.bin/protoc-gen-ts_proto"
+# Generate the plugin wrapper pointing at the just-built binary
+cat > "$SCRIPT_DIR/ts-proto-debug.sh" <<EOF
+#!/bin/bash
+node "$TS_PROTO_BIN"
+EOF
+chmod +x "$SCRIPT_DIR/ts-proto-debug.sh"
+
 export PROTOC_GEN_TS_PATH="$SCRIPT_DIR/ts-proto-debug.sh"
 yq e -i '.plugins[].path = strenv(PROTOC_GEN_TS_PATH)' $SCRIPT_DIR/buf.gen.yaml
 

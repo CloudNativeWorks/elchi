@@ -9,7 +9,6 @@ import { UserDetail } from "@/common/types";
 import { useErrorSummary } from "@/hooks/useErrorSummary";
 import { useProjectVariable } from "@/hooks/useProjectVariable";
 import { useTheme } from "@/contexts/ThemeContext";
-import LicenseBadge from "./LicenseBadge";
 
 
 interface HeaderProps {
@@ -301,7 +300,6 @@ function Header({ userDetail }: Readonly<HeaderProps>) {
 									AI Analyzer
 								</Button>
 							</Tooltip>
-							<LicenseBadge />
 							<Tooltip title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
 								<Button
 									className="theme-toggle-button"

@@ -311,7 +311,7 @@ export const useScenarioAPI = () => {
     const useImportScenarios = () => {
         return useMutation({
             mutationFn: async (data: ImportScenarioRequest): Promise<ImportScenarioResponse> => {
-                // Project'i hem body'de hem de query param'da gönder
+                // Send project both in the body and as a query param
                 const params = new URLSearchParams();
                 if (data.project) {
                     params.append('project', data.project);

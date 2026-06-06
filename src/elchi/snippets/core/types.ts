@@ -52,8 +52,8 @@ export interface SnippetFilter {
 }
 
 export interface ApplySnippetOptions {
-  targetIndex?: number;  // Array için hangi index'e uygulanacak
-  appendToArray?: boolean; // Array'e yeni item olarak eklenecek mi
+  targetIndex?: number;  // Which array index it will be applied to
+  appendToArray?: boolean; // Whether to append as a new item to the array
 }
 
 export interface SaveSnippetOptions {

@@ -11,8 +11,8 @@ interface DeleteResourceOptions {
     redirectUri: string;
     updateData: number;
     setUpdateData: any;
-    showAutoSuccess?: boolean; // Otomatik success notification gösterilsin mi
-    customSuccessMessage?: string; // Özel success mesajı
+    showAutoSuccess?: boolean; // Whether to show the automatic success notification
+    customSuccessMessage?: string; // Custom success message
 }
 
 const useDeleteResource = (deleteMutate: any) => {

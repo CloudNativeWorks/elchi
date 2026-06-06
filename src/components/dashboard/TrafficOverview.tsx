@@ -139,7 +139,7 @@ interface DetailedMetric {
     healthy: number;
     total: number;
     status: 'healthy' | 'warning' | 'critical';
-    isCluster?: boolean; // cluster metrics için flag
+    isCluster?: boolean; // flag for cluster metrics
 }
 
 const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
@@ -694,7 +694,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                 switch (type) {
                     case 'requests': return b.requests - a.requests;
                     case 'connections':
-                        // Cluster'ları sonra göster, sonra değere göre sırala
+                        // Show clusters afterwards, then sort by value
                         if (a.isCluster && !b.isCluster) return 1;
                         if (!a.isCluster && b.isCluster) return -1;
                         return (b.connections + b.upstreamConnections) - (a.connections + a.upstreamConnections);

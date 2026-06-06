@@ -23,8 +23,8 @@ export interface CustomQueryOptions {
     refetchOnWindowFocus?: boolean;
     directApi?: boolean;
     headers?: Record<string, string>;
-    showAutoSuccess?: boolean; // Default: true - Otomatik success notification gösterilsin mi
-    suppressSuccess?: boolean; // Success notification'ı tamamen bastır (showAutoSuccess: false ile aynı)
+    showAutoSuccess?: boolean; // Default: true - Whether to show the automatic success notification
+    suppressSuccess?: boolean; // Completely suppress the success notification (same as showAutoSuccess: false)
 }
 
 export interface CustomMutationOptions {
@@ -48,10 +48,10 @@ export interface CustomMutationOptions {
     elchi_discovery?: any[];
     waf?: string; // WAF config name for Wasm filter
     api_discovery?: boolean; // HCM: enable elchi-collector ALS injection for API inventory
-    showAutoSuccess?: boolean; // Default: true - Otomatik success notification gösterilsin mi
-    suppressSuccess?: boolean; // Success notification'ı tamamen bastır (showAutoSuccess: false ile aynı)
-    customSuccessMessage?: string; // Özel success mesajı
-    successTitle?: string; // Success notification başlığı
+    showAutoSuccess?: boolean; // Default: true - Whether to show the automatic success notification
+    suppressSuccess?: boolean; // Completely suppress the success notification (same as showAutoSuccess: false)
+    customSuccessMessage?: string; // Custom success message
+    successTitle?: string; // Success notification title
     validate?: boolean; // Validation enabled/disabled flag for query param
 }
 
@@ -126,10 +126,10 @@ export interface ScenarioMutationOptions {
 
 export interface DeleteMutationOptions {
     path: string;
-    showAutoSuccess?: boolean; // Default: true - Otomatik success notification gösterilsin mi
-    suppressSuccess?: boolean; // Success notification'ı tamamen bastır (showAutoSuccess: false ile aynı)
-    customSuccessMessage?: string; // Özel success mesajı
-    successTitle?: string; // Success notification başlığı
+    showAutoSuccess?: boolean; // Default: true - Whether to show the automatic success notification
+    suppressSuccess?: boolean; // Completely suppress the success notification (same as showAutoSuccess: false)
+    customSuccessMessage?: string; // Custom success message
+    successTitle?: string; // Success notification title
 }
 
 export interface CustomApiMutationOptions {
@@ -137,10 +137,10 @@ export interface CustomApiMutationOptions {
     method: Method;
     data: any;
     directApi?: boolean; // If true, use path directly without Config.baseApi prefix
-    showAutoSuccess?: boolean; // Default: true - Otomatik success notification gösterilsin mi
-    suppressSuccess?: boolean; // Success notification'ı tamamen bastır (showAutoSuccess: false ile aynı)
-    customSuccessMessage?: string; // Özel success mesajı
-    successTitle?: string; // Success notification başlığı
+    showAutoSuccess?: boolean; // Default: true - Whether to show the automatic success notification
+    suppressSuccess?: boolean; // Completely suppress the success notification (same as showAutoSuccess: false)
+    customSuccessMessage?: string; // Custom success message
+    successTitle?: string; // Success notification title
 }
 
 export interface OperationsApiMutationOptions {

@@ -2,7 +2,8 @@ version: v1
 plugins:
   - name: ts
     strategy: all
-    path: "/Users/spehlivan/Documents/CloudNativeWorks/elchi/tools/createVersion/ts-proto-debug.sh"
+    # Placeholder — overwritten with an absolute path by creator.sh at runtime
+    path: "/Users/safapehlivan/Documents/projects/elchi/tools/createVersion/ts-proto-debug.sh"
     out: models
     opt:
       - stringEnums=true

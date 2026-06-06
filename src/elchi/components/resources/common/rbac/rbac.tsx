@@ -34,7 +34,7 @@ const ComponentRBAC: React.FC<GeneralProps> = ({ veri }) => {
         reduxStore: veri.reduxStore,
     });
 
-    // Snippet apply fonksiyonu - ECard için uygun format
+    // Snippet apply function - format suitable for ECard
     const handleApplySnippet = (keys: string, data: any) => {
         handleChangeRedux(keys, data);
     };
