@@ -9,7 +9,7 @@ import { describe, expect, it } from 'vitest';
 import { modelToYaml, yamlToModel } from './policyYaml';
 import { EXAMPLES } from '../components/ShieldExamplesDrawer';
 import { ENGINE_DEFS } from '../engines/registry';
-import { newPolicyFile } from '../state/model';
+import { ensureModelUids, newPolicyFile } from '../state/model';
 import { configPathForName } from './bundleAdapter';
 
 describe('yamlToModel / modelToYaml round-trip', () => {
@@ -30,6 +30,15 @@ describe('yamlToModel / modelToYaml round-trip', () => {
             expect(modelToYaml(second.model!)).toEqual(regenerated);
         });
     }
+
+    it('never leaks client-only _uid keys to the serialized YAML', () => {
+        const model = newPolicyFile('t');
+        model.spec.domains = [{ hosts: ['a.example.com'], routes: [{ match: { path_prefix: '/' }, policy: {} }] }];
+        const withUids = ensureModelUids(model);
+        expect(withUids.spec.domains![0]._uid).toBeDefined();
+        expect(withUids.spec.domains![0].routes![0]._uid).toBeDefined();
+        expect(modelToYaml(withUids)).not.toContain('_uid');
+    });
 
     it('reports unknown keys with their paths', () => {
         const parsed = yamlToModel(`
