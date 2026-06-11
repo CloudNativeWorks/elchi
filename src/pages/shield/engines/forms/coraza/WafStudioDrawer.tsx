@@ -25,6 +25,12 @@ import { joinDirectives, newRuleRow, parseDirectives } from './directivesCodec';
 
 const { Text, Title } = Typography;
 
+/** Numeric rule id of a SecRule line, if any (`id:942100`, `id:'942100'`). */
+const ruleIdOf = (text: string): number | null => {
+    const m = text.match(/\bid\s*:\s*['"]?(\d+)/i);
+    return m ? Number(m[1]) : null;
+};
+
 interface WafStudioDrawerProps {
     open: boolean;
     value: CorazaSpec;
@@ -73,8 +79,15 @@ const WafStudioDrawer: React.FC<WafStudioDrawerProps> = ({ open, value, onApply,
 
     const addRules = (texts: string[]) => {
         setRules((prev) => {
-            const existing = new Set(prev.map((r) => r.text));
-            const fresh = texts.filter((t) => t.trim() && !existing.has(t)).map(newRuleRow);
+            const existingText = new Set(prev.map((r) => r.text));
+            const existingIds = new Set(prev.map((r) => ruleIdOf(r.text)).filter((v): v is number => v !== null));
+            const fresh = texts
+                .filter((t) => {
+                    if (!t.trim() || existingText.has(t)) return false;
+                    const rid = ruleIdOf(t);
+                    return rid === null || !existingIds.has(rid); // never add a duplicate rule id
+                })
+                .map(newRuleRow);
             return [...prev, ...fresh];
         });
     };
@@ -85,11 +98,7 @@ const WafStudioDrawer: React.FC<WafStudioDrawerProps> = ({ open, value, onApply,
     // one and warns on a clash. Memoized so the CRS pane's "already added" scan
     // (which keys off the target's existing texts) doesn't re-run every render.
     const existingIds = useMemo(
-        () =>
-            rules
-                .map((r) => r.text.match(/\bid\s*:\s*['"]?(\d+)/i)?.[1])
-                .filter((s): s is string => !!s)
-                .map(Number),
+        () => rules.map((r) => ruleIdOf(r.text)).filter((v): v is number => v !== null),
         [rules],
     );
 
@@ -188,7 +197,7 @@ const WafStudioDrawer: React.FC<WafStudioDrawerProps> = ({ open, value, onApply,
                         </div>
                     </div>
                     <div style={{ flex: 1, minHeight: 0 }}>
-                        <CrsLibraryPane activeTarget={crsTarget} onAdd={(texts) => addRules(texts)} />
+                        <CrsLibraryPane activeTarget={crsTarget} onAdd={(texts) => addRules(texts)} disabled={disabled} />
                     </div>
                 </div>
             </div>
@@ -196,6 +205,7 @@ const WafStudioDrawer: React.FC<WafStudioDrawerProps> = ({ open, value, onApply,
             <VisualRuleBuilder
                 open={templateOpen}
                 existingIds={existingIds}
+                crsActive={draft.include_owasp}
                 onClose={() => setTemplateOpen(false)}
                 onAdd={(directive) => {
                     addRules([directive]);

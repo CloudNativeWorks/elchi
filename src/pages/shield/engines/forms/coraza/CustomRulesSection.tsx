@@ -132,6 +132,7 @@ const CustomRulesSection: React.FC<CustomRulesSectionProps> = ({
                             <DirectiveRow
                                 key={d.id}
                                 directive={d}
+                                readOnly={disabled}
                                 onChange={(text) => updateRow(d.id, text)}
                                 onDelete={() => deleteRow(d.id)}
                             />

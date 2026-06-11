@@ -9,7 +9,13 @@ import CrsBulkActionBar from './CrsBulkActionBar';
 const { Text } = Typography;
 
 const decodeRule = (raw: string): string =>
-    raw.replace(/\\n/g, '\n').replace(/\\t/g, '\t').replace(/\\"/g, '"').replace(/&/g, '&');
+    raw.replace(/\\n/g, '\n').replace(/\\t/g, '\t').replace(/\\"/g, '"').replace(/&amp;/g, '&');
+
+/** Pull the numeric rule id out of a SecRule line (`id:942100`, `id:'942100'`). */
+const ruleIdOf = (text: string): number | null => {
+    const m = text.match(/\bid\s*:\s*['"]?(\d+)/i);
+    return m ? Number(m[1]) : null;
+};
 
 /** A place CRS rules can be added to (a WAF directive set, or Shield's rules blob). */
 export interface CrsAddTarget {
@@ -36,6 +42,8 @@ export interface CrsLibraryPaneProps {
     bulkTargets?: CrsAddTarget[];
     /** Rendered in place of the list header when `activeTarget` is null. */
     notReadyAlert?: React.ReactNode;
+    /** Read-only: disable all add/include/bulk affordances. */
+    disabled?: boolean;
 }
 
 /**
@@ -51,7 +59,9 @@ const CrsLibraryPane: React.FC<CrsLibraryPaneProps> = ({
     onAdd,
     bulkTargets,
     notReadyAlert,
+    disabled,
 }) => {
+    const canAdd = !!activeTarget && !disabled;
     const { state, data } = useCrsLibrary();
 
     const allTargets = useMemo<CrsAddTarget[]>(
@@ -89,12 +99,17 @@ const CrsLibraryPane: React.FC<CrsLibraryPaneProps> = ({
         const files = new Set<string>();
         let wildcard = false;
         if (!activeTarget) return { addedRuleIds: ids, addedFiles: files, wildcardIncluded: false };
-        const directiveTexts = new Set(activeTarget.existingTexts);
 
+        // Match by rule id (not full text), so a copied rule the user has since
+        // edited still reads as "already added" and can't be silently re-added
+        // with a duplicate id.
+        const presentIds = new Set<number>();
+        activeTarget.existingTexts.forEach((t) => {
+            const rid = ruleIdOf(t);
+            if (rid !== null) presentIds.add(rid);
+        });
         data.filteredRules.forEach((rule) => {
-            if (rule.description.rule && directiveTexts.has(decodeRule(rule.description.rule))) {
-                ids.add(rule.characteristics.id);
-            }
+            if (presentIds.has(rule.characteristics.id)) ids.add(rule.characteristics.id);
         });
 
         activeTarget.existingTexts.forEach((text) => {
@@ -147,7 +162,7 @@ const CrsLibraryPane: React.FC<CrsLibraryPaneProps> = ({
     };
 
     const applyBulk = () => {
-        if (!targetId || selectedIds.size === 0) return;
+        if (disabled || !targetId || selectedIds.size === 0) return;
         const texts: string[] = [];
         selectedIds.forEach((id) => {
             const rule = ruleById.get(id);
@@ -160,20 +175,24 @@ const CrsLibraryPane: React.FC<CrsLibraryPaneProps> = ({
 
     // How many selected rules already exist in the chosen bulk target, so the
     // action bar can show that the dedupe will trim the batch.
-    const targetExisting = useMemo(() => {
+    const targetExistingIds = useMemo(() => {
         const t = allTargets.find((x) => x.id === targetId);
-        return t ? new Set(t.existingTexts) : new Set<string>();
+        const s = new Set<number>();
+        t?.existingTexts.forEach((text) => {
+            const rid = ruleIdOf(text);
+            if (rid !== null) s.add(rid);
+        });
+        return s;
     }, [allTargets, targetId]);
 
     const alreadyInTargetCount = useMemo(() => {
-        if (targetExisting.size === 0 || selectedIds.size === 0) return 0;
+        if (targetExistingIds.size === 0 || selectedIds.size === 0) return 0;
         let n = 0;
         selectedIds.forEach((id) => {
-            const r = ruleById.get(id);
-            if (r?.description.rule && targetExisting.has(decodeRule(r.description.rule))) n += 1;
+            if (targetExistingIds.has(id)) n += 1;
         });
         return n;
-    }, [targetExisting, selectedIds, ruleById]);
+    }, [targetExistingIds, selectedIds]);
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: 0, height: '100%' }}>
@@ -223,7 +242,7 @@ const CrsLibraryPane: React.FC<CrsLibraryPaneProps> = ({
                             onToggleAll={toggleFile}
                             onAddRule={addOne}
                             onIncludeFile={includeFile}
-                            canAdd={!!activeTarget}
+                            canAdd={canAdd}
                             addedRuleIds={addedRuleIds}
                             addedFiles={effectiveAddedFiles}
                             activeSetName={activeTarget?.name}

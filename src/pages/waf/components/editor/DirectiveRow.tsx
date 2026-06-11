@@ -18,9 +18,11 @@ interface DirectiveRowProps {
     directive: Directive;
     onChange: (text: string) => void;
     onDelete: () => void;
+    /** Read-only: no drag handle, edit, or delete affordances. */
+    readOnly?: boolean;
 }
 
-const DirectiveRow: React.FC<DirectiveRowProps> = ({ directive, onChange, onDelete }) => {
+const DirectiveRow: React.FC<DirectiveRowProps> = ({ directive, onChange, onDelete, readOnly }) => {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
         id: directive.id,
     });
@@ -70,16 +72,18 @@ const DirectiveRow: React.FC<DirectiveRowProps> = ({ directive, onChange, onDele
     return (
         <div ref={setNodeRef} style={style}>
             <button
-                {...attributes}
-                {...listeners}
+                {...(readOnly ? {} : attributes)}
+                {...(readOnly ? {} : listeners)}
                 aria-label="Drag to reorder"
+                disabled={readOnly}
                 style={{
-                    cursor: 'grab',
+                    cursor: readOnly ? 'default' : 'grab',
                     background: 'transparent',
                     border: 'none',
                     color: 'var(--text-secondary)',
                     paddingTop: 4,
                     touchAction: 'none',
+                    opacity: readOnly ? 0.4 : 1,
                 }}
             >
                 <HolderOutlined />
@@ -129,16 +133,16 @@ const DirectiveRow: React.FC<DirectiveRowProps> = ({ directive, onChange, onDele
                             fontFamily: 'monospace',
                             fontSize: 12.5,
                             wordBreak: 'break-all',
-                            cursor: 'text',
+                            cursor: readOnly ? 'default' : 'text',
                         }}
-                        onDoubleClick={() => setEditing(true)}
+                        onDoubleClick={() => !readOnly && setEditing(true)}
                     >
                         {renderHighlightedDirective(directive.text)}
                     </div>
                 )}
             </div>
 
-            <Space size={2}>
+            <Space size={2} style={{ display: readOnly ? 'none' : undefined }}>
                 {editing ? (
                     <>
                         <Tooltip title="Save (⌘+Enter)">

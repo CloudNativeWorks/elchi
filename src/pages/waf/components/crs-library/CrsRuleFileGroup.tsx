@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Badge, Button, Checkbox, Tag, Tooltip, Typography } from 'antd';
 import {
     CaretRightOutlined,
@@ -11,6 +11,9 @@ import { CrsRule } from '../../types';
 import CrsRuleListItem from './CrsRuleListItem';
 
 const { Text } = Typography;
+
+/** How many rules to mount per "page" inside an expanded file group. */
+const PAGE = 60;
 
 interface CrsRuleFileGroupProps {
     filename: string;
@@ -45,6 +48,10 @@ const CrsRuleFileGroup: React.FC<CrsRuleFileGroupProps> = ({
     activeSetName,
 }) => {
     const [open, setOpen] = useState(false);
+    // Cap how many rules mount at once for a big file (no virtualization dep);
+    // the user pages in more or narrows the filters. Reset when the set changes.
+    const [visibleCount, setVisibleCount] = useState(PAGE);
+    useEffect(() => setVisibleCount(PAGE), [rules]);
 
     const ruleIds = rules.map((r) => r.characteristics.id);
     const fileSelectedCount = ruleIds.filter((id) => selectedIds.has(id)).length;
@@ -123,7 +130,7 @@ const CrsRuleFileGroup: React.FC<CrsRuleFileGroupProps> = ({
             </div>
             {open && (
                 <div>
-                    {rules.map((r) => (
+                    {rules.slice(0, visibleCount).map((r) => (
                         <CrsRuleListItem
                             key={r.characteristics.id}
                             rule={r}
@@ -134,6 +141,16 @@ const CrsRuleFileGroup: React.FC<CrsRuleFileGroupProps> = ({
                             onAddOne={() => onAddRule(r)}
                         />
                     ))}
+                    {rules.length > visibleCount && (
+                        <div style={{ padding: '8px 12px', textAlign: 'center' }}>
+                            <Button size="small" onClick={() => setVisibleCount((n) => n + PAGE)}>
+                                Show {Math.min(PAGE, rules.length - visibleCount)} more
+                                <Text type="secondary" style={{ marginLeft: 6 }}>
+                                    ({rules.length - visibleCount} hidden — or refine the filters above)
+                                </Text>
+                            </Button>
+                        </div>
+                    )}
                 </div>
             )}
         </div>

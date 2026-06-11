@@ -64,6 +64,8 @@ export interface VisualRuleBuilderProps {
     onAdd: (directive: string) => void;
     /** Rule ids already in use, so the builder can suggest a free one and warn on clash. */
     existingIds?: number[];
+    /** When the OWASP CRS is loaded, ids in its 900000–999999 range clash. */
+    crsActive?: boolean;
 }
 
 const FieldLabel: React.FC<{ children: React.ReactNode; hint?: string }> = ({ children, hint }) => (
@@ -73,7 +75,7 @@ const FieldLabel: React.FC<{ children: React.ReactNode; hint?: string }> = ({ ch
     </div>
 );
 
-const VisualRuleBuilder: React.FC<VisualRuleBuilderProps> = ({ open, onClose, onAdd, existingIds = [] }) => {
+const VisualRuleBuilder: React.FC<VisualRuleBuilderProps> = ({ open, onClose, onAdd, existingIds = [], crsActive }) => {
     const suggestedId = useMemo(() => {
         const max = existingIds.length ? Math.max(...existingIds) : 1000;
         return Math.max(1000, max) + 1;
@@ -133,9 +135,10 @@ const VisualRuleBuilder: React.FC<VisualRuleBuilderProps> = ({ open, onClose, on
     }, [variables, target, needsOperand, operandHasQuote, operator, operand, id, phase, action, transformations, status, severity, msg, tags]);
 
     const idClash = existingIds.includes(id);
+    const idInCrsRange = !!crsActive && id >= 900000 && id <= 999999;
     const lint = useMemo(() => (directive ? lintDirectives([directive]) : null), [directive]);
     const lintError = lint && lint.summary.errors > 0;
-    const valid = !!directive && (!needsOperand || operand.trim().length > 0) && !idClash && !lintError;
+    const valid = !!directive && (!needsOperand || operand.trim().length > 0) && !idClash && !idInCrsRange && !lintError;
 
     const handleAdd = () => {
         if (!valid) return;
@@ -236,9 +239,10 @@ const VisualRuleBuilder: React.FC<VisualRuleBuilderProps> = ({ open, onClose, on
 
             <Space style={{ width: '100%', marginTop: 14 }} size={16} wrap>
                 <div>
-                    <FieldLabel>Rule ID</FieldLabel>
-                    <InputNumber min={1} value={id} onChange={(v) => setId(Number(v) || 0)} status={idClash ? 'error' : undefined} />
+                    <FieldLabel hint={crsActive ? 'use 1–899999' : undefined}>Rule ID</FieldLabel>
+                    <InputNumber min={1} value={id} onChange={(v) => setId(Number(v) || 0)} status={idClash || idInCrsRange ? 'error' : undefined} />
                     {idClash && <div><Text type="danger" style={{ fontSize: 12 }}>Already used by another rule</Text></div>}
+                    {idInCrsRange && <div><Text type="danger" style={{ fontSize: 12 }}>900000–999999 is reserved by the OWASP CRS — it would clash.</Text></div>}
                 </div>
                 <div>
                     <FieldLabel>Action</FieldLabel>

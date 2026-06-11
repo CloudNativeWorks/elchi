@@ -31,7 +31,7 @@ interface CrsRuleListItemProps {
 }
 
 const decodeRule = (raw: string): string =>
-    raw.replace(/\\n/g, '\n').replace(/\\t/g, '\t').replace(/\\"/g, '"').replace(/&/g, '&');
+    raw.replace(/\\n/g, '\n').replace(/\\t/g, '\t').replace(/\\"/g, '"').replace(/&amp;/g, '&');
 
 /**
  * Compact rule row. Shows ID, title, severity/phase/paranoia tags.
