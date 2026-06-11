@@ -650,6 +650,37 @@ const JobDetail: React.FC = () => {
                   </Col>
                 </>
               )}
+
+              {job.type === 'SHIELD_DEPLOY' && job.metadata.shield_deploy && (
+                <>
+                  <Col span={12}>
+                    <div style={{ marginBottom: 16 }}>
+                      <Text type="secondary" style={{ fontSize: 12 }}>Trigger</Text>
+                      <div style={{ marginTop: 4 }}>
+                        <Tag
+                          className='auto-width-tag'
+                          color={job.metadata.shield_deploy.reason === 'client_connect' ? 'geekblue' : 'purple'}
+                          style={{ borderRadius: 6 }}
+                        >
+                          {job.metadata.shield_deploy.reason === 'client_connect' ? 'Client Connect Sync' : 'Policy Change'}
+                        </Tag>
+                      </div>
+                    </div>
+                  </Col>
+                  <Col span={12}>
+                    <div style={{ marginBottom: 16 }}>
+                      <Text type="secondary" style={{ fontSize: 12 }}>Targets</Text>
+                      <div style={{ marginTop: 4 }}>
+                        <Text strong style={{ fontSize: 14 }}>
+                          {job.metadata.shield_deploy.target_clients?.length
+                            ? `${job.metadata.shield_deploy.target_clients.length} specific client${job.metadata.shield_deploy.target_clients.length === 1 ? '' : 's'}`
+                            : 'All connected clients in project'}
+                        </Text>
+                      </div>
+                    </div>
+                  </Col>
+                </>
+              )}
             </Row>
           </Card>
         </Col>
@@ -1668,6 +1699,106 @@ const JobDetail: React.FC = () => {
               type="success"
               showIcon
               style={{ marginTop: 16, borderRadius: 8 }}
+            />
+          )}
+        </Card>
+      )}
+
+      {/* Shield Deploy Results */}
+      {job.type === 'SHIELD_DEPLOY' && job.execution_details?.shield_result && (
+        <Card
+          style={{
+            marginTop: 24,
+            borderRadius: 16,
+            border: '1px solid var(--border-default)',
+            boxShadow: 'var(--shadow-sm)'
+          }}
+        >
+          <div style={{ marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Text type="secondary" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>
+              SHIELD DEPLOY RESULTS
+            </Text>
+            <Space>
+              {job.execution_details.shield_result.version && (
+                <Tooltip title="Content digest of the merged config bundle">
+                  <Tag className='auto-width-tag' color="purple" style={{ borderRadius: 6 }}>
+                    bundle {job.execution_details.shield_result.version}
+                  </Tag>
+                </Tooltip>
+              )}
+              <Tag className='auto-width-tag' color="green" style={{ borderRadius: 6 }}>
+                {job.execution_details.shield_result.succeeded} ok
+              </Tag>
+              {job.execution_details.shield_result.failed > 0 && (
+                <Tag className='auto-width-tag' color="red" style={{ borderRadius: 6 }}>
+                  {job.execution_details.shield_result.failed} failed
+                </Tag>
+              )}
+            </Space>
+          </div>
+
+          {job.execution_details.shield_result.note && (
+            <Alert
+              message={job.execution_details.shield_result.note}
+              type="info"
+              showIcon
+              style={{ marginBottom: 16, borderRadius: 8 }}
+            />
+          )}
+
+          {(job.execution_details.shield_result.clients?.length ?? 0) > 0 && (
+            <Table
+              dataSource={job.execution_details.shield_result.clients}
+              rowKey="client_id"
+              size="small"
+              pagination={false}
+              columns={[
+                {
+                  title: 'Client',
+                  dataIndex: 'client_id',
+                  key: 'client_id',
+                  render: (id: string) => <Text strong style={{ fontSize: 13 }}>{id}</Text>,
+                },
+                {
+                  title: 'Delivered',
+                  dataIndex: 'ok',
+                  key: 'ok',
+                  width: 110,
+                  render: (ok: boolean) => ok
+                    ? <Tag className='auto-width-tag' icon={<CheckCircleOutlined />} color="green">OK</Tag>
+                    : <Tag className='auto-width-tag' icon={<CloseCircleOutlined />} color="red">Failed</Tag>,
+                },
+                {
+                  title: (
+                    <Tooltip title="Whether shield confirmed it LOADED the new config (false = rejected and kept last-good, or shield unreachable)">
+                      <span>Reload Confirmed</span>
+                    </Tooltip>
+                  ),
+                  dataIndex: 'reload_ok',
+                  key: 'reload_ok',
+                  width: 150,
+                  render: (v: boolean) => v
+                    ? <Tag className='auto-width-tag' color="green">yes</Tag>
+                    : <Tag className='auto-width-tag' color="orange">no</Tag>,
+                },
+                {
+                  title: 'Applied Version',
+                  dataIndex: 'applied_version',
+                  key: 'applied_version',
+                  width: 150,
+                  render: (v?: string) => v
+                    ? <Tag className='auto-width-tag' color="blue" style={{ fontFamily: 'monospace' }}>{v}</Tag>
+                    : <Text type="secondary">—</Text>,
+                },
+                {
+                  title: 'Error',
+                  dataIndex: 'error',
+                  key: 'error',
+                  render: (err?: string) => err
+                    ? <Text type="danger" style={{ fontFamily: 'monospace', fontSize: 12, whiteSpace: 'pre-wrap' }}>{err}</Text>
+                    : <Text type="secondary">—</Text>,
+                },
+              ]}
             />
           )}
         </Card>

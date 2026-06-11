@@ -158,6 +158,12 @@ const menuConfig = [
 		label: "WAF",
 	},
 	{
+		key: "/shield",
+		to: "/shield",
+		icon: "SafetyOutlined",
+		label: "Shield",
+	},
+	{
 		key: "/gslb",
 		to: "/gslb",
 		icon: "GlobalOutlined",

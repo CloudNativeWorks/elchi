@@ -8,7 +8,7 @@ export type JobStatus =
   | 'FAILED'
   | 'NO_WORK_NEEDED';
 
-export type JobType = 'SNAPSHOT_UPDATE' | 'DISCOVERY_UPDATE' | 'WAF_PROPAGATION' | 'RESOURCE_UPGRADE' | 'RESOURCE_UPGRADE(DRY)' | 'ACME_VERIFICATION';
+export type JobType = 'SNAPSHOT_UPDATE' | 'DISCOVERY_UPDATE' | 'WAF_PROPAGATION' | 'RESOURCE_UPGRADE' | 'RESOURCE_UPGRADE(DRY)' | 'ACME_VERIFICATION' | 'SHIELD_DEPLOY';
 
 export type PokeStatus = 'PENDING' | 'SUCCESS' | 'FAILED';
 
@@ -144,6 +144,13 @@ export interface AcmeMetadata {
   is_renewal?: boolean;
 }
 
+export interface ShieldDeployMeta {
+  project: string;
+  target_clients?: string[];
+  reason: 'policy_change' | 'client_connect' | string;
+  lock_key?: string;
+}
+
 export interface JobMetadata {
   source_resource?: SourceResource;
   trigger_user: TriggerUser;
@@ -160,6 +167,8 @@ export interface JobMetadata {
   upgrade_config?: UpgradeConfig;
   // ACME_VERIFICATION specific fields
   acme?: AcmeMetadata;
+  // SHIELD_DEPLOY specific fields
+  shield_deploy?: ShieldDeployMeta;
 }
 
 export interface SnapshotExecution {
@@ -180,9 +189,27 @@ export interface AcmeExecutionDetails {
   error_message?: string;
 }
 
+export interface ShieldClientDeployResult {
+  client_id: string;
+  ok: boolean;
+  reload_ok: boolean;
+  applied_version?: string;
+  error?: string;
+}
+
+export interface ShieldDeployResult {
+  version: string;
+  total: number;
+  succeeded: number;
+  failed: number;
+  clients?: ShieldClientDeployResult[];
+  note?: string;
+}
+
 export interface ExecutionDetails {
   processed_snapshots?: SnapshotExecution[];
   acme?: AcmeExecutionDetails;
+  shield_result?: ShieldDeployResult;
 }
 
 export interface WorkerInfo {

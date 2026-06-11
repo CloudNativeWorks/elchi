@@ -45,6 +45,8 @@ import AuditDetail from './pages/audit/AuditDetail';
 import Search from './pages/Search';
 import WafList from './pages/waf/WafList';
 import WafDetail from './pages/waf/WafDetail';
+import ShieldList from './pages/shield/ShieldList';
+import ShieldDetail from './pages/shield/ShieldDetail';
 import GslbList from './pages/gslb/GslbList';
 import GslbDetail from './pages/gslb/GslbDetail';
 import GslbStatistics from './pages/gslb/GslbStatistics';
@@ -152,6 +154,10 @@ const AppRoutes: React.FC = () => (
                 {/* WAF Routes */}
                 <Route path="/waf" element={<WafList />} />
                 <Route path="/waf/:id" element={<WafDetail />} />
+
+                {/* Shield Routes */}
+                <Route path="/shield" element={<ShieldList />} />
+                <Route path="/shield/:id" element={<ShieldDetail />} />
 
                 {/* GSLB Routes */}
                 <Route path="/gslb" element={<GslbList />} />

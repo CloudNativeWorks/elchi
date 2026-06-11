@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Card, Spin, Typography, Tag, Descriptions, Alert, Tabs, Divider, Drawer, Button, Row, Col } from 'antd';
-import { FileTextOutlined, InfoCircleOutlined, AppstoreOutlined, BarChartOutlined, CloudDownloadOutlined, SettingOutlined } from '@ant-design/icons';
+import { FileTextOutlined, InfoCircleOutlined, AppstoreOutlined, BarChartOutlined, CloudDownloadOutlined, SettingOutlined, SafetyOutlined } from '@ant-design/icons';
 import { useCustomGetQuery } from '@/common/api';
 import { DateTimeTool } from '@/utils/date-time-tool';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
@@ -11,6 +11,7 @@ import ClientStats from '@components/clients/ClientStats';
 import ClientNetwork from '@components/clients/ClientNetwork';
 import ClientVersions from '@components/clients/ClientVersions';
 import ClientSettings from '@components/clients/ClientSettings';
+import ClientShield from '@components/clients/ClientShield';
 
 const { Title, Text } = Typography;
 
@@ -250,6 +251,18 @@ const ClientDetail: React.FC = () => {
                                     clientId={dataClient.client_id}
                                     downstreamAddress={dataClient.downstream_address}
                                 />
+                            )
+                        },
+                        {
+                            key: 'shield',
+                            label: (
+                                <span className="tabLabel">
+                                    <SafetyOutlined style={{ fontSize: 18 }} />
+                                    Shield
+                                </span>
+                            ),
+                            children: (
+                                <ClientShield clientId={dataClient.client_id} />
                             )
                         }
                     ]}

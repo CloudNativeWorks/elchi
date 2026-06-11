@@ -143,7 +143,8 @@ const JobList: React.FC = () => {
         const typeConfig = {
             SNAPSHOT_UPDATE: { color: 'blue', text: 'Snapshot Update' },
             DISCOVERY_UPDATE: { color: 'green', text: 'Discovery Update' },
-            ACME_VERIFICATION: { color: 'cyan', text: 'ACME Certificate Verification' }
+            ACME_VERIFICATION: { color: 'cyan', text: 'ACME Certificate Verification' },
+            SHIELD_DEPLOY: { color: 'purple', text: 'Shield Deploy' }
         };
 
         const config = typeConfig[type] || { color: 'default', text: type };
