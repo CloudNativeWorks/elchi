@@ -85,6 +85,10 @@ export const useShieldMutations = (id?: string, project?: string) => {
         },
     });
 
+    // create/update errors surface as the detail page's inline Alert (handleSave
+    // catches them); delete/sync have no inline surface, and the global error
+    // toast is suppressed for shield mutations — so they MUST notify here or a
+    // failure would be silent.
     const deleteMutation = useMutation({
         mutationFn: () => {
             if (!id || !project) throw new Error('ID and project are required for delete');
@@ -95,6 +99,9 @@ export const useShieldMutations = (id?: string, project?: string) => {
             notifyDeploy(res.deploy, 'deleted');
             navigate('/shield');
         },
+        onError: (err: Error) => {
+            notification.error({ message: 'Delete failed', description: err.message, placement: 'topRight' });
+        },
     });
 
     const syncMutation = useMutation({
@@ -104,6 +111,9 @@ export const useShieldMutations = (id?: string, project?: string) => {
         },
         onSuccess: (deploy) => {
             notifyDeploy(deploy, 'sync requested');
+        },
+        onError: (err: Error) => {
+            notification.error({ message: 'Sync failed', description: err.message, placement: 'topRight' });
         },
     });
 

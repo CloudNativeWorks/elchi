@@ -77,6 +77,15 @@ const ClientShield: React.FC<ClientShieldProps> = ({ clientId }) => {
     const files = filesQuery.data?.shield?.current_files ?? [];
     const logs = shield?.logs ?? [];
 
+    // The dispatch can also come back as a 200 whose envelope says the edge
+    // errored before producing a shield payload (success:false, no `shield`).
+    const statusEnvelopeError = statusQuery.data && !statusQuery.data.shield
+        ? (statusQuery.data.error || 'The client returned no shield status (is elchi-shield installed on this edge?)')
+        : null;
+    const filesEnvelopeError = filesQuery.data && !filesQuery.data.shield
+        ? (filesQuery.data.error || 'The client returned no file listing')
+        : null;
+
     return (
         <Row gutter={[16, 16]}>
             <Col span={24}>
@@ -110,6 +119,15 @@ const ClientShield: React.FC<ClientShieldProps> = ({ clientId }) => {
                             style={{ marginBottom: 12, borderRadius: 8 }}
                         />
                     )}
+                    {statusEnvelopeError && (
+                        <Alert
+                            type="warning"
+                            showIcon
+                            message="Edge returned an error"
+                            description={statusEnvelopeError}
+                            style={{ marginBottom: 12, borderRadius: 8 }}
+                        />
+                    )}
 
                     <Text type="secondary" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>
                         Recent Logs
@@ -121,7 +139,10 @@ const ClientShield: React.FC<ClientShieldProps> = ({ clientId }) => {
                             overflowY: 'auto',
                             fontFamily: 'monospace',
                             fontSize: 12,
-                            background: 'var(--bg-elevated, rgba(0,0,0,0.03))',
+                            // --bg-hover has subtle contrast in BOTH themes
+                            // (--bg-elevated is plain white in light mode).
+                            background: 'var(--bg-hover)',
+                            border: '1px solid var(--border-default)',
                             borderRadius: 8,
                             padding: 12,
                         }}
@@ -171,6 +192,15 @@ const ClientShield: React.FC<ClientShieldProps> = ({ clientId }) => {
                             showIcon
                             message="Could not read the edge's file set"
                             description={(filesQuery.error as Error)?.message}
+                            style={{ marginBottom: 12, borderRadius: 8 }}
+                        />
+                    )}
+                    {filesEnvelopeError && (
+                        <Alert
+                            type="warning"
+                            showIcon
+                            message="Edge returned an error"
+                            description={filesEnvelopeError}
                             style={{ marginBottom: 12, borderRadius: 8 }}
                         />
                     )}

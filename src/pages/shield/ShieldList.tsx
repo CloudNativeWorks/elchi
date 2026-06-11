@@ -11,6 +11,7 @@ import {
     Modal,
     Tag,
     Tooltip,
+    App as AntdApp,
 } from 'antd';
 import {
     SearchOutlined,
@@ -36,6 +37,7 @@ const { confirm } = Modal;
 const ShieldList: React.FC = () => {
     const navigate = useNavigate();
     const { project } = useProjectVariable();
+    const { notification } = AntdApp.useApp();
     const [searchTerm, setSearchTerm] = useState('');
     const admin = isShieldAdmin();
 
@@ -56,6 +58,11 @@ const ShieldList: React.FC = () => {
         onSuccess: (res) => {
             queryClient.invalidateQueries({ queryKey: ['shield-policies'] });
             notifyDeploy(res.deploy, 'deleted');
+        },
+        onError: (err: Error) => {
+            // The global error toast is suppressed for shield mutations; without
+            // this the confirm modal would just close on a silent failure.
+            notification.error({ message: 'Delete failed', description: err.message, placement: 'topRight' });
         },
     });
 
@@ -163,7 +170,23 @@ const ShieldList: React.FC = () => {
                                 <Button
                                     icon={<SyncOutlined />}
                                     loading={syncMutation.isPending}
-                                    onClick={() => syncMutation.mutate()}
+                                    onClick={() => {
+                                        // With ZERO policies, sync pushes the explicit
+                                        // "inspection off" clear config to every connected
+                                        // edge — make that consequence explicit first.
+                                        if ((policies?.length ?? 0) === 0) {
+                                            confirm({
+                                                title: 'Sync with no policies?',
+                                                icon: <ExclamationCircleOutlined />,
+                                                content: 'This project has no shield policies. Sync will push an explicit "inspection off" config to all connected edges in the project. Continue?',
+                                                okText: 'Sync',
+                                                cancelText: 'Cancel',
+                                                onOk: () => syncMutation.mutateAsync(),
+                                            });
+                                            return;
+                                        }
+                                        syncMutation.mutate();
+                                    }}
                                 >
                                     Sync
                                 </Button>

@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
     Alert,
+    AutoComplete,
     Button,
     Card,
     Col,
@@ -9,7 +10,6 @@ import {
     Modal,
     Radio,
     Row,
-    Select,
     Space,
     Spin,
     Tag,
@@ -100,10 +100,11 @@ const ShieldDetail: React.FC = () => {
     const [examplesOpen, setExamplesOpen] = useState(false);
     const [examplesTargetIdx, setExamplesTargetIdx] = useState<number | null>(null);
 
-    const { data: policy, isLoading } = useQuery({
+    const { data: policy, isLoading, isError: loadError, error: loadErrorObj } = useQuery({
         queryKey: ['shield-policy', id, project],
         queryFn: () => shieldApi.getPolicy(id!, project),
         enabled: !!project && !!id && !isCreateMode,
+        retry: false,
     });
 
     const { createMutation, updateMutation, deleteMutation, isLoading: isMutating } =
@@ -193,6 +194,23 @@ const ShieldDetail: React.FC = () => {
         return <div style={{ textAlign: 'center', padding: 64 }}><Spin size="large" /></div>;
     }
 
+    if (!isCreateMode && loadError) {
+        return (
+            <>
+                <Space style={{ marginBottom: 16 }}>
+                    <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/shield')}>Back to Shield Policies</Button>
+                </Space>
+                <Alert
+                    type="error"
+                    showIcon
+                    message="Could not load the shield policy"
+                    description={(loadErrorObj as Error)?.message || 'The policy may not exist in this project.'}
+                    style={{ borderRadius: 8 }}
+                />
+            </>
+        );
+    }
+
     return (
         <>
             {/* Header */}
@@ -259,7 +277,6 @@ const ShieldDetail: React.FC = () => {
                 layout="vertical"
                 initialValues={initialValues}
                 disabled={!admin}
-                requiredMark="optional"
             >
                 <Card style={{ borderRadius: 12, marginBottom: 16 }}>
                     <Row gutter={16}>
@@ -309,6 +326,7 @@ const ShieldDetail: React.FC = () => {
                                                 tooltip={{ title: shieldFieldHelp.path.tooltip, icon: <InfoCircleOutlined /> }}
                                                 extra={shieldFieldHelp.path.extra}
                                                 rules={shieldFieldHelp.path.rules}
+                                                required
                                             >
                                                 <Input placeholder={shieldFieldHelp.path.placeholder} style={{ fontFamily: 'monospace' }} />
                                             </Form.Item>
@@ -339,11 +357,11 @@ const ShieldDetail: React.FC = () => {
                                                 extra={shieldFieldHelp.mode.extra}
                                                 rules={shieldFieldHelp.mode.rules}
                                             >
-                                                <Select
+                                                {/* AutoComplete (not Select): presets PLUS any custom octal like 0700 */}
+                                                <AutoComplete
                                                     options={MODE_PRESETS}
                                                     placeholder={shieldFieldHelp.mode.placeholder}
                                                     allowClear
-                                                    showSearch
                                                 />
                                             </Form.Item>
                                         </Col>
@@ -366,6 +384,7 @@ const ShieldDetail: React.FC = () => {
                                                                 tooltip={{ title: shieldFieldHelp.download_url.tooltip, icon: <InfoCircleOutlined /> }}
                                                                 extra={shieldFieldHelp.download_url.extra}
                                                                 rules={shieldFieldHelp.download_url.rules}
+                                                                required
                                                             >
                                                                 <Input placeholder={shieldFieldHelp.download_url.placeholder} style={{ fontFamily: 'monospace' }} />
                                                             </Form.Item>
@@ -428,6 +447,13 @@ const ShieldDetail: React.FC = () => {
                                                                     <Upload
                                                                         showUploadList={false}
                                                                         beforeUpload={(file) => {
+                                                                            if (file.size > MAX_INLINE_BUNDLE_BYTES) {
+                                                                                setSaveError(
+                                                                                    `"${file.name}" is ${(file.size / (1024 * 1024)).toFixed(1)} MiB — inline content is capped at 3 MiB per project. ` +
+                                                                                    'Host the file and use a Download URL instead.'
+                                                                                );
+                                                                                return false;
+                                                                            }
                                                                             const reader = new FileReader();
                                                                             reader.onload = (e) => {
                                                                                 const b64u = Base64FromBytes(e.target?.result as ArrayBuffer);
@@ -450,6 +476,7 @@ const ShieldDetail: React.FC = () => {
                                                     }
                                                     tooltip={{ title: shieldFieldHelp.content.tooltip, icon: <InfoCircleOutlined /> }}
                                                     extra={shieldFieldHelp.content.extra}
+                                                    required
                                                     rules={[{ required: true, message: 'Inline content is required (or switch the source to Download URL)' }]}
                                                     valuePropName="value"
                                                     getValueFromEvent={(v: string | undefined) => v ?? ''}

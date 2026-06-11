@@ -31,9 +31,10 @@ const ruleOf = (fn: (value?: string) => string | null): Rule => ({
     },
 });
 
+// Offered via AutoComplete: pick a preset or type any octal (e.g. 0700).
+// Leaving the field empty = the edge's secure default (0600).
 export const MODE_PRESETS = [
-    { value: '', label: 'Default (0600 — owner read/write)' },
-    { value: '0600', label: '0600 — owner rw' },
+    { value: '0600', label: '0600 — owner rw (default)' },
     { value: '0640', label: '0640 — owner rw, group r' },
     { value: '0644', label: '0644 — owner rw, world r' },
     { value: '0755', label: '0755 — executable' },
