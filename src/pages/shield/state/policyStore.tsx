@@ -5,7 +5,7 @@
  * every dispatch is one undo step.
  */
 
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, useRef, ReactNode } from 'react';
 import { PolicyFileModel, DataFileModel, newPolicyFile } from './model';
 
 const UNDO_CAP = 50;
@@ -131,14 +131,21 @@ const reducer = (s: PolicyEditorState, a: PolicyAction): PolicyEditorState => {
 interface PolicyEditorContextValue {
     state: PolicyEditorState;
     dispatch: React.Dispatch<PolicyAction>;
+    /**
+     * Latest un-applied YAML-tab text (or null when nothing is pending). The
+     * YAML editor debounces its parse, so this lets Save flush the last
+     * keystrokes deterministically instead of shipping stale content.
+     */
+    pendingYamlRef: React.MutableRefObject<string | null>;
 }
 
 const PolicyEditorContext = createContext<PolicyEditorContextValue | undefined>(undefined);
 
 export const PolicyEditorProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [state, dispatch] = useReducer(reducer, undefined, () => initialState());
+    const pendingYamlRef = useRef<string | null>(null);
     return (
-        <PolicyEditorContext.Provider value={{ state, dispatch }}>
+        <PolicyEditorContext.Provider value={{ state, dispatch, pendingYamlRef }}>
             {children}
         </PolicyEditorContext.Provider>
     );

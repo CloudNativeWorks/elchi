@@ -16,7 +16,7 @@ const { Text } = Typography;
 
 const YamlTab: React.FC<{ disabled?: boolean }> = ({ disabled }) => {
     const { isDark } = useTheme();
-    const { state, dispatch } = usePolicyEditor();
+    const { state, dispatch, pendingYamlRef } = usePolicyEditor();
     const [text, setText] = useState('');
     const [parseError, setParseError] = useState<string | null>(null);
     const [valueWarnings, setValueWarnings] = useState<string[]>([]);
@@ -34,15 +34,20 @@ const YamlTab: React.FC<{ disabled?: boolean }> = ({ disabled }) => {
         setText(state.yamlMode ? state.rawYaml : modelToYaml(state.model));
         setParseError(null);
         setValueWarnings([]);
-    }, [state.model, state.yamlMode, state.rawYaml]);
+        pendingYamlRef.current = null;
+    }, [state.model, state.yamlMode, state.rawYaml, pendingYamlRef]);
 
     const handleChange = (value?: string) => {
         const next = value ?? '';
         setText(next);
         if (disabled) return;
+        // Record the latest text immediately so Save can flush it even if the
+        // debounced parse below hasn't fired yet.
+        pendingYamlRef.current = next;
         if (debounceRef.current) clearTimeout(debounceRef.current);
         debounceRef.current = setTimeout(() => {
             userEditRef.current = true;
+            pendingYamlRef.current = null;
             const parsed = yamlToModel(next);
             if (parsed.errors.length > 0) {
                 // Invalid YAML: keep the text local, surface the error, leave the

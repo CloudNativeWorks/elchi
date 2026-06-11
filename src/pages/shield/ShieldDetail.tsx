@@ -60,10 +60,22 @@ const ShieldDetailInner: React.FC = () => {
     const admin = isShieldAdmin();
     const isCreateMode = id === 'create';
 
-    const { state, dispatch } = usePolicyEditor();
+    const { state, dispatch, pendingYamlRef } = usePolicyEditor();
     const [name, setName] = useState('');
     const [saveError, setSaveError] = useState<string | null>(null);
     const [examplesOpen, setExamplesOpen] = useState(false);
+
+    // Warn before the browser unloads (close/reload/external nav) with unsaved
+    // edits. In-app navigation away is guarded by the Back button's confirm.
+    useEffect(() => {
+        if (!(state.dirty && admin)) return;
+        const handler = (e: BeforeUnloadEvent) => {
+            e.preventDefault();
+            e.returnValue = '';
+        };
+        window.addEventListener('beforeunload', handler);
+        return () => window.removeEventListener('beforeunload', handler);
+    }, [state.dirty, admin]);
 
     const { data: policy, isLoading, isError: loadError, error: loadErrorObj } = useQuery({
         queryKey: ['shield-policy', id, project],
@@ -105,14 +117,41 @@ const ShieldDetailInner: React.FC = () => {
             setSaveError('Policy name is required.');
             return;
         }
-        if (!state.yamlMode) {
-            const noHosts = domains.some(d => !d.hosts || d.hosts.length === 0);
-            if (noHosts) {
-                setSaveError('Every domain needs at least one host (use * to match any host).');
+
+        // Flush any un-applied YAML-tab edit so the last keystrokes aren't dropped
+        // by the editor's debounce. Compute the EFFECTIVE state to save from.
+        let effYamlMode = state.yamlMode;
+        let effRawYaml = state.rawYaml;
+        let effModel = state.model;
+        const pending = pendingYamlRef.current;
+        if (pending !== null) {
+            const parsed = yamlToModel(pending);
+            if (parsed.errors.length > 0) {
+                setSaveError(`Fix the YAML parse error before saving — ${parsed.errors[0]}`);
                 return;
             }
-            if (domains.length === 0) {
+            if (parsed.unsupportedPaths.length > 0) {
+                effYamlMode = true;
+                effRawYaml = pending;
+                dispatch({ type: 'ENTER_YAML_MODE', rawYaml: pending, reason: parsed.unsupportedPaths.map(p => `Unsupported field: ${p}`) });
+            } else {
+                effYamlMode = false;
+                effRawYaml = '';
+                effModel = parsed.model!;
+                if (state.yamlMode) dispatch({ type: 'EXIT_YAML_MODE', model: parsed.model! });
+                else dispatch({ type: 'PATCH', update: () => parsed.model! });
+            }
+            pendingYamlRef.current = null;
+        }
+
+        if (!effYamlMode) {
+            const effDomains = effModel.spec.domains ?? [];
+            if (effDomains.length === 0) {
                 setSaveError('Add at least one domain — without domains the policy protects nothing.');
+                return;
+            }
+            if (effDomains.some(d => !d.hosts || d.hosts.length === 0)) {
+                setSaveError('Every domain needs at least one host (use * to match any host).');
                 return;
             }
         }
@@ -120,12 +159,12 @@ const ShieldDetailInner: React.FC = () => {
         // strict-decode would reject the whole document: a YAML parse error, or a
         // known-enum field carrying a bad value (e.g. fail_mode: fail_opent).
         const invalid = (() => {
-            if (state.yamlMode) {
-                const parsed = yamlToModel(state.rawYaml);
+            if (effYamlMode) {
+                const parsed = yamlToModel(effRawYaml);
                 if (parsed.errors.length > 0) return [`YAML parse error — ${parsed.errors[0]}`];
                 return parsed.invalidValues;
             }
-            return collectInvalidValues(state.model);
+            return collectInvalidValues(effModel);
         })();
         if (invalid.length > 0) {
             setSaveError(`Fix this before saving — ${invalid[0]}`);
@@ -135,9 +174,9 @@ const ShieldDetailInner: React.FC = () => {
             const body = toApi({
                 name: trimmed,
                 project,
-                model: { ...state.model, metadata: { ...(state.model.metadata ?? {}), name: trimmed } },
-                yamlMode: state.yamlMode,
-                rawYaml: state.rawYaml,
+                model: { ...effModel, metadata: { ...(effModel.metadata ?? {}), name: trimmed } },
+                yamlMode: effYamlMode,
+                rawYaml: effRawYaml,
                 dataFiles: state.dataFiles,
             });
             if (isCreateMode) {
