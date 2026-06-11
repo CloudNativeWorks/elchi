@@ -22,9 +22,14 @@ export interface PolicyEditorState {
     dirty: boolean;
     past: Snapshot[];
     future: Snapshot[];
+    /** Timestamp of the last PATCH, to coalesce a typing burst into one undo. */
+    lastEditAt?: number;
 }
 
-export type Snapshot = Omit<PolicyEditorState, 'past' | 'future'>;
+export type Snapshot = Omit<PolicyEditorState, 'past' | 'future' | 'lastEditAt'>;
+
+/** Consecutive PATCHes within this window share one undo step. */
+const COALESCE_MS = 500;
 
 const snap = (s: PolicyEditorState): Snapshot => ({
     model: s.model,
@@ -64,16 +69,23 @@ const reducer = (s: PolicyEditorState, a: PolicyAction): PolicyEditorState => {
     switch (a.type) {
         case 'HYDRATE':
             return { ...a.state, past: [], future: [] };
-        case 'PATCH':
+        case 'PATCH': {
+            // Coalesce a run of quick edits (typing a hostname, dragging a
+            // slider) into ONE undo step: only snapshot the first edit of a
+            // burst; subsequent edits within COALESCE_MS reuse it.
+            const now = Date.now();
+            const coalesce = s.lastEditAt != null && now - s.lastEditAt < COALESCE_MS && s.past.length > 0;
             return {
                 ...s,
                 model: a.update(s.model),
                 dirty: true,
-                past: pushPast(s),
+                past: coalesce ? s.past : pushPast(s),
                 future: [],
+                lastEditAt: now,
             };
+        }
         case 'SET_DATA_FILES':
-            return { ...s, dataFiles: a.files, dirty: true, past: pushPast(s), future: [] };
+            return { ...s, dataFiles: a.files, dirty: true, past: pushPast(s), future: [], lastEditAt: undefined };
         case 'ENTER_YAML_MODE':
             return {
                 ...s,
@@ -83,9 +95,10 @@ const reducer = (s: PolicyEditorState, a: PolicyAction): PolicyEditorState => {
                 dirty: true,
                 past: pushPast(s),
                 future: [],
+                lastEditAt: undefined,
             };
         case 'SET_RAW_YAML':
-            return { ...s, rawYaml: a.rawYaml, dirty: true, past: pushPast(s), future: [] };
+            return { ...s, rawYaml: a.rawYaml, dirty: true, past: pushPast(s), future: [], lastEditAt: undefined };
         case 'EXIT_YAML_MODE':
             return {
                 ...s,
@@ -96,6 +109,7 @@ const reducer = (s: PolicyEditorState, a: PolicyAction): PolicyEditorState => {
                 dirty: true,
                 past: pushPast(s),
                 future: [],
+                lastEditAt: undefined,
             };
         case 'MARK_SAVED':
             return { ...s, dirty: false };

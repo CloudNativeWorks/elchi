@@ -20,12 +20,14 @@ describe('yamlToModel / modelToYaml round-trip', () => {
             expect(parsed.unsupportedPaths).toEqual([]);
             expect(parsed.model).toBeDefined();
 
-            // Generated YAML must re-parse to a clean, equivalent model.
+            // Generated YAML must re-parse to a clean, equivalent model. Compare
+            // the serialized form (which strips client-only `_uid` keys) so the
+            // equality is independent of per-parse uid assignment.
             const regenerated = modelToYaml(parsed.model!);
             const second = yamlToModel(regenerated);
             expect(second.errors).toEqual([]);
             expect(second.unsupportedPaths).toEqual([]);
-            expect(second.model!.spec).toEqual(JSON.parse(JSON.stringify(parsed.model!.spec)));
+            expect(modelToYaml(second.model!)).toEqual(regenerated);
         });
     }
 
@@ -87,6 +89,33 @@ spec:
           policy: { mode: shadow }
 `);
         expect(parsed.invalidValues).toEqual([]);
+    });
+
+    it('projects unknown keys OUT of the model (Back-to-Builder truly drops them)', () => {
+        const parsed = yamlToModel(`
+apiVersion: sentinel.elchi.io/v1
+kind: SecurityPolicy
+spec:
+  defaults:
+    mode: block
+    totally_unknown: 1
+  domains:
+    - hosts: ["a.example.com"]
+      routes:
+        - match: { path_prefix: "/" }
+          policy:
+            engines:
+              jwt: { issuer: "x", bogus_field: true }
+`);
+        // The unknown keys are reported…
+        expect(parsed.unsupportedPaths).toContain('spec.defaults.totally_unknown');
+        // …and NOT present in the model, so re-serializing can't leak them back.
+        const out = modelToYaml(parsed.model!);
+        expect(out).not.toContain('totally_unknown');
+        expect(out).not.toContain('bogus_field');
+        // Known siblings survive.
+        expect(out).toContain('issuer');
+        expect(out).toContain('mode: block');
     });
 
     it('reports YAML syntax errors without producing a model', () => {

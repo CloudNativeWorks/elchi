@@ -10,7 +10,7 @@
  */
 
 import yaml from 'js-yaml';
-import { PolicyFileModel, POLICY_FILE_SCHEMA, SchemaNode, SHIELD_API_VERSION, SHIELD_KIND } from '../state/model';
+import { PolicyFileModel, POLICY_FILE_SCHEMA, SchemaNode, SHIELD_API_VERSION, SHIELD_KIND, ensureModelUids } from '../state/model';
 
 /** Recursively drop undefined/null, empty strings, empty arrays/objects. */
 const prune = (value: unknown): unknown => {
@@ -21,6 +21,8 @@ const prune = (value: unknown): unknown => {
     if (value !== null && typeof value === 'object') {
         const out: Record<string, unknown> = {};
         for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+            // Drop client-only keys (e.g. `_uid` for React keys) from the wire.
+            if (k.startsWith('_')) continue;
             const pv = prune(v);
             if (pv !== undefined) out[k] = pv;
         }
@@ -116,6 +118,29 @@ export const collectInvalidValues = (obj: unknown, path = ''): string[] => {
     return out;
 };
 
+/**
+ * Project an object through the schema, keeping ONLY known keys. The model the
+ * builder edits is built from this, so it can never carry unknown fields — which
+ * is what makes "Back to Builder (drops unsupported fields)" actually drop them
+ * (instead of silently round-tripping them back to the wire, where shield's
+ * strict decode would reject the whole config).
+ */
+const project = (node: SchemaNode, obj: unknown): unknown => {
+    if (node === true || node === '*') return obj; // leaf / free-form map — keep as-is
+    if (obj === null || obj === undefined) return obj;
+    if (Array.isArray(node)) {
+        return Array.isArray(obj) ? obj.map(item => project(node[0], item)) : obj;
+    }
+    if (typeof obj !== 'object' || Array.isArray(obj)) return obj;
+    const out: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(obj as Record<string, unknown>)) {
+        const child = (node as Record<string, SchemaNode>)[k];
+        if (child === undefined) continue; // unknown key — drop it
+        out[k] = project(child, v);
+    }
+    return out;
+};
+
 export interface ParseResult {
     model?: PolicyFileModel;
     /** YAML syntax / shape errors — nothing usable was produced. */
@@ -145,13 +170,15 @@ export const yamlToModel = (text: string): ParseResult => {
     walk(POLICY_FILE_SCHEMA, raw, '', unsupported);
     const invalidValues = collectInvalidValues(raw);
 
-    const obj = raw as Record<string, unknown>;
-    const model: PolicyFileModel = {
+    // Build the model from the schema-projected object so it carries ONLY known
+    // fields — unknown keys (reported above) never enter the builder's model.
+    const obj = project(POLICY_FILE_SCHEMA, raw) as Record<string, unknown>;
+    const model: PolicyFileModel = ensureModelUids({
         apiVersion: typeof obj.apiVersion === 'string' ? obj.apiVersion : SHIELD_API_VERSION,
         kind: typeof obj.kind === 'string' ? obj.kind : SHIELD_KIND,
         metadata: (obj.metadata as PolicyFileModel['metadata']) ?? {},
         spec: (obj.spec as PolicyFileModel['spec']) ?? { domains: [] },
-    };
+    });
 
     return { model, errors: [], unsupportedPaths: unsupported, invalidValues };
 };

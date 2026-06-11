@@ -266,11 +266,15 @@ export interface MatchSpec {
 }
 
 export interface RouteSpec {
+    /** Client-only stable id for React keys (stripped from the wire YAML). */
+    _uid?: string;
     match?: MatchSpec;
     policy?: PolicySpec;
 }
 
 export interface DomainSpec {
+    /** Client-only stable id for React keys (stripped from the wire YAML). */
+    _uid?: string;
     hosts?: string[];
     policy?: PolicySpec;
     routes?: RouteSpec[];
@@ -299,6 +303,38 @@ export const newPolicyFile = (name: string): PolicyFileModel => ({
         domains: [],
     },
 });
+
+// ─── Client-only stable ids (React keys; never serialized) ───────────────────
+
+let _uidCounter = 0;
+/** A short, session-unique id for keying domain/route rows. */
+export const uid = (): string => `u${Date.now().toString(36)}${(_uidCounter++).toString(36)}`;
+
+/**
+ * Ensure every domain and route carries a stable `_uid` for React keys, WITHOUT
+ * re-creating nodes that already have one (so memoized rows aren't invalidated).
+ * Run once when a model enters the builder (parse/hydrate), not on every edit —
+ * edits preserve `_uid` by spreading the existing node.
+ */
+export const ensureModelUids = (model: PolicyFileModel): PolicyFileModel => {
+    const domains = model.spec?.domains;
+    if (!domains || domains.length === 0) return model;
+    let changed = false;
+    const next = domains.map(d => {
+        const routes = d.routes;
+        let dChanged = !d._uid;
+        let nextRoutes = routes;
+        if (routes && routes.length > 0) {
+            let rChanged = false;
+            nextRoutes = routes.map(r => (r._uid ? r : ((rChanged = true), { ...r, _uid: uid() })));
+            if (rChanged) dChanged = true;
+        }
+        if (!dChanged) return d;
+        changed = true;
+        return { ...d, _uid: d._uid ?? uid(), routes: nextRoutes };
+    });
+    return changed ? { ...model, spec: { ...model.spec, domains: next } } : model;
+};
 
 // ─── Schema map for unknown-key detection ────────────────────────────────────
 // '*'  → map with arbitrary keys (values are leaves)
