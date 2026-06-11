@@ -19,6 +19,7 @@ const YamlTab: React.FC<{ disabled?: boolean }> = ({ disabled }) => {
     const { state, dispatch } = usePolicyEditor();
     const [text, setText] = useState('');
     const [parseError, setParseError] = useState<string | null>(null);
+    const [valueWarnings, setValueWarnings] = useState<string[]>([]);
     const debounceRef = useRef<ReturnType<typeof setTimeout>>();
     // Tracks whether the current text came from the user (vs. regenerated).
     const userEditRef = useRef(false);
@@ -32,6 +33,7 @@ const YamlTab: React.FC<{ disabled?: boolean }> = ({ disabled }) => {
         }
         setText(state.yamlMode ? state.rawYaml : modelToYaml(state.model));
         setParseError(null);
+        setValueWarnings([]);
     }, [state.model, state.yamlMode, state.rawYaml]);
 
     const handleChange = (value?: string) => {
@@ -50,6 +52,7 @@ const YamlTab: React.FC<{ disabled?: boolean }> = ({ disabled }) => {
                 return;
             }
             setParseError(null);
+            setValueWarnings(parsed.invalidValues);
             if (parsed.unsupportedPaths.length > 0) {
                 dispatch({ type: 'ENTER_YAML_MODE', rawYaml: next, reason: parsed.unsupportedPaths.map(p => `Unsupported field: ${p}`) });
                 return;
@@ -115,6 +118,22 @@ const YamlTab: React.FC<{ disabled?: boolean }> = ({ disabled }) => {
                     style={{ marginBottom: 12, borderRadius: 8 }}
                     message="YAML parse error — changes are not applied until it parses"
                     description={<Text style={{ fontFamily: 'monospace', fontSize: 12, whiteSpace: 'pre-wrap' }}>{parseError}</Text>}
+                />
+            )}
+
+            {valueWarnings.length > 0 && (
+                <Alert
+                    type="error"
+                    showIcon
+                    style={{ marginBottom: 12, borderRadius: 8 }}
+                    message="Invalid value(s) — shield will reject this config on the edge"
+                    description={
+                        <ul style={{ margin: '4px 0 0 18px', padding: 0 }}>
+                            {valueWarnings.map((w, i) => (
+                                <li key={i}><Text style={{ fontSize: 12, fontFamily: 'monospace' }}>{w}</Text></li>
+                            ))}
+                        </ul>
+                    }
                 />
             )}
 

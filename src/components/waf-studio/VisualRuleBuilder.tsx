@@ -103,21 +103,34 @@ const VisualRuleBuilder: React.FC<VisualRuleBuilderProps> = ({ open, onClose, on
     const target =
         variables.join('|') + (variables.length === 1 && selector.trim() ? `:${selector.trim()}` : '');
 
+    // The operator argument is wrapped in double quotes, so an operand that
+    // itself contains a `"` would terminate it early and produce a SecRule
+    // Coraza can't parse. Block it rather than silently emit a broken rule.
+    const operandHasQuote = needsOperand && operand.includes('"');
+
     const directive = useMemo(() => {
-        if (variables.length === 0 || !id) return '';
+        if (variables.length === 0 || !id || operandHasQuote) return '';
         const ops = needsOperand ? `${operator} ${operand}`.trim() : operator;
+        // `t:none` resets the pipeline — it's a sentinel, not a peer. If any real
+        // transformation is chosen, drop `none`; always de-dupe.
+        const uniqT = transformations.filter((t, i) => transformations.indexOf(t) === i);
+        const effT = uniqT.length > 1 ? uniqT.filter((t) => t !== 'none') : uniqT;
+        // Strip the wrapping quote chars from free text so the action list can't
+        // be broken (msg/severity are single-quoted, so a `'` would break out).
+        const safe = (s: string) => s.replace(/['"]/g, '');
         const actionParts = [
             `id:${id}`,
             `phase:${phase}`,
             action,
-            ...transformations.map((t) => `t:${t}`),
-            status != null ? `status:${status}` : null,
+            ...effT.map((t) => `t:${t}`),
+            // status only carries meaning with a blocking action.
+            action === 'deny' && status != null ? `status:${status}` : null,
             severity ? `severity:'${severity}'` : null,
-            msg.trim() ? `msg:'${msg.trim().replace(/'/g, '')}'` : null,
-            ...tags.map((t) => `tag:'${t}'`),
+            msg.trim() ? `msg:'${safe(msg.trim())}'` : null,
+            ...tags.map((t) => `tag:'${safe(t)}'`),
         ].filter(Boolean);
         return `SecRule ${target} "${ops}" "${actionParts.join(',')}"`;
-    }, [variables, target, needsOperand, operator, operand, id, phase, action, transformations, status, severity, msg, tags]);
+    }, [variables, target, needsOperand, operandHasQuote, operator, operand, id, phase, action, transformations, status, severity, msg, tags]);
 
     const idClash = existingIds.includes(id);
     const lint = useMemo(() => (directive ? lintDirectives([directive]) : null), [directive]);
@@ -191,8 +204,12 @@ const VisualRuleBuilder: React.FC<VisualRuleBuilderProps> = ({ open, onClose, on
                 onChange={(e) => setOperand(e.target.value)}
                 placeholder={needsOperand ? "e.g. (?i)union\\s+select" : '—'}
                 disabled={!needsOperand}
+                status={operandHasQuote ? 'error' : undefined}
                 style={{ fontFamily: 'monospace' }}
             />
+            {operandHasQuote && (
+                <div><Text type="danger" style={{ fontSize: 12 }}>Remove the &quot; character — it breaks the SecRule operator.</Text></div>
+            )}
 
             <FieldLabel hint="applied in order before matching">Transformations</FieldLabel>
             <Select
@@ -228,8 +245,8 @@ const VisualRuleBuilder: React.FC<VisualRuleBuilderProps> = ({ open, onClose, on
                     <Select style={{ width: 280 }} value={action} onChange={setAction} options={DISRUPTIVE_ACTIONS} />
                 </div>
                 <div>
-                    <FieldLabel>Status</FieldLabel>
-                    <InputNumber min={100} max={599} value={status} onChange={(v) => setStatus(v == null ? undefined : Number(v))} placeholder="403" />
+                    <FieldLabel hint={action === 'deny' ? undefined : 'only with deny'}>Status</FieldLabel>
+                    <InputNumber min={100} max={599} value={status} disabled={action !== 'deny'} onChange={(v) => setStatus(v == null ? undefined : Number(v))} placeholder="403" />
                 </div>
                 <div>
                     <FieldLabel>Severity</FieldLabel>

@@ -50,6 +50,45 @@ spec:
         expect(parsed.unsupportedPaths.some(p => p.includes('bogus_field'))).toBe(true);
     });
 
+    it('flags invalid known-enum values (mode / fail_mode / dlp direction)', () => {
+        const parsed = yamlToModel(`
+apiVersion: sentinel.elchi.io/v1
+kind: SecurityPolicy
+spec:
+  defaults:
+    mode: block
+    fail_mode: fail_opent
+  domains:
+    - hosts: ["a.example.com"]
+      routes:
+        - match: { path_prefix: "/" }
+          policy:
+            mode: blockk
+            checks:
+              body:
+                dlp: { direction: sideways, redact: ["email"] }
+`);
+        expect(parsed.errors).toEqual([]);
+        expect(parsed.invalidValues.some(v => v.includes('fail_mode') && v.includes('fail_opent'))).toBe(true);
+        expect(parsed.invalidValues.some(v => v.includes('blockk'))).toBe(true);
+        expect(parsed.invalidValues.some(v => v.includes('direction') && v.includes('sideways'))).toBe(true);
+    });
+
+    it('accepts every valid enum value', () => {
+        const parsed = yamlToModel(`
+apiVersion: sentinel.elchi.io/v1
+kind: SecurityPolicy
+spec:
+  defaults: { mode: detect, fail_mode: fail_close }
+  domains:
+    - hosts: ["a.example.com"]
+      routes:
+        - match: { path_prefix: "/" }
+          policy: { mode: shadow }
+`);
+        expect(parsed.invalidValues).toEqual([]);
+    });
+
     it('reports YAML syntax errors without producing a model', () => {
         const parsed = yamlToModel('spec: : :\n  - ][');
         expect(parsed.errors.length).toBeGreaterThan(0);

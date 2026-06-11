@@ -30,6 +30,7 @@ import {
     verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { AddDirectiveBar, Directive, DirectiveRow, lintDirectives } from '@/components/waf-studio';
+import { newRuleRow } from './directivesCodec';
 
 const { Text } = Typography;
 
@@ -95,8 +96,7 @@ const CustomRulesSection: React.FC<CustomRulesSectionProps> = ({
 
     const deleteRow = (id: string) => onChange(rules.filter((r) => r.id !== id));
 
-    const addRow = (text: string) =>
-        onChange([...rules, { id: `d_${Date.now().toString(36)}_${rules.length}`, text }]);
+    const addRow = (text: string) => onChange([...rules, newRuleRow(text)]);
 
     return (
         <div>

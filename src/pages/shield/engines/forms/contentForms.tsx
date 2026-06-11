@@ -84,7 +84,7 @@ export const CorazaForm: React.FC<EngineFormProps<CorazaSpec>> = ({ value, onCha
                     <TagsField label="Disabled Rule IDs" tooltip="CRS rule ids to disable (false-positive tuning), e.g. 942100." placeholder="942100" disabled={disabled} value={value.exclude_rule_ids} onChange={v => set({ exclude_rule_ids: v })} />
                 </Col>
                 <Col xs={24} md={12}>
-                    <DataFilePathField label="Directives File" tooltip="Alternative: a SecLang rules file on the edge (upload it in Data Files). Overrides/augments the rules built in WAF Studio." disabled={disabled} value={value.directives_file} onChange={v => set({ directives_file: v })} dataFiles={dataFiles} />
+                    <DataFilePathField label="Directives File" tooltip="A SecLang rules file on the edge (upload it in Data Files). Its rules are APPENDED after the WAF Studio rules — make sure rule ids don't collide, or the edge rejects the config." disabled={disabled} value={value.directives_file} onChange={v => set({ directives_file: v })} dataFiles={dataFiles} />
                 </Col>
             </Row>
 

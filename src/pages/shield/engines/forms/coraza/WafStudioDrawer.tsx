@@ -9,7 +9,7 @@
  * Custom rules round-trip through `directivesCodec` to/from `spec.directives`.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Drawer, Space, Tag, Typography } from 'antd';
 import { CheckOutlined, SafetyCertificateOutlined, ThunderboltOutlined } from '@ant-design/icons';
 import { CorazaSpec } from '../../../state/model';
@@ -21,7 +21,7 @@ import {
 import CrsTuningSection from './CrsTuningSection';
 import CustomRulesSection from './CustomRulesSection';
 import GeneratedPreview from './GeneratedPreview';
-import { joinDirectives, parseDirectives } from './directivesCodec';
+import { joinDirectives, newRuleRow, parseDirectives } from './directivesCodec';
 
 const { Text, Title } = Typography;
 
@@ -74,9 +74,7 @@ const WafStudioDrawer: React.FC<WafStudioDrawerProps> = ({ open, value, onApply,
     const addRules = (texts: string[]) => {
         setRules((prev) => {
             const existing = new Set(prev.map((r) => r.text));
-            const fresh = texts
-                .filter((t) => t.trim() && !existing.has(t))
-                .map((text, i) => ({ id: `d_${Date.now().toString(36)}_${prev.length + i}`, text }));
+            const fresh = texts.filter((t) => t.trim() && !existing.has(t)).map(newRuleRow);
             return [...prev, ...fresh];
         });
     };
@@ -84,11 +82,22 @@ const WafStudioDrawer: React.FC<WafStudioDrawerProps> = ({ open, value, onApply,
     const specForPreview: CorazaSpec = { ...draft, directives: joinDirectives(rules) };
 
     // Rule ids already in the custom list, so the visual builder suggests a free
-    // one and warns on a clash.
-    const existingIds = rules
-        .map((r) => r.text.match(/\bid\s*:\s*['"]?(\d+)/i)?.[1])
-        .filter((s): s is string => !!s)
-        .map(Number);
+    // one and warns on a clash. Memoized so the CRS pane's "already added" scan
+    // (which keys off the target's existing texts) doesn't re-run every render.
+    const existingIds = useMemo(
+        () =>
+            rules
+                .map((r) => r.text.match(/\bid\s*:\s*['"]?(\d+)/i)?.[1])
+                .filter((s): s is string => !!s)
+                .map(Number),
+        [rules],
+    );
+
+    const existingTexts = useMemo(() => rules.map((r) => r.text), [rules]);
+    const crsTarget = useMemo(
+        () => ({ id: 'custom', name: 'Custom Rules', existingTexts }),
+        [existingTexts],
+    );
 
     const apply = () => {
         onApply({ ...draft, directives: joinDirectives(rules) });
@@ -179,10 +188,7 @@ const WafStudioDrawer: React.FC<WafStudioDrawerProps> = ({ open, value, onApply,
                         </div>
                     </div>
                     <div style={{ flex: 1, minHeight: 0 }}>
-                        <CrsLibraryPane
-                            activeTarget={{ id: 'custom', name: 'Custom Rules', existingTexts: rules.map((r) => r.text) }}
-                            onAdd={(texts) => addRules(texts)}
-                        />
+                        <CrsLibraryPane activeTarget={crsTarget} onAdd={(texts) => addRules(texts)} />
                     </div>
                 </div>
             </div>

@@ -41,7 +41,7 @@ import { useShieldMutations } from './hooks/useShieldMutations';
 import { isShieldAdmin } from './utils';
 import { PolicyEditorProvider, usePolicyEditor } from './state/policyStore';
 import { fromApi, toApi, configPathForName } from './utils/bundleAdapter';
-import { yamlToModel } from './utils/policyYaml';
+import { yamlToModel, collectInvalidValues } from './utils/policyYaml';
 import { FieldShell } from './engines/fields';
 import PolicySettings from './components/builder/PolicySettings';
 import EnginePanel from './components/builder/EnginePanel';
@@ -115,6 +115,21 @@ const ShieldDetailInner: React.FC = () => {
                 setSaveError('Add at least one domain — without domains the policy protects nothing.');
                 return;
             }
+        }
+        // Block invalid configs before they reach the edge, where shield
+        // strict-decode would reject the whole document: a YAML parse error, or a
+        // known-enum field carrying a bad value (e.g. fail_mode: fail_opent).
+        const invalid = (() => {
+            if (state.yamlMode) {
+                const parsed = yamlToModel(state.rawYaml);
+                if (parsed.errors.length > 0) return [`YAML parse error — ${parsed.errors[0]}`];
+                return parsed.invalidValues;
+            }
+            return collectInvalidValues(state.model);
+        })();
+        if (invalid.length > 0) {
+            setSaveError(`Fix this before saving — ${invalid[0]}`);
+            return;
         }
         try {
             const body = toApi({

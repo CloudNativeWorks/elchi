@@ -33,6 +33,9 @@ export const parseDirectives = (blob?: string): Directive[] => {
         .map((text) => ({ id: newId('d'), text }));
 };
 
+/** Make a new rule row with a collision-free id (monotonic, not time+index). */
+export const newRuleRow = (text: string): Directive => ({ id: newId('d'), text });
+
 /** Re-join editable rows into the wire blob (undefined when empty). */
 export const joinDirectives = (rows: Directive[]): string | undefined => {
     const text = rows

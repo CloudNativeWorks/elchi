@@ -74,12 +74,56 @@ const walk = (node: SchemaNode, obj: unknown, path: string, out: string[]): void
     }
 };
 
+/**
+ * Enum fields whose allowed values are fixed and known. shield strict-decodes
+ * these on the edge, so a typo (e.g. `fail_opent`) is an edge-side config error
+ * — we catch it in the UI instead of letting it ship. Keyed by the YAML leaf
+ * name; each of these names is unique in the schema (mode/fail_mode only appear
+ * in a policy spec, direction only under dlp), so a name-keyed check is safe.
+ */
+const KNOWN_ENUMS: Record<string, string[]> = {
+    mode: ['block', 'detect', 'shadow', 'off'],
+    fail_mode: ['fail_open', 'fail_close'],
+    direction: ['request', 'response', 'both'],
+};
+
+/**
+ * Walk an arbitrary parsed object and report any known-enum field whose value
+ * isn't one of the allowed values. Returns human-readable messages with the
+ * dotted path, the bad value, and the allowed set.
+ */
+export const collectInvalidValues = (obj: unknown, path = ''): string[] => {
+    const out: string[] = [];
+    const visit = (val: unknown, p: string, key?: string) => {
+        if (key && key in KNOWN_ENUMS && typeof val === 'string') {
+            const allowed = KNOWN_ENUMS[key];
+            if (!allowed.includes(val)) {
+                out.push(`${p}: "${val}" is not valid (allowed: ${allowed.join(', ')})`);
+            }
+            return;
+        }
+        if (Array.isArray(val)) {
+            val.forEach((item, i) => visit(item, `${p}[${i}]`));
+            return;
+        }
+        if (val !== null && typeof val === 'object') {
+            for (const [k, v] of Object.entries(val as Record<string, unknown>)) {
+                visit(v, p ? `${p}.${k}` : k, k);
+            }
+        }
+    };
+    visit(obj, path);
+    return out;
+};
+
 export interface ParseResult {
     model?: PolicyFileModel;
     /** YAML syntax / shape errors — nothing usable was produced. */
     errors: string[];
     /** Keys the builder doesn't model (shield would strict-reject them too). */
     unsupportedPaths: string[];
+    /** Known-enum fields carrying an invalid value (e.g. fail_mode: fail_opent). */
+    invalidValues: string[];
 }
 
 /** Parse YAML text into the model, reporting errors and unsupported keys. */
@@ -88,17 +132,18 @@ export const yamlToModel = (text: string): ParseResult => {
     try {
         raw = yaml.load(text);
     } catch (e) {
-        return { errors: [(e as Error).message], unsupportedPaths: [] };
+        return { errors: [(e as Error).message], unsupportedPaths: [], invalidValues: [] };
     }
     if (raw === null || raw === undefined) {
-        return { errors: ['Empty document'], unsupportedPaths: [] };
+        return { errors: ['Empty document'], unsupportedPaths: [], invalidValues: [] };
     }
     if (typeof raw !== 'object' || Array.isArray(raw)) {
-        return { errors: ['Top level must be a mapping (apiVersion/kind/spec)'], unsupportedPaths: [] };
+        return { errors: ['Top level must be a mapping (apiVersion/kind/spec)'], unsupportedPaths: [], invalidValues: [] };
     }
 
     const unsupported: string[] = [];
     walk(POLICY_FILE_SCHEMA, raw, '', unsupported);
+    const invalidValues = collectInvalidValues(raw);
 
     const obj = raw as Record<string, unknown>;
     const model: PolicyFileModel = {
@@ -108,5 +153,5 @@ export const yamlToModel = (text: string): ParseResult => {
         spec: (obj.spec as PolicyFileModel['spec']) ?? { domains: [] },
     };
 
-    return { model, errors: [], unsupportedPaths: unsupported };
+    return { model, errors: [], unsupportedPaths: unsupported, invalidValues };
 };
