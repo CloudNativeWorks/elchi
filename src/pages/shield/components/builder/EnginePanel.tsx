@@ -12,6 +12,21 @@ import { ENGINE_DEFS, enabledEngines } from '../../engines/registry';
 
 const { Text } = Typography;
 
+/**
+ * Compact phase badge sized for tight contexts (small Card headers, menu rows).
+ * Deliberately NOT using the repo's `auto-width-tag` class here: its
+ * `align-self: flex-start !important` shoves the tag to the top of the card
+ * header's flex line and clips it.
+ */
+const PhaseTag: React.FC<{ phase: 'header' | 'body' }> = ({ phase }) => (
+    <Tag
+        color={phase === 'body' ? 'orange' : 'green'}
+        style={{ fontSize: 10, lineHeight: '16px', padding: '0 6px', margin: 0 }}
+    >
+        {phase === 'body' ? 'inspects body' : 'header-only'}
+    </Tag>
+);
+
 interface EnginePanelProps {
     policy: PolicySpec;
     onChange: (p: PolicySpec) => void;
@@ -38,9 +53,7 @@ const EnginePanel: React.FC<EnginePanelProps> = ({ policy, onChange, disabled, d
                         <div style={{ maxWidth: 420, padding: '2px 0' }}>
                             <Space size={6}>
                                 <Text strong>{d.label}</Text>
-                                <Tag className='auto-width-tag' color={d.phase === 'body' ? 'orange' : 'green'} style={{ fontSize: 10 }}>
-                                    {d.phase === 'body' ? 'inspects body' : 'header-only'}
-                                </Tag>
+                                <PhaseTag phase={d.phase} />
                             </Space>
                             <div><Text type="secondary" style={{ fontSize: 12, whiteSpace: 'normal' }}>{d.description}</Text></div>
                         </div>
@@ -79,15 +92,15 @@ const EnginePanel: React.FC<EnginePanelProps> = ({ policy, onChange, disabled, d
                         size="small"
                         style={{ marginBottom: 8, borderRadius: 10 }}
                         title={
-                            <Space size={8}>
+                            <Space size={8} align="center">
                                 <ThunderboltOutlined style={{ color: 'var(--color-primary)' }} />
                                 <Text strong style={{ fontSize: 13 }}>{def.label}</Text>
                                 <Tooltip title={def.phase === 'body'
                                     ? 'Body-phase engine: the request/response body is buffered and inspected for this route.'
                                     : 'Header-phase engine: runs on headers only, never buffers the body — cheap.'}>
-                                    <Tag className='auto-width-tag' color={def.phase === 'body' ? 'orange' : 'green'} style={{ fontSize: 10 }}>
-                                        {def.phase === 'body' ? 'inspects body' : 'header-only'}
-                                    </Tag>
+                                    <span style={{ display: 'inline-flex' }}>
+                                        <PhaseTag phase={def.phase} />
+                                    </span>
                                 </Tooltip>
                             </Space>
                         }
