@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Alert, Empty, Spin, Typography } from 'antd';
+import { Empty, Spin, Typography } from 'antd';
 import { CrsRule } from '../../types';
-import { useActiveSet, useWafEditor } from '../../state/wafEditorStore';
 import { useCrsLibrary } from './useCrsLibrary';
 import CrsLibraryFilters from './CrsLibraryFilters';
 import CrsRuleFileGroup from './CrsRuleFileGroup';
@@ -12,55 +11,85 @@ const { Text } = Typography;
 const decodeRule = (raw: string): string =>
     raw.replace(/\\n/g, '\n').replace(/\\t/g, '\t').replace(/\\"/g, '"').replace(/&/g, '&');
 
+/** A place CRS rules can be added to (a WAF directive set, or Shield's rules blob). */
+export interface CrsAddTarget {
+    id: string;
+    name: string;
+    /** The target's current directive texts — drives the "already added" state. */
+    existingTexts: string[];
+}
+
+export interface CrsLibraryPaneProps {
+    /**
+     * Where single "+"/Include adds go, and whose directives drive the
+     * "already added" badges. `null` means adds aren't possible yet (e.g. the
+     * WAF page has no active set selected) — see `notReadyAlert`.
+     */
+    activeTarget: CrsAddTarget | null;
+    /** Append directive texts to a target id (dedupe is the host's job). */
+    onAdd: (texts: string[], targetId: string) => void;
+    /**
+     * Optional set of targets the bulk-add can choose between. Defaults to just
+     * the active target (single-target hosts like Shield get no picker; the WAF
+     * page passes all its directive sets).
+     */
+    bulkTargets?: CrsAddTarget[];
+    /** Rendered in place of the list header when `activeTarget` is null. */
+    notReadyAlert?: React.ReactNode;
+}
+
 /**
- * The redesigned CRS browser:
+ * The redesigned CRS browser, callback-driven so both the WASM-WAF editor and
+ * the Shield WAF Studio can host it:
  * - Sticky compact filter bar
  * - File-grouped, default-collapsed rule list (rule details lazy-rendered)
  * - Per-rule and per-file checkboxes for multi-select
- * - Sticky bottom bulk-action bar that adds N rules to a chosen set in one go
+ * - Sticky bottom bulk-action bar that adds N rules to a chosen target in one go
  */
-const CrsLibraryPane: React.FC = () => {
-    const { state: editorState, dispatch } = useWafEditor();
-    const activeSet = useActiveSet();
+const CrsLibraryPane: React.FC<CrsLibraryPaneProps> = ({
+    activeTarget,
+    onAdd,
+    bulkTargets,
+    notReadyAlert,
+}) => {
     const { state, data } = useCrsLibrary();
 
-    const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
-    const [targetSetId, setTargetSetId] = useState<string | null>(activeSet?.id ?? null);
+    const allTargets = useMemo<CrsAddTarget[]>(
+        () => bulkTargets ?? (activeTarget ? [activeTarget] : []),
+        [bulkTargets, activeTarget],
+    );
 
-    // Keep the bulk-add target in sync with reality:
-    //   - Default to the active set when nothing is picked yet.
-    //   - If the previously-picked target gets removed elsewhere, fall back
-    //     to the active set (or null) so the bar's button doesn't silently
-    //     no-op.
+    const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+    const [targetId, setTargetId] = useState<string | null>(activeTarget?.id ?? null);
+
+    // Keep the bulk-add target valid: default to the active target, and if the
+    // chosen target disappears, fall back to the active target (or null).
     useEffect(() => {
-        if (!targetSetId) {
-            if (activeSet) setTargetSetId(activeSet.id);
+        if (!targetId) {
+            if (activeTarget) setTargetId(activeTarget.id);
             return;
         }
-        const stillExists = editorState.editor.sets.some((s) => s.id === targetSetId);
-        if (!stillExists) setTargetSetId(activeSet?.id ?? null);
-    }, [activeSet, targetSetId, editorState.editor.sets]);
+        const stillExists = allTargets.some((t) => t.id === targetId);
+        if (!stillExists) setTargetId(activeTarget?.id ?? null);
+    }, [activeTarget, targetId, allTargets]);
 
-    // Build a quick id -> rule map so the bulk action can look rules up.
+    // Quick id -> rule map so the bulk action can look rules up.
     const ruleById = useMemo(() => {
         const m = new Map<number, CrsRule>();
         data.filteredRules.forEach((r) => m.set(r.characteristics.id, r));
         return m;
     }, [data.filteredRules]);
 
-    // Compute which rule IDs and which file Includes are already present in
-    // the active set, so the +/Include buttons can render an "already added"
-    // state and stop responding to repeated clicks.
+    // Which rule IDs and which file Includes are already present in the active
+    // target, so the +/Include buttons can render an "already added" state.
     //
-    // Wildcards: `Include @owasp_crs/*.conf` (or any `*` glob) marks ALL
-    // available files as included, since the directive will pull them in
-    // at runtime regardless.
+    // Wildcards: `Include @owasp_crs/*.conf` marks ALL files as included.
     const { addedRuleIds, addedFiles, wildcardIncluded } = useMemo(() => {
         const ids = new Set<number>();
         const files = new Set<string>();
         let wildcard = false;
-        if (!activeSet) return { addedRuleIds: ids, addedFiles: files, wildcardIncluded: false };
-        const directiveTexts = new Set(activeSet.directives.map((d) => d.text));
+        if (!activeTarget) return { addedRuleIds: ids, addedFiles: files, wildcardIncluded: false };
+        const directiveTexts = new Set(activeTarget.existingTexts);
 
         data.filteredRules.forEach((rule) => {
             if (rule.description.rule && directiveTexts.has(decodeRule(rule.description.rule))) {
@@ -68,23 +97,18 @@ const CrsLibraryPane: React.FC = () => {
             }
         });
 
-        // For files: any directive of the form `Include @owasp_crs/<name>` counts.
-        // If <name> contains a `*`, treat as a wildcard covering every file.
-        activeSet.directives.forEach((d) => {
-            const match = d.text.match(/^\s*Include\s+@owasp_crs\/(.+?)\s*$/i);
+        activeTarget.existingTexts.forEach((text) => {
+            const match = text.match(/^\s*Include\s+@owasp_crs\/(.+?)\s*$/i);
             if (!match) return;
             const captured = match[1];
-            if (captured.includes('*')) {
-                wildcard = true;
-            } else {
-                files.add(captured);
-            }
+            if (captured.includes('*')) wildcard = true;
+            else files.add(captured);
         });
 
         return { addedRuleIds: ids, addedFiles: files, wildcardIncluded: wildcard };
-    }, [activeSet, data.filteredRules]);
+    }, [activeTarget, data.filteredRules]);
 
-    // If a wildcard include is present, treat every visible file as included.
+    // A wildcard include effectively loads every visible file.
     const effectiveAddedFiles = useMemo(() => {
         if (!wildcardIncluded) return addedFiles;
         const all = new Set(addedFiles);
@@ -113,76 +137,57 @@ const CrsLibraryPane: React.FC = () => {
     };
 
     const addOne = (rule: CrsRule) => {
-        if (!activeSet || !rule.description.rule) return;
-        dispatch({
-            type: 'ADD_DIRECTIVE',
-            setId: activeSet.id,
-            text: decodeRule(rule.description.rule),
-        });
+        if (!activeTarget || !rule.description.rule) return;
+        onAdd([decodeRule(rule.description.rule)], activeTarget.id);
     };
 
     const includeFile = (filename: string) => {
-        if (!activeSet) return;
-        dispatch({
-            type: 'ADD_DIRECTIVE',
-            setId: activeSet.id,
-            text: `Include @owasp_crs/${filename}`,
-        });
+        if (!activeTarget) return;
+        onAdd([`Include @owasp_crs/${filename}`], activeTarget.id);
     };
 
     const applyBulk = () => {
-        if (!targetSetId || selectedIds.size === 0) return;
+        if (!targetId || selectedIds.size === 0) return;
         const texts: string[] = [];
         selectedIds.forEach((id) => {
             const rule = ruleById.get(id);
             if (rule?.description.rule) texts.push(decodeRule(rule.description.rule));
         });
         if (texts.length === 0) return;
-        // Reducer dedupes against the target set; we just dispatch and clear.
-        dispatch({ type: 'ADD_DIRECTIVES', setId: targetSetId, texts });
+        onAdd(texts, targetId);
         setSelectedIds(new Set());
     };
 
-    // Count how many of the currently-selected rules are already present in
-    // the *target* set (which may differ from the active set). The bulk action
-    // bar shows this so users know the dedupe will trim their batch.
-    const targetSet = useMemo(
-        () => editorState.editor.sets.find((s) => s.id === targetSetId) ?? null,
-        [targetSetId, editorState],
-    );
+    // How many selected rules already exist in the chosen bulk target, so the
+    // action bar can show that the dedupe will trim the batch.
+    const targetExisting = useMemo(() => {
+        const t = allTargets.find((x) => x.id === targetId);
+        return t ? new Set(t.existingTexts) : new Set<string>();
+    }, [allTargets, targetId]);
+
     const alreadyInTargetCount = useMemo(() => {
-        if (!targetSet || selectedIds.size === 0) return 0;
-        const existing = new Set(targetSet.directives.map((d) => d.text));
+        if (targetExisting.size === 0 || selectedIds.size === 0) return 0;
         let n = 0;
         selectedIds.forEach((id) => {
             const r = ruleById.get(id);
-            if (r?.description.rule && existing.has(decodeRule(r.description.rule))) n += 1;
+            if (r?.description.rule && targetExisting.has(decodeRule(r.description.rule))) n += 1;
         });
         return n;
-    }, [targetSet, selectedIds, ruleById]);
+    }, [targetExisting, selectedIds, ruleById]);
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: 0, height: '100%' }}>
             <CrsLibraryFilters state={state} data={data} />
 
-            {!activeSet && (
-                <Alert
-                    type="warning"
-                    showIcon
-                    style={{ margin: 12 }}
-                    message="No active directive set"
-                    description="Pick or create a set on the page first; rules and Include lines are appended to the active set."
-                />
-            )}
+            {!activeTarget && notReadyAlert}
 
             {wildcardIncluded && (
-                <Alert
-                    type="info"
-                    showIcon
-                    style={{ margin: 12 }}
-                    message={`A wildcard \`Include @owasp_crs/*\` is already in ${activeSet?.name ?? 'the active set'}`}
-                    description="Every file below is effectively loaded by that wildcard. Add individual files only if you plan to remove the wildcard later."
-                />
+                <div style={{ padding: '8px 16px 0' }}>
+                    <Text type="secondary" style={{ fontSize: 12 }}>
+                        A wildcard <code>Include @owasp_crs/*</code> is present in{' '}
+                        {activeTarget?.name ?? 'the active rules'} — every file below is already loaded by it.
+                    </Text>
+                </div>
             )}
 
             <div style={{ padding: '8px 16px', color: 'var(--text-secondary)', fontSize: 12 }}>
@@ -218,10 +223,10 @@ const CrsLibraryPane: React.FC = () => {
                             onToggleAll={toggleFile}
                             onAddRule={addOne}
                             onIncludeFile={includeFile}
-                            canAdd={!!activeSet}
+                            canAdd={!!activeTarget}
                             addedRuleIds={addedRuleIds}
                             addedFiles={effectiveAddedFiles}
-                            activeSetName={activeSet?.name}
+                            activeSetName={activeTarget?.name}
                         />
                     ))
                 )}
@@ -230,10 +235,11 @@ const CrsLibraryPane: React.FC = () => {
             <CrsBulkActionBar
                 selectedCount={selectedIds.size}
                 alreadyInTargetCount={alreadyInTargetCount}
-                targetSetId={targetSetId}
-                onChangeTarget={setTargetSetId}
+                targetId={targetId}
+                onChangeTarget={setTargetId}
                 onApply={applyBulk}
                 onClear={() => setSelectedIds(new Set())}
+                targets={allTargets.map((t) => ({ label: t.name, value: t.id }))}
             />
         </div>
     );

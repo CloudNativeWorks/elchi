@@ -1,37 +1,43 @@
 import React from 'react';
 import { Button, Select, Tag } from 'antd';
 import { CloseOutlined, PlusCircleOutlined } from '@ant-design/icons';
-import { useWafEditor } from '../../state/wafEditorStore';
 
 interface CrsBulkActionBarProps {
     selectedCount: number;
-    /** How many of the selected rules are already present in the chosen target set. */
+    /** How many of the selected rules are already present in the chosen target. */
     alreadyInTargetCount: number;
-    targetSetId: string | null;
+    targetId: string | null;
     onChangeTarget: (id: string) => void;
     onApply: () => void;
     onClear: () => void;
+    /**
+     * Targets the bulk-add can write into. When there is a single target the
+     * picker is hidden (the bar just shows "Add N rules"); multiple targets
+     * (e.g. the WASM-WAF page's directive sets) render the dropdown.
+     */
+    targets: { label: string; value: string }[];
 }
 
 /**
  * Sticky bottom action bar that appears when at least one rule is selected.
- * Lets the user pick the target set (defaults to active set) and bulk-add.
+ * Callback-driven: the host supplies the target list and add/clear handlers
+ * so the bar is reusable across the WAF page (multi-set) and Shield (single
+ * directives blob).
  */
 const CrsBulkActionBar: React.FC<CrsBulkActionBarProps> = ({
     selectedCount,
     alreadyInTargetCount,
-    targetSetId,
+    targetId,
     onChangeTarget,
     onApply,
     onClear,
+    targets,
 }) => {
-    const { state } = useWafEditor();
-    const setOptions = state.editor.sets.map((s) => ({ label: s.name, value: s.id }));
-
     if (selectedCount === 0) return null;
 
     const newCount = Math.max(0, selectedCount - alreadyInTargetCount);
     const allAlreadyAdded = newCount === 0;
+    const showPicker = targets.length > 1;
 
     return (
         <div
@@ -53,18 +59,22 @@ const CrsBulkActionBar: React.FC<CrsBulkActionBarProps> = ({
             </Tag>
             {alreadyInTargetCount > 0 && (
                 <Tag color="success" style={{ fontSize: 12 }}>
-                    {alreadyInTargetCount} already in target
+                    {alreadyInTargetCount} already added
                 </Tag>
             )}
-            <span style={{ color: 'var(--text-secondary)', fontSize: 13 }}>Add to:</span>
-            <Select
-                value={targetSetId ?? undefined}
-                onChange={onChangeTarget}
-                options={setOptions}
-                style={{ minWidth: 180 }}
-                placeholder="Pick a set"
-                size="middle"
-            />
+            {showPicker && (
+                <>
+                    <span style={{ color: 'var(--text-secondary)', fontSize: 13 }}>Add to:</span>
+                    <Select
+                        value={targetId ?? undefined}
+                        onChange={onChangeTarget}
+                        options={targets}
+                        style={{ minWidth: 180 }}
+                        placeholder="Pick a set"
+                        size="middle"
+                    />
+                </>
+            )}
             <div style={{ flex: 1 }} />
             <Button icon={<CloseOutlined />} onClick={onClear}>
                 Clear
@@ -73,7 +83,7 @@ const CrsBulkActionBar: React.FC<CrsBulkActionBarProps> = ({
                 type="primary"
                 icon={<PlusCircleOutlined />}
                 onClick={onApply}
-                disabled={!targetSetId || allAlreadyAdded}
+                disabled={!targetId || allAlreadyAdded}
             >
                 {allAlreadyAdded
                     ? 'Nothing new to add'

@@ -4,8 +4,9 @@
  * presented as an engine card for UX).
  */
 
-import React from 'react';
-import { Col, Input, Row } from 'antd';
+import React, { useState } from 'react';
+import { Button, Col, Row, Space, Tag, Typography } from 'antd';
+import { ToolOutlined } from '@ant-design/icons';
 import {
     CorazaSpec,
     DlpSpec,
@@ -14,41 +15,90 @@ import {
 } from '../../state/model';
 import {
     DataFilePathField,
-    FieldShell,
     NumberField,
     SelectField,
     SwitchField,
     TagsField,
 } from '../fields';
 import type { EngineFormProps } from './authForms';
+import { countCustomRules } from './coraza/directivesCodec';
 
+// Lazy so the heavy CRS library + Monaco preview (and the wafApi chain they
+// pull in) only load when the Studio is opened — keeps the engine registry's
+// import graph light.
+const WafStudioDrawer = React.lazy(() => import('./coraza/WafStudioDrawer'));
+
+const { Text } = Typography;
+
+/**
+ * Coraza is presented as a launcher into the full-screen WAF Studio (CRS
+ * tuning + rule library + visual/structured custom-rule editor) instead of a
+ * raw SecLang textarea. The inline card shows a summary and a couple of quick
+ * escape-hatch fields; everything else is authored in the Studio.
+ */
 export const CorazaForm: React.FC<EngineFormProps<CorazaSpec>> = ({ value, onChange, disabled, dataFiles }) => {
+    const [studioOpen, setStudioOpen] = useState(false);
     const set = (patch: Partial<CorazaSpec>) => onChange({ ...value, ...patch });
+
+    const customCount = countCustomRules(value.directives);
+    const summary: string[] = [];
+    if (value.include_owasp) summary.push(`OWASP CRS${value.paranoia_level ? ` · PL${value.paranoia_level}` : ''}`);
+    if (customCount) summary.push(`${customCount} custom rule${customCount === 1 ? '' : 's'}`);
+    if (value.exclude_rule_ids?.length) summary.push(`${value.exclude_rule_ids.length} disabled`);
+
     return (
         <>
+            <div
+                style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 12,
+                    padding: '10px 12px',
+                    border: '1px solid var(--border-default)',
+                    borderRadius: 10,
+                    marginBottom: 12,
+                    background: 'var(--bg-elevated, transparent)',
+                }}
+            >
+                <div style={{ flex: 1, minWidth: 0 }}>
+                    <Space size={6} wrap>
+                        <Text strong style={{ fontSize: 13 }}>Web Application Firewall</Text>
+                        {summary.length
+                            ? summary.map((s) => <Tag key={s} color="blue" style={{ margin: 0 }}>{s}</Tag>)
+                            : <Text type="secondary" style={{ fontSize: 12 }}>Not configured yet</Text>}
+                    </Space>
+                    <div>
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                            Tune the OWASP CRS and build rules visually — no hand-typed SecLang.
+                        </Text>
+                    </div>
+                </div>
+                <Button type="primary" icon={<ToolOutlined />} disabled={disabled} onClick={() => setStudioOpen(true)}>
+                    Open WAF Studio
+                </Button>
+            </div>
+
             <Row gutter={16}>
                 <Col xs={24} md={12}>
-                    <SwitchField label="Include OWASP CRS" tooltip="Load the embedded OWASP Core Rule Set (no rule files needed). Recommended: start the route in detect mode, watch detections, then switch to block." disabled={disabled} value={value.include_owasp} onChange={v => set({ include_owasp: v })} />
-                    <NumberField label="Paranoia Level" tooltip="CRS strictness 1–4. Higher blocks more (and false-positives more). Empty = CRS default (1)." min={1} max={4} disabled={disabled} value={value.paranoia_level} onChange={v => set({ paranoia_level: v })} />
-                    <NumberField label="Detection Paranoia Level" tooltip="Rules from this level up only DETECT (score) without contributing to blocking decisions." min={1} max={4} disabled={disabled} value={value.detection_paranoia_level} onChange={v => set({ detection_paranoia_level: v })} />
+                    <SwitchField label="Include OWASP CRS" tooltip="Load the embedded OWASP Core Rule Set (no rule files needed). Detailed tuning lives in WAF Studio." disabled={disabled} value={value.include_owasp} onChange={v => set({ include_owasp: v })} />
+                    <TagsField label="Disabled Rule IDs" tooltip="CRS rule ids to disable (false-positive tuning), e.g. 942100." placeholder="942100" disabled={disabled} value={value.exclude_rule_ids} onChange={v => set({ exclude_rule_ids: v })} />
                 </Col>
                 <Col xs={24} md={12}>
-                    <NumberField label="Inbound Anomaly Threshold" tooltip="Request blocks once its accumulated CRS score reaches this. Lower = stricter. Empty = CRS default (5)." min={1} disabled={disabled} value={value.inbound_anomaly_threshold} onChange={v => set({ inbound_anomaly_threshold: v })} />
-                    <NumberField label="Outbound Anomaly Threshold" tooltip="Same for the response side. Empty = CRS default (4)." min={1} disabled={disabled} value={value.outbound_anomaly_threshold} onChange={v => set({ outbound_anomaly_threshold: v })} />
-                    <TagsField label="Exclude Rule IDs" tooltip="CRS rule ids to disable (false-positive tuning), e.g. 942100." placeholder="942100" disabled={disabled} value={value.exclude_rule_ids} onChange={v => set({ exclude_rule_ids: v })} />
+                    <DataFilePathField label="Directives File" tooltip="Alternative: a SecLang rules file on the edge (upload it in Data Files). Overrides/augments the rules built in WAF Studio." disabled={disabled} value={value.directives_file} onChange={v => set({ directives_file: v })} dataFiles={dataFiles} />
                 </Col>
             </Row>
-            <FieldShell label="Custom Directives" tooltip="Raw Coraza/ModSecurity SecLang directives appended after the CRS (advanced)." hint="One directive per line, e.g. SecRule REQUEST_URI …">
-                <Input.TextArea
-                    rows={4}
-                    style={{ fontFamily: 'monospace', fontSize: 12 }}
-                    value={value.directives}
-                    disabled={disabled}
-                    placeholder={'# SecRule REQUEST_URI "@contains /old-api" "id:1001,phase:1,deny,status:410"'}
-                    onChange={e => set({ directives: e.target.value || undefined })}
-                />
-            </FieldShell>
-            <DataFilePathField label="Directives File" tooltip="Alternative: a SecLang rules file on the edge (upload it in Data Files)." disabled={disabled} value={value.directives_file} onChange={v => set({ directives_file: v })} dataFiles={dataFiles} />
+
+            {studioOpen && (
+                <React.Suspense fallback={null}>
+                    <WafStudioDrawer
+                        open={studioOpen}
+                        value={value}
+                        disabled={disabled}
+                        onApply={(next) => onChange(next)}
+                        onClose={() => setStudioOpen(false)}
+                    />
+                </React.Suspense>
+            )}
         </>
     );
 };

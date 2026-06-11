@@ -248,7 +248,30 @@ const WafDetailInner: React.FC = () => {
                 }
             />
 
-            <CrsLibraryDrawer open={libraryOpen} onClose={() => setLibraryOpen(false)} />
+            <CrsLibraryDrawer
+                open={libraryOpen}
+                onClose={() => setLibraryOpen(false)}
+                activeTarget={
+                    activeSet
+                        ? { id: activeSet.id, name: activeSet.name, existingTexts: activeSet.directives.map((d) => d.text) }
+                        : null
+                }
+                bulkTargets={state.editor.sets.map((s) => ({
+                    id: s.id,
+                    name: s.name,
+                    existingTexts: s.directives.map((d) => d.text),
+                }))}
+                onAdd={(texts, targetId) => dispatch({ type: 'ADD_DIRECTIVES', setId: targetId, texts })}
+                notReadyAlert={
+                    <Alert
+                        type="warning"
+                        showIcon
+                        style={{ margin: 12 }}
+                        message="No active directive set"
+                        description="Pick or create a set on the page first; rules and Include lines are appended to the active set."
+                    />
+                }
+            />
             <CrsSetupDrawer open={setupOpen} onClose={() => setSetupOpen(false)} />
             <DemoConfDrawer open={demoConfOpen} onClose={() => setDemoConfOpen(false)} />
             <HowToDrawer open={howToOpen} onClose={() => setHowToOpen(false)} />

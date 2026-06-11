@@ -1,13 +1,13 @@
 import React from 'react';
 import { Drawer } from 'antd';
-import CrsLibraryPane from './CrsLibraryPane';
+import CrsLibraryPane, { CrsLibraryPaneProps } from './CrsLibraryPane';
 
-interface CrsLibraryDrawerProps {
+type CrsLibraryDrawerProps = CrsLibraryPaneProps & {
     open: boolean;
     onClose: () => void;
-}
+};
 
-const CrsLibraryDrawer: React.FC<CrsLibraryDrawerProps> = ({ open, onClose }) => (
+const CrsLibraryDrawer: React.FC<CrsLibraryDrawerProps> = ({ open, onClose, ...paneProps }) => (
     <Drawer
         title="CRS Rule Library"
         placement="right"
@@ -17,7 +17,7 @@ const CrsLibraryDrawer: React.FC<CrsLibraryDrawerProps> = ({ open, onClose }) =>
         destroyOnHidden={false}
         styles={{ body: { padding: 0, display: 'flex', flexDirection: 'column' } }}
     >
-        <CrsLibraryPane />
+        <CrsLibraryPane {...paneProps} />
     </Drawer>
 );
 
