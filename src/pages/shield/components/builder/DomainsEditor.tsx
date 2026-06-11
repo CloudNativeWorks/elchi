@@ -35,7 +35,7 @@ const MatchEditor: React.FC<{
     };
 
     return (
-        <Row gutter={12} align="bottom">
+        <Row gutter={12} align="top">
             <Col xs={24} md={6}>
                 <FieldShell label="Path Match" tooltip="How the request path is matched: Prefix (starts with), Exact, or Regex (RE2). Matching uses the normalized, percent-decoded path.">
                     <Segmented

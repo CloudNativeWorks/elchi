@@ -108,7 +108,17 @@ const EnginePanel: React.FC<EnginePanelProps> = ({ policy, onChange, disabled, d
             })}
 
             {!disabled && available.length > 0 && (
-                <Dropdown menu={{ items: menuItems, onClick: ({ key }) => addEngine(key) }} trigger={['click']}>
+                <Dropdown
+                    trigger={['click']}
+                    menu={{
+                        items: menuItems,
+                        onClick: ({ key }) => addEngine(key),
+                        // 13 engines with descriptions are taller than the viewport;
+                        // without a bounded, scrollable menu the list overflows the
+                        // page and the bottom entries become unreachable.
+                        style: { maxHeight: 'min(480px, 60vh)', overflowY: 'auto' },
+                    }}
+                >
                     <Button type="dashed" size="small" icon={<PlusOutlined />} block>
                         Add protection
                     </Button>
