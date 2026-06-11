@@ -1,0 +1,93 @@
+/**
+ * Round-trip and schema-walk tests for the shield policy YAML codec — the
+ * load-bearing guarantee behind the Builder↔YAML two-way sync: every template
+ * must hydrate the builder without falling back to YAML mode, and the
+ * generated YAML must re-parse to the same model.
+ */
+
+import { describe, expect, it } from 'vitest';
+import { modelToYaml, yamlToModel } from './policyYaml';
+import { EXAMPLES } from '../components/ShieldExamplesDrawer';
+import { ENGINE_DEFS } from '../engines/registry';
+import { newPolicyFile } from '../state/model';
+import { configPathForName } from './bundleAdapter';
+
+describe('yamlToModel / modelToYaml round-trip', () => {
+    for (const ex of EXAMPLES) {
+        it(`template "${ex.key}" hydrates the builder (no YAML-mode fallback)`, () => {
+            const parsed = yamlToModel(ex.content);
+            expect(parsed.errors).toEqual([]);
+            expect(parsed.unsupportedPaths).toEqual([]);
+            expect(parsed.model).toBeDefined();
+
+            // Generated YAML must re-parse to a clean, equivalent model.
+            const regenerated = modelToYaml(parsed.model!);
+            const second = yamlToModel(regenerated);
+            expect(second.errors).toEqual([]);
+            expect(second.unsupportedPaths).toEqual([]);
+            expect(second.model!.spec).toEqual(JSON.parse(JSON.stringify(parsed.model!.spec)));
+        });
+    }
+
+    it('reports unknown keys with their paths', () => {
+        const parsed = yamlToModel(`
+apiVersion: sentinel.elchi.io/v1
+kind: SecurityPolicy
+spec:
+  defaults:
+    mode: block
+    totally_unknown: 1
+  domains:
+    - hosts: ["a.example.com"]
+      routes:
+        - match: { path_prefix: "/" }
+          policy:
+            engines:
+              jwt: { issuer: "x", bogus_field: true }
+`);
+        expect(parsed.errors).toEqual([]);
+        expect(parsed.unsupportedPaths).toContain('spec.defaults.totally_unknown');
+        expect(parsed.unsupportedPaths.some(p => p.includes('bogus_field'))).toBe(true);
+    });
+
+    it('reports YAML syntax errors without producing a model', () => {
+        const parsed = yamlToModel('spec: : :\n  - ][');
+        expect(parsed.errors.length).toBeGreaterThan(0);
+        expect(parsed.model).toBeUndefined();
+    });
+});
+
+describe('engine registry get/set', () => {
+    it('every engine sets and clears its slot immutably', () => {
+        for (const def of ENGINE_DEFS) {
+            const empty = {};
+            const withEngine = def.set(empty, { some: 'value' } as object);
+            expect(def.get(withEngine)).toEqual({ some: 'value' });
+            expect(def.get(empty)).toBeUndefined(); // original untouched
+            const cleared = def.set(withEngine, undefined);
+            expect(def.get(cleared)).toBeUndefined();
+        }
+    });
+
+    it('DLP serializes under checks.body.dlp (not engines)', () => {
+        const dlp = ENGINE_DEFS.find(d => d.key === 'dlp')!;
+        const p = dlp.set({}, { redact: ['credit_card'] });
+        expect(p.checks?.body?.dlp).toEqual({ redact: ['credit_card'] });
+        expect(p.engines).toBeUndefined();
+
+        // …and round-trips through YAML cleanly.
+        const model = newPolicyFile('t');
+        model.spec.defaults = p;
+        const reparsed = yamlToModel(modelToYaml(model));
+        expect(reparsed.unsupportedPaths).toEqual([]);
+        expect(reparsed.model!.spec.defaults?.checks?.body?.dlp).toEqual({ redact: ['credit_card'] });
+    });
+});
+
+describe('configPathForName', () => {
+    it('slugifies policy names into safe file names', () => {
+        expect(configPathForName('api-public')).toBe('api-public.yaml');
+        expect(configPathForName('  My API Policy! ')).toBe('my-api-policy.yaml');
+        expect(configPathForName('***')).toBe('policy.yaml');
+    });
+});

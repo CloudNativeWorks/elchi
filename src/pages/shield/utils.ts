@@ -46,6 +46,19 @@ export const tryDecodeText = (b64: string): string | null => {
     }
 };
 
+/** SHA-256 hex of a buffer via WebCrypto — used to auto-derive data-file hashes
+ * on upload (the user never types a hash) and the api-key "hash my key" helper. */
+export const sha256Hex = async (buffer: ArrayBuffer): Promise<string> => {
+    const digest = await crypto.subtle.digest('SHA-256', buffer);
+    return Array.from(new Uint8Array(digest))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+};
+
+/** SHA-256 hex of a UTF-8 string. */
+export const sha256HexOfText = async (text: string): Promise<string> =>
+    sha256Hex(new TextEncoder().encode(text).buffer as ArrayBuffer);
+
 /** Shield mutations are admin/owner-only on the backend; mirror that in the UI. */
 export const isShieldAdmin = (): boolean => {
     const detail = DecodeToken(Cookies.get('bb_token'));

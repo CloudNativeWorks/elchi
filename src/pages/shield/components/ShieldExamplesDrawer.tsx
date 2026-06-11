@@ -20,7 +20,7 @@ interface ShieldExample {
     content: string;
 }
 
-const EXAMPLES: ShieldExample[] = [
+export const EXAMPLES: ShieldExample[] = [
     {
         key: 'minimal',
         title: 'Minimal blocking policy',

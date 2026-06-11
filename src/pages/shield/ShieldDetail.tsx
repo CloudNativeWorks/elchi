@@ -1,104 +1,69 @@
+/**
+ * Shield policy editor — a structured POLICY BUILDER. The user composes the
+ * policy with components (domains, routes, protections); the YAML config file,
+ * its path, hash and mode are all generated automatically. Tabs: Builder
+ * (forms) | YAML (two-way) | Data Files (supporting artifacts, auto-hashed).
+ */
+
 import React, { useEffect, useMemo, useState } from 'react';
 import {
     Alert,
-    AutoComplete,
+    Badge,
     Button,
     Card,
-    Col,
-    Form,
+    Collapse,
     Input,
     Modal,
-    Radio,
-    Row,
+    Select,
     Space,
     Spin,
+    Tabs,
     Tag,
+    Tooltip,
     Typography,
-    Upload,
 } from 'antd';
 import {
     ArrowLeftOutlined,
     DeleteOutlined,
     ExclamationCircleOutlined,
-    FileAddOutlined,
+    FileTextOutlined,
     InfoCircleOutlined,
-    PlusOutlined,
     SafetyOutlined,
     SaveOutlined,
-    UploadOutlined,
+    UndoOutlined,
+    RedoOutlined,
 } from '@ant-design/icons';
-import MonacoEditor from '@monaco-editor/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
-import { useTheme } from '@/contexts/ThemeContext';
-import { Base64FromBytes } from '@/utils/typed-config-op';
 import { shieldApi } from './shieldApi';
-import { ShieldFile, ShieldFileForm, ShieldPolicyRequest } from './types';
 import { useShieldMutations } from './hooks/useShieldMutations';
-import {
-    isShieldAdmin,
-    textToBase64,
-    tryDecodeText,
-    base64ByteLength,
-    MAX_INLINE_BUNDLE_BYTES,
-} from './utils';
-import { shieldFieldHelp, MODE_PRESETS, SHIELD_POLICY_INFO } from './constants/fieldHelp';
+import { isShieldAdmin } from './utils';
+import { PolicyEditorProvider, usePolicyEditor } from './state/policyStore';
+import { fromApi, toApi, configPathForName } from './utils/bundleAdapter';
+import { yamlToModel } from './utils/policyYaml';
+import { FieldShell } from './engines/fields';
+import PolicySettings from './components/builder/PolicySettings';
+import EnginePanel from './components/builder/EnginePanel';
+import DomainsEditor from './components/builder/DomainsEditor';
+import YamlTab from './components/YamlTab';
+import DataFilesTab from './components/DataFilesTab';
 import ShieldExamplesDrawer from './components/ShieldExamplesDrawer';
 
 const { Title, Text } = Typography;
 const { confirm } = Modal;
 
-interface ShieldFormModel {
-    name: string;
-    files: ShieldFileForm[];
-}
-
-/** Editor language from the file extension (shield parses .json as JSON, the rest as YAML). */
-const editorLanguage = (path?: string): string =>
-    path?.trim().toLowerCase().endsWith('.json') ? 'json' : 'yaml';
-
-/** API file → form row (decode inline base64 for the editor; keep binary as base64). */
-const toFormFile = (f: ShieldFile): ShieldFileForm => {
-    if (f.download_url) {
-        return { path: f.path, source: 'download', download_url: f.download_url, sha256: f.sha256, mode: f.mode };
-    }
-    const text = f.content !== undefined ? tryDecodeText(f.content) : '';
-    return {
-        path: f.path,
-        source: 'inline',
-        contentText: text ?? undefined,
-        contentBase64: text === null ? f.content : undefined,
-        sha256: f.sha256,
-        mode: f.mode,
-    };
-};
-
-/** Form row → API file (encode editor text to base64). */
-const toApiFile = (f: ShieldFileForm): ShieldFile => {
-    const base: ShieldFile = { path: f.path.trim(), mode: f.mode?.trim() || undefined };
-    if (f.source === 'download') {
-        return { ...base, download_url: f.download_url?.trim(), sha256: f.sha256?.trim() };
-    }
-    return {
-        ...base,
-        content: f.contentBase64 ?? textToBase64(f.contentText ?? ''),
-        sha256: f.sha256?.trim() || undefined,
-    };
-};
-
-const ShieldDetail: React.FC = () => {
+const ShieldDetailInner: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const { project } = useProjectVariable();
-    const { isDark } = useTheme();
-    const [form] = Form.useForm<ShieldFormModel>();
     const admin = isShieldAdmin();
     const isCreateMode = id === 'create';
 
+    const { state, dispatch } = usePolicyEditor();
+    const [name, setName] = useState('');
     const [saveError, setSaveError] = useState<string | null>(null);
     const [examplesOpen, setExamplesOpen] = useState(false);
-    const [examplesTargetIdx, setExamplesTargetIdx] = useState<number | null>(null);
 
     const { data: policy, isLoading, isError: loadError, error: loadErrorObj } = useQuery({
         queryKey: ['shield-policy', id, project],
@@ -110,66 +75,80 @@ const ShieldDetail: React.FC = () => {
     const { createMutation, updateMutation, deleteMutation, isLoading: isMutating } =
         useShieldMutations(isCreateMode ? undefined : id, project);
 
-    // Hydrate the form from the fetched policy (edit mode).
+    // Hydrate the editor from the fetched policy.
     useEffect(() => {
         if (policy) {
-            form.setFieldsValue({
-                name: policy.name,
-                files: (policy.files ?? []).map(toFormFile),
+            setName(policy.name);
+            const hydrated = fromApi(policy);
+            dispatch({
+                type: 'HYDRATE',
+                state: {
+                    model: hydrated.model,
+                    dataFiles: hydrated.dataFiles,
+                    yamlMode: hydrated.yamlMode,
+                    rawYaml: hydrated.rawYaml,
+                    yamlModeReason: hydrated.yamlModeReason,
+                    dirty: false,
+                },
             });
         }
-    }, [policy, form]);
+    }, [policy, dispatch]);
 
-    const initialValues: ShieldFormModel = useMemo(
-        () => ({ name: '', files: [{ path: '', source: 'inline', contentText: '' }] }),
-        []
-    );
+    const defaults = state.model.spec.defaults ?? {};
+    const domains = state.model.spec.domains ?? [];
+    const exclude = state.model.spec.exclude ?? [];
 
     const handleSave = async () => {
         setSaveError(null);
-        try {
-            const values = await form.validateFields();
-
-            // Cross-row checks the per-field rules can't express: duplicate paths
-            // and the project-wide 3 MiB inline cap (backend rejects both; catching
-            // them here gives instant feedback).
-            const seen = new Map<string, number>();
-            for (const [i, f] of values.files.entries()) {
-                const clean = f.path.trim();
-                if (seen.has(clean)) {
-                    setSaveError(`Duplicate file path "${clean}" (rows ${seen.get(clean)! + 1} and ${i + 1}) — paths must be unique.`);
-                    return;
-                }
-                seen.set(clean, i);
-            }
-            const inlineBytes = values.files.reduce((sum, f) => {
-                if (f.source !== 'inline') return sum;
-                if (f.contentBase64) return sum + base64ByteLength(f.contentBase64);
-                return sum + new TextEncoder().encode(f.contentText ?? '').length;
-            }, 0);
-            if (inlineBytes > MAX_INLINE_BUNDLE_BYTES) {
-                setSaveError(
-                    `Total inline content is ${(inlineBytes / (1024 * 1024)).toFixed(1)} MiB — the project-wide cap is 3 MiB. ` +
-                    'Switch large files to a Download URL.'
-                );
+        const trimmed = name.trim();
+        if (!trimmed) {
+            setSaveError('Policy name is required.');
+            return;
+        }
+        if (!state.yamlMode) {
+            const noHosts = domains.some(d => !d.hosts || d.hosts.length === 0);
+            if (noHosts) {
+                setSaveError('Every domain needs at least one host (use * to match any host).');
                 return;
             }
-
-            const body: ShieldPolicyRequest = {
-                name: values.name.trim(),
+            if (domains.length === 0) {
+                setSaveError('Add at least one domain — without domains the policy protects nothing.');
+                return;
+            }
+        }
+        try {
+            const body = toApi({
+                name: trimmed,
                 project,
-                files: values.files.map(toApiFile),
-            };
+                model: { ...state.model, metadata: { ...(state.model.metadata ?? {}), name: trimmed } },
+                yamlMode: state.yamlMode,
+                rawYaml: state.rawYaml,
+                dataFiles: state.dataFiles,
+            });
             if (isCreateMode) {
                 await createMutation.mutateAsync(body);
             } else {
                 await updateMutation.mutateAsync(body);
             }
+            dispatch({ type: 'MARK_SAVED' });
         } catch (err: unknown) {
-            const e = err as { message?: string; errorFields?: unknown[] };
-            if (e?.errorFields) return; // antd validation errors already shown inline
-            setSaveError(e?.message || 'Save failed');
+            setSaveError((err as Error)?.message || 'Save failed');
         }
+    };
+
+    const handleBack = () => {
+        if (state.dirty && admin) {
+            confirm({
+                title: 'Discard unsaved changes?',
+                icon: <ExclamationCircleOutlined />,
+                content: 'Your edits have not been saved or deployed.',
+                okText: 'Discard',
+                okType: 'danger',
+                onOk: () => navigate('/shield'),
+            });
+            return;
+        }
+        navigate('/shield');
     };
 
     const handleDelete = () => {
@@ -189,6 +168,95 @@ const ShieldDetail: React.FC = () => {
             onOk: () => deleteMutation.mutateAsync(),
         });
     };
+
+    const useTemplate = (content: string) => {
+        const parsed = yamlToModel(content);
+        if (parsed.errors.length === 0 && parsed.unsupportedPaths.length === 0 && parsed.model) {
+            dispatch({ type: 'PATCH', update: () => parsed.model! });
+        } else if (parsed.errors.length === 0) {
+            dispatch({ type: 'ENTER_YAML_MODE', rawYaml: content, reason: parsed.unsupportedPaths });
+        }
+        setExamplesOpen(false);
+    };
+
+    const builderDisabled = !admin || state.yamlMode;
+
+    const builderTab = useMemo(() => (
+        <>
+            {state.yamlMode && (
+                <Alert
+                    type="warning"
+                    showIcon
+                    style={{ marginBottom: 12, borderRadius: 8 }}
+                    message="This policy is managed as raw YAML"
+                    description="It contains content the builder can't represent — edit it in the YAML tab (the reasons are listed there)."
+                />
+            )}
+
+            <Card
+                style={{ borderRadius: 12, marginBottom: 12 }}
+                title={<Text strong>Policy Defaults</Text>}
+                extra={
+                    <Tooltip title="These settings apply to all domains/routes below unless a route overrides them.">
+                        <InfoCircleOutlined style={{ color: 'var(--color-primary)' }} />
+                    </Tooltip>
+                }
+            >
+                <PolicySettings
+                    variant="defaults"
+                    policy={defaults}
+                    disabled={builderDisabled}
+                    onChange={p => dispatch({ type: 'PATCH', update: m => ({ ...m, spec: { ...m.spec, defaults: p } }) })}
+                />
+                <Collapse
+                    size="small"
+                    ghost
+                    items={[{
+                        key: 'default-engines',
+                        label: <Text type="secondary" style={{ fontSize: 12 }}>Default protections (apply to every route)</Text>,
+                        children: (
+                            <EnginePanel
+                                policy={defaults}
+                                disabled={builderDisabled}
+                                dataFiles={state.dataFiles}
+                                onChange={p => dispatch({ type: 'PATCH', update: m => ({ ...m, spec: { ...m.spec, defaults: p } }) })}
+                            />
+                        ),
+                    }]}
+                />
+            </Card>
+
+            <Card style={{ borderRadius: 12, marginBottom: 12 }} title={<Text strong>Bypass Paths</Text>}>
+                <FieldShell
+                    label="Excluded Paths"
+                    tooltip="Request paths that bypass ALL inspection (checked before policy resolution). Use for health checks, metrics scrapes, static assets."
+                    hint="Absolute paths, e.g. /healthz, /metrics — exact match, query ignored."
+                >
+                    <Select
+                        size="small"
+                        mode="tags"
+                        style={{ width: '100%' }}
+                        placeholder="/healthz"
+                        disabled={builderDisabled}
+                        value={exclude}
+                        tokenSeparators={[',', ' ']}
+                        options={[]}
+                        onChange={(v: string[]) => dispatch({
+                            type: 'PATCH',
+                            update: m => ({ ...m, spec: { ...m.spec, exclude: v.length ? v : undefined } }),
+                        })}
+                    />
+                </FieldShell>
+            </Card>
+
+            <DomainsEditor
+                domains={domains}
+                disabled={builderDisabled}
+                dataFiles={state.dataFiles}
+                onChange={d => dispatch({ type: 'PATCH', update: m => ({ ...m, spec: { ...m.spec, domains: d } }) })}
+            />
+        </>
+    ), [state.yamlMode, state.dataFiles, defaults, domains, exclude, builderDisabled, dispatch]);
 
     if (!isCreateMode && isLoading) {
         return <div style={{ textAlign: 'center', padding: 64 }}><Spin size="large" /></div>;
@@ -213,327 +281,111 @@ const ShieldDetail: React.FC = () => {
 
     return (
         <>
-            {/* Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            {/* Top bar */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                 <Space>
-                    <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/shield')} />
+                    <Button icon={<ArrowLeftOutlined />} onClick={handleBack} />
                     <SafetyOutlined style={{ color: 'var(--color-primary)', fontSize: 24 }} />
-                    <Title level={4} style={{ margin: 0 }}>
-                        {isCreateMode ? 'New Shield Policy' : `Shield Policy: ${policy?.name ?? ''}`}
-                    </Title>
-                    {!isCreateMode && policy && (
-                        <Tag className='auto-width-tag' color="purple">v{policy.version}</Tag>
+                    {isCreateMode ? (
+                        <Input
+                            placeholder="policy name (e.g. api-public)"
+                            value={name}
+                            onChange={e => setName(e.target.value)}
+                            style={{ width: 280, fontWeight: 600 }}
+                            disabled={!admin}
+                        />
+                    ) : (
+                        <Title level={4} style={{ margin: 0 }}>{policy?.name ?? ''}</Title>
+                    )}
+                    {!isCreateMode && policy && <Tag className='auto-width-tag' color="purple">v{policy.version}</Tag>}
+                    {name.trim() && (
+                        <Tooltip title="The generated config file synced to every edge in this project.">
+                            <Text type="secondary" style={{ fontSize: 12 }}>
+                                <FileTextOutlined /> {configPathForName(name)}
+                            </Text>
+                        </Tooltip>
+                    )}
+                    {state.dirty && admin && <Tag className='auto-width-tag' color="orange">unsaved</Tag>}
+                </Space>
+                <Space>
+                    {admin && (
+                        <>
+                            <Tooltip title="Undo"><Button icon={<UndoOutlined />} disabled={state.past.length === 0} onClick={() => dispatch({ type: 'UNDO' })} /></Tooltip>
+                            <Tooltip title="Redo"><Button icon={<RedoOutlined />} disabled={state.future.length === 0} onClick={() => dispatch({ type: 'REDO' })} /></Tooltip>
+                            <Button onClick={() => setExamplesOpen(true)}>Templates</Button>
+                            {!isCreateMode && (
+                                <Button danger icon={<DeleteOutlined />} loading={deleteMutation.isPending} onClick={handleDelete}>
+                                    Delete
+                                </Button>
+                            )}
+                            <Button type="primary" icon={<SaveOutlined />} loading={isMutating} onClick={handleSave}>
+                                {isCreateMode ? 'Create & Deploy' : 'Save & Deploy'}
+                            </Button>
+                        </>
                     )}
                 </Space>
-                {admin && (
-                    <Space>
-                        {!isCreateMode && (
-                            <Button danger icon={<DeleteOutlined />} loading={deleteMutation.isPending} onClick={handleDelete}>
-                                Delete
-                            </Button>
-                        )}
-                        <Button type="primary" icon={<SaveOutlined />} loading={isMutating} onClick={handleSave}>
-                            {isCreateMode ? 'Create & Deploy' : 'Save & Deploy'}
-                        </Button>
-                    </Space>
-                )}
             </div>
-
-            {/* What does this do? */}
-            <Alert
-                message="How shield policies work"
-                description={SHIELD_POLICY_INFO}
-                type="info"
-                showIcon
-                icon={<InfoCircleOutlined />}
-                closable
-                style={{ marginBottom: 16, borderRadius: 8 }}
-            />
 
             {!admin && (
                 <Alert
-                    message="Read-only view"
-                    description="Only Admin and Owner roles can create, edit, delete or deploy shield policies."
                     type="warning"
                     showIcon
-                    style={{ marginBottom: 16, borderRadius: 8 }}
+                    message="Read-only view"
+                    description="Only Admin and Owner roles can create, edit, delete or deploy shield policies."
+                    style={{ marginBottom: 12, borderRadius: 8 }}
                 />
             )}
 
             {saveError && (
                 <Alert
-                    message="Could not save the policy"
-                    description={<span style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: 12 }}>{saveError}</span>}
                     type="error"
                     showIcon
                     closable
                     onClose={() => setSaveError(null)}
-                    style={{ marginBottom: 16, borderRadius: 8 }}
+                    message="Could not save the policy"
+                    description={<span style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: 12 }}>{saveError}</span>}
+                    style={{ marginBottom: 12, borderRadius: 8 }}
                 />
             )}
 
-            <Form<ShieldFormModel>
-                form={form}
-                layout="vertical"
-                initialValues={initialValues}
-                disabled={!admin}
-            >
-                <Card style={{ borderRadius: 12, marginBottom: 16 }}>
-                    <Row gutter={16}>
-                        <Col xs={24} sm={12}>
-                            <Form.Item
-                                name="name"
-                                label={shieldFieldHelp.name.label}
-                                tooltip={{ title: shieldFieldHelp.name.tooltip, icon: <InfoCircleOutlined /> }}
-                                extra={shieldFieldHelp.name.extra}
-                                rules={shieldFieldHelp.name.rules}
-                            >
-                                <Input placeholder={shieldFieldHelp.name.placeholder} disabled={!admin || !isCreateMode} />
-                            </Form.Item>
-                        </Col>
-                    </Row>
-                </Card>
-
-                <Form.List name="files">
-                    {(fields, { add, remove }) => (
-                        <>
-                            {fields.map(({ key, name, ...restField }) => (
-                                <Card
-                                    key={key}
-                                    size="small"
-                                    style={{ marginBottom: 12, borderRadius: 12 }}
-                                    title={
-                                        <Space>
-                                            <FileAddOutlined />
-                                            <Form.Item noStyle shouldUpdate>
-                                                {() => {
-                                                    const p = form.getFieldValue(['files', name, 'path']);
-                                                    return <Text strong>{p || `File #${name + 1}`}</Text>;
-                                                }}
-                                            </Form.Item>
-                                        </Space>
-                                    }
-                                    extra={admin && fields.length > 1 && (
-                                        <Button type="text" danger icon={<DeleteOutlined />} onClick={() => remove(name)} />
-                                    )}
-                                >
-                                    <Row gutter={16}>
-                                        <Col xs={24} sm={10}>
-                                            <Form.Item
-                                                {...restField}
-                                                name={[name, 'path']}
-                                                label={shieldFieldHelp.path.label}
-                                                tooltip={{ title: shieldFieldHelp.path.tooltip, icon: <InfoCircleOutlined /> }}
-                                                extra={shieldFieldHelp.path.extra}
-                                                rules={shieldFieldHelp.path.rules}
-                                                required
-                                            >
-                                                <Input placeholder={shieldFieldHelp.path.placeholder} style={{ fontFamily: 'monospace' }} />
-                                            </Form.Item>
-                                        </Col>
-                                        <Col xs={24} sm={8}>
-                                            <Form.Item
-                                                {...restField}
-                                                name={[name, 'source']}
-                                                label={shieldFieldHelp.source.label}
-                                                tooltip={{ title: shieldFieldHelp.source.tooltip, icon: <InfoCircleOutlined /> }}
-                                            >
-                                                <Radio.Group
-                                                    options={[
-                                                        { label: 'Inline', value: 'inline' },
-                                                        { label: 'Download URL', value: 'download' },
-                                                    ]}
-                                                    optionType="button"
-                                                    buttonStyle="solid"
-                                                />
-                                            </Form.Item>
-                                        </Col>
-                                        <Col xs={24} sm={6}>
-                                            <Form.Item
-                                                {...restField}
-                                                name={[name, 'mode']}
-                                                label={shieldFieldHelp.mode.label}
-                                                tooltip={{ title: shieldFieldHelp.mode.tooltip, icon: <InfoCircleOutlined /> }}
-                                                extra={shieldFieldHelp.mode.extra}
-                                                rules={shieldFieldHelp.mode.rules}
-                                            >
-                                                {/* AutoComplete (not Select): presets PLUS any custom octal like 0700 */}
-                                                <AutoComplete
-                                                    options={MODE_PRESETS}
-                                                    placeholder={shieldFieldHelp.mode.placeholder}
-                                                    allowClear
-                                                />
-                                            </Form.Item>
-                                        </Col>
-                                    </Row>
-
-                                    <Form.Item noStyle shouldUpdate>
-                                        {() => {
-                                            const source = form.getFieldValue(['files', name, 'source']);
-                                            const path = form.getFieldValue(['files', name, 'path']);
-                                            const b64 = form.getFieldValue(['files', name, 'contentBase64']);
-
-                                            if (source === 'download') {
-                                                return (
-                                                    <Row gutter={16}>
-                                                        <Col xs={24} sm={14}>
-                                                            <Form.Item
-                                                                {...restField}
-                                                                name={[name, 'download_url']}
-                                                                label={shieldFieldHelp.download_url.label}
-                                                                tooltip={{ title: shieldFieldHelp.download_url.tooltip, icon: <InfoCircleOutlined /> }}
-                                                                extra={shieldFieldHelp.download_url.extra}
-                                                                rules={shieldFieldHelp.download_url.rules}
-                                                                required
-                                                            >
-                                                                <Input placeholder={shieldFieldHelp.download_url.placeholder} style={{ fontFamily: 'monospace' }} />
-                                                            </Form.Item>
-                                                        </Col>
-                                                        <Col xs={24} sm={10}>
-                                                            <Form.Item
-                                                                {...restField}
-                                                                name={[name, 'sha256']}
-                                                                label={shieldFieldHelp.sha256.label}
-                                                                tooltip={{ title: shieldFieldHelp.sha256.tooltip, icon: <InfoCircleOutlined /> }}
-                                                                extra={shieldFieldHelp.sha256.extra}
-                                                                rules={[
-                                                                    { required: true, message: 'SHA-256 is required for downloads (the fetch is verified against it)' },
-                                                                    ...shieldFieldHelp.sha256.rules,
-                                                                ]}
-                                                            >
-                                                                <Input placeholder={shieldFieldHelp.sha256.placeholder} style={{ fontFamily: 'monospace' }} />
-                                                            </Form.Item>
-                                                        </Col>
-                                                    </Row>
-                                                );
-                                            }
-
-                                            if (b64) {
-                                                return (
-                                                    <Alert
-                                                        type="info"
-                                                        showIcon
-                                                        style={{ marginBottom: 8, borderRadius: 8 }}
-                                                        message={`Binary content (${(base64ByteLength(b64) / 1024).toFixed(1)} KB) — uploaded file, not editable inline`}
-                                                        action={admin && (
-                                                            <Button size="small" danger onClick={() => {
-                                                                const files = form.getFieldValue('files');
-                                                                files[name] = { ...files[name], contentBase64: undefined, contentText: '' };
-                                                                form.setFieldsValue({ files: [...files] });
-                                                            }}>
-                                                                Clear
-                                                            </Button>
-                                                        )}
-                                                    />
-                                                );
-                                            }
-
-                                            return (
-                                                <Form.Item
-                                                    {...restField}
-                                                    name={[name, 'contentText']}
-                                                    label={
-                                                        <Space>
-                                                            {shieldFieldHelp.content.label}
-                                                            {admin && (
-                                                                <>
-                                                                    <Button
-                                                                        size="small"
-                                                                        type="link"
-                                                                        onClick={() => { setExamplesTargetIdx(name); setExamplesOpen(true); }}
-                                                                    >
-                                                                        Examples / Templates
-                                                                    </Button>
-                                                                    <Upload
-                                                                        showUploadList={false}
-                                                                        beforeUpload={(file) => {
-                                                                            if (file.size > MAX_INLINE_BUNDLE_BYTES) {
-                                                                                setSaveError(
-                                                                                    `"${file.name}" is ${(file.size / (1024 * 1024)).toFixed(1)} MiB — inline content is capped at 3 MiB per project. ` +
-                                                                                    'Host the file and use a Download URL instead.'
-                                                                                );
-                                                                                return false;
-                                                                            }
-                                                                            const reader = new FileReader();
-                                                                            reader.onload = (e) => {
-                                                                                const b64u = Base64FromBytes(e.target?.result as ArrayBuffer);
-                                                                                const text = tryDecodeText(b64u);
-                                                                                const files = form.getFieldValue('files');
-                                                                                files[name] = text !== null
-                                                                                    ? { ...files[name], contentText: text, contentBase64: undefined }
-                                                                                    : { ...files[name], contentBase64: b64u, contentText: undefined };
-                                                                                form.setFieldsValue({ files: [...files] });
-                                                                            };
-                                                                            reader.readAsArrayBuffer(file);
-                                                                            return false;
-                                                                        }}
-                                                                    >
-                                                                        <Button size="small" type="link" icon={<UploadOutlined />}>Upload</Button>
-                                                                    </Upload>
-                                                                </>
-                                                            )}
-                                                        </Space>
-                                                    }
-                                                    tooltip={{ title: shieldFieldHelp.content.tooltip, icon: <InfoCircleOutlined /> }}
-                                                    extra={shieldFieldHelp.content.extra}
-                                                    required
-                                                    rules={[{ required: true, message: 'Inline content is required (or switch the source to Download URL)' }]}
-                                                    valuePropName="value"
-                                                    getValueFromEvent={(v: string | undefined) => v ?? ''}
-                                                >
-                                                    <MonacoEditor
-                                                        height="340px"
-                                                        language={editorLanguage(path)}
-                                                        theme={isDark ? 'vs-dark' : 'light'}
-                                                        options={{
-                                                            minimap: { enabled: false },
-                                                            fontSize: 13,
-                                                            lineNumbers: 'on',
-                                                            scrollBeyondLastLine: false,
-                                                            automaticLayout: true,
-                                                            tabSize: 2,
-                                                            insertSpaces: true,
-                                                            wordWrap: 'on',
-                                                            folding: true,
-                                                            readOnly: !admin,
-                                                        }}
-                                                    />
-                                                </Form.Item>
-                                            );
-                                        }}
-                                    </Form.Item>
-                                </Card>
-                            ))}
-                            {admin && (
-                                <Button
-                                    type="dashed"
-                                    onClick={() => add({ path: '', source: 'inline', contentText: '' })}
-                                    block
-                                    icon={<PlusOutlined />}
-                                    style={{ marginBottom: 24 }}
-                                >
-                                    Add File
-                                </Button>
-                            )}
-                        </>
-                    )}
-                </Form.List>
-            </Form>
+            <Tabs
+                defaultActiveKey="builder"
+                items={[
+                    {
+                        key: 'builder',
+                        label: 'Builder',
+                        children: builderTab,
+                    },
+                    {
+                        key: 'yaml',
+                        label: state.yamlMode ? <Badge dot><span>YAML</span></Badge> : 'YAML',
+                        children: <YamlTab disabled={!admin} />,
+                    },
+                    {
+                        key: 'files',
+                        label: (
+                            <span>
+                                Data Files{state.dataFiles.length > 0 && <Tag className='auto-width-tag' style={{ marginLeft: 6 }}>{state.dataFiles.length}</Tag>}
+                            </span>
+                        ),
+                        children: <DataFilesTab disabled={!admin} />,
+                    },
+                ]}
+            />
 
             <ShieldExamplesDrawer
                 open={examplesOpen}
                 onClose={() => setExamplesOpen(false)}
-                onUseTemplate={(content) => {
-                    if (examplesTargetIdx !== null) {
-                        const files = form.getFieldValue('files');
-                        files[examplesTargetIdx] = { ...files[examplesTargetIdx], contentText: content, contentBase64: undefined };
-                        form.setFieldsValue({ files: [...files] });
-                    }
-                    setExamplesOpen(false);
-                }}
+                onUseTemplate={useTemplate}
             />
         </>
     );
 };
+
+const ShieldDetail: React.FC = () => (
+    <PolicyEditorProvider>
+        <ShieldDetailInner />
+    </PolicyEditorProvider>
+);
 
 export default ShieldDetail;

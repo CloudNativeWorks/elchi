@@ -102,17 +102,18 @@ const ShieldList: React.FC = () => {
             render: (text: string) => <Text strong>{text}</Text>,
         },
         {
-            title: 'Files',
-            key: 'files',
+            title: 'Config',
+            key: 'config',
             render: (_: unknown, record: ShieldPolicy) => {
                 const files = record.files ?? [];
+                const config = files.find(f => !f.path.includes('/'));
+                const dataCount = files.filter(f => f.path.includes('/')).length;
                 return (
                     <Space size={4} wrap>
-                        <Tag className='auto-width-tag' color="blue">{files.length} file{files.length !== 1 ? 's' : ''}</Tag>
-                        {files.slice(0, 2).map(f => (
-                            <Tag className='auto-width-tag' key={f.path} style={{ fontFamily: 'monospace' }}>{f.path}</Tag>
-                        ))}
-                        {files.length > 2 && <Tag className='auto-width-tag'>+{files.length - 2} more</Tag>}
+                        {config && <Tag className='auto-width-tag' style={{ fontFamily: 'monospace' }}>{config.path}</Tag>}
+                        {dataCount > 0 && (
+                            <Tag className='auto-width-tag' color="blue">{dataCount} data file{dataCount !== 1 ? 's' : ''}</Tag>
+                        )}
                     </Space>
                 );
             },
