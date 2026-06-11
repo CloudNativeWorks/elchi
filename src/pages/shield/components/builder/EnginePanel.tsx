@@ -5,7 +5,7 @@
  */
 
 import React from 'react';
-import { Button, Card, Dropdown, Empty, Space, Tag, Tooltip, Typography } from 'antd';
+import { Button, Card, Dropdown, Empty, Space, Tooltip, Typography } from 'antd';
 import { DeleteOutlined, PlusOutlined, ThunderboltOutlined } from '@ant-design/icons';
 import { PolicySpec, DataFileModel } from '../../state/model';
 import { ENGINE_DEFS, enabledEngines } from '../../engines/registry';
@@ -14,18 +14,32 @@ const { Text } = Typography;
 
 /**
  * Compact phase badge sized for tight contexts (small Card headers, menu rows).
- * Deliberately NOT using the repo's `auto-width-tag` class here: its
- * `align-self: flex-start !important` shoves the tag to the top of the card
- * header's flex line and clips it.
+ * Deliberately a plain <span>, NOT antd Tag: the app's global CSS forces
+ * `padding: 4px 8px !important; font-size: 12px !important` on every .ant-tag
+ * (index.css), which makes a Tag taller than a small Card header and clips it —
+ * inline styles can't win against !important.
  */
-const PhaseTag: React.FC<{ phase: 'header' | 'body' }> = ({ phase }) => (
-    <Tag
-        color={phase === 'body' ? 'orange' : 'green'}
-        style={{ fontSize: 10, lineHeight: '16px', padding: '0 6px', margin: 0 }}
-    >
-        {phase === 'body' ? 'inspects body' : 'header-only'}
-    </Tag>
-);
+const PhaseTag: React.FC<{ phase: 'header' | 'body' }> = ({ phase }) => {
+    const body = phase === 'body';
+    return (
+        <span
+            style={{
+                display: 'inline-block',
+                fontSize: 10,
+                lineHeight: '14px',
+                padding: '1px 6px',
+                borderRadius: 6,
+                whiteSpace: 'nowrap',
+                verticalAlign: 'middle',
+                color: body ? '#fa8c16' : '#52c41a',
+                border: `1px solid ${body ? 'rgba(250,140,22,0.55)' : 'rgba(82,196,26,0.55)'}`,
+                background: body ? 'rgba(250,140,22,0.12)' : 'rgba(82,196,26,0.12)',
+            }}
+        >
+            {body ? 'inspects body' : 'header-only'}
+        </span>
+    );
+};
 
 interface EnginePanelProps {
     policy: PolicySpec;
