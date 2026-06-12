@@ -44,6 +44,11 @@ export interface CrsLibraryPaneProps {
     notReadyAlert?: React.ReactNode;
     /** Read-only: disable all add/include/bulk affordances. */
     disabled?: boolean;
+    /** CRS rule ids currently excluded (Shield, when the CRS is loaded). */
+    excludedIds?: Set<number>;
+    /** Toggle a CRS rule id in/out of the exclude list. Presence enables the
+     *  per-rule Disable/Enable affordance. */
+    onToggleExclude?: (ruleId: number) => void;
 }
 
 /**
@@ -60,6 +65,8 @@ const CrsLibraryPane: React.FC<CrsLibraryPaneProps> = ({
     bulkTargets,
     notReadyAlert,
     disabled,
+    excludedIds,
+    onToggleExclude,
 }) => {
     const canAdd = !!activeTarget && !disabled;
     const { state, data } = useCrsLibrary();
@@ -246,6 +253,8 @@ const CrsLibraryPane: React.FC<CrsLibraryPaneProps> = ({
                             addedRuleIds={addedRuleIds}
                             addedFiles={effectiveAddedFiles}
                             activeSetName={activeTarget?.name}
+                            excludedIds={excludedIds}
+                            onToggleExclude={disabled ? undefined : onToggleExclude}
                         />
                     ))
                 )}

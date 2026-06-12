@@ -27,6 +27,8 @@ interface CrsRuleFileGroupProps {
     addedRuleIds: Set<number>;
     addedFiles: Set<string>;
     activeSetName?: string;
+    excludedIds?: Set<number>;
+    onToggleExclude?: (ruleId: number) => void;
 }
 
 /**
@@ -46,6 +48,8 @@ const CrsRuleFileGroup: React.FC<CrsRuleFileGroupProps> = ({
     addedRuleIds,
     addedFiles,
     activeSetName,
+    excludedIds,
+    onToggleExclude,
 }) => {
     const [open, setOpen] = useState(false);
     // Cap how many rules mount at once for a big file (no virtualization dep);
@@ -137,6 +141,8 @@ const CrsRuleFileGroup: React.FC<CrsRuleFileGroupProps> = ({
                             selected={selectedIds.has(r.characteristics.id)}
                             added={addedRuleIds.has(r.characteristics.id)}
                             activeSetName={activeSetName}
+                            excluded={excludedIds?.has(r.characteristics.id)}
+                            onToggleExclude={onToggleExclude ? () => onToggleExclude(r.characteristics.id) : undefined}
                             onToggle={() => onToggleRule(r.characteristics.id)}
                             onAddOne={() => onAddRule(r)}
                         />

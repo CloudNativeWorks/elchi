@@ -5,6 +5,8 @@ import {
     CheckCircleFilled,
     DownOutlined,
     PlusOutlined,
+    StopOutlined,
+    UndoOutlined,
 } from '@ant-design/icons';
 import { CrsRule } from '../../types';
 import { PHASE_LABEL } from './useCrsLibrary';
@@ -28,6 +30,10 @@ interface CrsRuleListItemProps {
     activeSetName?: string;
     onToggle: () => void;
     onAddOne: () => void;
+    /** When provided (Shield, CRS loaded), the row offers a Disable/Enable toggle
+     *  that excludes this rule id from the active CRS instead of copying it. */
+    excluded?: boolean;
+    onToggleExclude?: () => void;
 }
 
 const decodeRule = (raw: string): string =>
@@ -44,15 +50,19 @@ const CrsRuleListItem: React.FC<CrsRuleListItemProps> = ({
     activeSetName,
     onToggle,
     onAddOne,
+    excluded,
+    onToggleExclude,
 }) => {
     const [expanded, setExpanded] = useState(false);
     const c = rule.characteristics;
 
-    const rowBg = added
-        ? 'var(--color-success-bg, rgba(34,197,94,0.08))'
-        : selected
-            ? 'var(--color-primary-bg)'
-            : undefined;
+    const rowBg = excluded
+        ? 'var(--color-error-bg, rgba(239,68,68,0.07))'
+        : added
+            ? 'var(--color-success-bg, rgba(34,197,94,0.08))'
+            : selected
+                ? 'var(--color-primary-bg)'
+                : undefined;
 
     return (
         <div
@@ -62,7 +72,7 @@ const CrsRuleListItem: React.FC<CrsRuleListItemProps> = ({
                 padding: '8px 12px',
                 borderBottom: '1px solid var(--border-light)',
                 background: rowBg,
-                opacity: added ? 0.85 : 1,
+                opacity: excluded ? 0.6 : added ? 0.85 : 1,
             }}
         >
             <div style={{ paddingTop: 4 }}>
@@ -77,7 +87,7 @@ const CrsRuleListItem: React.FC<CrsRuleListItemProps> = ({
                     <Text strong style={{ fontSize: 13 }}>
                         {rule.title}
                     </Text>
-                    {added && (
+                    {added && !excluded && (
                         <Tooltip
                             title={`This rule is already in ${activeSetName ?? 'the active set'}`}
                         >
@@ -88,6 +98,11 @@ const CrsRuleListItem: React.FC<CrsRuleListItemProps> = ({
                             >
                                 Added
                             </Tag>
+                        </Tooltip>
+                    )}
+                    {excluded && (
+                        <Tooltip title="This CRS rule is disabled (added to the exclude list)">
+                            <Tag color="error" icon={<StopOutlined />} style={{ margin: 0 }}>Disabled</Tag>
                         </Tooltip>
                     )}
                     {c.severity && (
@@ -186,27 +201,41 @@ const CrsRuleListItem: React.FC<CrsRuleListItemProps> = ({
                 )}
             </div>
 
-            {added ? (
-                <Tooltip title={`Already in ${activeSetName ?? 'the active set'}`}>
-                    <Button
-                        type="text"
-                        size="small"
-                        icon={<CheckCircleFilled style={{ color: 'var(--color-success)' }} />}
-                        disabled
-                        aria-label="Already added"
-                    />
-                </Tooltip>
-            ) : (
-                <Tooltip title="Add this rule to the active set">
-                    <Button
-                        type="text"
-                        size="small"
-                        icon={<PlusOutlined />}
-                        onClick={onAddOne}
-                        aria-label="Add rule"
-                    />
-                </Tooltip>
-            )}
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 2 }}>
+                {onToggleExclude && (
+                    <Tooltip title={excluded ? 'Re-enable this CRS rule' : 'Disable this CRS rule (add it to the exclude list)'}>
+                        <Button
+                            type="text"
+                            size="small"
+                            danger={!excluded}
+                            icon={excluded ? <UndoOutlined /> : <StopOutlined />}
+                            onClick={onToggleExclude}
+                            aria-label={excluded ? 'Re-enable rule' : 'Disable rule'}
+                        />
+                    </Tooltip>
+                )}
+                {added ? (
+                    <Tooltip title={`Already in ${activeSetName ?? 'the active set'}`}>
+                        <Button
+                            type="text"
+                            size="small"
+                            icon={<CheckCircleFilled style={{ color: 'var(--color-success)' }} />}
+                            disabled
+                            aria-label="Already added"
+                        />
+                    </Tooltip>
+                ) : (
+                    <Tooltip title={onToggleExclude ? 'Copy this rule into custom rules' : 'Add this rule to the active set'}>
+                        <Button
+                            type="text"
+                            size="small"
+                            icon={<PlusOutlined />}
+                            onClick={onAddOne}
+                            aria-label="Add rule"
+                        />
+                    </Tooltip>
+                )}
+            </div>
         </div>
     );
 };

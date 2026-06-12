@@ -38,13 +38,13 @@ const { Text } = Typography;
  */
 export const CorazaForm: React.FC<EngineFormProps<CorazaSpec>> = ({ value, onChange, disabled, dataFiles }) => {
     const [studioOpen, setStudioOpen] = useState(false);
-    const set = (patch: Partial<CorazaSpec>) => onChange({ ...value, ...patch });
 
     const customCount = countCustomRules(value.directives);
     const summary: string[] = [];
     if (value.include_owasp) summary.push(`OWASP CRS${value.paranoia_level ? ` · PL${value.paranoia_level}` : ''}`);
     if (customCount) summary.push(`${customCount} custom rule${customCount === 1 ? '' : 's'}`);
     if (value.exclude_rule_ids?.length) summary.push(`${value.exclude_rule_ids.length} disabled`);
+    if (value.directives_file) summary.push('rules file');
 
     return (
         <>
@@ -56,7 +56,6 @@ export const CorazaForm: React.FC<EngineFormProps<CorazaSpec>> = ({ value, onCha
                     padding: '10px 12px',
                     border: '1px solid var(--border-default)',
                     borderRadius: 10,
-                    marginBottom: 12,
                     background: 'var(--bg-elevated, transparent)',
                 }}
             >
@@ -69,7 +68,7 @@ export const CorazaForm: React.FC<EngineFormProps<CorazaSpec>> = ({ value, onCha
                     </Space>
                     <div>
                         <Text type="secondary" style={{ fontSize: 12 }}>
-                            Tune the OWASP CRS and build rules visually — no hand-typed SecLang.
+                            Tune the OWASP CRS, browse/disable rules, and build custom rules visually — all in WAF Studio.
                         </Text>
                     </div>
                 </div>
@@ -78,22 +77,13 @@ export const CorazaForm: React.FC<EngineFormProps<CorazaSpec>> = ({ value, onCha
                 </Button>
             </div>
 
-            <Row gutter={16}>
-                <Col xs={24} md={12}>
-                    <SwitchField label="Include OWASP CRS" tooltip="Load the embedded OWASP Core Rule Set (no rule files needed). Detailed tuning lives in WAF Studio." disabled={disabled} value={value.include_owasp} onChange={v => set({ include_owasp: v })} />
-                    <TagsField label="Disabled Rule IDs" tooltip="CRS rule ids to disable (false-positive tuning), e.g. 942100." placeholder="942100" disabled={disabled} value={value.exclude_rule_ids} onChange={v => set({ exclude_rule_ids: v })} />
-                </Col>
-                <Col xs={24} md={12}>
-                    <DataFilePathField label="Directives File" tooltip="A SecLang rules file on the edge (upload it in Data Files). Its rules are APPENDED after the WAF Studio rules — make sure rule ids don't collide, or the edge rejects the config." disabled={disabled} value={value.directives_file} onChange={v => set({ directives_file: v })} dataFiles={dataFiles} />
-                </Col>
-            </Row>
-
             {studioOpen && (
                 <React.Suspense fallback={null}>
                     <WafStudioDrawer
                         open={studioOpen}
                         value={value}
                         disabled={disabled}
+                        dataFiles={dataFiles}
                         onApply={(next) => onChange(next)}
                         onClose={() => setStudioOpen(false)}
                     />

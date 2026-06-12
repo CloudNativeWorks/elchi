@@ -9,6 +9,7 @@ import React from 'react';
 import { Button, InputNumber, Segmented, Slider, Switch, Tag, Tooltip, Typography } from 'antd';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import { CorazaSpec } from '../../../state/model';
+import { TagsField } from '../../fields';
 
 const { Text } = Typography;
 
@@ -155,6 +156,15 @@ const CrsTuningSection: React.FC<CrsTuningSectionProps> = ({ value, onChange, di
                         value={value.outbound_anomaly_threshold}
                         onChange={(v) => onChange({ outbound_anomaly_threshold: v })}
                         disabled={disabled}
+                    />
+                    <TagsField
+                        label="Disabled CRS rules"
+                        tooltip="CRS rule ids excluded from the rule set (false-positive tuning). Add ids here, or click Disable on any rule in the library on the right."
+                        hint="e.g. 942100 — or use the library's Disable button"
+                        placeholder="942100"
+                        disabled={disabled}
+                        value={value.exclude_rule_ids}
+                        onChange={(v) => onChange({ exclude_rule_ids: v })}
                     />
                 </div>
             )}

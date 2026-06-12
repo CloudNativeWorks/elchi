@@ -10,9 +10,10 @@
  */
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Drawer, Space, Tag, Typography } from 'antd';
+import { Alert, Button, Drawer, Space, Tag, Typography } from 'antd';
 import { CheckOutlined, SafetyCertificateOutlined, ThunderboltOutlined } from '@ant-design/icons';
-import { CorazaSpec } from '../../../state/model';
+import { CorazaSpec, DataFileModel } from '../../../state/model';
+import { DataFilePathField } from '../../fields';
 import {
     CrsLibraryPane,
     Directive,
@@ -21,7 +22,7 @@ import {
 import CrsTuningSection from './CrsTuningSection';
 import CustomRulesSection from './CustomRulesSection';
 import GeneratedPreview from './GeneratedPreview';
-import { joinDirectives, newRuleRow, parseDirectives } from './directivesCodec';
+import { joinDirectives, newRuleRow, parseDirectives, toggleExcludeId } from './directivesCodec';
 
 const { Text, Title } = Typography;
 
@@ -37,6 +38,8 @@ interface WafStudioDrawerProps {
     onApply: (next: CorazaSpec) => void;
     onClose: () => void;
     disabled?: boolean;
+    /** The policy's data files, for the "rules from a file" picker. */
+    dataFiles: DataFileModel[];
 }
 
 const Panel: React.FC<{ title: React.ReactNode; children: React.ReactNode; style?: React.CSSProperties }> = ({
@@ -59,7 +62,7 @@ const Panel: React.FC<{ title: React.ReactNode; children: React.ReactNode; style
     </div>
 );
 
-const WafStudioDrawer: React.FC<WafStudioDrawerProps> = ({ open, value, onApply, onClose, disabled }) => {
+const WafStudioDrawer: React.FC<WafStudioDrawerProps> = ({ open, value, onApply, onClose, disabled, dataFiles }) => {
     const [draft, setDraft] = useState<CorazaSpec>(value);
     const [rules, setRules] = useState<Directive[]>([]);
     const [templateOpen, setTemplateOpen] = useState(false);
@@ -76,6 +79,14 @@ const WafStudioDrawer: React.FC<WafStudioDrawerProps> = ({ open, value, onApply,
     }, [open, value]);
 
     const patch = (p: Partial<CorazaSpec>) => setDraft((d) => ({ ...d, ...p }));
+
+    // CRS exclude list ↔ the library's per-rule Disable toggle.
+    const excludedIdSet = useMemo(
+        () => new Set((draft.exclude_rule_ids ?? []).map(Number).filter((n) => Number.isFinite(n))),
+        [draft.exclude_rule_ids],
+    );
+    const toggleExclude = (id: number) =>
+        setDraft((d) => ({ ...d, exclude_rule_ids: toggleExcludeId(d.exclude_rule_ids, String(id)) }));
 
     const addRules = (texts: string[]) => {
         setRules((prev) => {
@@ -170,6 +181,24 @@ const WafStudioDrawer: React.FC<WafStudioDrawerProps> = ({ open, value, onApply,
                             disabled={disabled}
                         />
                         <div style={{ marginTop: 12 }}>
+                            <DataFilePathField
+                                label="Or load rules from a file"
+                                tooltip="A SecLang rules file on the edge (upload it in the Data Files tab). Its rules are APPENDED after the rules above."
+                                disabled={disabled}
+                                value={draft.directives_file}
+                                onChange={(v) => patch({ directives_file: v })}
+                                dataFiles={dataFiles}
+                            />
+                            {draft.directives_file && rules.length > 0 && (
+                                <Alert
+                                    type="warning"
+                                    showIcon
+                                    style={{ marginTop: 4, borderRadius: 8 }}
+                                    message={<span style={{ fontSize: 12 }}>Both inline rules and a rules file are set — the file is appended after them. Make sure their rule ids don&apos;t collide, or the edge rejects the config.</span>}
+                                />
+                            )}
+                        </div>
+                        <div style={{ marginTop: 12 }}>
                             <GeneratedPreview spec={specForPreview} />
                         </div>
                     </Panel>
@@ -192,12 +221,20 @@ const WafStudioDrawer: React.FC<WafStudioDrawerProps> = ({ open, value, onApply,
                         <Text strong style={{ fontSize: 14 }}>CRS Rule Library</Text>
                         <div>
                             <Text type="secondary" style={{ fontSize: 12 }}>
-                                Browse the Core Rule Set and copy a rule into your custom rules as a starting point.
+                                {draft.include_owasp
+                                    ? 'CRS is on — Disable a noisy rule (adds it to the exclude list), or copy a rule into your custom rules.'
+                                    : 'Browse the Core Rule Set and copy a rule into your custom rules as a starting point.'}
                             </Text>
                         </div>
                     </div>
                     <div style={{ flex: 1, minHeight: 0 }}>
-                        <CrsLibraryPane activeTarget={crsTarget} onAdd={(texts) => addRules(texts)} disabled={disabled} />
+                        <CrsLibraryPane
+                            activeTarget={crsTarget}
+                            onAdd={(texts) => addRules(texts)}
+                            disabled={disabled}
+                            excludedIds={draft.include_owasp ? excludedIdSet : undefined}
+                            onToggleExclude={draft.include_owasp ? toggleExclude : undefined}
+                        />
                     </div>
                 </div>
             </div>
