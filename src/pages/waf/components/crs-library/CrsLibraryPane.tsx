@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Empty, Spin, Typography } from 'antd';
+import { Alert, Empty, Spin, Typography } from 'antd';
 import { CrsRule } from '../../types';
 import { useCrsLibrary } from './useCrsLibrary';
 import CrsLibraryFilters from './CrsLibraryFilters';
@@ -232,7 +232,21 @@ const CrsLibraryPane: React.FC<CrsLibraryPaneProps> = ({
             </div>
 
             <div style={{ flex: 1, minHeight: 0, overflow: 'auto' }}>
-                {data.isLoading && data.rulesByFile.length === 0 ? (
+                {data.isError ? (
+                    <Alert
+                        type="error"
+                        showIcon
+                        style={{ margin: 16, borderRadius: 8 }}
+                        message="Couldn't load the CRS rule library"
+                        description={
+                            <span style={{ fontSize: 12 }}>
+                                {data.errorMessage}. The rule catalog comes from the control plane
+                                (<code>/api/v3/waf/crs</code>) — check that it&apos;s reachable. CRS tuning
+                                and your custom rules still work without it.
+                            </span>
+                        }
+                    />
+                ) : data.isLoading && data.rulesByFile.length === 0 ? (
                     <div style={{ padding: 32, textAlign: 'center' }}>
                         <Spin />
                     </div>

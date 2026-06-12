@@ -30,6 +30,10 @@ export interface CrsLibraryState {
 export interface CrsLibraryData {
     versions: { crs_version: string; coraza_version: string; total_rules: number }[];
     isLoading: boolean;
+    /** True when the CRS rules request failed (API down / unreachable). */
+    isError: boolean;
+    /** Human-readable error message when isError. */
+    errorMessage?: string;
     rules: CrsRule[];
     filteredRules: CrsRule[];
     rulesByFile: { filename: string; rules: CrsRule[] }[];
@@ -80,7 +84,7 @@ export const useCrsLibrary = (): { state: CrsLibraryState; data: CrsLibraryData 
         [crsVersion, severity, phase, paranoia, tags],
     );
 
-    const { data: rulesData, isLoading } = useQuery({
+    const { data: rulesData, isLoading, isError, error } = useQuery({
         queryKey: ['crs-rules', filterPayload],
         queryFn: () => wafApi.getCrsRules(filterPayload),
         enabled: !!crsVersion,
@@ -170,6 +174,8 @@ export const useCrsLibrary = (): { state: CrsLibraryState; data: CrsLibraryData 
         data: {
             versions: versionsData?.versions ?? [],
             isLoading,
+            isError,
+            errorMessage: isError ? ((error as Error)?.message || 'Request failed') : undefined,
             rules,
             filteredRules,
             rulesByFile,
