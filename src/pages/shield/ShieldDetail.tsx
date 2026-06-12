@@ -42,6 +42,7 @@ import { isShieldAdmin } from './utils';
 import { PolicyEditorProvider, usePolicyEditor } from './state/policyStore';
 import { fromApi, toApi, configPathForName } from './utils/bundleAdapter';
 import { yamlToModel, collectInvalidValues } from './utils/policyYaml';
+import { collectEngineProblems } from './engines/validation';
 import { FieldShell } from './engines/fields';
 import PolicySettings from './components/builder/PolicySettings';
 import EnginePanel from './components/builder/EnginePanel';
@@ -169,6 +170,19 @@ const ShieldDetailInner: React.FC = () => {
         if (invalid.length > 0) {
             setSaveError(`Fix this before saving — ${invalid[0]}`);
             return;
+        }
+        // Block engines that can't function (missing required fields) — the edge
+        // would strict-reject them with an opaque error otherwise.
+        if (!effYamlMode) {
+            const engineProblems = collectEngineProblems(effModel);
+            if (engineProblems.length > 0) {
+                setSaveError(
+                    engineProblems.length === 1
+                        ? `Fix this before saving — ${engineProblems[0]}`
+                        : `Fix ${engineProblems.length} engine issues before saving — e.g. ${engineProblems[0]}`,
+                );
+                return;
+            }
         }
         try {
             const body = toApi({

@@ -5,10 +5,11 @@
  */
 
 import React from 'react';
-import { Button, Card, Dropdown, Empty, Space, Tooltip, Typography } from 'antd';
+import { Alert, Button, Card, Dropdown, Empty, Space, Tooltip, Typography } from 'antd';
 import { DeleteOutlined, PlusOutlined, ThunderboltOutlined } from '@ant-design/icons';
 import { PolicySpec, DataFileModel } from '../../state/model';
 import { ENGINE_DEFS, enabledEngines } from '../../engines/registry';
+import { validateEngineValue } from '../../engines/validation';
 
 const { Text } = Typography;
 
@@ -100,6 +101,7 @@ const EnginePanel: React.FC<EnginePanelProps> = ({ policy, onChange, disabled, d
             {enabled.map(def => {
                 const value = def.get(policy) ?? {};
                 const FormComp = def.Form;
+                const problems = validateEngineValue(def.key, value);
                 return (
                     <Card
                         key={def.key}
@@ -124,6 +126,23 @@ const EnginePanel: React.FC<EnginePanelProps> = ({ policy, onChange, disabled, d
                             </Tooltip>
                         )}
                     >
+                        {problems.length > 0 && (
+                            <Alert
+                                type="warning"
+                                showIcon
+                                style={{ marginBottom: 10, borderRadius: 8 }}
+                                message={
+                                    <span style={{ fontSize: 12 }}>
+                                        {problems.length === 1 ? problems[0] : `${problems.length} things to fix:`}
+                                        {problems.length > 1 && (
+                                            <ul style={{ margin: '4px 0 0 16px', padding: 0 }}>
+                                                {problems.map((p, i) => <li key={i}>{p}</li>)}
+                                            </ul>
+                                        )}
+                                    </span>
+                                }
+                            />
+                        )}
                         <FormComp
                             value={value}
                             onChange={(v: object) => onChange(def.set(policy, v))}
