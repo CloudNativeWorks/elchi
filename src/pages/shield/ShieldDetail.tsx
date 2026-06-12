@@ -49,6 +49,7 @@ import EnginePanel from './components/builder/EnginePanel';
 import DomainsEditor from './components/builder/DomainsEditor';
 import YamlTab from './components/YamlTab';
 import DataFilesTab from './components/DataFilesTab';
+import DryRunTab from './components/DryRunTab';
 import ShieldExamplesDrawer from './components/ShieldExamplesDrawer';
 
 const { Title, Text } = Typography;
@@ -437,6 +438,11 @@ const ShieldDetailInner: React.FC = () => {
                             </span>
                         ),
                         children: <DataFilesTab disabled={!admin} />,
+                    },
+                    {
+                        key: 'test',
+                        label: 'Test',
+                        children: <DryRunTab />,
                     },
                 ]}
             />
