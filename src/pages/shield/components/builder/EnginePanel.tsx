@@ -4,11 +4,11 @@
  * protection" opens a grouped picker with plain-language descriptions.
  */
 
-import React from 'react';
-import { Alert, Button, Card, Dropdown, Empty, Space, Tooltip, Typography } from 'antd';
-import { DeleteOutlined, PlusOutlined, ThunderboltOutlined } from '@ant-design/icons';
+import React, { useMemo, useState } from 'react';
+import { Alert, Button, Card, Empty, Input, Popover, Space, Tooltip, Typography } from 'antd';
+import { DeleteOutlined, PlusOutlined, SearchOutlined, ThunderboltOutlined } from '@ant-design/icons';
 import { PolicySpec, DataFileModel } from '../../state/model';
-import { ENGINE_DEFS, enabledEngines } from '../../engines/registry';
+import { ENGINE_DEFS, EngineDef, enabledEngines } from '../../engines/registry';
 import { validateEngineValue } from '../../engines/validation';
 
 const { Text } = Typography;
@@ -51,31 +51,78 @@ interface EnginePanelProps {
     compact?: boolean;
 }
 
+const GROUP_ORDER = ['Authentication', 'Traffic Control', 'Content Inspection'] as const;
+
+/**
+ * Searchable, categorized engine picker (replaces a 13-item dropdown). Type to
+ * filter by name/description/category; click a row to add it.
+ */
+const AddProtection: React.FC<{ available: EngineDef[]; onAdd: (key: string) => void }> = ({ available, onAdd }) => {
+    const [open, setOpen] = useState(false);
+    const [query, setQuery] = useState('');
+
+    const groups = useMemo(() => {
+        const q = query.trim().toLowerCase();
+        const match = (d: EngineDef) =>
+            !q || d.label.toLowerCase().includes(q) || d.description.toLowerCase().includes(q) || d.group.toLowerCase().includes(q);
+        return GROUP_ORDER
+            .map(g => ({ group: g, items: available.filter(d => d.group === g && match(d)) }))
+            .filter(g => g.items.length > 0);
+    }, [available, query]);
+
+    const pick = (key: string) => { onAdd(key); setOpen(false); setQuery(''); };
+
+    const content = (
+        <div style={{ width: 460, maxWidth: '90vw' }}>
+            <Input
+                autoFocus
+                allowClear
+                size="small"
+                prefix={<SearchOutlined />}
+                placeholder="Search protections (e.g. jwt, rate, waf, country)…"
+                value={query}
+                onChange={e => setQuery(e.target.value)}
+                style={{ marginBottom: 8 }}
+            />
+            <div style={{ maxHeight: 'min(440px, 60vh)', overflowY: 'auto' }}>
+                {groups.length === 0 ? (
+                    <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={<Text type="secondary" style={{ fontSize: 12 }}>No protection matches “{query}”.</Text>} />
+                ) : groups.map(({ group, items }) => (
+                    <div key={group} style={{ marginBottom: 6 }}>
+                        <Text type="secondary" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.4, padding: '0 8px' }}>{group}</Text>
+                        {items.map(d => (
+                            <Button
+                                key={d.key}
+                                type="text"
+                                block
+                                onClick={() => pick(d.key)}
+                                style={{ height: 'auto', textAlign: 'left', padding: '6px 8px', whiteSpace: 'normal' }}
+                            >
+                                <div>
+                                    <Space size={6}>
+                                        <Text strong style={{ fontSize: 13 }}>{d.label}</Text>
+                                        <PhaseTag phase={d.phase} />
+                                    </Space>
+                                    <div><Text type="secondary" style={{ fontSize: 12, whiteSpace: 'normal' }}>{d.description}</Text></div>
+                                </div>
+                            </Button>
+                        ))}
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+
+    return (
+        <Popover open={open} onOpenChange={setOpen} trigger="click" placement="bottomLeft" content={content}>
+            <Button type="dashed" size="small" icon={<PlusOutlined />} block>Add protection</Button>
+        </Popover>
+    );
+};
+
 const EnginePanel: React.FC<EnginePanelProps> = ({ policy, onChange, disabled, dataFiles, compact }) => {
     const enabled = enabledEngines(policy);
     const available = ENGINE_DEFS.filter(d => d.get(policy) === undefined);
-
-    const menuItems = ['Authentication', 'Traffic Control', 'Content Inspection']
-        .map(group => ({
-            key: group,
-            type: 'group' as const,
-            label: group,
-            children: available
-                .filter(d => d.group === group)
-                .map(d => ({
-                    key: d.key,
-                    label: (
-                        <div style={{ maxWidth: 420, padding: '2px 0' }}>
-                            <Space size={6}>
-                                <Text strong>{d.label}</Text>
-                                <PhaseTag phase={d.phase} />
-                            </Space>
-                            <div><Text type="secondary" style={{ fontSize: 12, whiteSpace: 'normal' }}>{d.description}</Text></div>
-                        </div>
-                    ),
-                })),
-        }))
-        .filter(g => g.children.length > 0);
 
     const addEngine = (key: string) => {
         const def = ENGINE_DEFS.find(d => d.key === key);
@@ -154,21 +201,7 @@ const EnginePanel: React.FC<EnginePanelProps> = ({ policy, onChange, disabled, d
             })}
 
             {!disabled && available.length > 0 && (
-                <Dropdown
-                    trigger={['click']}
-                    menu={{
-                        items: menuItems,
-                        onClick: ({ key }) => addEngine(key),
-                        // 13 engines with descriptions are taller than the viewport;
-                        // without a bounded, scrollable menu the list overflows the
-                        // page and the bottom entries become unreachable.
-                        style: { maxHeight: 'min(480px, 60vh)', overflowY: 'auto' },
-                    }}
-                >
-                    <Button type="dashed" size="small" icon={<PlusOutlined />} block>
-                        Add protection
-                    </Button>
-                </Dropdown>
+                <AddProtection available={available} onAdd={addEngine} />
             )}
         </div>
     );
