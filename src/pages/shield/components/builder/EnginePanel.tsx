@@ -5,8 +5,17 @@
  */
 
 import React, { useMemo, useState } from 'react';
-import { Alert, Button, Card, Empty, Input, Popover, Space, Tooltip, Typography } from 'antd';
-import { DeleteOutlined, PlusOutlined, SearchOutlined, ThunderboltOutlined } from '@ant-design/icons';
+import { Button, Empty, Input, Popover, Space, Tooltip, Typography } from 'antd';
+import {
+    CheckCircleFilled,
+    DeleteOutlined,
+    DownOutlined,
+    ExclamationCircleFilled,
+    PlusOutlined,
+    RightOutlined,
+    SearchOutlined,
+    ThunderboltOutlined,
+} from '@ant-design/icons';
 import { PolicySpec, DataFileModel } from '../../state/model';
 import { ENGINE_DEFS, EngineDef, enabledEngines } from '../../engines/registry';
 import { validateEngineValue } from '../../engines/validation';
@@ -120,6 +129,81 @@ const AddProtection: React.FC<{ available: EngineDef[]; onAdd: (key: string) => 
     );
 };
 
+interface EngineCardProps {
+    def: EngineDef;
+    policy: PolicySpec;
+    disabled?: boolean;
+    dataFiles: DataFileModel[];
+    onChange: (p: PolicySpec) => void;
+}
+
+/**
+ * One enabled protection as a collapsible row: summary (icon · name · phase ·
+ * status) that expands inline to the engine's form. Keeps a route with several
+ * protections scannable instead of stacking full forms. A freshly-added (empty)
+ * engine opens automatically; its form is unmounted while collapsed.
+ */
+const EngineCard: React.FC<EngineCardProps> = ({ def, policy, disabled, dataFiles, onChange }) => {
+    const value = (def.get(policy) ?? {}) as object;
+    const problems = validateEngineValue(def.key, value);
+    const configured = Object.keys(value).length > 0;
+    const [open, setOpen] = useState(() => !configured);
+    const FormComp = def.Form;
+
+    return (
+        <div style={{ border: '1px solid var(--border-default)', borderRadius: 10, marginBottom: 6, overflow: 'hidden' }}>
+            <div
+                onClick={() => setOpen(o => !o)}
+                style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', cursor: 'pointer' }}
+            >
+                <span style={{ color: 'var(--text-secondary)' }}>{open ? <DownOutlined /> : <RightOutlined />}</span>
+                <ThunderboltOutlined style={{ color: 'var(--color-primary)' }} />
+                <Text strong style={{ fontSize: 13 }}>{def.label}</Text>
+                <Tooltip title={def.phase === 'body'
+                    ? 'Body-phase: buffers and inspects the body for this route.'
+                    : 'Header-phase: runs on headers only, never buffers the body.'}>
+                    <span style={{ display: 'inline-flex' }}><PhaseTag phase={def.phase} /></span>
+                </Tooltip>
+                {problems.length > 0 ? (
+                    <span style={{
+                        display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--color-warning, #faad14)',
+                        fontSize: 12, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 360,
+                    }}>
+                        <ExclamationCircleFilled />
+                        {problems[0]}{problems.length > 1 ? ` (+${problems.length - 1})` : ''}
+                    </span>
+                ) : configured ? (
+                    <Tooltip title="Configured"><CheckCircleFilled style={{ color: 'var(--color-success, #52c41a)' }} /></Tooltip>
+                ) : null}
+                <div style={{ flex: 1 }} />
+                {!disabled && (
+                    <Tooltip title="Remove this protection">
+                        <Button type="text" danger size="small" icon={<DeleteOutlined />}
+                            onClick={(e) => { e.stopPropagation(); onChange(def.set(policy, undefined)); }} />
+                    </Tooltip>
+                )}
+            </div>
+            {open && (
+                <div style={{ padding: '8px 12px 12px', borderTop: '1px solid var(--border-light, var(--border-default))' }}>
+                    {problems.length > 1 && (
+                        <ul style={{ margin: '0 0 10px 16px', padding: 0 }}>
+                            {problems.map((p, i) => (
+                                <li key={i}><Text style={{ fontSize: 12, color: 'var(--color-warning, #faad14)' }}>{p}</Text></li>
+                            ))}
+                        </ul>
+                    )}
+                    <FormComp
+                        value={value}
+                        onChange={(v: object) => onChange(def.set(policy, v))}
+                        disabled={disabled}
+                        dataFiles={dataFiles}
+                    />
+                </div>
+            )}
+        </div>
+    );
+};
+
 const EnginePanel: React.FC<EnginePanelProps> = ({ policy, onChange, disabled, dataFiles, compact }) => {
     const enabled = enabledEngines(policy);
     const available = ENGINE_DEFS.filter(d => d.get(policy) === undefined);
@@ -145,60 +229,16 @@ const EnginePanel: React.FC<EnginePanelProps> = ({ policy, onChange, disabled, d
                 />
             )}
 
-            {enabled.map(def => {
-                const value = def.get(policy) ?? {};
-                const FormComp = def.Form;
-                const problems = validateEngineValue(def.key, value);
-                return (
-                    <Card
-                        key={def.key}
-                        size="small"
-                        style={{ marginBottom: 8, borderRadius: 10 }}
-                        title={
-                            <Space size={8} align="center">
-                                <ThunderboltOutlined style={{ color: 'var(--color-primary)' }} />
-                                <Text strong style={{ fontSize: 13 }}>{def.label}</Text>
-                                <Tooltip title={def.phase === 'body'
-                                    ? 'Body-phase engine: the request/response body is buffered and inspected for this route.'
-                                    : 'Header-phase engine: runs on headers only, never buffers the body — cheap.'}>
-                                    <span style={{ display: 'inline-flex' }}>
-                                        <PhaseTag phase={def.phase} />
-                                    </span>
-                                </Tooltip>
-                            </Space>
-                        }
-                        extra={!disabled && (
-                            <Tooltip title="Remove this protection">
-                                <Button type="text" danger size="small" icon={<DeleteOutlined />} onClick={() => onChange(def.set(policy, undefined))} />
-                            </Tooltip>
-                        )}
-                    >
-                        {problems.length > 0 && (
-                            <Alert
-                                type="warning"
-                                showIcon
-                                style={{ marginBottom: 10, borderRadius: 8 }}
-                                message={
-                                    <span style={{ fontSize: 12 }}>
-                                        {problems.length === 1 ? problems[0] : `${problems.length} things to fix:`}
-                                        {problems.length > 1 && (
-                                            <ul style={{ margin: '4px 0 0 16px', padding: 0 }}>
-                                                {problems.map((p, i) => <li key={i}>{p}</li>)}
-                                            </ul>
-                                        )}
-                                    </span>
-                                }
-                            />
-                        )}
-                        <FormComp
-                            value={value}
-                            onChange={(v: object) => onChange(def.set(policy, v))}
-                            disabled={disabled}
-                            dataFiles={dataFiles}
-                        />
-                    </Card>
-                );
-            })}
+            {enabled.map(def => (
+                <EngineCard
+                    key={def.key}
+                    def={def}
+                    policy={policy}
+                    disabled={disabled}
+                    dataFiles={dataFiles}
+                    onChange={onChange}
+                />
+            ))}
 
             {!disabled && available.length > 0 && (
                 <AddProtection available={available} onAdd={addEngine} />
