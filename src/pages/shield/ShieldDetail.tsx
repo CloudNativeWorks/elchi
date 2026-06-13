@@ -5,15 +5,13 @@
  * (forms) | YAML (two-way) | Data Files (supporting artifacts, auto-hashed).
  */
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Alert,
     Badge,
     Button,
-    Collapse,
     Input,
     Modal,
-    Select,
     Space,
     Spin,
     Tabs,
@@ -26,7 +24,6 @@ import {
     DeleteOutlined,
     ExclamationCircleOutlined,
     FileTextOutlined,
-    InfoCircleOutlined,
     SafetyOutlined,
     SaveOutlined,
     UndoOutlined,
@@ -42,11 +39,7 @@ import { PolicyEditorProvider, usePolicyEditor } from './state/policyStore';
 import { fromApi, toApi, configPathForName } from './utils/bundleAdapter';
 import { yamlToModel, collectInvalidValues } from './utils/policyYaml';
 import { collectEngineProblems } from './engines/validation';
-import { FieldShell } from './engines/fields';
-import PolicySettings from './components/builder/PolicySettings';
-import EnginePanel from './components/builder/EnginePanel';
-import DomainsEditor from './components/builder/DomainsEditor';
-import Section from './components/builder/Section';
+import PolicyBuilder from './components/builder/PolicyBuilder';
 import YamlTab from './components/YamlTab';
 import DataFilesTab from './components/DataFilesTab';
 import DryRunTab from './components/DryRunTab';
@@ -107,10 +100,6 @@ const ShieldDetailInner: React.FC = () => {
             });
         }
     }, [policy, dispatch]);
-
-    const defaults = state.model.spec.defaults ?? {};
-    const domains = state.model.spec.domains ?? [];
-    const exclude = state.model.spec.exclude ?? [];
 
     const handleSave = async () => {
         setSaveError(null);
@@ -250,7 +239,7 @@ const ShieldDetailInner: React.FC = () => {
 
     const builderDisabled = !admin || state.yamlMode;
 
-    const builderTab = useMemo(() => (
+    const builderTab = (
         <>
             {state.yamlMode && (
                 <Alert
@@ -261,68 +250,9 @@ const ShieldDetailInner: React.FC = () => {
                     description="It contains content the builder can't represent — edit it in the YAML tab (the reasons are listed there)."
                 />
             )}
-
-            <Section
-                title="Policy Defaults"
-                extra={
-                    <Tooltip title="These apply to every domain/route below unless a route overrides them.">
-                        <InfoCircleOutlined style={{ color: 'var(--color-primary)' }} />
-                    </Tooltip>
-                }
-            >
-                <PolicySettings
-                    variant="defaults"
-                    policy={defaults}
-                    disabled={builderDisabled}
-                    onChange={p => dispatch({ type: 'PATCH', update: m => ({ ...m, spec: { ...m.spec, defaults: p } }) })}
-                />
-                <Collapse
-                    size="small"
-                    ghost
-                    items={[{
-                        key: 'default-engines',
-                        label: <Text type="secondary" style={{ fontSize: 12 }}>Default protections (apply to every route)</Text>,
-                        children: (
-                            <EnginePanel
-                                policy={defaults}
-                                disabled={builderDisabled}
-                                dataFiles={state.dataFiles}
-                                onChange={p => dispatch({ type: 'PATCH', update: m => ({ ...m, spec: { ...m.spec, defaults: p } }) })}
-                            />
-                        ),
-                    }]}
-                />
-                <div style={{ marginTop: 4 }}>
-                    <FieldShell
-                        label="Bypass paths"
-                        tooltip="Request paths that bypass ALL inspection (checked before policy resolution). Use for health checks, metrics scrapes, static assets. Absolute paths, exact match, query ignored."
-                    >
-                        <Select
-                            size="small"
-                            mode="tags"
-                            style={{ width: '100%' }}
-                            placeholder="/healthz, /metrics"
-                            disabled={builderDisabled}
-                            value={exclude}
-                            tokenSeparators={[',', ' ']}
-                            options={[]}
-                            onChange={(v: string[]) => dispatch({
-                                type: 'PATCH',
-                                update: m => ({ ...m, spec: { ...m.spec, exclude: v.length ? v : undefined } }),
-                            })}
-                        />
-                    </FieldShell>
-                </div>
-            </Section>
-
-            <DomainsEditor
-                domains={domains}
-                disabled={builderDisabled}
-                dataFiles={state.dataFiles}
-                onChange={d => dispatch({ type: 'PATCH', update: m => ({ ...m, spec: { ...m.spec, domains: d } }) })}
-            />
+            <PolicyBuilder disabled={builderDisabled} />
         </>
-    ), [state.yamlMode, state.dataFiles, defaults, domains, exclude, builderDisabled, dispatch]);
+    );
 
     if (!isCreateMode && isLoading) {
         return <div style={{ textAlign: 'center', padding: 64 }}><Spin size="large" /></div>;
