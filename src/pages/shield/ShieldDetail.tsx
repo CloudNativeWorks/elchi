@@ -10,7 +10,6 @@ import {
     Alert,
     Badge,
     Button,
-    Card,
     Collapse,
     Input,
     Modal,
@@ -47,6 +46,7 @@ import { FieldShell } from './engines/fields';
 import PolicySettings from './components/builder/PolicySettings';
 import EnginePanel from './components/builder/EnginePanel';
 import DomainsEditor from './components/builder/DomainsEditor';
+import Section from './components/builder/Section';
 import YamlTab from './components/YamlTab';
 import DataFilesTab from './components/DataFilesTab';
 import DryRunTab from './components/DryRunTab';
@@ -262,11 +262,10 @@ const ShieldDetailInner: React.FC = () => {
                 />
             )}
 
-            <Card
-                style={{ borderRadius: 12, marginBottom: 12 }}
-                title={<Text strong>Policy Defaults</Text>}
+            <Section
+                title="Policy Defaults"
                 extra={
-                    <Tooltip title="These settings apply to all domains/routes below unless a route overrides them.">
+                    <Tooltip title="These apply to every domain/route below unless a route overrides them.">
                         <InfoCircleOutlined style={{ color: 'var(--color-primary)' }} />
                     </Tooltip>
                 }
@@ -293,30 +292,28 @@ const ShieldDetailInner: React.FC = () => {
                         ),
                     }]}
                 />
-            </Card>
-
-            <Card style={{ borderRadius: 12, marginBottom: 12 }} title={<Text strong>Bypass Paths</Text>}>
-                <FieldShell
-                    label="Excluded Paths"
-                    tooltip="Request paths that bypass ALL inspection (checked before policy resolution). Use for health checks, metrics scrapes, static assets."
-                    hint="Absolute paths, e.g. /healthz, /metrics — exact match, query ignored."
-                >
-                    <Select
-                        size="small"
-                        mode="tags"
-                        style={{ width: '100%' }}
-                        placeholder="/healthz"
-                        disabled={builderDisabled}
-                        value={exclude}
-                        tokenSeparators={[',', ' ']}
-                        options={[]}
-                        onChange={(v: string[]) => dispatch({
-                            type: 'PATCH',
-                            update: m => ({ ...m, spec: { ...m.spec, exclude: v.length ? v : undefined } }),
-                        })}
-                    />
-                </FieldShell>
-            </Card>
+                <div style={{ marginTop: 4 }}>
+                    <FieldShell
+                        label="Bypass paths"
+                        tooltip="Request paths that bypass ALL inspection (checked before policy resolution). Use for health checks, metrics scrapes, static assets. Absolute paths, exact match, query ignored."
+                    >
+                        <Select
+                            size="small"
+                            mode="tags"
+                            style={{ width: '100%' }}
+                            placeholder="/healthz, /metrics"
+                            disabled={builderDisabled}
+                            value={exclude}
+                            tokenSeparators={[',', ' ']}
+                            options={[]}
+                            onChange={(v: string[]) => dispatch({
+                                type: 'PATCH',
+                                update: m => ({ ...m, spec: { ...m.spec, exclude: v.length ? v : undefined } }),
+                            })}
+                        />
+                    </FieldShell>
+                </div>
+            </Section>
 
             <DomainsEditor
                 domains={domains}

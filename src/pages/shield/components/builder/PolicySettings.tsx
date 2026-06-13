@@ -6,7 +6,6 @@
 
 import React from 'react';
 import { Col, Collapse, Input, Row, Segmented, Select, Tooltip, Typography } from 'antd';
-import { InfoCircleOutlined } from '@ant-design/icons';
 import { PolicySpec, PolicyMode, FailMode } from '../../state/model';
 import { DurationField, FieldShell, NumberField, SwitchField, TagsField } from '../../engines/fields';
 
@@ -130,14 +129,6 @@ const PolicySettings: React.FC<PolicySettingsProps> = ({ policy, onChange, disab
                     ),
                 }]}
             />
-            {!isRoute && (
-                <div style={{ marginTop: 4 }}>
-                    <Text type="secondary" style={{ fontSize: 11 }}>
-                        <InfoCircleOutlined style={{ marginRight: 4 }} />
-                        These defaults apply to every domain/route below unless a route overrides them.
-                    </Text>
-                </div>
-            )}
             {policy.checks?.headers || policy.checks?.body?.require_json || policy.checks?.body?.detect_sensitive_data ? (
                 <div style={{ marginTop: 4 }}>
                     <Text type="secondary" style={{ fontSize: 11 }}>
