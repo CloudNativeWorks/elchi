@@ -1375,3 +1375,220 @@ com-1password-button {
     display: inline-flex !important;
     align-items: center !important;
 }
+
+/* ============================================================
+   MODERN REDESIGN LAYER  (CSS-only, 2026 refresh)
+   Loaded last so it intentionally overrides earlier rules.
+   Token-driven → covers both light & dark themes.
+   ============================================================ */
+
+/* ---- Typography & base ---------------------------------- */
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+        Roboto, 'Helvetica Neue', Arial, sans-serif;
+    letter-spacing: -0.011em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+/* ---- App header: depth + gradient + subtle glass -------- */
+.main-header {
+    background: var(--gradient-primary) !important;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) inset,
+        0 6px 20px -8px rgba(15, 23, 42, 0.45);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: saturate(140%);
+    z-index: 20;
+}
+
+/* ---- Calm card headers (was loud full-bleed gradient) --- */
+.ant-card-head,
+.ant-card-small > .ant-card-head {
+    background: var(--color-primary-bg) !important;
+    border-bottom: 1px solid var(--border-default) !important;
+    color: var(--text-primary) !important;
+}
+
+.ant-card-head-title,
+.ant-card-head-title .ant-typography {
+    color: var(--text-primary) !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.01em;
+}
+
+.ant-card-head-title .anticon {
+    color: var(--color-primary) !important;
+}
+
+/* Collapse arrow living inside the (now light) card head */
+.ant-card-head .ant-collapse-arrow,
+.ant-card-head .ecard-collapse-icon {
+    color: var(--text-secondary) !important;
+}
+
+/* ---- Cards: consistent radius + layered shadow + lift -----
+   Scope: only "plain" cards. Cards that declare their own inline
+   border-radius / box-shadow (e.g. the dashboard's custom gradient
+   stat cards) are left untouched — overriding their radius caused
+   the dark corner-fringe artifact. */
+.ant-card:not([style*="border-radius"]):not([style*="box-shadow"]) {
+    border-radius: var(--radius-md) !important;
+    box-shadow: var(--card-shadow) !important;
+    overflow: hidden;
+    transition: box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+        border-color 0.25s ease;
+}
+
+.ant-card:not([style*="border-radius"]):not([style*="box-shadow"]):hover {
+    box-shadow: var(--shadow-lg) !important;
+}
+
+/* Dashboard stat cards: a touch more lift */
+.ant-card.criclebox,
+.ant-card.criclebox2 {
+    border-radius: var(--radius-md) !important;
+}
+
+.ant-card.criclebox:hover,
+.ant-card.criclebox2:hover {
+    transform: translateY(-3px);
+}
+
+/* Nested cards shouldn't double-lift or cast heavy shadows */
+.ant-card .ant-card:not([style*="border-radius"]):not([style*="box-shadow"]) {
+    box-shadow: none !important;
+}
+
+/* Sidebar menu keeps its own (coherent) gradient-pill selected state,
+   defined inline in Sidenav.tsx — we intentionally don't override it here. */
+
+/* ---- Card-head action icons: visible on the light header --
+   CollapseSVG/ExpandSVG ship a hard-coded white fill (legacy: the head
+   used to be a dark gradient). Recolor them for the calm light head. */
+.ant-card-head .ADDSVGContainer svg path,
+.ant-card-head .ADDSVGContainer .icon path {
+    fill: var(--text-secondary) !important;
+    transition: fill 0.2s ease;
+}
+
+.ant-card-head .ADDSVGContainer .anticon {
+    color: var(--text-secondary) !important;
+}
+
+.ant-card-head .ADDSVGContainer:hover svg path,
+.ant-card-head .ADDSVGContainer:hover .icon path,
+.ant-card-head .ADDSVGContainer:hover .anticon {
+    fill: var(--color-primary) !important;
+    color: var(--color-primary) !important;
+}
+
+/* ---- Buttons: smoother, modern radius + hover lift ------ */
+.ant-btn {
+    border-radius: var(--radius-sm) !important;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    box-shadow: none;
+}
+
+.ant-btn-primary {
+    box-shadow: 0 2px 8px var(--shadow-primary-color) !important;
+}
+
+.ant-btn-primary:not(:disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-primary) !important;
+}
+
+.ant-btn-default:not(:disabled):hover {
+    border-color: var(--color-primary) !important;
+    color: var(--color-primary) !important;
+}
+
+/* ---- Inputs & Selects: radius + soft focus ring -------- */
+.ant-input,
+.ant-input-affix-wrapper,
+.ant-input-number,
+.ant-picker,
+.ant-select .ant-select-selector {
+    border-radius: var(--radius-sm) !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+.ant-input:focus,
+.ant-input-focused,
+.ant-input-affix-wrapper-focused,
+.ant-input-number-focused,
+.ant-picker-focused,
+.ant-select-focused .ant-select-selector {
+    box-shadow: 0 0 0 3px var(--color-primary-bg) !important;
+    border-color: var(--color-primary) !important;
+}
+
+/* ---- Modals & dropdowns: softer, deeper -------------- */
+.ant-modal-content,
+.ant-dropdown-menu,
+.ant-select-dropdown,
+.ant-popover-inner {
+    border-radius: var(--radius-md) !important;
+    box-shadow: var(--shadow-xl) !important;
+}
+
+.ant-dropdown-menu-item,
+.ant-select-item {
+    border-radius: var(--radius-xs) !important;
+}
+
+/* ---- Tables: calmer header, smooth row hover ---------- */
+.ant-table {
+    border-radius: var(--radius-md) !important;
+}
+
+.ant-table-thead > tr > th {
+    font-weight: 600 !important;
+    letter-spacing: 0.01em;
+}
+
+.ant-table-tbody > tr {
+    transition: background 0.18s ease !important;
+}
+
+/* ---- Modern scrollbars -------------------------------- */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+*::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: 8px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
+    background-clip: content-box;
+}
+
+/* ---- Segmented / Tabs accent polish ------------------- */
+.ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+    font-weight: 600 !important;
+}
+
+.ant-segmented {
+    border-radius: var(--radius-sm) !important;
+}
+.ant-segmented .ant-segmented-item-selected {
+    border-radius: var(--radius-xs) !important;
+    box-shadow: var(--shadow-sm) !important;
+}
