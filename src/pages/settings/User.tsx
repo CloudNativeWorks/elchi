@@ -571,15 +571,21 @@ const User: React.FC = () => {
                                             size="small"
                                             pagination={false}
                                             dataSource={[
-                                                { key: '1', category: 'XDS Resources', owner: '✅', admin: '✅', editor: '✅', viewer: '👁️' },
-                                                { key: '2', category: 'Extensions', owner: '✅', admin: '✅', editor: '✅', viewer: '👁️' },
+                                                { key: '1', category: 'XDS Resources', owner: '✅', admin: '✅', editor: '🟨', viewer: '👁️' },
+                                                { key: '2', category: 'Extensions', owner: '✅', admin: '✅', editor: '🟨', viewer: '👁️' },
                                                 { key: '3', category: 'User Management', owner: '✅', admin: '✅', editor: '❌', viewer: '❌' },
                                                 { key: '4', category: 'Group Management', owner: '✅', admin: '✅', editor: '❌', viewer: '❌' },
-                                                { key: '5', category: 'Role Assignment', owner: '✅', admin: '✅', editor: '❌', viewer: '❌' },
-                                                { key: '6', category: 'System Settings', owner: '✅', admin: '✅', editor: '❌', viewer: '❌' },
-                                                { key: '7', category: 'Project Management', owner: '✅', admin: '❌', editor: '❌', viewer: '❌' },
-                                                { key: '8', category: 'Audit Logs', owner: '✅', admin: '✅', editor: '❌', viewer: '❌' },
-                                                { key: '9', category: 'Client Management', owner: '✅', admin: '✅', editor: '🟨', viewer: '❌' },
+                                                { key: '5', category: 'Role Assignment', owner: '✅', admin: '🟨', editor: '❌', viewer: '❌' },
+                                                { key: '6', category: 'Project Management', owner: '✅', admin: '❌', editor: '❌', viewer: '❌' },
+                                                { key: '7', category: 'System Settings', owner: '✅', admin: '✅', editor: '❌', viewer: '❌' },
+                                                { key: '8', category: 'License', owner: '✅', admin: '✅', editor: '👁️', viewer: '👁️' },
+                                                { key: '9', category: 'Audit Logs', owner: '✅', admin: '✅', editor: '❌', viewer: '❌' },
+                                                { key: '10', category: 'Backup & Restore', owner: '✅', admin: '🟨', editor: '❌', viewer: '❌' },
+                                                { key: '11', category: 'Client Operations', owner: '✅', admin: '✅', editor: '🟨', viewer: '🟨' },
+                                                { key: '12', category: 'Service Operations', owner: '✅', admin: '✅', editor: '👁️', viewer: '👁️' },
+                                                { key: '13', category: 'WAF Configuration', owner: '✅', admin: '✅', editor: '👁️', viewer: '👁️' },
+                                                { key: '14', category: 'Shield (Security Policies)', owner: '✅', admin: '✅', editor: '👁️', viewer: '👁️' },
+                                                { key: '15', category: 'GSLB (DNS Load Balancing)', owner: '✅', admin: '✅', editor: '👁️', viewer: '👁️' },
                                             ]}
                                             columns={[
                                                 {
@@ -619,9 +625,17 @@ const User: React.FC = () => {
                                             ]}
                                             style={{ marginTop: 8 }}
                                         />
-                                        <Text style={{ fontSize: '12px', marginTop: 8, display: 'block', color: 'var(--text-secondary)' }}>
-                                            🟨 Editor role has limited permissions for Client Management
-                                        </Text>
+                                        <div style={{ marginTop: 10, fontSize: '12px', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
+                                            <div style={{ marginBottom: 6, fontWeight: 600, color: 'var(--text-primary)' }}>
+                                                ✅ Full access&nbsp;&nbsp;·&nbsp;&nbsp;👁️ Read-only&nbsp;&nbsp;·&nbsp;&nbsp;🟨 Limited&nbsp;&nbsp;·&nbsp;&nbsp;❌ No access
+                                            </div>
+                                            <div>🟨 <b>XDS Resources / Extensions (Editor):</b> create &amp; edit; can delete only resources they own (scoped to their group/user). Viewer is read-only and limited to permitted resources; Admin can manage everything except default resources (Owner-only).</div>
+                                            <div>🟨 <b>Role Assignment (Admin):</b> can manage Admin / Editor / Viewer users, but cannot grant or modify the Owner role.</div>
+                                            <div>🟨 <b>Backup &amp; Restore (Admin):</b> limited to projects they belong to — global backup &amp; restore is Owner-only.</div>
+                                            <div>🟨 <b>Client / Service Operations (Editor &amp; Viewer):</b> view and run read-only commands (logs, stats, status, config &amp; version reads). Deploy, version changes, service control and network/proxy writes are Admin / Owner only. Services are filtered to those the user is permitted to see.</div>
+                                            <div>👁️ <b>WAF, Shield &amp; GSLB (Editor &amp; Viewer):</b> can view policies / configs / records (project-scoped); creating, editing, deleting and deploying them is Admin / Owner only.</div>
+                                            <div><b>Project Management</b> is restricted to Owner accounts only.</div>
+                                        </div>
                                     </div>
                                 }
                                 type="info"

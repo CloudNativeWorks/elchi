@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import { HorizonTags } from "@/elchi/components/common/HorizonTags";
 import { memorizeComponent, compareVeri } from "@/hooks/useMemoComponent";
 import { ActionType, ResourceType } from "@/redux/reducer-helpers/common";
-import { extractNestedKeys } from "@/utils/get-active-tags";
+import { useSyncedSelectedTags } from "@/utils/merge-selected-tags";
 import { handleChangeResources } from "@/redux/dispatcher";
 import { handleAddRemoveTags } from "@/elchi/helpers/tag-operations";
 import { FieldConfigType, matchesEndOrStartOf } from "@/utils/tools";
@@ -40,7 +40,7 @@ type GeneralProps = {
 const CommonComponentDataSource: React.FC<GeneralProps> = ({ veri }) => {
     const dispatch = useDispatch();
     const { vTags } = useTags(veri.version, modtag_data_source);
-    const [selectedTags, setSelectedTags] = useState<string[]>(extractNestedKeys(veri.reduxStore));
+    const [selectedTags, setSelectedTags] = useSyncedSelectedTags(veri.reduxStore);
     const [file, setFile] = useState<any>([])
     // Tracks which redacted specifiers the user has chosen to overwrite. The
     // backend returns a sentinel for these fields; we lock them by default and
@@ -48,8 +48,6 @@ const CommonComponentDataSource: React.FC<GeneralProps> = ({ veri }) => {
     const [unlockedFields, setUnlockedFields] = useState<Set<RedactionField>>(new Set());
 
     useEffect(() => {
-        const selecTag = extractNestedKeys(veri.reduxStore)
-        setSelectedTags(selecTag)
         const inlineByte = navigateCases(veri.reduxStore, 'specifier.inline_bytes')
 
         if (inlineByte) {

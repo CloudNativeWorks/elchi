@@ -113,7 +113,6 @@ const CommonComponentArrayRange: React.FC<GeneralProps> = ({ veri }) => {
                                                     min={0}
                                                     max={4294967295}
                                                     style={{ width: "100%" }}
-                                                    type="number"
                                                     value={data?.start}
                                                     placeholder="number"
                                                     onChange={(val) => handleChangeRedux(`${veri.keyPrefix}.${index}.start`, val)}
@@ -123,7 +122,6 @@ const CommonComponentArrayRange: React.FC<GeneralProps> = ({ veri }) => {
                                                     min={0}
                                                     max={4294967295}
                                                     style={{ width: "100%" }}
-                                                    type="number"
                                                     value={data?.end}
                                                     placeholder="number"
                                                     onChange={(val) => handleChangeRedux(`${veri.keyPrefix}.${index}.end`, val)}

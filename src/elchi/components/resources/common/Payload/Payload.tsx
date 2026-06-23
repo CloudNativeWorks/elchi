@@ -3,7 +3,7 @@ import { Col, Divider, Upload, Button, UploadProps } from 'antd';
 import { useDispatch } from "react-redux";
 import { HorizonTags } from "@/elchi/components/common/HorizonTags";
 import { ActionType, ResourceType } from "@/redux/reducer-helpers/common";
-import { extractNestedKeys } from "@/utils/get-active-tags";
+import { useSyncedSelectedTags } from "@/utils/merge-selected-tags";
 import { handleChangeResources } from "@/redux/dispatcher";
 import { handleAddRemoveTags } from "@/elchi/helpers/tag-operations";
 import { compareVeri, memorizeComponent } from "@/hooks/useMemoComponent";
@@ -34,12 +34,10 @@ type GeneralProps = {
 const CommonComponentPayload: React.FC<GeneralProps> = ({ veri }) => {
     const dispatch = useDispatch();
     const { vTags } = useTags(veri.version, modtag_payload);
-    const [selectedTags, setSelectedTags] = useState<string[]>(extractNestedKeys(veri.reduxStore));
+    const [selectedTags, setSelectedTags] = useSyncedSelectedTags(veri.reduxStore);
     const [file, setFile] = useState<any>([])
 
     useEffect(() => {
-        const selecTag = extractNestedKeys(veri.reduxStore)
-        setSelectedTags(selecTag)
         const inlineByte = navigateCases(veri.reduxStore, 'payload.binary')
 
         if (inlineByte) {

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Row, Col, Button } from 'antd';
 import { ButtonProps } from 'antd/lib/button';
 import { InType } from '@/elchi/tags/tagsType';
 import InfoModal, { InfoTypes } from './InfoModal';
@@ -31,37 +30,19 @@ const InfoBar: React.FC<InfoContainerProps> = ({ Infos }) => {
 
     return (
         <>
-            <div className="container-border">
-                <Row gutter={[8, 8]}>
-                    {Infos.map((Info) => (
-                        <Col key={Info.title}>
-                            <Button
-                                size="small"
-                                title={Info.title}
-                                onClick={() => handleOpenModal(Info.info_type, Info.data)}
-                                style={{
-                                    background: 'var(--gradient-primary)',
-                                    border: 'none',
-                                    color: '#fff',
-                                    fontWeight: 500,
-                                    fontSize: 12,
-                                    borderRadius: 7,
-                                    padding: '0 8px',
-                                    height: 24,
-                                    minWidth: 28,
-                                    boxShadow: 'var(--shadow-sm)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 6,
-                                    transition: 'all 0.18s',
-                                }}
-                                className="modern-add-icon-btn-info"
-                            >
-                                {Info.icon}
-                            </Button>
-                        </Col>
-                    ))}
-                </Row>
+            <div className="elchi-info-bar">
+                {Infos.map((Info) => (
+                    <button
+                        key={Info.title}
+                        type="button"
+                        title={Info.title}
+                        onClick={() => handleOpenModal(Info.info_type, Info.data)}
+                        className="elchi-info-pill"
+                    >
+                        <span className="elchi-info-pill__icon">{Info.icon}</span>
+                        <span className="elchi-info-pill__label">{Info.title}</span>
+                    </button>
+                ))}
             </div>
 
             <InfoModal

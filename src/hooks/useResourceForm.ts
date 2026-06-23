@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useCallback } from "react";
 import { useDispatch } from "react-redux";
 import { handleChangeResources } from "@/redux/dispatcher";
-import { extractNestedKeys } from "@/utils/get-active-tags";
+import { useSyncedSelectedTags } from "@/utils/merge-selected-tags";
 import { handleAddRemoveTags } from "@/elchi/helpers/tag-operations";
 import { ActionType, ResourceType } from "@/redux/reducer-helpers/common";
 import { ResourceAction } from "@/redux/reducers/slice";
@@ -14,10 +14,7 @@ type UseResourceFormProps = {
 
 const useResourceForm = ({ version, reduxStore }: UseResourceFormProps) => {
     const dispatch = useDispatch();
-    const [selectedTags, setSelectedTags] = useState<string[]>(extractNestedKeys(reduxStore));
-    useEffect(() => {
-        setSelectedTags(extractNestedKeys(reduxStore));
-    }, [reduxStore]);
+    const [selectedTags, setSelectedTags] = useSyncedSelectedTags(reduxStore);
 
     const handleChangeRedux = useCallback((keys: string, val: any) => {
         handleChangeResources({

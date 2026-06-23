@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Col, Row, Card } from 'antd';
 import { useDispatch } from "react-redux";
 import { ActionType, ResourceType } from "@/redux/reducer-helpers/common";
@@ -6,7 +6,7 @@ import { handleChangeResources } from "@/redux/dispatcher";
 import { compareVeri, memorizeComponent } from "@/hooks/useMemoComponent";
 import { ResourceAction } from "@/redux/reducers/slice";
 import { FieldConfigType } from "@/utils/tools";
-import { extractNestedKeys } from "@/utils/get-active-tags";
+import { useSyncedSelectedTags } from "@/utils/merge-selected-tags";
 import { ValueToBase64Per } from "@/utils/typed-config-op";
 import { modtag_filter_config } from "./_modtag_";
 import { useTags } from "@/hooks/useTags";
@@ -26,11 +26,8 @@ type GeneralProps = {
 
 const ComponentHttpFilterChild: React.FC<GeneralProps> = ({ veri }) => {
     const dispatch = useDispatch();
-    const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    const [selectedTags] = useSyncedSelectedTags(veri.reduxStore);
     const { vTags } = useTags(veri.version, modtag_filter_config);
-    useEffect(() => {
-        setSelectedTags(extractNestedKeys(veri.reduxStore));
-    }, [veri.reduxStore]);
 
     const handleChangeRedux = (keys: string, val: string | boolean | number) => {
         if (!veri.isPerFilter) {

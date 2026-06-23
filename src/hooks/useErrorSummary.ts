@@ -24,6 +24,16 @@ class ErrorSummaryManager {
     private hasRecentErrors = false;
     private subscribers = new Set<() => void>();
 
+    // Throttle for notify-driven refetches. Every failed (non-404) API
+    // response calls notifyNewErrors() via the axios interceptor; when an
+    // upstream endpoint (e.g. metrics query_range) is down, dozens of widget
+    // polls + retries fire in a burst and would each trigger an immediate
+    // error_summary refetch — flooding the network with requests. We collapse
+    // a burst into at most one refetch per MIN_NOTIFY_INTERVAL.
+    private lastNotifyTime = 0;
+    private notifyTimer: ReturnType<typeof setTimeout> | null = null;
+    private static readonly MIN_NOTIFY_INTERVAL = 10 * 1000; // 10 seconds
+
     static getInstance(): ErrorSummaryManager {
         if (!ErrorSummaryManager.instance) {
             ErrorSummaryManager.instance = new ErrorSummaryManager();
@@ -36,9 +46,29 @@ class ErrorSummaryManager {
         return () => this.subscribers.delete(callback);
     }
 
+    private emitToSubscribers() {
+        this.subscribers.forEach(callback => callback());
+    }
+
     notifyNewErrors() {
         this.hasRecentErrors = true;
-        this.subscribers.forEach(callback => callback());
+
+        const now = Date.now();
+        const elapsed = now - this.lastNotifyTime;
+
+        if (elapsed >= ErrorSummaryManager.MIN_NOTIFY_INTERVAL) {
+            // Leading edge: enough time has passed, refetch immediately.
+            this.lastNotifyTime = now;
+            this.emitToSubscribers();
+        } else if (!this.notifyTimer) {
+            // Within the throttle window: schedule a single trailing refetch
+            // so the latest burst still results in a refresh, but only once.
+            this.notifyTimer = setTimeout(() => {
+                this.notifyTimer = null;
+                this.lastNotifyTime = Date.now();
+                this.emitToSubscribers();
+            }, ErrorSummaryManager.MIN_NOTIFY_INTERVAL - elapsed);
+        }
     }
 
     updateErrorState(errorCount: number) {
@@ -119,25 +149,32 @@ export const useErrorSummary = ({ project, enabled = true, triggerRefresh }: Use
         },
     });
 
+    // Keep the latest refetch in a ref so the effects below don't need `query`
+    // (a new object reference every render) in their dependency arrays. Without
+    // this, the subscription was torn down and recreated on every render.
+    const refetchRef = useRef(query.refetch);
+    refetchRef.current = query.refetch;
+
     // Handle external trigger refresh
     useEffect(() => {
         if (triggerRefresh) {
             triggerCountRef.current++;
-            query.refetch();
+            refetchRef.current();
         }
-    }, [triggerRefresh, query]);
+    }, [triggerRefresh]);
 
     // Subscribe to error manager for immediate updates
     useEffect(() => {
         const unsubscribe = errorManager.subscribe(() => {
-            // Immediate refetch when new errors are reported
-            query.refetch();
+            // Immediate refetch when new errors are reported (throttled in the
+            // manager so a burst of API failures doesn't flood the backend).
+            refetchRef.current();
         });
 
         return () => {
             unsubscribe();
         };
-    }, [errorManager, query]);
+    }, [errorManager]);
 
     // Reset recent error flag after successful fetch
     useEffect(() => {

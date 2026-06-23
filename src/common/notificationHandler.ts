@@ -16,6 +16,85 @@ const formatMessageWithLineBreaks = (message: string) => {
   );
 };
 
+// Insert spaces into a PascalCase proto field name for readability:
+// "NumTimeoutsToTriggerPortMigration" -> "Num Timeouts To Trigger Port Migration"
+const prettifyProtoField = (name: string): string =>
+  name.replace(/([a-z0-9])([A-Z])/g, '$1 $2');
+
+/**
+ * Reformat a protoc-gen-validate (PGV) chained validation error into a compact,
+ * field-focused message.
+ *
+ * Backend shape (pkg/resources/base.go -> gRPC ValidateResource):
+ *   "Validation error: : invalid HttpConnectionManager.Http3ProtocolOptions:
+ *    embedded message failed validation | caused by: invalid
+ *    Http3ProtocolOptions.QuicProtocolOptions: embedded message failed
+ *    validation | caused by: invalid
+ *    QuicProtocolOptions.NumTimeoutsToTriggerPortMigration: value must be
+ *    inside range [0, 5]"
+ *
+ * Multiple top-level violations are joined with "; ". For each violation we
+ * walk the "caused by" chain, collect the field path and keep the final
+ * (innermost) reason — the only part that carries the actual constraint.
+ *
+ * Returns null when the text isn't a PGV validation error (caller keeps the
+ * original message).
+ */
+const formatProtoValidationError = (raw: string): string | null => {
+  if (typeof raw !== 'string') return null;
+
+  // Only touch genuine PGV validation errors, never other server messages:
+  // either the backend's "Validation error:" wrapper (pkg/resources/base.go)
+  // or an explicit PGV "... | caused by: ..." chain. Anything else (e.g. a
+  // message that merely contains "invalid x.y:") is left untouched.
+  const isPgvValidation =
+    /^\s*validation error\s*:/i.test(raw) ||
+    (/invalid\s+[\w.]+\.\w+:/.test(raw) && /\|\s*caused by:/i.test(raw));
+  if (!isPgvValidation) return null;
+
+  // Drop a leading "Validation error:" prefix and any stray leading colon.
+  const body = raw
+    .replace(/^\s*validation error\s*:?\s*/i, '')
+    .replace(/^:\s*/, '')
+    .trim();
+
+  // Each independent violation begins with "invalid ...".
+  const violations = body
+    .split(/;\s+(?=invalid\s)/)
+    .map(v => v.trim())
+    .filter(Boolean);
+
+  const parsed: { path: string; reason: string }[] = [];
+  for (const violation of violations) {
+    const segments = violation.split(/\s*\|\s*caused by:\s*/i);
+    const fields: string[] = [];
+    let reason = '';
+    for (const seg of segments) {
+      const m = seg.match(/^invalid\s+[\w.]+\.(\w+):\s*(.+)$/s);
+      if (m) {
+        fields.push(m[1]);
+        reason = m[2].trim();
+      } else if (seg.trim()) {
+        reason = seg.trim();
+      }
+    }
+    if (reason) {
+      parsed.push({ path: fields.map(prettifyProtoField).join(' → '), reason });
+    }
+  }
+
+  if (parsed.length === 0) return null;
+
+  if (parsed.length === 1) {
+    const { path, reason } = parsed[0];
+    return path ? `${path}\n${reason}` : reason;
+  }
+
+  return parsed
+    .map(({ path, reason }) => (path ? `• ${path}\n  ${reason}` : `• ${reason}`))
+    .join('\n\n');
+};
+
 export const extractErrorMessage = (error: any): string => {
   if (!error) return 'An unknown error occurred';
 
@@ -98,8 +177,12 @@ export const extractErrorMessage = (error: any): string => {
     }
   }
 
-  // Check different possible error message locations
-  const possibleMessages = [
+  // Server-provided messages are the real error and must be trusted verbatim.
+  // (They must NOT pass through the generic-noise filter below: a valid
+  // message can legitimately contain a substring like "timeout" — e.g. the
+  // field name `NumTimeoutsToTriggerPortMigration` — which would otherwise be
+  // mistaken for the generic "timeout" noise and discarded.)
+  const serverMessages = [
     error?.response?.data?.message,
     error?.response?.data?.error,
     error?.response?.data?.detail,
@@ -113,7 +196,25 @@ export const extractErrorMessage = (error: any): string => {
     error?.data?.detail,
     error?.data?.error_message,
     error?.data?.envoy_version?.error_message,
-    error?.envoy_version?.error_message,
+    error?.envoy_version?.error_message
+  ];
+
+  const validServerMessages: string[] = [];
+  for (const msg of serverMessages) {
+    if (msg && typeof msg === 'string' && msg.trim() && !validServerMessages.includes(msg)) {
+      validServerMessages.push(msg);
+    }
+  }
+
+  if (validServerMessages.length > 0) {
+    return validServerMessages
+      .map(msg => formatProtoValidationError(msg) ?? msg)
+      .join('\n ');
+  }
+
+  // Client/transport-level fields (axios-generated). These DO get the generic
+  // filter so we don't surface noise like "Request failed with status code 400".
+  const fallbackMessages = [
     error?.message,
     error?.error,
     error?.error_message,
@@ -135,16 +236,16 @@ export const extractErrorMessage = (error: any): string => {
     'Gateway Timeout'
   ];
 
-  // Collect all valid messages, filtering out generic HTTP errors
+  // Collect valid fallback messages, filtering out generic HTTP errors
   const validMessages: string[] = [];
-  for (const msg of possibleMessages) {
+  for (const msg of fallbackMessages) {
     if (msg && typeof msg === 'string' && !validMessages.includes(msg)) {
       // Check if this is a generic HTTP error message
       const isGeneric = genericMessages.some(generic =>
         msg.toLowerCase().includes(generic.toLowerCase())
       );
 
-      // Only add if it's not a generic message, or if no specific messages exist yet
+      // Only add if it's not a generic message
       if (!isGeneric) {
         validMessages.push(msg);
       }

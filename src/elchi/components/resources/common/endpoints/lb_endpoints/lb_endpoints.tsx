@@ -189,7 +189,6 @@ const LBEndpointsComponent: React.FC<GeneralProps> = ({ veri }) => {
                         <InputNumber
                             min={0}
                             max={65535}
-                            type="number"
                             style={{ width: "100%" }}
                             placeholder="80"
                         />
@@ -247,7 +246,6 @@ const LBEndpointsComponent: React.FC<GeneralProps> = ({ veri }) => {
                         <InputNumber
                             min={0}
                             max={65535}
-                            type="number"
                             style={{ width: "100%" }}
                             placeholder="80"
                         />

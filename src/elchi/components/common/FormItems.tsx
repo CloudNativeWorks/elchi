@@ -88,7 +88,6 @@ const FormItem = ({ veri }: RenderFormItemProps) => {
                     min={0}
                     max={4294967295}
                     style={{ width: "100%" }}
-                    type="number"
                     value={veri.value as number}
                     placeholder={veri.placeholder}
                     disabled={veri.disabled}
@@ -172,7 +171,6 @@ const FormItem = ({ veri }: RenderFormItemProps) => {
                     min={0}
                     max={4294967295}
                     style={{ width: "100%" }}
-                    type="number"
                     addonAfter="second"
                     value={veri.value as number}
                     placeholder={veri.placeholder}
@@ -196,7 +194,6 @@ const FormItem = ({ veri }: RenderFormItemProps) => {
                         min={0}
                         max={4294967295}
                         style={{ width: "100%" }}
-                        type="number"
                         value={veri.range?.start}
                         placeholder="number"
                         onChange={(val) => veri.handleChange(`${localKeyprefix}.start`, val)}
@@ -206,7 +203,6 @@ const FormItem = ({ veri }: RenderFormItemProps) => {
                         min={0}
                         max={4294967295}
                         style={{ width: "100%" }}
-                        type="number"
                         value={veri.range?.end}
                         placeholder="number"
                         onChange={(val) => veri.handleChange(`${localKeyprefix}.end`, val)}

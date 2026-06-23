@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useCallback } from "react";
 import { useDispatch } from "react-redux";
 import { handleChangeResources } from "@/redux/dispatcher";
-import { processArray } from "@/utils/get-active-tags";
+import { useSyncedSelectedTagsIndexed } from "@/utils/merge-selected-tags";
 import { handleAddRemoveTags_A } from "@/elchi/helpers/tag-operations";
 import { ActionType, ResourceType } from "@/redux/reducer-helpers/common";
 
@@ -15,11 +15,7 @@ type UseResourceWithMultipleEntriesProps = {
 
 const useResourceFormMultiple = ({ version, reduxStore, keyPrefix, reduxAction }: UseResourceWithMultipleEntriesProps) => {
     const dispatch = useDispatch();
-    const [selectedTags, setSelectedTags] = useState<Record<number, string[]>>(reduxStore ? processArray(reduxStore) : {});
-
-    useEffect(() => {
-        setSelectedTags(processArray(reduxStore));
-    }, [reduxStore]);
+    const [selectedTags, setSelectedTags] = useSyncedSelectedTagsIndexed(reduxStore);
 
     const handleChangeRedux = useCallback(
         (keys: string, val: string | boolean | number) => {

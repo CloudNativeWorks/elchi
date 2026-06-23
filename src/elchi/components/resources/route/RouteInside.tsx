@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { Col, Divider, Drawer, Row } from "antd";
 import { ActionType, ResourceType } from "@/redux/reducer-helpers/common";
 import { handleAddRemoveTags } from "@/elchi/helpers/tag-operations";
 import { handleChangeResources } from "@/redux/dispatcher";
-import { extractNestedKeys } from "@/utils/get-active-tags";
+import { useSyncedSelectedTags } from "@/utils/merge-selected-tags";
 import { FieldConfigType, matchesEndOrStartOf } from "@/utils/tools";
 import { FieldTypes, headerOptionFields } from "@/common/statics/general";
 import { ResourceAction } from "@/redux/reducers/slice";
@@ -41,14 +41,10 @@ type GeneralProps = {
 
 const ComponentRoute: React.FC<GeneralProps> = ({ veri }) => {
     const dispatch = useDispatch();
-    const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    const [selectedTags, setSelectedTags] = useSyncedSelectedTags(veri.reduxStore);
     const { vModels } = useModels(veri.version, modtag_route);
     const { vTags } = useTags(veri.version, modtag_route);
     const [state, setState] = useState<boolean>(false);
-
-    useEffect(() => {
-        setSelectedTags(extractNestedKeys(veri.reduxStore));
-    }, [veri.version, veri.reduxStore]);
 
     const handleDeleteRedux = (keys: string, val?: string | boolean | number) => {
         handleChangeResources({ version: veri.version, type: ActionType.Delete, keys, val, resourceType: ResourceType.Resource }, dispatch, ResourceAction);

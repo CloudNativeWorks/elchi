@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { Col, Row } from 'antd';
 import { ActionType, ResourceType } from '@/redux/reducer-helpers/common';
 import { handleChangeResources } from '@/redux/dispatcher';
-import { extractNestedKeys } from '@/utils/get-active-tags';
+import { useSyncedSelectedTags } from '@/utils/merge-selected-tags';
 import { handleAddRemoveTags } from '@/elchi/helpers/tag-operations';
 import { compareVeriReduxStoreAndConfigDiscovery, memorizeComponent } from '@/hooks/useMemoComponent';
 import { clearUniqID, FieldConfigType, startsWithAny } from '@/utils/tools';
@@ -46,7 +46,7 @@ const ListenerComponentChild: React.FC<GeneralPropsChild> = ({ veri }) => {
     const dispatch = useDispatch();
     const location = useLocation();
     const { vTags, loading } = useTags(veri.version, modtag_listener);
-    const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    const [selectedTags, setSelectedTags] = useSyncedSelectedTags(veri.reduxStore);
     const handleChangeRedux = (keys: string, val?: string | boolean | number) => {
         let uniqID = '';
         if (keys.endsWith('.name')) { uniqID = veri.UniqID }
@@ -59,10 +59,6 @@ const ListenerComponentChild: React.FC<GeneralPropsChild> = ({ veri }) => {
             deleteMatchedConfigDiscovery(veri.reduxStore?.name as string, veri.configDiscovery, veri.version, dispatch);
         }
     }
-
-    useEffect(() => {
-        setSelectedTags(extractNestedKeys(veri.reduxStore))
-    }, [veri.reduxStore]);
 
     const fieldConfigs: FieldConfigType[] = [
         ...generateFields({

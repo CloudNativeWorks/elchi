@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@redux/store";
 import { Col, Row, Divider } from "antd";
 import { HeadOfResource } from "@/elchi/components/common/HeadOfResources";
-import { extractNestedKeys } from "@/utils/get-active-tags";
+import { useSyncedSelectedTags } from "@/utils/merge-selected-tags";
 import { ActionType, ResourceType } from "@/redux/reducer-helpers/common";
 import { handleChangeResources } from "@/redux/dispatcher";
 import { handleAddRemoveTags } from "@/elchi/helpers/tag-operations";
@@ -52,7 +52,6 @@ const ComponentHttpConnectionManager: React.FC<GeneralProps> = ({ veri }) => {
     const GType = useGTypeFields(GTypes.HTTPConnectionManager);
     const location = useLocation();
     const dispatch = useDispatch();
-    const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const { vModels, loading_m } = useModels(veri.version, modtag_http_connection_manager);
     const { vTags, loading } = useTags(veri.version, modtag_http_connection_manager);
     const { loadingCount } = useLoading();
@@ -67,9 +66,7 @@ const ComponentHttpConnectionManager: React.FC<GeneralProps> = ({ veri }) => {
         return vModels.hcm?.HttpConnectionManager.fromJSON(memoReduxStore);
     }, [memoReduxStore, vModels]);
 
-    useEffect(() => {
-        setSelectedTags(extractNestedKeys(reduxStore));
-    }, [veri.version, reduxStore]);
+    const [selectedTags, setSelectedTags] = useSyncedSelectedTags(reduxStore);
 
     // api_discovery lives on the resource's `general` block (not the proto
     // body), so we hydrate it from queryResource and keep a local mirror.

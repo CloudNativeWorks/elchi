@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@redux/store";
@@ -6,7 +6,7 @@ import { Col, Row, Divider } from "antd";
 import { ActionType, ResourceType } from "@/redux/reducer-helpers/common";
 import { handleChangeResources } from "@/redux/dispatcher";
 import { handleAddRemoveTags } from "@/elchi/helpers/tag-operations";
-import { extractNestedKeys } from "@/utils/get-active-tags";
+import { useSyncedSelectedTags } from "@/utils/merge-selected-tags";
 import { HeadOfResource } from "@/elchi/components/common/HeadOfResources";
 import { ResourceAction } from "@/redux/reducers/slice";
 import CustomAnchor from "@/elchi/components/common/CustomAnchor";
@@ -41,7 +41,6 @@ const FluentdAccessLogConfigComponent: React.FC<GeneralProps> = ({ veri }) => {
     const GType = useGTypeFields(GTypes.FluentdAccessLog);
     const location = useLocation();
     const dispatch = useDispatch();
-    const [selectedTags, setSelectedTags] = useState<string[]>([]);
     const { vModels, loading_m } = useModels(veri.version, modtag_fluentd_access_log);
     const { vTags, loading } = useTags(veri.version, modtag_fluentd_access_log);
     const { loadingCount } = useLoading();
@@ -52,9 +51,7 @@ const FluentdAccessLogConfigComponent: React.FC<GeneralProps> = ({ veri }) => {
         return vModels.flual?.FluentdAccessLogConfig.fromJSON(memoReduxStore) ?? null;
     }, [memoReduxStore, vModels]);
 
-    useEffect(() => {
-        setSelectedTags(extractNestedKeys(reduxStore));
-    }, [veri.version, reduxStore]);
+    const [selectedTags, setSelectedTags] = useSyncedSelectedTags(reduxStore);
 
     const handleChangeRedux = (keys: string, val?: string | boolean | number) => {
         handleChangeResources({ version: veri.version, type: ActionType.Delete, keys, val, resourceType: ResourceType.Resource }, dispatch, ResourceAction);

@@ -1,10 +1,10 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useMemo, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@redux/store";
 import { ActionType, ResourceType } from "@/redux/reducer-helpers/common";
 import { handleChangeResources } from "@/redux/dispatcher";
 import { handleAddRemoveTags } from "@/elchi/helpers/tag-operations";
-import { extractNestedKeys } from "@/utils/get-active-tags";
+import { useSyncedSelectedTags } from "@/utils/merge-selected-tags";
 import { ResourceAction } from "@/redux/reducers/slice";
 import { MessageFns } from "@/common/types";
 
@@ -19,7 +19,6 @@ type UseResourceStoreProps = {
 
 const useResourceMain = ({ version, alias, vModels, vTags, modelName }: UseResourceStoreProps) => {
     const dispatch = useDispatch();
-    const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
     const memoReduxStore = useSelector(
         (state: RootState) => state.VersionedResources[version]?.Resource
@@ -34,11 +33,7 @@ const useResourceMain = ({ version, alias, vModels, vTags, modelName }: UseResou
         }
     }, [memoReduxStore, vModels, vTags, alias]);
 
-    useEffect(() => {
-        if (reduxStore) {
-            setSelectedTags(extractNestedKeys(reduxStore));
-        }
-    }, [reduxStore, version]);
+    const [selectedTags, setSelectedTags] = useSyncedSelectedTags(reduxStore);
 
     const handleChangeRedux = useCallback((keys: string, val?: string | boolean | number) => {
         handleChangeResources({ version, type: ActionType.Update, keys, val, resourceType: ResourceType.Resource }, dispatch, ResourceAction);

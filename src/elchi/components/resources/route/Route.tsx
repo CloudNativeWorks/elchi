@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "@redux/store";
@@ -6,7 +6,7 @@ import { Col, Row, Divider } from "antd";
 import { ActionType, ResourceType } from "@/redux/reducer-helpers/common";
 import { handleAddRemoveTags } from "@/elchi/helpers/tag-operations";
 import { handleChangeResources } from "@/redux/dispatcher";
-import { extractNestedKeys } from "@/utils/get-active-tags";
+import { useSyncedSelectedTags } from "@/utils/merge-selected-tags";
 import { FieldConfigType, matchesEndOrStartOf } from "@/utils/tools";
 import { headerOptionFields } from "@/common/statics/general";
 import { HeadOfResource } from "@/elchi/components/common/HeadOfResources";
@@ -46,7 +46,6 @@ const RouteComponent: React.FC<GeneralProps> = ({ veri }) => {
     const { vModels, loading_m } = useModels(veri.version, modtag_route);
     const { vTags, loading } = useTags(veri.version, modtag_route);
     const { loadingCount } = useLoading();
-    const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
     const memoReduxStore = useSelector((state: RootState) => state.VersionedResources[veri.version]?.Resource);
     const reduxStore = useMemo(() => {
@@ -58,9 +57,7 @@ const RouteComponent: React.FC<GeneralProps> = ({ veri }) => {
         return memoConfigDiscoveryReduxStore;
     }, [memoConfigDiscoveryReduxStore]);
 
-    useEffect(() => {
-        setSelectedTags(extractNestedKeys(reduxStore));
-    }, [veri.version, reduxStore]);
+    const [selectedTags, setSelectedTags] = useSyncedSelectedTags(reduxStore);
 
     const handleChangeRedux = (keys: string, val?: string | boolean | number) => {
         handleChangeResources({ version: veri.version, type: ActionType.Delete, keys, val, resourceType: ResourceType.Resource }, dispatch, ResourceAction);

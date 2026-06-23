@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Col, Row, Tabs, Divider } from 'antd';
 import { useDispatch } from "react-redux";
 import { HorizonTags } from "@/elchi/components/common/HorizonTags";
-import { processArray } from "@/utils/get-active-tags";
+import { useSyncedSelectedTagsIndexed } from "@/utils/merge-selected-tags";
 import { ActionType, ResourceType } from "@/redux/reducer-helpers/common";
 import { handleChangeResources } from "@/redux/dispatcher";
 import { handleAddRemoveTags_A } from "@/elchi/helpers/tag-operations";
@@ -43,14 +43,10 @@ const ComponentFilterChain: React.FC<GeneralProps> = ({ veri }) => {
     const dispatch = useDispatch();
     const { vTags } = useTags(veri.version, modtag_filter_chain);
     const previousListenerName = usePrevious<string | undefined>(veri.listenerName);
-    const [selectedTags, setSelectedTags] = useState<Record<number, string[]>>(processArray(veri.reduxStore) as Record<number, string[]>);
+    const [selectedTags, setSelectedTags] = useSyncedSelectedTagsIndexed(veri.reduxStore as any[]);
     const [state, setState] = useState<State>({
         activeKey: "0",
     });
-
-    useEffect(() => {
-        setSelectedTags(processArray(veri.reduxStore) as Record<number, string[]>)
-    }, [veri.reduxStore]);
 
     useEffect(() => {
         if (previousListenerName && previousListenerName !== veri.listenerName) {
