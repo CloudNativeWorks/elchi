@@ -276,7 +276,7 @@ const Resources: React.FC = () => {
                     }}
                     selectedListeners={selectedListeners}
                     project={project}
-                    currentVersion={selectedVersion || filters.version || window.APP_CONFIG?.AVAILABLE_VERSIONS?.[0] || '1.36.2'}
+                    currentVersion={selectedVersion || filters.version || window.APP_CONFIG?.AVAILABLE_VERSIONS?.[0] || '1.38.3'}
                     onSuccess={() => {
                         setSelectedListeners([]);
                         // Trigger data refresh by changing filters

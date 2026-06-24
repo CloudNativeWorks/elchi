@@ -10,6 +10,9 @@ import {
     ShieldMutationResponse,
     DeployInfo,
     ShieldClientResult,
+    ShieldEventsParams,
+    ShieldEventsPage,
+    ShieldEventsSummary,
 } from './types';
 
 const SHIELD_BASE_PATH = '/api/v3/shield';
@@ -119,6 +122,38 @@ class ShieldApiClient {
         );
         return response.data?.data?.[0];
     }
+
+    /**
+     * Security events feed (what shield is blocking/detecting) from the central
+     * ClickHouse, project-scoped + filterable. Admin/Owner-gated on the backend.
+     */
+    async getSecurityEvents(project: string, params: ShieldEventsParams = {}): Promise<ShieldEventsPage> {
+        // The page renders its own inline error Alert, so suppress the global
+        // toast (avoids the double-notification the WAF/mutation reads also dodge).
+        const response = await api.get<ShieldEventsPage>(
+            `${SHIELD_BASE_PATH}/events?${buildEventsQuery(project, params)}`, SKIP_GLOBAL_ERROR
+        );
+        return response.data;
+    }
+
+    /** Aggregate counts + per-action time series for the events dashboard. */
+    async getSecurityEventsSummary(project: string, params: ShieldEventsParams = {}): Promise<ShieldEventsSummary> {
+        const response = await api.get<{ data: ShieldEventsSummary }>(
+            `${SHIELD_BASE_PATH}/events/summary?${buildEventsQuery(project, params)}`, SKIP_GLOBAL_ERROR
+        );
+        return response.data?.data ?? { total: 0, groups: [], series: [] };
+    }
+}
+
+/** Serialise the project + optional event filters into a query string. */
+function buildEventsQuery(project: string, params: ShieldEventsParams): string {
+    const sp = new URLSearchParams();
+    sp.set('project', project);
+    for (const [k, v] of Object.entries(params)) {
+        if (v === undefined || v === null || v === '') continue;
+        sp.set(k, String(v));
+    }
+    return sp.toString();
 }
 
 export const shieldApi = new ShieldApiClient();

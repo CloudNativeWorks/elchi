@@ -68,6 +68,86 @@ export interface ShieldClientResult {
     };
 }
 
+/**
+ * One shield security decision row from the central ClickHouse audit table
+ * (`elchi_shield_audit`), as the events read API returns it. Redacted by
+ * construction on the shield side: no header/body values, query string stripped.
+ */
+export interface ShieldSecurityEvent {
+    ts: string;
+    instance: string;
+    node_id: string;
+    project_id: string;
+    listener: string;
+    request_id: string;
+    phase: string;
+    direction: string;
+    action: string;   // block | detect | shadow | allow | continue
+    severity: string; // none | info | low | medium | high | critical
+    reason: string;
+    rule_id: string;
+    policy_id: string;
+    engine: string;
+    host: string;
+    path: string;
+    method: string;
+    status_code: number;
+    config_version: string;
+}
+
+/** Paginated events feed envelope (matches the backend buildPaginationResponse). */
+export interface ShieldEventsPage {
+    data: ShieldSecurityEvent[];
+    count: number;
+    total_count: number;
+    total_pages: number;
+    limit: number;
+    offset: number;
+    current_page: number;
+    has_next: boolean;
+    has_prev: boolean;
+}
+
+/** Optional filters for the events feed + summary. */
+export interface ShieldEventsParams {
+    node_id?: string;
+    instance?: string;
+    engine?: string;
+    action?: string;
+    severity?: string;
+    host?: string;
+    method?: string;
+    path?: string;
+    findings_only?: boolean;
+    from?: string;
+    to?: string;
+    limit?: number;
+    offset?: number;
+    include_total?: boolean;
+}
+
+/** One (engine, action, severity) bucket count for the summary cards. */
+export interface ShieldEventGroup {
+    engine: string;
+    action: string;
+    severity: string;
+    count: number;
+}
+
+/** One time-bucketed, per-action count for the summary chart. */
+export interface ShieldEventTimeBucket {
+    bucket: string;
+    action: string;
+    count: number;
+}
+
+/** Aggregate view backing the dashboard cards + chart. */
+export interface ShieldEventsSummary {
+    total: number;
+    groups: ShieldEventGroup[];
+    series: ShieldEventTimeBucket[];
+}
+
 /** UI-only form model: a discriminated source instead of the implicit XOR. */
 export interface ShieldFileForm {
     path: string;

@@ -10,6 +10,7 @@ import {
     Table,
     Modal,
     Tag,
+    Tabs,
     Tooltip,
     App as AntdApp,
 } from 'antd';
@@ -21,8 +22,9 @@ import {
     ExclamationCircleOutlined,
     SafetyOutlined,
     SyncOutlined,
+    RadarChartOutlined,
 } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import ElchiButton from '@/elchi/components/common/ElchiButton';
@@ -30,6 +32,7 @@ import { shieldApi } from './shieldApi';
 import { ShieldPolicy } from './types';
 import { useShieldMutations } from './hooks/useShieldMutations';
 import { isShieldAdmin } from './utils';
+import ShieldEvents from './ShieldEvents';
 
 const { Title, Text } = Typography;
 const { confirm } = Modal;
@@ -40,6 +43,11 @@ const ShieldList: React.FC = () => {
     const { notification } = AntdApp.useApp();
     const [searchTerm, setSearchTerm] = useState('');
     const admin = isShieldAdmin();
+    // Events live as a tab under Shield (not a separate sidebar item). The active
+    // tab is URL-driven so /shield?tab=events deep-links straight to the feed
+    // (e.g. the "View all" link on a client's Shield panel).
+    const [searchParams, setSearchParams] = useSearchParams();
+    const activeTab = admin && searchParams.get('tab') === 'events' ? 'events' : 'policies';
 
     // Fetch shield policies (list responses omit file contents)
     const { data: policies, isLoading } = useQuery({
@@ -154,7 +162,7 @@ const ShieldList: React.FC = () => {
         }] : []),
     ];
 
-    return (
+    const policiesContent = (
         <>
             {/* Header Section */}
             <div style={{ marginBottom: 16 }}>
@@ -268,6 +276,28 @@ const ShieldList: React.FC = () => {
                 />
             </Card>
         </>
+    );
+
+    // Non-admins only see policies (the events API is admin/owner-gated).
+    if (!admin) return policiesContent;
+
+    return (
+        <Tabs
+            activeKey={activeTab}
+            onChange={(key) => setSearchParams(key === 'events' ? { tab: 'events' } : {})}
+            items={[
+                {
+                    key: 'policies',
+                    label: <span><SafetyOutlined /> Policies</span>,
+                    children: policiesContent,
+                },
+                {
+                    key: 'events',
+                    label: <span><RadarChartOutlined /> Security Events</span>,
+                    children: <ShieldEvents />,
+                },
+            ]}
+        />
     );
 };
 

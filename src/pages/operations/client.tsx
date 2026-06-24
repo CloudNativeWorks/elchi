@@ -262,7 +262,7 @@ const ClientDetail: React.FC = () => {
                                 </span>
                             ),
                             children: (
-                                <ClientShield clientId={dataClient.client_id} />
+                                <ClientShield clientId={dataClient.client_id} hostname={dataClient.hostname} />
                             )
                         }
                     ]}

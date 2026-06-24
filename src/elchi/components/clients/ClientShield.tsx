@@ -9,15 +9,30 @@ import React from 'react';
 import { Alert, Badge, Button, Card, Col, Row, Space, Table, Tag, Tooltip, Typography } from 'antd';
 import { ReloadOutlined, SafetyOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
+import dayjs from 'dayjs';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import { shieldApi } from '@/pages/shield/shieldApi';
 import { isShieldAdmin } from '@/pages/shield/utils';
+import { ShieldSecurityEvent } from '@/pages/shield/types';
 
 const { Text } = Typography;
 
 interface ClientShieldProps {
     clientId: string;
+    /** Edge hostname — shield stamps its instance as `<hostname>-shield`, which
+     *  scopes the recent-findings panel to this edge. */
+    hostname?: string;
 }
+
+const actionColor = (a: string): string => {
+    switch (a) {
+        case 'block': return 'red';
+        case 'detect': return 'orange';
+        case 'shadow': return 'geekblue';
+        default: return 'default';
+    }
+};
 
 const statusBadge = (status?: string) => {
     switch (status) {
@@ -41,14 +56,32 @@ const levelColor = (level?: string) => {
     }
 };
 
-const ClientShield: React.FC<ClientShieldProps> = ({ clientId }) => {
+const ClientShield: React.FC<ClientShieldProps> = ({ clientId, hostname }) => {
     const { project } = useProjectVariable();
     const admin = isShieldAdmin();
+
+    // shield stamps its instance as `<hostname>-shield`; scope findings to it.
+    const instance = hostname ? `${hostname}-shield` : '';
 
     const statusQuery = useQuery({
         queryKey: ['shield-client-status', clientId, project],
         queryFn: () => shieldApi.getClientStatus(clientId, project),
         enabled: admin && !!clientId && !!project,
+        refetchOnWindowFocus: false,
+        retry: false,
+    });
+
+    // Recent security findings on THIS edge (last 7 days), from central ClickHouse.
+    const eventsQuery = useQuery({
+        queryKey: ['shield-client-events', instance, project],
+        queryFn: () => shieldApi.getSecurityEvents(project, {
+            instance,
+            findings_only: true,
+            from: dayjs().subtract(7, 'day').toISOString(),
+            to: dayjs().toISOString(),
+            limit: 20,
+        }),
+        enabled: admin && !!instance && !!project,
         refetchOnWindowFocus: false,
         retry: false,
     });
@@ -236,6 +269,80 @@ const ClientShield: React.FC<ClientShieldProps> = ({ clientId }) => {
                             },
                         ]}
                     />
+                </Card>
+            </Col>
+
+            <Col span={24}>
+                <Card
+                    size="small"
+                    style={{ borderRadius: 12 }}
+                    title={
+                        <Space>
+                            <span>Recent Security Findings</span>
+                            <Tooltip title="What shield blocked/detected on this edge in the last 7 days (from the central audit store).">
+                                <Tag className="auto-width-tag" color="red">{eventsQuery.data?.data?.length ?? 0}</Tag>
+                            </Tooltip>
+                        </Space>
+                    }
+                    extra={
+                        <Space>
+                            <Link to="/shield?tab=events">View all →</Link>
+                            <Button
+                                size="small"
+                                icon={<ReloadOutlined />}
+                                loading={eventsQuery.isFetching}
+                                onClick={() => eventsQuery.refetch()}
+                            >
+                                Refresh
+                            </Button>
+                        </Space>
+                    }
+                >
+                    {eventsQuery.isError && (
+                        <Alert
+                            type="warning"
+                            showIcon
+                            message="Could not load security findings"
+                            description={(eventsQuery.error as Error)?.message}
+                            style={{ marginBottom: 12, borderRadius: 8 }}
+                        />
+                    )}
+                    {!instance ? (
+                        <Text type="secondary">No hostname for this client — cannot scope findings to this edge.</Text>
+                    ) : (
+                        <Table
+                            size="small"
+                            dataSource={eventsQuery.data?.data ?? []}
+                            rowKey={(r: ShieldSecurityEvent, i) => `${r.request_id}-${r.ts}-${r.engine}-${r.rule_id}-${i ?? 0}`}
+                            loading={eventsQuery.isFetching}
+                            pagination={false}
+                            locale={{ emptyText: `No findings for instance "${instance}" in the last 7 days (verify the edge's --instance-id if you expected some)` }}
+                            columns={[
+                                {
+                                    title: 'Time', dataIndex: 'ts', key: 'ts', width: 160,
+                                    render: (ts: string) => <Text style={{ fontSize: 12 }}>{dayjs(ts).format('YYYY-MM-DD HH:mm:ss')}</Text>,
+                                },
+                                {
+                                    title: 'Action', dataIndex: 'action', key: 'action', width: 80,
+                                    render: (a: string) => <Tag className="auto-width-tag" color={actionColor(a)}>{a}</Tag>,
+                                },
+                                {
+                                    title: 'Engine', dataIndex: 'engine', key: 'engine', width: 110,
+                                    render: (e: string) => <Tag className="auto-width-tag">{e || '-'}</Tag>,
+                                },
+                                {
+                                    title: 'Request', key: 'request',
+                                    render: (_: unknown, r: ShieldSecurityEvent) => (
+                                        <Text style={{ fontFamily: 'monospace', fontSize: 12 }}>{r.method} {r.host}{r.path}</Text>
+                                    ),
+                                },
+                                {
+                                    title: 'Reason', dataIndex: 'reason', key: 'reason', ellipsis: true,
+                                    render: (reason: string) => <Text type="secondary" style={{ fontSize: 12 }}>{reason || '—'}</Text>,
+                                },
+                            ]}
+                        />
+                    )}
                 </Card>
             </Col>
         </Row>
