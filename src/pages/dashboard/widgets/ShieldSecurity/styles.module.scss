@@ -1,0 +1,44 @@
+@use '../../styles/variables.scss' as *;
+
+// Full-width layout: stat tiles (2×2) on the left, the timeline chart fills the rest.
+.container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: stretch;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  flex: 0 0 260px;
+  align-content: center;
+}
+
+.chart {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+
+.stat {
+  text-align: center;
+  padding: 10px 8px;
+  background: $bg-light;
+  border-radius: $radius-sm;
+  border: 1px solid $border-gray;
+}
+
+.statLabel {
+  font-size: $font-size-caption;
+  color: $text-secondary;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statValue {
+  font-size: 22px;
+  font-weight: $font-weight-bold;
+}

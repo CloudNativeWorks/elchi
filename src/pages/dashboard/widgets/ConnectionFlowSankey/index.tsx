@@ -58,7 +58,7 @@ export const ConnectionFlowSankey: React.FC = () => {
         }
 
         const listenerName = listenerToUse.name;
-        const version = listenerToUse.version || 'v1.33.5';
+        const version = listenerToUse.version || 'v1.38.3';
 
         // Save listener info for expand button
         setListenerInfo({ name: listenerName, version });

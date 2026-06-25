@@ -8,6 +8,7 @@ import { WidgetId } from '../types/layout.types';
 import { ResourceStats } from '../types/dashboard.types';
 import TrafficOverview from '@/components/dashboard/TrafficOverview';
 import { WAFSecurity } from './WAFSecurity';
+import { ShieldSecurity } from './ShieldSecurity';
 import { ServiceHealth } from './ServiceHealth';
 import ClientResources from './ClientResources';
 import { GSLBStatistics } from './GSLBStatistics';
@@ -34,6 +35,8 @@ export const WidgetRenderer: React.FC<WidgetRendererProps> = ({
       return <TrafficOverview />;
     case 'waf-security':
       return <WAFSecurity />;
+    case 'shield-security':
+      return <ShieldSecurity />;
     case 'service-health':
       return <ServiceHealth />;
     case 'client-resources':

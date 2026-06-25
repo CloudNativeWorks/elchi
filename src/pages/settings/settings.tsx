@@ -92,7 +92,7 @@ const Settings: React.FC = () => {
                     General
                 </span>
             ),
-            children: <General />
+            children: <General active={activeTab === 'general'} />
         },
         ...(!window.APP_CONFIG?.ENABLE_DEMO ? [{
             key: 'users',

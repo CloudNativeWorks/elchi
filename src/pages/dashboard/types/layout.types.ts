@@ -6,6 +6,7 @@
 export type WidgetId =
   | 'traffic-overview'
   | 'waf-security'
+  | 'shield-security'
   | 'service-health'
   | 'client-resources'
   | 'gslb-statistics'

@@ -17,6 +17,23 @@ import { useDashboardRefresh } from '@/pages/dashboard/context/DashboardRefreshC
 
 const { Title, Text } = Typography;
 
+// Compact labeled stat used by the domain-detail drawer rows. Renders as a
+// small pill (tiny uppercase label + bold value) so several metrics line up
+// neatly on the right edge of each row.
+const MetricPill: React.FC<{ label: string; value: React.ReactNode; color: string; wide?: boolean }> = ({ label, value, color, wide }) => (
+    <div style={{
+        minWidth: wide ? 78 : 56,
+        textAlign: 'center',
+        padding: '4px 10px',
+        borderRadius: 8,
+        background: 'var(--bg-elevated)',
+        border: '1px solid var(--border-default)'
+    }}>
+        <div style={{ fontSize: 9, letterSpacing: 0.5, color: 'var(--text-tertiary)', fontWeight: 600 }}>{label}</div>
+        <div style={{ fontSize: 15, fontWeight: 700, color, lineHeight: 1.3 }}>{value}</div>
+    </div>
+);
+
 // Global value store to persist CountUp values across re-renders
 const countUpValues = new Map<string, number>();
 
@@ -1372,7 +1389,7 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                     </div>
                 ) : (
                     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                        {filteredModalData.length === 0 && searchText ? (
+                        {filteredModalData.length === 0 ? (
                             <div style={{
                                 textAlign: 'center',
                                 padding: 40,
@@ -1383,156 +1400,138 @@ const TrafficOverview: React.FC<TrafficOverviewProps> = () => {
                                 alignItems: 'center',
                                 justifyContent: 'center'
                             }}>
-                                <SearchOutlined style={{ fontSize: 32, marginBottom: 16 }} />
-                                <div style={{ fontSize: 16, marginBottom: 8 }}>No domains found</div>
-                                <div style={{ fontSize: 12 }}>
-                                    No domains match "{searchText}". Try adjusting your search.
-                                </div>
+                                {searchText ? (
+                                    <>
+                                        <SearchOutlined style={{ fontSize: 32, marginBottom: 16 }} />
+                                        <div style={{ fontSize: 16, marginBottom: 8 }}>No domains found</div>
+                                        <div style={{ fontSize: 12 }}>
+                                            No domains match "{searchText}". Try adjusting your search.
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <UnorderedListOutlined style={{ fontSize: 32, marginBottom: 16, opacity: 0.5 }} />
+                                        <div style={{ fontSize: 16, marginBottom: 8 }}>No data yet</div>
+                                        <div style={{ fontSize: 12 }}>
+                                            No metrics are available for this view right now.
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         ) : (
                             <div style={{
-                                display: 'grid',
+                                display: 'flex',
+                                flexDirection: 'column',
                                 gap: 8,
                                 flex: 1,
                                 overflowY: 'auto',
+                                alignContent: 'flex-start',
                                 paddingRight: 8
                             }}>
-                                {filteredModalData.map((item, index) => (
+                                {filteredModalData.map((item, index) => {
+                                    const accent = item.isCluster ? 'var(--color-sky-light)' : getStatusColor(item.status);
+                                    return (
                                     <div
                                         key={item.domain}
                                         style={{
                                             background: 'var(--card-bg)',
                                             border: '1px solid var(--border-default)',
-                                            borderRadius: 8,
-                                            padding: 12,
-                                            transition: 'all 0.2s ease',
-                                            boxShadow: '0 1px 3px var(--shadow-card-item)',
+                                            borderRadius: 10,
+                                            padding: '10px 14px',
+                                            transition: 'border-color 0.15s ease, background 0.15s ease',
                                             display: 'flex',
                                             alignItems: 'center',
-                                            justifyContent: 'space-between'
+                                            justifyContent: 'space-between',
+                                            gap: 12,
+                                            flexShrink: 0
                                         }}
                                         onMouseEnter={(e) => {
-                                            e.currentTarget.style.borderColor = getStatusColor(item.status);
-                                            e.currentTarget.style.transform = 'translateY(-1px)';
-                                            e.currentTarget.style.boxShadow = '0 4px 12px var(--shadow-card-item-hover)';
+                                            e.currentTarget.style.borderColor = accent;
+                                            e.currentTarget.style.background = 'var(--bg-hover)';
                                         }}
                                         onMouseLeave={(e) => {
                                             e.currentTarget.style.borderColor = 'var(--border-default)';
-                                            e.currentTarget.style.transform = 'translateY(0)';
-                                            e.currentTarget.style.boxShadow = '0 1px 3px var(--shadow-card-item)';
+                                            e.currentTarget.style.background = 'var(--card-bg)';
                                         }}
                                     >
-                                        {/* Left: Domain/Cluster name and status */}
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1 }}>
+                                        {/* Left: rank/icon + name + status */}
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: 1, minWidth: 0 }}>
                                             <div style={{
-                                                width: 20,
-                                                height: 20,
-                                                borderRadius: 4,
-                                                background: item.isCluster ? 'var(--color-sky-light)' : getStatusColor(item.status),
+                                                width: 22,
+                                                height: 22,
+                                                borderRadius: 6,
+                                                background: accent,
                                                 color: 'white',
-                                                fontSize: 10,
-                                                fontWeight: 600,
+                                                fontSize: 11,
+                                                fontWeight: 700,
                                                 display: 'flex',
                                                 alignItems: 'center',
-                                                justifyContent: 'center'
+                                                justifyContent: 'center',
+                                                flexShrink: 0
                                             }}>
                                                 {item.isCluster ? <CloudServerOutlined style={{ fontSize: 12 }} /> : index + 1}
                                             </div>
-                                            {item.isCluster && (
-                                                <Text style={{
-                                                    fontSize: 9,
-                                                    padding: '2px 6px',
-                                                    background: 'var(--color-sky-light)',
-                                                    color: 'white',
-                                                    borderRadius: 4,
-                                                    fontWeight: 600
-                                                }}>
-                                                    CLUSTER
-                                                </Text>
-                                            )}
                                             <Text
                                                 strong
+                                                ellipsis={{ tooltip: item.domain }}
                                                 style={{
                                                     fontSize: 13,
                                                     fontFamily: 'Monaco, Consolas, monospace',
-                                                    color: 'var(--text-primary)'
+                                                    color: 'var(--text-primary)',
+                                                    minWidth: 0
                                                 }}
                                             >
                                                 {item.domain}
                                             </Text>
-                                            <div style={{
-                                                width: 8,
-                                                height: 8,
+                                            {item.isCluster && (
+                                                <span style={{
+                                                    fontSize: 9,
+                                                    lineHeight: 1.4,
+                                                    padding: '1px 6px',
+                                                    background: 'var(--color-sky-light)',
+                                                    color: 'white',
+                                                    borderRadius: 4,
+                                                    fontWeight: 700,
+                                                    letterSpacing: 0.4,
+                                                    flexShrink: 0
+                                                }}>
+                                                    CLUSTER
+                                                </span>
+                                            )}
+                                            <span style={{
+                                                width: 7,
+                                                height: 7,
                                                 borderRadius: '50%',
-                                                background: item.isCluster ? 'var(--color-sky-light)' : getStatusColor(item.status),
-                                                boxShadow: `0 0 6px ${item.isCluster ? 'var(--color-sky-light)' : getStatusColor(item.status)}50`
+                                                background: accent,
+                                                boxShadow: `0 0 6px ${accent}80`,
+                                                flexShrink: 0
                                             }} />
                                         </div>
 
-                                        {/* Right: Metrics */}
-                                        <div style={{
-                                            display: 'flex',
-                                            gap: 24,
-                                            alignItems: 'center'
-                                        }}>
+                                        {/* Right: metric pills */}
+                                        <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}>
                                             {modalTitle.includes('Request') && (
                                                 <>
-                                                    <div style={{ minWidth: 60, textAlign: 'center' }}>
-                                                        <Text style={{ fontSize: 10, color: 'var(--text-secondary)', display: 'block' }}>REQ/S</Text>
-                                                        <Text strong style={{ color: 'var(--color-primary)', fontSize: 14 }}>
-                                                            {formatNumber(item.requests)}
-                                                        </Text>
-                                                    </div>
-                                                    <div style={{ minWidth: 50, textAlign: 'center' }}>
-                                                        <Text style={{ fontSize: 10, color: 'var(--text-secondary)', display: 'block' }}>4XX</Text>
-                                                        <Text strong style={{ color: 'var(--color-warning)', fontSize: 14 }}>
-                                                            {formatNumber(item.errors4xx)}
-                                                        </Text>
-                                                    </div>
-                                                    <div style={{ minWidth: 50, textAlign: 'center' }}>
-                                                        <Text style={{ fontSize: 10, color: 'var(--text-secondary)', display: 'block' }}>5XX</Text>
-                                                        <Text strong style={{ color: 'var(--color-danger)', fontSize: 14 }}>
-                                                            {formatNumber(item.errors5xx)}
-                                                        </Text>
-                                                    </div>
+                                                    <MetricPill label="REQ/S" value={formatNumber(item.requests)} color="var(--color-primary)" />
+                                                    <MetricPill label="4XX" value={formatNumber(item.errors4xx)} color="var(--color-warning)" />
+                                                    <MetricPill label="5XX" value={formatNumber(item.errors5xx)} color="var(--color-danger)" />
                                                 </>
                                             )}
                                             {modalTitle.includes('Connection') && (
-                                                item.isCluster ? (
-                                                    <div style={{ minWidth: 70, textAlign: 'center' }}>
-                                                        <Text style={{ fontSize: 10, color: 'var(--text-secondary)', display: 'block' }}>UPSTREAM</Text>
-                                                        <Text strong style={{ color: 'var(--color-sky-light)', fontSize: 14 }}>
-                                                            {formatNumber(item.upstreamConnections)}
-                                                        </Text>
-                                                    </div>
-                                                ) : (
-                                                    <div style={{ minWidth: 70, textAlign: 'center' }}>
-                                                        <Text style={{ fontSize: 10, color: 'var(--text-secondary)', display: 'block' }}>DOWNSTREAM</Text>
-                                                        <Text strong style={{ color: 'var(--color-primary-dark)', fontSize: 14 }}>
-                                                            {formatNumber(item.connections)}
-                                                        </Text>
-                                                    </div>
-                                                )
+                                                item.isCluster
+                                                    ? <MetricPill label="UPSTREAM" value={formatNumber(item.upstreamConnections)} color="var(--color-sky-light)" wide />
+                                                    : <MetricPill label="DOWNSTREAM" value={formatNumber(item.connections)} color="var(--color-primary-dark)" wide />
                                             )}
                                             {modalTitle.includes('Traffic') && (
                                                 <>
-                                                    <div style={{ minWidth: 80, textAlign: 'center' }}>
-                                                        <Text style={{ fontSize: 10, color: 'var(--text-secondary)', display: 'block' }}>IN/S</Text>
-                                                        <Text strong style={{ color: 'var(--color-teal)', fontSize: 12 }}>
-                                                            {formatBytes(item.incomingBytes)}
-                                                        </Text>
-                                                    </div>
-                                                    <div style={{ minWidth: 80, textAlign: 'center' }}>
-                                                        <Text style={{ fontSize: 10, color: 'var(--text-secondary)', display: 'block' }}>OUT/S</Text>
-                                                        <Text strong style={{ color: 'var(--color-sky)', fontSize: 12 }}>
-                                                            {formatBytes(item.outgoingBytes)}
-                                                        </Text>
-                                                    </div>
+                                                    <MetricPill label="IN/S" value={formatBytes(item.incomingBytes)} color="var(--color-teal)" wide />
+                                                    <MetricPill label="OUT/S" value={formatBytes(item.outgoingBytes)} color="var(--color-sky)" wide />
                                                 </>
                                             )}
                                         </div>
                                     </div>
-                                ))}
+                                    );
+                                })}
                             </div>
                         )}
                     </div>

@@ -4,6 +4,7 @@ import { CloudServerOutlined, SunOutlined, MoonOutlined, DesktopOutlined, BgColo
 import { getVersionAntdColor } from '@/utils/versionColors';
 import { useTheme, ThemeMode } from '@/contexts/ThemeContext';
 import { useLicenseStatus } from '@/hooks/useLicense';
+import StorageStatsCard from './components/StorageStatsCard';
 
 const { Text } = Typography;
 
@@ -65,7 +66,7 @@ const CARD_STYLE: React.CSSProperties = {
     height: '100%',
 };
 
-const General: React.FC = () => {
+const General: React.FC<{ active?: boolean }> = ({ active = true }) => {
     const { mode, setMode, isDark } = useTheme();
     const { license } = useLicenseStatus();
 
@@ -241,6 +242,11 @@ const General: React.FC = () => {
                             </div>
                         </div>
                     </Card>
+                </Col>
+
+                {/* Storage (live ClickHouse + MongoDB usage) — owner/admin only */}
+                <Col xs={24}>
+                    <StorageStatsCard active={active} />
                 </Col>
             </Row>
         </div>

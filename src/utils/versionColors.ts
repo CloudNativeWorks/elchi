@@ -44,7 +44,7 @@ function simpleHash(str: string): number {
 
 /**
  * Get consistent color for a version string
- * @param version - Version string (e.g., "1.33.5")
+ * @param version - Version string (e.g., "1.38.3")
  * @returns Hex color string
  */
 export function getVersionColor(version: string): string {

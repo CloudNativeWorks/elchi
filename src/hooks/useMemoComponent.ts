@@ -60,7 +60,8 @@ export function compareReduxStoreAndNameAndConfigDiscovery(prevProps: any, nextP
         && _.isEqual(prevProps.managed, nextProps.managed)
         && _.isEqual(prevProps.validate, nextProps.validate)
         && _.isEqual(prevProps.waf, nextProps.waf)
-        && _.isEqual(prevProps.api_discovery, nextProps.api_discovery);
+        && _.isEqual(prevProps.api_discovery, nextProps.api_discovery)
+        && _.isEqual(prevProps.api_security, nextProps.api_security);
 }
 
 export function compareResourceConfKeys(prevProps: any, nextProps: any) {

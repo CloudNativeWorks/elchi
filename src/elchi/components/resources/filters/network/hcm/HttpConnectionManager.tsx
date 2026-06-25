@@ -78,6 +78,14 @@ const ComponentHttpConnectionManager: React.FC<GeneralProps> = ({ veri }) => {
         setApiDiscovery(!!veri.queryResource?.general?.api_discovery);
     }, [veri.queryResource?.general?.api_discovery]);
 
+    // api_security (the ext_proc/shield toggle) lives on `general` like api_discovery.
+    const [apiSecurity, setApiSecurity] = useState<boolean>(
+        !!veri.queryResource?.general?.api_security,
+    );
+    useEffect(() => {
+        setApiSecurity(!!veri.queryResource?.general?.api_security);
+    }, [veri.queryResource?.general?.api_security]);
+
     const handleChangeRedux = (keys: string, val?: string | boolean | number) => {
         handleChangeResources({ version: veri.version, type: ActionType.Delete, keys, val, resourceType: ResourceType.Resource }, dispatch, ResourceAction);
     };
@@ -124,6 +132,8 @@ const ComponentHttpConnectionManager: React.FC<GeneralProps> = ({ veri }) => {
                     }}
                     apiDiscovery={apiDiscovery}
                     changeApiDiscovery={setApiDiscovery}
+                    apiSecurity={apiSecurity}
+                    changeApiSecurity={setApiSecurity}
                 />
                 <Divider type="horizontal" orientation="left" orientationMargin="0">HCM Configuration</Divider>
                 <Row>

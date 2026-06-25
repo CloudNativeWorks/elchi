@@ -21,6 +21,7 @@ import {
     DeleteOutlined,
     ExclamationCircleOutlined,
     SafetyOutlined,
+    SafetyCertificateOutlined,
     SyncOutlined,
     RadarChartOutlined,
 } from '@ant-design/icons';
@@ -33,6 +34,7 @@ import { ShieldPolicy } from './types';
 import { useShieldMutations } from './hooks/useShieldMutations';
 import { isShieldAdmin } from './utils';
 import ShieldEvents from './ShieldEvents';
+import ShieldOverview from './ShieldOverview';
 
 const { Title, Text } = Typography;
 const { confirm } = Modal;
@@ -47,7 +49,8 @@ const ShieldList: React.FC = () => {
     // tab is URL-driven so /shield?tab=events deep-links straight to the feed
     // (e.g. the "View all" link on a client's Shield panel).
     const [searchParams, setSearchParams] = useSearchParams();
-    const activeTab = admin && searchParams.get('tab') === 'events' ? 'events' : 'policies';
+    const reqTab = searchParams.get('tab');
+    const activeTab = admin && (reqTab === 'events' || reqTab === 'overview') ? reqTab : 'policies';
 
     // Fetch shield policies (list responses omit file contents)
     const { data: policies, isLoading } = useQuery({
@@ -284,12 +287,18 @@ const ShieldList: React.FC = () => {
     return (
         <Tabs
             activeKey={activeTab}
-            onChange={(key) => setSearchParams(key === 'events' ? { tab: 'events' } : {})}
+            onChange={(key) => setSearchParams(key === 'policies' ? {} : { tab: key })}
             items={[
                 {
                     key: 'policies',
                     label: <span><SafetyOutlined /> Policies</span>,
                     children: policiesContent,
+                },
+                {
+                    key: 'overview',
+                    label: <span><SafetyCertificateOutlined /> Overview</span>,
+                    // active gates the 30s metrics poll (antd keeps panes mounted).
+                    children: <ShieldOverview active={activeTab === 'overview'} />,
                 },
                 {
                     key: 'events',

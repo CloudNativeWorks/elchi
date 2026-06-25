@@ -48,6 +48,7 @@ export interface CustomMutationOptions {
     elchi_discovery?: any[];
     waf?: string; // WAF config name for Wasm filter
     api_discovery?: boolean; // HCM: enable elchi-collector ALS injection for API inventory
+    api_security?: boolean; // HCM: enable elchi-shield ext_proc WAF injection
     showAutoSuccess?: boolean; // Default: true - Whether to show the automatic success notification
     suppressSuccess?: boolean; // Completely suppress the success notification (same as showAutoSuccess: false)
     customSuccessMessage?: string; // Custom success message
@@ -77,6 +78,7 @@ export interface General {
     elchi_discovery?: any[];
     waf?: string; // WAF config name for Wasm filter
     api_discovery?: boolean; // HCM: enable elchi-collector ALS injection for API inventory
+    api_security?: boolean; // HCM: enable elchi-shield ext_proc WAF injection
 }
 
 export interface ConfigDiscovery {

@@ -99,7 +99,7 @@ export const useAvailableResources = (resourceTypeKey: string, searchQuery = '',
           return data.map((resource: any) => ({
             name: resource.name || resource.general?.name,
             project: resource.project || resource.general?.project || project,
-            version: resource.version || resource.general?.version || '1.33.5',
+            version: resource.version || resource.general?.version || '1.38.3',
             gtype: resource.gtype || resource.general?.gtype,
             created_at: resource.created_at || resource.general?.created_at || new Date().toISOString()
           }));
@@ -125,7 +125,7 @@ export const useAvailableResources = (resourceTypeKey: string, searchQuery = '',
           return data.map((resource: any) => ({
             name: resource.name || resource.general?.name,
             project: resource.project || resource.general?.project || project,
-            version: resource.version || resource.general?.version || '1.33.5',
+            version: resource.version || resource.general?.version || '1.38.3',
             gtype: resource.gtype || resource.general?.gtype,
             created_at: resource.created_at || resource.general?.created_at || new Date().toISOString()
           }));
@@ -161,7 +161,7 @@ export const useAnalyzeLogsMutation = () => {
       resource_name: request.service_name,
       collection: "listeners", // Default to listeners for service log analysis
       project: request.project,
-      version: "v1.33.5", // Default version
+      version: "v1.38.3", // Default version
       question: request.question || `Analyze the logs for service ${request.service_name} from client ${request.client_name}. Look for errors, warnings, and connection issues. Provide recommendations for troubleshooting.`,
       logs: logsString,
       include_dependencies: true,

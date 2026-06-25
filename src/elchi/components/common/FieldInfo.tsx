@@ -1,5 +1,6 @@
-import React from 'react';
-import { Typography } from 'antd';
+import React, { useMemo, useState } from 'react';
+import { Typography, Input } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
@@ -180,42 +181,150 @@ function formatFieldName(name: string): string {
 }
 
 const FieldInfo: React.FC<StringMatcherProps> = ({ data }) => {
+    const [query, setQuery] = useState('');
+
+    // Only fields that actually have documentation to show.
+    const visibleFields = useMemo(
+        () => (data || []).filter(
+            (f) => f.comment && !f.comment.includes('[#not-implemented-hide:]')
+        ),
+        [data]
+    );
+
+    const filteredFields = useMemo(() => {
+        const q = query.trim().toLowerCase();
+        if (!q) return visibleFields;
+        return visibleFields.filter((f) => {
+            return (
+                formatFieldName(f.name).toLowerCase().includes(q) ||
+                (f.name || '').toLowerCase().includes(q) ||
+                (f.fieldType || '').toLowerCase().includes(q) ||
+                (f.comment || '').toLowerCase().includes(q)
+            );
+        });
+    }, [visibleFields, query]);
+
     return (
         <div>
-            {data.map((field) => {
-                if (!field.comment) return null;
+            {/* Tighten ReactMarkdown's default block spacing so descriptions
+                stay compact inside each card. */}
+            <style>{`
+                .field-info-md p { margin: 0 0 6px; line-height: 1.55; }
+                .field-info-md p:last-child { margin-bottom: 0; }
+                .field-info-md ul, .field-info-md ol { margin: 4px 0 6px; padding-left: 18px; }
+                .field-info-md li { margin: 2px 0; }
+            `}</style>
 
-                const formattedComment = field.comment.replace(/\n/g, '  \n');
-                if (field.comment.includes('[#not-implemented-hide:]')) {
-                    return null;
-                }
+            {/* Sticky search header — essential when a message has dozens of fields. */}
+            <div style={{
+                position: 'sticky',
+                top: 0,
+                zIndex: 2,
+                background: 'var(--bg-surface)',
+                paddingBottom: 12,
+                marginBottom: 4,
+            }}>
+                <Input
+                    allowClear
+                    size="middle"
+                    placeholder="Search fields by name, type or description..."
+                    prefix={<SearchOutlined style={{ color: 'var(--text-tertiary)' }} />}
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                />
+                <Text style={{ display: 'block', marginTop: 6, fontSize: 12, color: 'var(--text-tertiary)' }}>
+                    {filteredFields.length} / {visibleFields.length} fields
+                </Text>
+            </div>
 
-                return (
-                    <div key={field.name} style={{ marginBottom: '0px' }}>
-                        <div style={{ backgroundColor: 'var(--bg-surface)', padding: '8px', borderRadius: '4px' }}>
-                            <Text strong style={{ color: 'var(--text-primary)' }}>
-                                {formatFieldName(field.name)}: ({field.fieldType})
-                            </Text>
-                            {field.isDeprecated && (
-                                <Text type="danger" style={{ marginLeft: '8px' }}>
-                                    Deprecated
-                                </Text>
-                            )}
-                        </div>
-                        <div style={{ marginTop: '1px', paddingBottom: '10px', display: 'block', textAlign: 'left', minHeight: '50px', justifyContent: 'center' }}>
-                            <div style={{ borderLeft: '2px solid var(--border-default)', paddingLeft: '10px', width: '100%', backgroundColor: 'var(--card-bg)' }}>
-                                <ReactMarkdown
-                                    remarkPlugins={[remarkDirective, customNotesPlugin, remarkGfm]}
-                                    rehypePlugins={[rehypeRaw, rehypeLinkifyCode]}
-                                    components={components}
-                                >
-                                    {formattedComment}
-                                </ReactMarkdown>
-                            </div>
-                        </div>
+            {filteredFields.length === 0 ? (
+                <div style={{
+                    textAlign: 'center',
+                    padding: '48px 16px',
+                    color: 'var(--text-secondary)',
+                }}>
+                    <SearchOutlined style={{ fontSize: 28, marginBottom: 12, opacity: 0.5 }} />
+                    <div style={{ fontSize: 15, marginBottom: 4 }}>No fields found</div>
+                    <div style={{ fontSize: 12 }}>
+                        {query ? `Nothing matches "${query}".` : 'No documented fields available.'}
                     </div>
-                );
-            })}
+                </div>
+            ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    {filteredFields.map((field, idx) => {
+                        const formattedComment = field.comment.replace(/\n/g, '  \n');
+                        return (
+                            <div
+                                key={`${field.name}-${idx}`}
+                                style={{
+                                    border: '1px solid var(--border-default)',
+                                    borderRadius: 10,
+                                    overflow: 'hidden',
+                                    background: 'var(--card-bg)',
+                                }}
+                            >
+                                {/* Header: field name + type pill + deprecated flag */}
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 8,
+                                    flexWrap: 'wrap',
+                                    padding: '9px 14px',
+                                    background: 'var(--bg-surface)',
+                                    borderBottom: '1px solid var(--border-default)',
+                                }}>
+                                    <Text strong style={{ fontSize: 14, color: 'var(--text-primary)' }}>
+                                        {formatFieldName(field.name)}
+                                    </Text>
+                                    {field.fieldType && (
+                                        <span style={{
+                                            fontFamily: 'Monaco, Consolas, monospace',
+                                            fontSize: 11,
+                                            fontWeight: 600,
+                                            padding: '2px 8px',
+                                            borderRadius: 6,
+                                            background: 'var(--color-primary-bg)',
+                                            border: '1px solid var(--color-primary-border)',
+                                            color: 'var(--color-primary)',
+                                        }}>
+                                            {field.fieldType}
+                                        </span>
+                                    )}
+                                    {field.isDeprecated && (
+                                        <span style={{
+                                            fontSize: 10,
+                                            fontWeight: 700,
+                                            letterSpacing: 0.4,
+                                            padding: '2px 8px',
+                                            borderRadius: 6,
+                                            background: 'var(--color-danger-bg, rgba(245,34,45,0.12))',
+                                            color: 'var(--color-danger)',
+                                            textTransform: 'uppercase',
+                                        }}>
+                                            Deprecated
+                                        </span>
+                                    )}
+                                </div>
+
+                                {/* Body: markdown description */}
+                                <div className="field-info-md" style={{
+                                    padding: '10px 14px',
+                                    color: 'var(--text-secondary)',
+                                    fontSize: 13,
+                                }}>
+                                    <ReactMarkdown
+                                        remarkPlugins={[remarkDirective, customNotesPlugin, remarkGfm]}
+                                        rehypePlugins={[rehypeRaw, rehypeLinkifyCode]}
+                                        components={components}
+                                    >
+                                        {formattedComment}
+                                    </ReactMarkdown>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            )}
         </div>
     );
 };

@@ -8,6 +8,7 @@ import { Drawer, Switch, Button, Segmented } from 'antd';
 import {
   DashboardOutlined,
   SafetyOutlined,
+  SafetyCertificateOutlined,
   CloudServerOutlined,
   TeamOutlined,
   GlobalOutlined,
@@ -27,6 +28,7 @@ import styles from '../styles/widgets.module.scss';
 const ICON_MAP: Record<string, React.ReactNode> = {
   DashboardOutlined: <DashboardOutlined />,
   SafetyOutlined: <SafetyOutlined />,
+  SafetyCertificateOutlined: <SafetyCertificateOutlined />,
   CloudServerOutlined: <CloudServerOutlined />,
   TeamOutlined: <TeamOutlined />,
   GlobalOutlined: <GlobalOutlined />,

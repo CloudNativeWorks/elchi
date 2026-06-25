@@ -26,6 +26,18 @@ export const WIDGET_REGISTRY: Record<WidgetId, WidgetMeta> = {
     maxSpan: 24,
     defaultOrder: 1,
   },
+  'shield-security': {
+    id: 'shield-security',
+    title: 'Shield Security',
+    icon: 'SafetyCertificateOutlined',
+    description: 'elchi-shield blocked vs detected requests',
+    defaultSpan: 24,
+    minSpan: 12,
+    maxSpan: 24,
+    // After waf-security (1) AND its row-mate service-health (2) so it lands on its
+    // own full-width row below that pair, not between them.
+    defaultOrder: 3,
+  },
   'service-health': {
     id: 'service-health',
     title: 'Service Health',

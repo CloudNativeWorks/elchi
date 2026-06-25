@@ -57,26 +57,28 @@ function validateAndMigrate(
     });
   }
 
-  // Add any new widgets not in stored preferences
+  // Add any new widgets not in stored preferences at their registry default
+  // position (shifting later widgets down) rather than blindly at the bottom, so a
+  // newly-shipped widget lands where it was designed to sit. Process ascending so
+  // multiple new widgets keep their relative order.
   const storedIds = new Set(validWidgets.map((w) => w.id));
-  const maxOrder = validWidgets.reduce(
-    (max, w) => Math.max(max, w.order),
-    -1
-  );
+  const newIds = (Object.keys(WIDGET_REGISTRY) as WidgetId[])
+    .filter((id) => !storedIds.has(id))
+    .sort((a, b) => WIDGET_REGISTRY[a].defaultOrder - WIDGET_REGISTRY[b].defaultOrder);
 
-  let nextOrder = maxOrder + 1;
-  for (const id of Object.keys(WIDGET_REGISTRY) as WidgetId[]) {
-    if (!storedIds.has(id)) {
-      const meta = WIDGET_REGISTRY[id];
-      validWidgets.push({
-        id,
-        visible: true,
-        span: meta.defaultSpan,
-        order: nextOrder++,
-        minSpan: meta.minSpan,
-        maxSpan: meta.maxSpan,
-      });
+  for (const id of newIds) {
+    const meta = WIDGET_REGISTRY[id];
+    for (const w of validWidgets) {
+      if (w.order >= meta.defaultOrder) w.order += 1;
     }
+    validWidgets.push({
+      id,
+      visible: true,
+      span: meta.defaultSpan,
+      order: meta.defaultOrder,
+      minSpan: meta.minSpan,
+      maxSpan: meta.maxSpan,
+    });
   }
 
   return {

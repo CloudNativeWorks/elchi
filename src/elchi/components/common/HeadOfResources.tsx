@@ -34,6 +34,9 @@ interface RenderFormItemProps {
     // Optional API Discovery toggle - for HCM only
     apiDiscovery?: boolean;
     changeApiDiscovery?: (enabled: boolean) => void;
+    // Optional API Security (ext_proc/shield) toggle - for HCM only
+    apiSecurity?: boolean;
+    changeApiSecurity?: (enabled: boolean) => void;
 }
 
 type createUpdate = {
@@ -50,7 +53,7 @@ type createUpdate = {
     rawQuery?: any;
 }
 
-export const HeadOfResource = ({ generalName, version, changeGeneralName, locationCheck, createUpdate, managed, changeGeneralManaged, callBack, validate, changeGeneralValidate, wafConfig, changeWafConfig, wafConfigs, apiDiscovery, changeApiDiscovery }: RenderFormItemProps) => {
+export const HeadOfResource = ({ generalName, version, changeGeneralName, locationCheck, createUpdate, managed, changeGeneralManaged, callBack, validate, changeGeneralValidate, wafConfig, changeWafConfig, wafConfigs, apiDiscovery, changeApiDiscovery, apiSecurity, changeApiSecurity }: RenderFormItemProps) => {
     const dispatch = useDispatch();
     const [showHowTo, setShowHowTo] = useState(false);
     const [showDiscovery, setShowDiscovery] = useState(false);
@@ -67,7 +70,7 @@ export const HeadOfResource = ({ generalName, version, changeGeneralName, locati
 
 
     // These parameters are used conditionally in JSX
-    void managed; void changeGeneralManaged; void callBack; void validate; void changeGeneralValidate; void wafConfig; void changeWafConfig; void wafConfigs; void apiDiscovery; void changeApiDiscovery;
+    void managed; void changeGeneralManaged; void callBack; void validate; void changeGeneralValidate; void wafConfig; void changeWafConfig; void wafConfigs; void apiDiscovery; void changeApiDiscovery; void apiSecurity; void changeApiSecurity;
 
     const isEndpointType = createUpdate.gtype === "envoy.config.endpoint.v3.ClusterLoadAssignment";
     const isWasmType = createUpdate.gtype === "envoy.extensions.filters.http.wasm.v3.Wasm";
@@ -324,6 +327,40 @@ export const HeadOfResource = ({ generalName, version, changeGeneralName, locati
                                 </div>
                             </Col>
                         )}
+                        {isHcmType && changeApiSecurity && (
+                            <Col span={4}>
+                                <div>
+                                    <Space style={{ marginBottom: 6 }}>
+                                        <Text style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)' }}>
+                                            API Security
+                                        </Text>
+                                        <Tooltip title="When enabled, this listener is routed through the local elchi-shield WAF (ext_proc) for API-security inspection (block/detect per policy).">
+                                            <InfoCircleOutlined style={{ color: 'var(--text-tertiary)', fontSize: 12 }} />
+                                        </Tooltip>
+                                    </Space>
+                                    <div style={{
+                                        background: apiSecurity ? 'var(--color-primary-light)' : 'var(--bg-active)',
+                                        border: `1px solid ${apiSecurity ? 'var(--color-primary-border)' : 'var(--border-default)'}`,
+                                        borderRadius: 6,
+                                        padding: '4px 12px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        height: 32,
+                                        fontSize: 14
+                                    }}>
+                                        <Text style={{ fontSize: 13, color: apiSecurity ? 'var(--color-primary)' : 'var(--text-secondary)' }}>
+                                            {apiSecurity ? 'Enabled' : 'Disabled'}
+                                        </Text>
+                                        <Switch
+                                            size="small"
+                                            checked={!!apiSecurity}
+                                            onChange={(val) => changeApiSecurity(val)}
+                                        />
+                                    </div>
+                                </div>
+                            </Col>
+                        )}
                         <Col span={4}>
                             <div>
                                 <Text style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-secondary)', display: 'block', marginBottom: 6 }}>
@@ -370,6 +407,7 @@ export const HeadOfResource = ({ generalName, version, changeGeneralName, locati
                             validate={validateEnabled}
                             waf={wafConfig}
                             api_discovery={apiDiscovery}
+                            api_security={apiSecurity}
                         />
                     </div>
                 </Col>
