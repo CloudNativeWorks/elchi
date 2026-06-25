@@ -13,6 +13,7 @@ import {
     ShieldEventsParams,
     ShieldEventsPage,
     ShieldEventsSummary,
+    ShieldEventsFacets,
 } from './types';
 
 const SHIELD_BASE_PATH = '/api/v3/shield';
@@ -142,6 +143,14 @@ class ShieldApiClient {
             `${SHIELD_BASE_PATH}/events/summary?${buildEventsQuery(project, params)}`, SKIP_GLOBAL_ERROR
         );
         return response.data?.data ?? { total: 0, groups: [], series: [] };
+    }
+
+    /** Distinct filter values in the window (for filter dropdowns). */
+    async getSecurityEventsFacets(project: string, params: ShieldEventsParams = {}): Promise<ShieldEventsFacets> {
+        const response = await api.get<{ data: ShieldEventsFacets }>(
+            `${SHIELD_BASE_PATH}/events/facets?${buildEventsQuery(project, params)}`, SKIP_GLOBAL_ERROR
+        );
+        return response.data?.data ?? { engines: [], actions: [], severities: [], hosts: [], nodes: [] };
     }
 }
 

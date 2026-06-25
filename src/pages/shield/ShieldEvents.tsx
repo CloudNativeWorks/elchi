@@ -10,7 +10,7 @@ import {
     Alert, Badge, Button, Card, Col, DatePicker, Input, Row, Select, Space, Switch, Table, Tag, Tooltip, Typography,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { ReloadOutlined, ClearOutlined, SafetyOutlined } from '@ant-design/icons';
+import { ReloadOutlined, ClearOutlined, SafetyOutlined, DownloadOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
 import dayjs, { Dayjs } from 'dayjs';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
@@ -48,14 +48,23 @@ const ACTION_HEX: Record<string, string> = {
     block: '#cf1322', detect: '#d46b08', shadow: '#1d39c4', allow: '#389e0d',
 };
 
+// Fallback engine list when the facets endpoint has no data yet (empty window).
+const DEFAULT_ENGINES = ['coraza', 'jwt', 'jwks', 'bot', 'ratelimit', 'ipreputation',
+    'apikey', 'hmacsign', 'httpsig', 'xfcc', 'graphql', 'openapi', 'dlp', 'anomaly',
+    'body_size', 'body_decode'];
+
 interface Filters {
     range: [Dayjs, Dayjs];
     engine?: string;
     action?: string;
     severity?: string;
+    node?: string; // node_id (edge) filter
     findingsOnly: boolean;
     search: string; // matched against host/path/request_id client-side
 }
+
+// CSV-escape a value (quote + double inner quotes) for the export.
+const csvCell = (v: unknown): string => `"${String(v ?? '').replace(/"/g, '""')}"`;
 
 const defaultFilters = (): Filters => ({
     range: [dayjs().subtract(24, 'hour'), dayjs()],
@@ -72,20 +81,36 @@ const ShieldEvents: React.FC = () => {
     const [draft, setDraft] = useState<Filters>(defaultFilters);
     const [filters, setFilters] = useState<Filters>(defaultFilters);
     const [page, setPage] = useState(1);
+    const [autoRefresh, setAutoRefresh] = useState(false);
 
     // Server-side filter params shared by the feed + summary queries.
     const serverParams: ShieldEventsParams = useMemo(() => ({
         engine: filters.engine,
         action: filters.action,
         severity: filters.severity,
+        node_id: filters.node,
         findings_only: filters.findingsOnly,
         from: filters.range[0].toISOString(),
         to: filters.range[1].toISOString(),
     }), [filters]);
 
+    const refetchInterval = autoRefresh ? 15000 : false;
+
     const summaryQuery = useQuery({
         queryKey: ['shield-events-summary', project, serverParams],
         queryFn: () => shieldApi.getSecurityEventsSummary(project, serverParams),
+        enabled: admin && !!project,
+        refetchOnWindowFocus: false,
+        retry: false,
+        refetchInterval,
+    });
+
+    // Distinct filter values (engines/nodes) so the dropdowns reflect real data.
+    const facetsQuery = useQuery({
+        queryKey: ['shield-events-facets', project, serverParams.from, serverParams.to],
+        queryFn: () => shieldApi.getSecurityEventsFacets(project, {
+            from: serverParams.from, to: serverParams.to,
+        }),
         enabled: admin && !!project,
         refetchOnWindowFocus: false,
         retry: false,
@@ -105,6 +130,7 @@ const ShieldEvents: React.FC = () => {
         refetchOnWindowFocus: false,
         retry: false,
         placeholderData: (prev) => prev,
+        refetchInterval,
     });
 
     const applyFilters = () => { setFilters(draft); setPage(1); };
@@ -153,6 +179,46 @@ const ShieldEvents: React.FC = () => {
     // page, so reflect the filtered count (and collapse paging) instead of
     // advertising the full server total against a handful of visible rows.
     const displayTotal = searching ? filteredEvents.length : serverTotal;
+
+    // Filter dropdown options from real data (fallback to the built-in engine list).
+    const facets = facetsQuery.data;
+    const engineOptions = (facets?.engines?.length ? [...facets.engines].sort() : DEFAULT_ENGINES)
+        .map(e => ({ label: e, value: e }));
+    const nodeOptions = [...(facets?.nodes ?? [])].sort().map(n => ({ label: n, value: n }));
+
+    // Export the currently-shown rows to CSV (client-side; redacted fields only).
+    const exportCsv = () => {
+        const header = ['ts', 'action', 'severity', 'engine', 'rule_id', 'method', 'host',
+            'path', 'status_code', 'node_id', 'project_id', 'request_id', 'reason'];
+        const rows = filteredEvents.map(e => [
+            e.ts, e.action, e.severity, e.engine, e.rule_id, e.method, e.host, e.path,
+            e.status_code, e.node_id, e.project_id, e.request_id, e.reason,
+        ].map(csvCell).join(','));
+        const blob = new Blob([[header.join(','), ...rows].join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `shield-events-${dayjs().format('YYYYMMDD-HHmmss')}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
+    // Expanded-row detail: the full event (the columns the table omits).
+    const expandedRow = (r: ShieldSecurityEvent) => (
+        <Row gutter={[12, 6]} style={{ fontSize: 12, padding: '4px 8px' }}>
+            {[
+                ['Request ID', r.request_id], ['Policy', r.policy_id], ['Rule', r.rule_id],
+                ['Node ID', r.node_id], ['Listener', r.listener], ['Instance', r.instance],
+                ['Phase', r.phase], ['Direction', r.direction], ['Config version', r.config_version],
+            ].map(([k, v]) => (
+                <Col xs={12} md={8} key={k}>
+                    <Text type="secondary">{k}: </Text>
+                    <Text style={{ fontFamily: 'monospace' }} copyable={!!v}>{v || '—'}</Text>
+                </Col>
+            ))}
+            {r.reason && <Col span={24}><Text type="secondary">Reason: </Text><Text>{r.reason}</Text></Col>}
+        </Row>
+    );
 
     if (!admin) {
         return (
@@ -241,10 +307,10 @@ const ShieldEvents: React.FC = () => {
                         </Col>
                         <Col xs={12} md={4}>
                             <Select
-                                placeholder="Engine" allowClear style={{ width: '100%' }}
+                                placeholder="Engine" allowClear showSearch style={{ width: '100%' }}
                                 value={draft.engine}
                                 onChange={(v) => setDraft(d => ({ ...d, engine: v }))}
-                                options={['coraza', 'jwt', 'jwks', 'bot', 'ratelimit', 'ipreputation', 'apikey', 'hmacsign', 'httpsig', 'xfcc', 'graphql', 'openapi', 'dlp', 'anomaly', 'body_size', 'body_decode'].map(e => ({ label: e, value: e }))}
+                                options={engineOptions}
                             />
                         </Col>
                         <Col xs={12} md={4}>
@@ -269,7 +335,7 @@ const ShieldEvents: React.FC = () => {
                                 <Text style={{ fontSize: 12 }}>Findings only</Text>
                             </Space>
                         </Col>
-                        <Col xs={24} md={12}>
+                        <Col xs={24} md={8}>
                             <Input
                                 placeholder="Filter host / path / request id (current page)"
                                 value={draft.search}
@@ -277,10 +343,25 @@ const ShieldEvents: React.FC = () => {
                                 allowClear
                             />
                         </Col>
+                        <Col xs={12} md={4}>
+                            <Select
+                                placeholder="Edge (node)" allowClear showSearch style={{ width: '100%' }}
+                                value={draft.node}
+                                onChange={(v) => setDraft(d => ({ ...d, node: v }))}
+                                options={nodeOptions}
+                            />
+                        </Col>
                         <Col xs={24} md={12} style={{ textAlign: 'right' }}>
-                            <Space>
+                            <Space wrap>
+                                <Tooltip title="Auto-refresh every 15s">
+                                    <Space size={4}>
+                                        <Switch size="small" checked={autoRefresh} onChange={setAutoRefresh} />
+                                        <Text style={{ fontSize: 12 }}>Live</Text>
+                                    </Space>
+                                </Tooltip>
+                                <Button icon={<DownloadOutlined />} disabled={filteredEvents.length === 0} onClick={exportCsv}>CSV</Button>
                                 <Button icon={<ReloadOutlined />} loading={feedQuery.isFetching || summaryQuery.isFetching}
-                                    onClick={() => { summaryQuery.refetch(); feedQuery.refetch(); }}>
+                                    onClick={() => { summaryQuery.refetch(); feedQuery.refetch(); facetsQuery.refetch(); }}>
                                     Refresh
                                 </Button>
                                 <Button icon={<ClearOutlined />} onClick={clearFilters}>Clear</Button>
@@ -348,6 +429,7 @@ const ShieldEvents: React.FC = () => {
                         dataSource={filteredEvents}
                         columns={columns}
                         loading={feedQuery.isFetching}
+                        expandable={{ expandedRowRender: expandedRow }}
                         scroll={{ x: 1100 }}
                         pagination={{
                             current: page,

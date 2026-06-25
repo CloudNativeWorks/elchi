@@ -148,6 +148,15 @@ export interface ShieldEventsSummary {
     series: ShieldEventTimeBucket[];
 }
 
+/** Distinct filter values in the window — for building filter dropdowns. */
+export interface ShieldEventsFacets {
+    engines: string[];
+    actions: string[];
+    severities: string[];
+    hosts: string[];
+    nodes: string[];
+}
+
 /** UI-only form model: a discriminated source instead of the implicit XOR. */
 export interface ShieldFileForm {
     path: string;
