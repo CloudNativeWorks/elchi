@@ -294,7 +294,10 @@ const ShieldList: React.FC = () => {
                 {
                     key: 'events',
                     label: <span><RadarChartOutlined /> Security Events</span>,
-                    children: <ShieldEvents />,
+                    // active gates the Live auto-refresh: antd keeps inactive panes
+                    // mounted, so without this the 15s poll would keep hitting
+                    // ClickHouse while the user sits on the Policies tab.
+                    children: <ShieldEvents active={activeTab === 'events'} />,
                 },
             ]}
         />

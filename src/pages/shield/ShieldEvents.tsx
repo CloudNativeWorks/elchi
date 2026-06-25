@@ -63,8 +63,15 @@ interface Filters {
     search: string; // matched against host/path/request_id client-side
 }
 
-// CSV-escape a value (quote + double inner quotes) for the export.
-const csvCell = (v: unknown): string => `"${String(v ?? '').replace(/"/g, '""')}"`;
+// CSV-escape a value for export. Besides quoting, neutralise spreadsheet formula
+// injection: security-event fields (host/path/reason) are attacker-influenced, and
+// a cell starting with = + - @ (or tab/CR) is executed as a formula by Excel/Sheets.
+// Prefixing a single quote defuses it while keeping the value readable.
+const csvCell = (v: unknown): string => {
+    const s = String(v ?? '');
+    const safe = /^[=+\-@\t\r]/.test(s) ? `'${s}` : s;
+    return `"${safe.replace(/"/g, '""')}"`;
+};
 
 const defaultFilters = (): Filters => ({
     range: [dayjs().subtract(24, 'hour'), dayjs()],
@@ -74,7 +81,7 @@ const defaultFilters = (): Filters => ({
 
 const PAGE_SIZE = 50;
 
-const ShieldEvents: React.FC = () => {
+const ShieldEvents: React.FC<{ active?: boolean }> = ({ active = true }) => {
     const { project } = useProjectVariable();
     const admin = isShieldAdmin();
 
@@ -94,7 +101,9 @@ const ShieldEvents: React.FC = () => {
         to: filters.range[1].toISOString(),
     }), [filters]);
 
-    const refetchInterval = autoRefresh ? 15000 : false;
+    // Only poll while Live is on AND this tab is actually visible — antd keeps the
+    // pane mounted when hidden, so this stops background ClickHouse hits.
+    const refetchInterval = autoRefresh && active ? 15000 : false;
 
     const summaryQuery = useQuery({
         queryKey: ['shield-events-summary', project, serverParams],
@@ -359,7 +368,9 @@ const ShieldEvents: React.FC = () => {
                                         <Text style={{ fontSize: 12 }}>Live</Text>
                                     </Space>
                                 </Tooltip>
-                                <Button icon={<DownloadOutlined />} disabled={filteredEvents.length === 0} onClick={exportCsv}>CSV</Button>
+                                <Tooltip title="Export the current page (≤50 rows) to CSV">
+                                    <Button icon={<DownloadOutlined />} disabled={filteredEvents.length === 0} onClick={exportCsv}>CSV</Button>
+                                </Tooltip>
                                 <Button icon={<ReloadOutlined />} loading={feedQuery.isFetching || summaryQuery.isFetching}
                                     onClick={() => { summaryQuery.refetch(); feedQuery.refetch(); facetsQuery.refetch(); }}>
                                     Refresh
