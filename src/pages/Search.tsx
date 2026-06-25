@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, ReactNode } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Card, Input, List, Tag, Typography, Empty, Spin, Space, Button, ConfigProvider } from "antd";
-import { SearchOutlined, FileTextOutlined, DatabaseOutlined, GlobalOutlined, ClusterOutlined, ShareAltOutlined, CloudOutlined, AimOutlined, FilterOutlined, SafetyOutlined, FolderOpenOutlined, CloudServerOutlined, AppstoreOutlined } from "@ant-design/icons";
+import { SearchOutlined, FileTextOutlined, DatabaseOutlined, GlobalOutlined, ShareAltOutlined, CloudOutlined, AimOutlined, FilterOutlined, SafetyOutlined, FolderOpenOutlined, CloudServerOutlined, AppstoreOutlined } from "@ant-design/icons";
 import { useSearch, SearchResult } from "@/hooks/useSearch";
 
 const { Title, Text } = Typography;
@@ -92,6 +92,67 @@ const buildResourceUrl = (result: SearchResult): string => {
     return `${url}?${params.toString()}`;
 };
 
+// Compact, scannable filter pill used in place of the large summary cards.
+// Lets the user narrow results to a single collection without consuming a
+// full row of vertical space per collection.
+const CollectionPill = ({ active, label, count, icon, gradient, onClick }: {
+    active: boolean;
+    label: string;
+    count: number;
+    icon: ReactNode;
+    gradient?: { start: string; end: string };
+    onClick: () => void;
+}) => (
+    <div
+        onClick={onClick}
+        style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 8,
+            padding: "6px 12px",
+            borderRadius: 999,
+            cursor: "pointer",
+            userSelect: "none",
+            transition: "all 0.2s ease",
+            background: active
+                ? (gradient
+                    ? `linear-gradient(135deg, ${gradient.start} 0%, ${gradient.end} 100%)`
+                    : "var(--color-primary)")
+                : "var(--bg-elevated)",
+            border: `1px solid ${active ? "transparent" : "var(--border-default)"}`,
+            color: active ? "white" : "var(--text-primary)",
+            boxShadow: active ? "var(--shadow-sm)" : "none",
+        }}
+        onMouseEnter={(e) => {
+            if (!active) {
+                e.currentTarget.style.background = "var(--bg-hover)";
+                e.currentTarget.style.borderColor = "var(--color-primary)";
+            }
+        }}
+        onMouseLeave={(e) => {
+            if (!active) {
+                e.currentTarget.style.background = "var(--bg-elevated)";
+                e.currentTarget.style.borderColor = "var(--border-default)";
+            }
+        }}
+    >
+        <span style={{ fontSize: 14, display: "inline-flex" }}>{icon}</span>
+        <span style={{ fontWeight: 600, fontSize: 13 }}>{label}</span>
+        <span style={{
+            fontSize: 12,
+            fontWeight: 700,
+            minWidth: 20,
+            textAlign: "center",
+            padding: "0 6px",
+            borderRadius: 999,
+            background: active ? "rgba(255, 255, 255, 0.25)" : "var(--bg-surface)",
+            color: active ? "white" : "var(--text-secondary)",
+        }}>
+            {count}
+        </span>
+    </div>
+);
+
 function Search() {
     const [searchParams, setSearchParams] = useSearchParams();
     const navigate = useNavigate();
@@ -124,31 +185,31 @@ function Search() {
         const contextItems = [];
 
         if (match.context.virtual_host_name) {
-            contextItems.push(<Tag key="vh" color="blue" style={{ fontSize: 11 }}>VHost: {match.context.virtual_host_name}</Tag>);
+            contextItems.push(<Tag key="vh" color="blue" style={{ fontSize: 11, marginInlineEnd: 0 }}>VHost: {match.context.virtual_host_name}</Tag>);
         }
         if (match.context.route_name) {
-            contextItems.push(<Tag key="route" color="cyan" style={{ fontSize: 11 }}>Route: {match.context.route_name}</Tag>);
+            contextItems.push(<Tag key="route" color="cyan" style={{ fontSize: 11, marginInlineEnd: 0 }}>Route: {match.context.route_name}</Tag>);
         }
         if (match.context.filter_type) {
-            contextItems.push(<Tag key="filter" color="purple" style={{ fontSize: 11 }}>Filter: {match.context.filter_type}</Tag>);
+            contextItems.push(<Tag key="filter" color="purple" style={{ fontSize: 11, marginInlineEnd: 0 }}>Filter: {match.context.filter_type}</Tag>);
         }
         if (match.context.node_name) {
-            contextItems.push(<Tag key="node" color="green" style={{ fontSize: 11 }}>Node: {match.context.node_name}</Tag>);
+            contextItems.push(<Tag key="node" color="green" style={{ fontSize: 11, marginInlineEnd: 0 }}>Node: {match.context.node_name}</Tag>);
         }
         if (match.context.address_type) {
-            contextItems.push(<Tag key="addr" color="orange" style={{ fontSize: 11 }}>{match.context.address_type}</Tag>);
+            contextItems.push(<Tag key="addr" color="orange" style={{ fontSize: 11, marginInlineEnd: 0 }}>{match.context.address_type}</Tag>);
         }
         if (match.context.locality) {
-            contextItems.push(<Tag key="locality" color="geekblue" style={{ fontSize: 11 }}>Locality: {match.context.locality}</Tag>);
+            contextItems.push(<Tag key="locality" color="geekblue" style={{ fontSize: 11, marginInlineEnd: 0 }}>Locality: {match.context.locality}</Tag>);
         }
         if (match.context.port) {
-            contextItems.push(<Tag key="port" color="default" style={{ fontSize: 11 }}>Port: {match.context.port}</Tag>);
+            contextItems.push(<Tag key="port" color="default" style={{ fontSize: 11, marginInlineEnd: 0 }}>Port: {match.context.port}</Tag>);
         }
         if (match.context.inline_route) {
-            contextItems.push(<Tag key="inline" color="gold" style={{ fontSize: 11 }}>Inline Route</Tag>);
+            contextItems.push(<Tag key="inline" color="gold" style={{ fontSize: 11, marginInlineEnd: 0 }}>Inline Route</Tag>);
         }
         if (match.context.client_id) {
-            contextItems.push(<Tag key="client" color="volcano" style={{ fontSize: 11 }}>Client: {match.context.client_id.substring(0, 8)}...</Tag>);
+            contextItems.push(<Tag key="client" color="volcano" style={{ fontSize: 11, marginInlineEnd: 0 }}>Client: {match.context.client_id.substring(0, 8)}...</Tag>);
         }
 
         return contextItems;
@@ -268,104 +329,30 @@ function Search() {
                             )}
                         </div>
 
-                        {/* Collection Summary Cards */}
-                        {!isLoading && !isFetching && collectionSummary.length > 0 && (
-                            <div style={{
-                                display: 'grid',
-                                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                                gap: 12,
-                                marginBottom: 24
-                            }}>
+                        {/* Collection filter pills — only when results span more than
+                            one collection. With a single collection these would just
+                            repeat the result count, so we hide them to reduce noise. */}
+                        {!isLoading && !isFetching && collectionSummary.length > 1 && (
+                            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 20 }}>
+                                <CollectionPill
+                                    active={!selectedCollection}
+                                    label="All"
+                                    count={totalResults}
+                                    icon={<AppstoreOutlined />}
+                                    onClick={() => setSelectedCollection(null)}
+                                />
                                 {collectionSummary.map((summary) => (
-                                    <div
+                                    <CollectionPill
                                         key={summary.collection}
+                                        active={selectedCollection === summary.collection}
+                                        label={summary.name}
+                                        count={summary.count}
+                                        icon={summary.icon}
+                                        gradient={summary.gradient}
                                         onClick={() => setSelectedCollection(
                                             selectedCollection === summary.collection ? null : summary.collection
                                         )}
-                                        style={{
-                                            background: selectedCollection === summary.collection
-                                                ? `linear-gradient(135deg, ${summary.gradient.start} 0%, ${summary.gradient.end} 100%)`
-                                                : 'var(--bg-elevated)',
-                                            borderRadius: 12,
-                                            padding: '16px',
-                                            cursor: 'pointer',
-                                            transition: 'all 0.3s ease',
-                                            border: selectedCollection === summary.collection
-                                                ? `2px solid ${summary.gradient.end}`
-                                                : '2px solid transparent',
-                                            position: 'relative',
-                                            overflow: 'hidden'
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            if (selectedCollection !== summary.collection) {
-                                                e.currentTarget.style.background = 'var(--bg-hover)';
-                                                e.currentTarget.style.transform = 'translateY(-2px)';
-                                                e.currentTarget.style.boxShadow = 'var(--shadow-md)';
-                                            }
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            if (selectedCollection !== summary.collection) {
-                                                e.currentTarget.style.background = 'var(--bg-elevated)';
-                                                e.currentTarget.style.transform = 'translateY(0)';
-                                                e.currentTarget.style.boxShadow = 'none';
-                                            }
-                                        }}
-                                    >
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                                            <div style={{
-                                                width: 40,
-                                                height: 40,
-                                                borderRadius: 8,
-                                                background: selectedCollection === summary.collection
-                                                    ? 'var(--bg-glass-hover, rgba(255, 255, 255, 0.3))'
-                                                    : `linear-gradient(135deg, ${summary.gradient.start} 0%, ${summary.gradient.end} 100%)`,
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                color: 'white',
-                                                fontSize: 20,
-                                                flexShrink: 0
-                                            }}>
-                                                {summary.icon}
-                                            </div>
-                                            <div style={{ flex: 1 }}>
-                                                <div style={{
-                                                    fontWeight: 600,
-                                                    fontSize: 14,
-                                                    color: selectedCollection === summary.collection ? 'white' : 'var(--text-primary)',
-                                                    marginBottom: 4
-                                                }}>
-                                                    {summary.name}
-                                                </div>
-                                                <div style={{
-                                                    fontSize: 24,
-                                                    fontWeight: 700,
-                                                    color: selectedCollection === summary.collection ? 'white' : summary.gradient.start
-                                                }}>
-                                                    {summary.count}
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {selectedCollection === summary.collection && (
-                                            <div style={{
-                                                position: 'absolute',
-                                                top: 8,
-                                                right: 8,
-                                                width: 24,
-                                                height: 24,
-                                                borderRadius: '50%',
-                                                background: 'var(--bg-glass-hover, rgba(255, 255, 255, 0.3))',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                color: 'white',
-                                                fontSize: 12,
-                                                fontWeight: 600
-                                            }}>
-                                                ✓
-                                            </div>
-                                        )}
-                                    </div>
+                                    />
                                 ))}
                             </div>
                         )}
@@ -424,26 +411,28 @@ function Search() {
                                     style={{
                                         background: "var(--bg-elevated)",
                                         borderRadius: 8,
-                                        marginBottom: 12,
-                                        padding: 16,
+                                        marginBottom: 10,
+                                        padding: 14,
                                         cursor: "pointer",
-                                        transition: "all 0.3s",
+                                        transition: "all 0.2s",
                                         border: "1px solid var(--border-default)"
                                     }}
                                     onClick={() => handleResourceClick(result)}
                                     onMouseEnter={(e) => {
                                         e.currentTarget.style.background = "var(--bg-hover)";
                                         e.currentTarget.style.boxShadow = "var(--shadow-sm)";
+                                        e.currentTarget.style.borderColor = "var(--color-primary)";
                                     }}
                                     onMouseLeave={(e) => {
                                         e.currentTarget.style.background = "var(--bg-elevated)";
                                         e.currentTarget.style.boxShadow = "none";
+                                        e.currentTarget.style.borderColor = "var(--border-default)";
                                     }}
                                 >
                                     <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
                                         <div style={{
-                                            width: 40,
-                                            height: 40,
+                                            width: 32,
+                                            height: 32,
                                             borderRadius: 8,
                                             background: collectionGradients[result.collection]
                                                 ? `linear-gradient(135deg, ${collectionGradients[result.collection].start} 0%, ${collectionGradients[result.collection].end} 100%)`
@@ -452,67 +441,62 @@ function Search() {
                                             alignItems: "center",
                                             justifyContent: "center",
                                             color: "white",
-                                            fontSize: 18,
+                                            fontSize: 15,
                                             flexShrink: 0
                                         }}>
                                             {collectionIcons[result.collection] || <FileTextOutlined />}
                                         </div>
 
-                                        <div style={{ flex: 1 }}>
-                                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
-                                                <Title level={5} style={{ margin: 0 }}>
+                                        <div style={{ flex: 1, minWidth: 0 }}>
+                                            {/* Header line: name + collection tag, with gtype/version
+                                                pushed to the right as muted metadata. */}
+                                            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                                                <Text strong style={{ fontSize: 15 }} ellipsis>
                                                     {result.resource_name}
-                                                </Title>
-                                                <Tag color={collectionColors[result.collection]}>
+                                                </Text>
+                                                <Tag color={collectionColors[result.collection]} style={{ marginInlineEnd: 0 }}>
                                                     {collectionNames[result.collection] || result.collection}
                                                 </Tag>
+                                                <div style={{ flex: 1, minWidth: 16 }} />
+                                                {result.collection !== 'discovery' && (result.gtype || result.version) && (
+                                                    <Text type="secondary" style={{ fontSize: 11, whiteSpace: "nowrap" }}>
+                                                        {result.gtype && <><FolderOpenOutlined /> {result.gtype}</>}
+                                                        {result.version && <span style={{ marginLeft: 10 }}>· {result.version}</span>}
+                                                    </Text>
+                                                )}
                                             </div>
 
-                                            {result.collection !== 'discovery' && (
-                                                <div style={{ marginBottom: 8 }}>
-                                                    {result.gtype && (
-                                                        <Text type="secondary" style={{ fontSize: 12 }}>
-                                                            <FolderOpenOutlined /> {result.gtype}
-                                                        </Text>
-                                                    )}
-                                                    {result.version && (
-                                                        <Text type="secondary" style={{ fontSize: 12, marginLeft: 16 }}>
-                                                            Version: {result.version}
-                                                        </Text>
-                                                    )}
-                                                </div>
-                                            )}
-
-                                            <div style={{ marginTop: 12 }}>
-                                                <Text strong style={{ fontSize: 12, display: "block", marginBottom: 8 }}>
-                                                    Matches ({result.matches.length}):
-                                                </Text>
-                                                <Space direction="vertical" size="small" style={{ width: "100%" }}>
-                                                    {result.matches.map((match, idx) => (
-                                                        <div
-                                                            key={idx}
-                                                            style={{
-                                                                background: "var(--bg-surface)",
-                                                                padding: "8px 12px",
-                                                                borderRadius: 6,
-                                                                border: "1px solid var(--border-default)"
-                                                            }}
-                                                        >
-                                                            <div style={{ marginBottom: 6 }}>
-                                                                <Text strong style={{ fontSize: 13, color: "var(--color-primary)" }}>
-                                                                    {match.value}
-                                                                </Text>
-                                                            </div>
-                                                            {Object.keys(match.context).length > 0 && (
-                                                                <div style={{ marginTop: 6 }}>
-                                                                    <Space size={4} wrap>
-                                                                        {renderMatchContext(match)}
-                                                                    </Space>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    ))}
-                                                </Space>
+                                            {/* Matches as compact inline chips: the matched value
+                                                (mono, highlighted) followed by its context tags. */}
+                                            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
+                                                {result.matches.map((match, idx) => (
+                                                    <div
+                                                        key={idx}
+                                                        style={{
+                                                            display: "inline-flex",
+                                                            alignItems: "center",
+                                                            gap: 6,
+                                                            background: "var(--color-primary-bg)",
+                                                            border: "1px solid var(--color-primary-border)",
+                                                            borderRadius: 6,
+                                                            padding: "3px 4px 3px 9px"
+                                                        }}
+                                                    >
+                                                        <span style={{
+                                                            fontFamily: "ui-monospace, SFMono-Regular, Menlo, monospace",
+                                                            fontSize: 13,
+                                                            fontWeight: 600,
+                                                            color: "var(--color-primary)"
+                                                        }}>
+                                                            {match.value}
+                                                        </span>
+                                                        {Object.keys(match.context).length > 0 && (
+                                                            <span style={{ display: "inline-flex", flexWrap: "wrap", gap: 4 }}>
+                                                                {renderMatchContext(match)}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                ))}
                                             </div>
                                         </div>
                                     </div>
