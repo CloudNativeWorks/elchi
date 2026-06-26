@@ -13,3 +13,11 @@ export const modtag_socket_address = [
         names: ['SocketAddress', 'SocketAddress_SingleFields'],
     },
 ];
+
+export const modtag_pipe = [
+    {
+        alias: 'p',
+        relativePath: 'envoy/config/core/v3/address',
+        names: ['Pipe', 'Pipe_SingleFields'],
+    },
+];

@@ -7,6 +7,7 @@ import { useTags } from "@/hooks/useTags";
 import { modtag_address } from "./_modtag_";
 import useResourceForm from "@/hooks/useResourceForm";
 import CommonComponentSocketAddress from "./socket_address"
+import CommonComponentPipe from "./pipe"
 import { ConditionalComponent } from "@/elchi/components/common/ConditionalComponent";
 
 
@@ -40,6 +41,9 @@ const CommonComponentAddress: React.FC<GeneralProps> = ({ veri }) => {
                 keyPrefix: `${veri.keyPrefix}`,
                 tagPrefix: `address`,
                 required: ['socket_address'],
+                // `address` is a oneof: pick exactly one of socket_address / pipe /
+                // envoy_internal_address — selecting one disables the others.
+                onlyOneTag: [['address.socket_address', 'address.pipe', 'address.envoy_internal_address']],
                 doNotChange: veri.managed ? ["address.socket_address"] : []
             }} />
             <Divider style={{ marginTop: '8px', marginBottom: '8px' }} type="horizontal" />
@@ -55,6 +59,16 @@ const CommonComponentAddress: React.FC<GeneralProps> = ({ veri }) => {
                     id: `address.socket_address_0`,
                     managed: veri.managed,
                     bootstrap: veri.bootstrap
+                }}
+            />
+            <ConditionalComponent
+                shouldRender={startsWithAny("address.pipe", selectedTags)}
+                Component={CommonComponentPipe}
+                componentProps={{
+                    version: veri.version,
+                    reduxStore: veri.reduxStore?.address?.pipe,
+                    keyPrefix: `${veri.keyPrefix}.pipe`,
+                    managed: veri.managed,
                 }}
             />
         </>

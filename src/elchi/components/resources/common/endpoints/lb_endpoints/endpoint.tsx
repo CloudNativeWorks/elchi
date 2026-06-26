@@ -13,7 +13,6 @@ import { generateFields } from "@/common/generate-fields";
 import { FieldComponent } from "@/elchi/components/common/FormItems";
 import { ConditionalComponent } from "@/elchi/components/common/ConditionalComponent";
 import { EForm } from "@/elchi/components/common/e-components/EForm";
-import { modtag_us_listener } from "../../../listener/_modtag_";
 
 
 type GeneralProps = {
@@ -76,7 +75,10 @@ const ComponentEndpoint: React.FC<GeneralProps> = ({ veri }) => {
                             reduxStore: veri.reduxStore?.address,
                             keyPrefix: `${veri.keyPrefix}.address`,
                             tagPrefix: ``,
-                            unsupportedAddressTag: modtag_us_listener["address"],
+                            // Endpoints may use a Unix pipe (UDS) upstream — e.g. the
+                            // elchi-shield ext_proc cluster. Only envoy_internal_address
+                            // stays hidden (no dedicated editor for it yet).
+                            unsupportedAddressTag: ['address.envoy_internal_address'],
                             unsupportedSocketAddressTag: [],
                         }} />
                     </ECard>

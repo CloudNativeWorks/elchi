@@ -50,7 +50,11 @@ const LBEndpointsComponent: React.FC<GeneralProps> = ({ veri }) => {
             width: "40%",
             key: 'address',
             dataIndex: ['host_identifier', 'endpoint', 'address', 'address', 'socket_address', 'address'],
-            render: (_, record) => { return navigateCases(record, "host_identifier.endpoint.address.address.socket_address.address") }
+            render: (_, record) => {
+                // Socket address, or fall back to the Unix pipe path (UDS endpoint).
+                return navigateCases(record, "host_identifier.endpoint.address.address.socket_address.address")
+                    ?? navigateCases(record, "host_identifier.endpoint.address.address.pipe.path")
+            }
         },
         {
             title: 'Port',
@@ -64,7 +68,11 @@ const LBEndpointsComponent: React.FC<GeneralProps> = ({ veri }) => {
             width: "20%",
             key: 'protocol',
             dataIndex: ["host_identifier", "endpoint", "address", "address", "socket_address", "protocol"],
-            render: (_, record) => { return navigateCases(record, "host_identifier.endpoint.address.address.socket_address.protocol") }
+            render: (_, record) => {
+                // Pipe endpoints have no port/protocol; label the row as PIPE instead.
+                return navigateCases(record, "host_identifier.endpoint.address.address.socket_address.protocol")
+                    ?? (navigateCases(record, "host_identifier.endpoint.address.address.pipe.path") ? "PIPE" : undefined)
+            }
         },
         {
             title: 'Action',
