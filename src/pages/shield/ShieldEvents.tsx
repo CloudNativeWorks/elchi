@@ -5,7 +5,7 @@
  * /api/v3/shield/events(/summary). Admin/Owner-gated (matches the backend).
  */
 
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     Alert, Badge, Button, Card, Col, DatePicker, Input, Row, Select, Space, Switch, Table, Tag, Tooltip, Typography,
 } from 'antd';
@@ -55,6 +55,10 @@ const DEFAULT_ENGINES = ['coraza', 'jwt', 'jwks', 'bot', 'ratelimit', 'ipreputat
 
 interface Filters {
     range: [Dayjs, Dayjs];
+    // When set, `range` was derived from a relative quick-range (last N). Refresh
+    // and Live recompute it from "now" so the window slides; a pinned custom
+    // range leaves this undefined and the window stays fixed.
+    relativeMs?: number;
     engine?: string;
     action?: string;
     severity?: string;
@@ -73,8 +77,31 @@ const csvCell = (v: unknown): string => {
     return `"${safe.replace(/"/g, '""')}"`;
 };
 
+// Relative quick-ranges. Picking one makes the window "live": Refresh and the
+// Live auto-refresh recompute `now` so the window slides forward, instead of
+// staying pinned to the moment the page first loaded.
+const MINUTE = 60 * 1000;
+const HOUR = 60 * MINUTE;
+const DAY = 24 * HOUR;
+const QUICK_RANGES: { label: string; ms: number }[] = [
+    { label: 'Last 15 minutes', ms: 15 * MINUTE },
+    { label: 'Last 1 hour', ms: HOUR },
+    { label: 'Last 6 hours', ms: 6 * HOUR },
+    { label: 'Last 12 hours', ms: 12 * HOUR },
+    { label: 'Last 24 hours', ms: DAY },
+    { label: 'Last 7 days', ms: 7 * DAY },
+    { label: 'Last 30 days', ms: 30 * DAY },
+];
+const DEFAULT_RANGE_MS = DAY;
+
+const relativeWindow = (ms: number): [Dayjs, Dayjs] => {
+    const to = dayjs();
+    return [to.subtract(ms, 'millisecond'), to];
+};
+
 const defaultFilters = (): Filters => ({
-    range: [dayjs().subtract(24, 'hour'), dayjs()],
+    range: relativeWindow(DEFAULT_RANGE_MS),
+    relativeMs: DEFAULT_RANGE_MS,
     findingsOnly: true,
     search: '',
 });
@@ -101,17 +128,12 @@ const ShieldEvents: React.FC<{ active?: boolean }> = ({ active = true }) => {
         to: filters.range[1].toISOString(),
     }), [filters]);
 
-    // Only poll while Live is on AND this tab is actually visible — antd keeps the
-    // pane mounted when hidden, so this stops background ClickHouse hits.
-    const refetchInterval = autoRefresh && active ? 15000 : false;
-
     const summaryQuery = useQuery({
         queryKey: ['shield-events-summary', project, serverParams],
         queryFn: () => shieldApi.getSecurityEventsSummary(project, serverParams),
         enabled: admin && !!project,
         refetchOnWindowFocus: false,
         retry: false,
-        refetchInterval,
     });
 
     // Distinct filter values (engines/nodes) so the dropdowns reflect real data.
@@ -139,11 +161,48 @@ const ShieldEvents: React.FC<{ active?: boolean }> = ({ active = true }) => {
         refetchOnWindowFocus: false,
         retry: false,
         placeholderData: (prev) => prev,
-        refetchInterval,
     });
 
-    const applyFilters = () => { setFilters(draft); setPage(1); };
+    // Pull the time window forward to "now". For a relative quick-range this
+    // slides the [from,to] window (so Refresh/Live behave like a hard reload);
+    // for a pinned custom range it just refetches the same window.
+    const refreshNow = useCallback(() => {
+        if (filters.relativeMs) {
+            const slid = relativeWindow(filters.relativeMs);
+            setFilters(f => ({ ...f, range: slid }));
+            // Keep the picker in sync (shows the advanced time, Apply stays
+            // disabled) — but only when the draft is still on the same relative
+            // range, i.e. the user isn't mid-editing a custom window.
+            setDraft(d => (d.relativeMs === filters.relativeMs ? { ...d, range: slid } : d));
+        } else {
+            summaryQuery.refetch();
+            feedQuery.refetch();
+            facetsQuery.refetch();
+        }
+    }, [filters.relativeMs, summaryQuery, feedQuery, facetsQuery]);
+
+    // Live mode: tick every 15s while the tab is visible. We drive it ourselves
+    // (instead of react-query's refetchInterval) so a relative window actually
+    // advances each tick rather than re-querying the original frozen window.
+    const refreshRef = useRef(refreshNow);
+    refreshRef.current = refreshNow;
+    useEffect(() => {
+        if (!(autoRefresh && active)) return;
+        const id = setInterval(() => refreshRef.current(), 15000);
+        return () => clearInterval(id);
+    }, [autoRefresh, active]);
+
+    // Resolve a relative draft to a concrete window at apply-time so the query
+    // starts from the current moment.
+    const resolveDraft = (f: Filters): Filters =>
+        f.relativeMs ? { ...f, range: relativeWindow(f.relativeMs) } : f;
+
+    const applyFilters = () => { const r = resolveDraft(draft); setDraft(r); setFilters(r); setPage(1); };
     const clearFilters = () => { const d = defaultFilters(); setDraft(d); setFilters(d); setPage(1); };
+    const applyQuickRange = (val: number | 'custom') => {
+        if (val === 'custom') { setDraft(d => ({ ...d, relativeMs: undefined })); return; }
+        setDraft(d => ({ ...d, relativeMs: val, range: relativeWindow(val) }));
+    };
     const dirty = JSON.stringify(draft) !== JSON.stringify(filters);
 
     // Summary cards: totals per action from the (engine,action,severity) groups.
@@ -304,64 +363,30 @@ const ShieldEvents: React.FC<{ active?: boolean }> = ({ active = true }) => {
             {/* Filters */}
             <Col span={24}>
                 <Card size="small" style={{ borderRadius: 12 }}>
-                    <Row gutter={[12, 12]} align="middle">
-                        <Col xs={24} md={8}>
-                            <RangePicker
-                                showTime
-                                style={{ width: '100%' }}
-                                value={draft.range}
-                                onChange={(v) => v && v[0] && v[1] && setDraft(d => ({ ...d, range: [v[0]!, v[1]!] }))}
-                                allowClear={false}
-                            />
-                        </Col>
-                        <Col xs={12} md={4}>
-                            <Select
-                                placeholder="Engine" allowClear showSearch style={{ width: '100%' }}
-                                value={draft.engine}
-                                onChange={(v) => setDraft(d => ({ ...d, engine: v }))}
-                                options={engineOptions}
-                            />
-                        </Col>
-                        <Col xs={12} md={4}>
-                            <Select
-                                placeholder="Action" allowClear style={{ width: '100%' }}
-                                value={draft.action}
-                                onChange={(v) => setDraft(d => ({ ...d, action: v }))}
-                                options={['block', 'detect', 'shadow', 'allow'].map(a => ({ label: a, value: a }))}
-                            />
-                        </Col>
-                        <Col xs={12} md={4}>
-                            <Select
-                                placeholder="Severity" allowClear style={{ width: '100%' }}
-                                value={draft.severity}
-                                onChange={(v) => setDraft(d => ({ ...d, severity: v }))}
-                                options={['critical', 'high', 'medium', 'low', 'info'].map(s => ({ label: s, value: s }))}
-                            />
-                        </Col>
-                        <Col xs={12} md={4}>
-                            <Space>
-                                <Switch checked={draft.findingsOnly} onChange={(v) => setDraft(d => ({ ...d, findingsOnly: v }))} />
-                                <Text style={{ fontSize: 12 }}>Findings only</Text>
+                    <Space direction="vertical" size={12} style={{ width: '100%' }}>
+                        {/* Time window (left) + actions (right) */}
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', justifyContent: 'space-between' }}>
+                            <Space wrap size={8}>
+                                <Select
+                                    style={{ width: 160 }}
+                                    value={draft.relativeMs ?? 'custom'}
+                                    onChange={applyQuickRange}
+                                    options={[
+                                        ...QUICK_RANGES.map(r => ({ label: r.label, value: r.ms })),
+                                        { label: 'Custom range', value: 'custom' },
+                                    ]}
+                                />
+                                <RangePicker
+                                    showTime
+                                    style={{ width: 360, maxWidth: '100%' }}
+                                    value={draft.range}
+                                    // Manually editing the window pins it (custom): drop the
+                                    // relative spec so Refresh/Live stop sliding it.
+                                    onChange={(v) => v && v[0] && v[1] && setDraft(d => ({ ...d, range: [v[0]!, v[1]!], relativeMs: undefined }))}
+                                    allowClear={false}
+                                />
                             </Space>
-                        </Col>
-                        <Col xs={24} md={8}>
-                            <Input
-                                placeholder="Filter host / path / request id (current page)"
-                                value={draft.search}
-                                onChange={(e) => setDraft(d => ({ ...d, search: e.target.value }))}
-                                allowClear
-                            />
-                        </Col>
-                        <Col xs={12} md={4}>
-                            <Select
-                                placeholder="Edge (node)" allowClear showSearch style={{ width: '100%' }}
-                                value={draft.node}
-                                onChange={(v) => setDraft(d => ({ ...d, node: v }))}
-                                options={nodeOptions}
-                            />
-                        </Col>
-                        <Col xs={24} md={12} style={{ textAlign: 'right' }}>
-                            <Space wrap>
+                            <Space wrap size={8}>
                                 <Tooltip title="Auto-refresh every 15s">
                                     <Space size={4}>
                                         <Switch size="small" checked={autoRefresh} onChange={setAutoRefresh} />
@@ -372,14 +397,65 @@ const ShieldEvents: React.FC<{ active?: boolean }> = ({ active = true }) => {
                                     <Button icon={<DownloadOutlined />} disabled={filteredEvents.length === 0} onClick={exportCsv}>CSV</Button>
                                 </Tooltip>
                                 <Button icon={<ReloadOutlined />} loading={feedQuery.isFetching || summaryQuery.isFetching}
-                                    onClick={() => { summaryQuery.refetch(); feedQuery.refetch(); facetsQuery.refetch(); }}>
+                                    onClick={refreshNow}>
                                     Refresh
                                 </Button>
                                 <Button icon={<ClearOutlined />} onClick={clearFilters}>Clear</Button>
                                 <Button type="primary" disabled={!dirty} onClick={applyFilters}>Apply</Button>
                             </Space>
-                        </Col>
-                    </Row>
+                        </div>
+
+                        {/* Facet filters */}
+                        <Row gutter={[12, 12]}>
+                            <Col xs={12} md={6}>
+                                <Select
+                                    placeholder="Engine" allowClear showSearch style={{ width: '100%' }}
+                                    value={draft.engine}
+                                    onChange={(v) => setDraft(d => ({ ...d, engine: v }))}
+                                    options={engineOptions}
+                                />
+                            </Col>
+                            <Col xs={12} md={6}>
+                                <Select
+                                    placeholder="Action" allowClear style={{ width: '100%' }}
+                                    value={draft.action}
+                                    onChange={(v) => setDraft(d => ({ ...d, action: v }))}
+                                    options={['block', 'detect', 'shadow', 'allow'].map(a => ({ label: a, value: a }))}
+                                />
+                            </Col>
+                            <Col xs={12} md={6}>
+                                <Select
+                                    placeholder="Severity" allowClear style={{ width: '100%' }}
+                                    value={draft.severity}
+                                    onChange={(v) => setDraft(d => ({ ...d, severity: v }))}
+                                    options={['critical', 'high', 'medium', 'low', 'info'].map(s => ({ label: s, value: s }))}
+                                />
+                            </Col>
+                            <Col xs={12} md={6}>
+                                <Select
+                                    placeholder="Edge (node)" allowClear showSearch style={{ width: '100%' }}
+                                    value={draft.node}
+                                    onChange={(v) => setDraft(d => ({ ...d, node: v }))}
+                                    options={nodeOptions}
+                                />
+                            </Col>
+                        </Row>
+
+                        {/* Quick search (current page) + findings toggle */}
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center' }}>
+                            <Input
+                                placeholder="Filter host / path / request id (current page)"
+                                value={draft.search}
+                                onChange={(e) => setDraft(d => ({ ...d, search: e.target.value }))}
+                                allowClear
+                                style={{ flex: 1, minWidth: 240 }}
+                            />
+                            <Space>
+                                <Switch checked={draft.findingsOnly} onChange={(v) => setDraft(d => ({ ...d, findingsOnly: v }))} />
+                                <Text style={{ fontSize: 12 }}>Findings only</Text>
+                            </Space>
+                        </div>
+                    </Space>
                 </Card>
             </Col>
 

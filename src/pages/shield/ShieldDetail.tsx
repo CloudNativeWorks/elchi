@@ -5,7 +5,7 @@
  * (forms) | YAML (two-way) | Data Files (supporting artifacts, auto-hashed).
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
     Alert,
     Badge,
@@ -18,6 +18,7 @@ import {
     Tag,
     Tooltip,
     Typography,
+    message,
 } from 'antd';
 import {
     ArrowLeftOutlined,
@@ -29,7 +30,7 @@ import {
     UndoOutlined,
     RedoOutlined,
 } from '@ant-design/icons';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import { shieldApi } from './shieldApi';
@@ -44,6 +45,9 @@ import YamlTab from './components/YamlTab';
 import DataFilesTab from './components/DataFilesTab';
 import DryRunTab from './components/DryRunTab';
 import ShieldExamplesDrawer from './components/ShieldExamplesDrawer';
+import SuggestionRationalePanel from './components/SuggestionRationalePanel';
+import ImportFromDiscoveryDrawer from './components/ImportFromDiscoveryDrawer';
+import { suggestPolicyFromEndpoints, mergeDiscoveryIntoModel, type DiscoveryDraft, type SuggestRationale } from './utils/suggestPolicy';
 
 const { Title, Text } = Typography;
 const { confirm } = Modal;
@@ -59,6 +63,25 @@ const ShieldDetailInner: React.FC = () => {
     const [name, setName] = useState('');
     const [saveError, setSaveError] = useState<string | null>(null);
     const [examplesOpen, setExamplesOpen] = useState(false);
+    const [rationale, setRationale] = useState<SuggestRationale[] | null>(null);
+    const [importOpen, setImportOpen] = useState(false);
+    const location = useLocation();
+    // A discovery draft (router state) is applied exactly once per navigation.
+    const draftAppliedRef = useRef(false);
+
+    // "Import from Discovery": suggest protections for the picked endpoints and
+    // graft the resulting routes/engines onto the policy currently being edited.
+    const handleImportFromDiscovery = async (endpointIds: string[]) => {
+        const draft = await suggestPolicyFromEndpoints(endpointIds, project);
+        const parsed = yamlToModel(draft.yaml);
+        if (parsed.model && parsed.errors.length === 0 && parsed.unsupportedPaths.length === 0) {
+            dispatch({ type: 'PATCH', update: (cur) => mergeDiscoveryIntoModel(cur, parsed.model!) });
+            setRationale(draft.rationale || []);
+            message.success(`Added protections for ${draft.rationale?.length ?? 0} endpoint(s)`);
+        } else {
+            message.error('Could not merge the suggested protections');
+        }
+    };
 
     // Warn before the browser unloads (close/reload/external nav) with unsaved
     // edits. In-app navigation away is guarded by the Back button's confirm.
@@ -82,7 +105,10 @@ const ShieldDetailInner: React.FC = () => {
     const { createMutation, updateMutation, deleteMutation, isLoading: isMutating } =
         useShieldMutations(isCreateMode ? undefined : id, project);
 
-    // Hydrate the editor from the fetched policy.
+    // Hydrate the editor from the fetched policy. When the user arrived here to
+    // ADD an API-Discovery suggestion to this EXISTING policy (router state), the
+    // draft's routes/engines are merged onto the just-hydrated model (the PATCH
+    // updater runs after HYDRATE, so it sees the loaded policy).
     useEffect(() => {
         if (policy) {
             setName(policy.name);
@@ -98,8 +124,45 @@ const ShieldDetailInner: React.FC = () => {
                     dirty: false,
                 },
             });
+
+            const draft = (location.state as { discoveryDraft?: DiscoveryDraft } | null)?.discoveryDraft;
+            if (draft && !draftAppliedRef.current) {
+                draftAppliedRef.current = true;
+                const parsed = yamlToModel(draft.yaml);
+                if (hydrated.yamlMode || !hydrated.model) {
+                    message.error('This policy is in raw-YAML mode — switch it to the Builder before importing suggestions.');
+                } else if (parsed.model && parsed.errors.length === 0 && parsed.unsupportedPaths.length === 0) {
+                    dispatch({ type: 'PATCH', update: (cur) => mergeDiscoveryIntoModel(cur, parsed.model!) });
+                    setRationale(draft.rationale || []);
+                    message.success(`Added protections for ${draft.rationale?.length ?? 0} endpoint(s) — review & save`);
+                } else {
+                    message.error('Could not merge the suggested protections');
+                }
+                window.history.replaceState({}, '');
+            }
         }
     }, [policy, dispatch]);
+
+    // Hydrate from an API-Discovery suggestion handed over via router state
+    // (create mode only). The draft is a normal policy YAML produced by the
+    // backend's findings→engines mapper; it flows through the same parse path as
+    // a template. The rationale is shown above the Builder. Cleared from history
+    // so a refresh doesn't re-apply it.
+    useEffect(() => {
+        if (!isCreateMode) return;
+        const draft = (location.state as { discoveryDraft?: DiscoveryDraft } | null)?.discoveryDraft;
+        if (!draft || draftAppliedRef.current) return;
+        draftAppliedRef.current = true;
+        setName(draft.policy_name || '');
+        setRationale(draft.rationale || []);
+        const parsed = yamlToModel(draft.yaml);
+        if (parsed.errors.length === 0 && parsed.unsupportedPaths.length === 0 && parsed.model) {
+            dispatch({ type: 'PATCH', update: () => parsed.model! });
+        } else if (parsed.errors.length === 0) {
+            dispatch({ type: 'ENTER_YAML_MODE', rawYaml: draft.yaml, reason: parsed.unsupportedPaths });
+        }
+        window.history.replaceState({}, '');
+    }, [isCreateMode]);
 
     const handleSave = async () => {
         setSaveError(null);
@@ -309,6 +372,9 @@ const ShieldDetailInner: React.FC = () => {
                             <Tooltip title="Undo"><Button icon={<UndoOutlined />} disabled={state.past.length === 0} onClick={() => dispatch({ type: 'UNDO' })} /></Tooltip>
                             <Tooltip title="Redo"><Button icon={<RedoOutlined />} disabled={state.future.length === 0} onClick={() => dispatch({ type: 'REDO' })} /></Tooltip>
                             <Button onClick={() => setExamplesOpen(true)}>Templates</Button>
+                            <Button icon={<SafetyOutlined />} onClick={() => setImportOpen(true)} disabled={state.yamlMode}>
+                                Import from Discovery
+                            </Button>
                             {!isCreateMode && (
                                 <Button danger icon={<DeleteOutlined />} loading={deleteMutation.isPending} onClick={handleDelete}>
                                     Delete
@@ -321,6 +387,8 @@ const ShieldDetailInner: React.FC = () => {
                     )}
                 </Space>
             </div>
+
+            {rationale && <SuggestionRationalePanel rationale={rationale} onDismiss={() => setRationale(null)} />}
 
             {!admin && (
                 <Alert
@@ -378,6 +446,11 @@ const ShieldDetailInner: React.FC = () => {
                 open={examplesOpen}
                 onClose={() => setExamplesOpen(false)}
                 onUseTemplate={useTemplate}
+            />
+            <ImportFromDiscoveryDrawer
+                open={importOpen}
+                onClose={() => setImportOpen(false)}
+                onImport={handleImportFromDiscovery}
             />
         </>
     );

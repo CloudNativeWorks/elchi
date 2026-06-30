@@ -30,8 +30,10 @@ import {
     QuestionCircleOutlined,
     ArrowDownOutlined,
     MoonOutlined,
+    SafetyCertificateOutlined,
 } from '@ant-design/icons';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useSuggestTargetModal } from '@/pages/shield/utils/useSuggestTargetModal';
 import dayjs from 'dayjs';
 import { formatDistanceToNow } from 'date-fns';
 import { api } from '@/common/api';
@@ -558,6 +560,8 @@ const ApiDiscoveryEndpoints: React.FC = () => {
     // Auth is a Bearer header, so a plain <a download> would 401 — fetch the
     // spec through the axios instance as a blob, then trigger the download.
     const [exporting, setExporting] = useState(false);
+    const { openModal: openSuggestModal, modal: suggestModal } = useSuggestTargetModal();
+    const [selectedGroups, setSelectedGroups] = useState<OperationGroup[]>([]);
     const exportOpenApi = async (format: 'yaml' | 'json') => {
         if (!project) return;
         setExporting(true);
@@ -1219,6 +1223,22 @@ const ApiDiscoveryEndpoints: React.FC = () => {
                                 Export OpenAPI
                             </Button>
                         </Dropdown>
+                        {selectedGroups.length > 0 && (
+                            <Button
+                                type="primary"
+                                ghost
+                                icon={<SafetyCertificateOutlined />}
+                                onClick={() => {
+                                    const ids = selectedGroups
+                                        .flatMap(g => (g.operations || []).map(o => o._id))
+                                        .filter(Boolean);
+                                    if (ids.length) openSuggestModal(ids);
+                                }}
+                                title="Generate a shield SecurityPolicy draft covering the selected endpoints"
+                            >
+                                Suggest Shield Policy ({selectedGroups.length})
+                            </Button>
+                        )}
                         <Button
                             icon={<ReloadOutlined spin={isFetching || summaryQuery.isFetching} />}
                             onClick={() => {
@@ -1684,6 +1704,11 @@ const ApiDiscoveryEndpoints: React.FC = () => {
                     <Table<OperationGroup>
                         className="api-discovery-endpoints-table"
                         rowKey={(g) => `${g.host}__${g.normalized_path}`}
+                        rowSelection={{
+                            selectedRowKeys: selectedGroups.map(g => `${g.host}__${g.normalized_path}`),
+                            onChange: (_keys, rows) => setSelectedGroups(rows),
+                            preserveSelectedRowKeys: true,
+                        }}
                         columns={opsColumns}
                         scroll={{ x: 'max-content' }}
                         dataSource={opsData?.data ?? []}
@@ -1801,6 +1826,7 @@ const ApiDiscoveryEndpoints: React.FC = () => {
                     gap: 4px;
                 }
             `}</style>
+            {suggestModal}
         </div>
     );
 };

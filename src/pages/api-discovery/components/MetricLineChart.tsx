@@ -56,13 +56,21 @@ const MetricLineChart: React.FC<Props> = ({
     const { options: themeOptions } = useChartTheme();
 
     const option = useMemo(() => {
+        // Charts with many series (e.g. findings-by-engine, ~18 engines) need the
+        // legend bounded to a single scrollable row; otherwise it wraps onto a
+        // second row that overlaps the plot and the top y-axis label. We also
+        // give the grid extra top room as a guaranteed fallback.
+        const manySeries = series.length > 6;
         return {
             ...themeOptions,
-            grid: { left: 56, right: 24, top: 36, bottom: 32 },
+            grid: { left: 56, right: 24, top: manySeries ? 56 : 36, bottom: 32 },
             legend: {
                 ...themeOptions.legend,
-                top: 4,
-                right: 8,
+                type: 'scroll',
+                top: 6,
+                // Bound the width so the scroll legend paginates in one row.
+                // Small-legend charts keep their compact top-right placement.
+                ...(manySeries ? { left: 8, right: 8 } : { right: 8 }),
                 itemWidth: 12,
                 itemHeight: 8,
                 textStyle: { ...themeOptions.legend.textStyle, fontSize: 11 },
@@ -71,6 +79,10 @@ const MetricLineChart: React.FC<Props> = ({
                 ...themeOptions.tooltip,
                 trigger: 'axis',
                 axisPointer: { type: 'line' },
+                // Render the tooltip in <body> so it always sits above the legend
+                // and surrounding cards instead of being clipped/occluded by them.
+                appendToBody: true,
+                confine: true,
                 valueFormatter: (v: number) =>
                     `${yFormatter ? yFormatter(v) : v.toLocaleString()}${unit ? ` ${unit}` : ''}`,
             },

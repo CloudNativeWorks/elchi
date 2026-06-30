@@ -146,6 +146,12 @@ const menuConfig = [
 		label: "K8s Discovery",
 	},
 	{
+		key: "/shield",
+		to: "/shield",
+		icon: "SafetyOutlined",
+		label: "Shield",
+	},
+	{
 		key: "/api-discovery",
 		to: "/api-discovery",
 		icon: "EyeOutlined",
@@ -156,12 +162,6 @@ const menuConfig = [
 		to: "/waf",
 		icon: "FireOutlined",
 		label: "WAF",
-	},
-	{
-		key: "/shield",
-		to: "/shield",
-		icon: "SafetyOutlined",
-		label: "Shield",
 	},
 	{
 		key: "/gslb",

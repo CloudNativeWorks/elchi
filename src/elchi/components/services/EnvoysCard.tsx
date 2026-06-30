@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ReloadOutlined, CodeOutlined, DatabaseOutlined, ClusterOutlined, GlobalOutlined, ShareAltOutlined, AimOutlined, AppstoreOutlined, KeyOutlined, SettingOutlined } from '@ant-design/icons';
 import { Typography, Select, Button, Card, Row, Col, Statistic, Alert, Spin, Badge, Collapse, Input, Pagination, Tabs } from 'antd';
 import { useEnvoyDetails } from '@/hooks/useEnvoyDetails';
@@ -63,7 +63,13 @@ const EnvoysCard: React.FC<EnvoysCardProps> = ({ envoys, name, project, version 
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(20);
 
+    // The envoy admin fetch is a heavy (~hundreds of KB) operation. Guard against
+    // React StrictMode's intentional double-invoke of mount effects in dev so it
+    // only fires once. A genuine remount gets a fresh component instance (and ref).
+    const didFetch = useRef(false);
     useEffect(() => {
+        if (didFetch.current) return;
+        didFetch.current = true;
         fetchEnvoyDetails();
     }, []);
 

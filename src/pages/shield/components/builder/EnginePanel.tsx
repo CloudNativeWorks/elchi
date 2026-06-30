@@ -107,7 +107,10 @@ const AddProtection: React.FC<{ available: EngineDef[]; onAdd: (key: string) => 
                                 onClick={() => pick(d.key)}
                                 style={{ height: 'auto', textAlign: 'left', padding: '6px 8px', whiteSpace: 'normal' }}
                             >
-                                <div>
+                                {/* width:100% so the content fills the block Button — without it
+                                    antd centers the content, and rows with a SHORT description
+                                    (e.g. Rate Limit) look indented next to wider ones. */}
+                                <div style={{ width: '100%' }}>
                                     <Space size={6}>
                                         <Text strong style={{ fontSize: 13 }}>{d.label}</Text>
                                         <PhaseTag phase={d.phase} />

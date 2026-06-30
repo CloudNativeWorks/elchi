@@ -133,8 +133,8 @@ helm repo add elchi https://charts.elchi.io
 helm repo update
 
 # Install Elchi Discovery Agent
-helm install elchi-discovery elchi/discovery-agent \\
-  --set config.elchiEndpoint="https://your-elchi-instance.com" \\
+helm install elchi-discovery elchi/elchi-discovery \\
+  --set config.apiEndpoint="https://your-elchi-instance.com/api/discovery/k8s" \\
   --set config.token="your-discovery-token" \\
   --set clusterName="my-k8s-cluster" \\
   --namespace elchi-stack \\
@@ -741,9 +741,9 @@ kubectl get pods -n elchi-stack`;
                         <List
                             size="small"
                             dataSource={[
-                                { key: 'config.elchiEndpoint', desc: 'Your Elchi instance URL' },
+                                { key: 'config.apiEndpoint', desc: 'Your Elchi discovery API endpoint (https://<elchi-address>/api/discovery/k8s)' },
                                 { key: 'config.token', desc: 'Discovery token from Settings page' },
-                                { key: 'clusterName', desc: 'Unique name for your cluster' }
+                                { key: 'clusterName', desc: 'Unique name for your cluster (required)' }
                             ]}
                             renderItem={item => (
                                 <List.Item>

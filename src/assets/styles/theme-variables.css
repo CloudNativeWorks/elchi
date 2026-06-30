@@ -24,6 +24,8 @@
   --color-warning-dark: #92400e;
   --color-warning-shadow: rgba(245, 158, 11, 0.08);
   --color-danger: #ef4444;
+  /* Alias: a lot of components reference --color-error; keep it in sync. */
+  --color-error: var(--color-danger);
   --color-danger-light: #fee2e2;
   --color-danger-shadow: rgba(255, 77, 79, 0.08);
   --color-danger-bg: #fff2f0;
@@ -277,6 +279,8 @@
   --color-warning-dark: #fcd34d;
   --color-warning-shadow: rgba(251, 191, 36, 0.15);
   --color-danger: #f87171;
+  /* Alias: a lot of components reference --color-error; keep it in sync. */
+  --color-error: var(--color-danger);
   --color-danger-light: #7f1d1d;
   --color-danger-shadow: rgba(248, 113, 113, 0.15);
   --color-danger-bg: rgba(127, 29, 29, 0.5);

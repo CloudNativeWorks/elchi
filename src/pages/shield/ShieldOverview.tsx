@@ -6,7 +6,10 @@
 
 import React, { useMemo, useState } from 'react';
 import { Alert, Button, Card, Col, Divider, Row, Segmented, Space, Table, Tag, Tooltip, Typography } from 'antd';
-import { ReloadOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
+import {
+    ReloadOutlined, SafetyCertificateOutlined, ThunderboltOutlined, StopOutlined,
+    EyeOutlined, ClockCircleOutlined, UnlockOutlined, LockOutlined, FieldTimeOutlined,
+} from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import { isShieldAdmin } from './utils';
@@ -15,6 +18,18 @@ import MetricLineChart, { MetricLineSeries } from '@/pages/api-discovery/compone
 
 const { Text, Title } = Typography;
 
+// Latency values arrive in seconds. p50/p95/p99 are frequently sub-millisecond,
+// so a fixed "(v*1000).toFixed(0) ms" collapses every axis tick + tooltip to
+// "0 ms". Keep the unit ms but scale precision so small values stay readable.
+const fmtLatency = (v: number): string => {
+    const ms = v * 1000;
+    if (ms === 0) return '0 ms';
+    if (ms < 0.1) return `${ms.toFixed(3)} ms`;
+    if (ms < 1) return `${ms.toFixed(2)} ms`;
+    if (ms < 10) return `${ms.toFixed(1)} ms`;
+    return `${Math.round(ms)} ms`;
+};
+
 const RANGES = [
     { label: '1h', value: 3600 },
     { label: '6h', value: 21600 },
@@ -22,12 +37,33 @@ const RANGES = [
     { label: '7d', value: 604800 },
 ];
 
-const Stat: React.FC<{ label: string; value: string; color?: string }> = ({ label, value, color }) => (
-    <div style={{ padding: '10px 14px', background: 'var(--bg-hover)', borderRadius: 10, border: '1px solid var(--border-default)' }}>
-        <Text style={{ fontSize: 10.5, letterSpacing: 0.6, textTransform: 'uppercase', color: 'var(--text-tertiary)', display: 'block' }}>{label}</Text>
-        <Text style={{ fontSize: 20, fontWeight: 700, color: color || 'var(--text-primary)', fontVariantNumeric: 'tabular-nums' }}>{value}</Text>
-    </div>
-);
+const Stat: React.FC<{ label: string; value: string; color?: string; icon?: React.ReactNode }> = ({ label, value, color, icon }) => {
+    const accent = color || 'var(--text-secondary)';
+    return (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 14px', background: 'var(--bg-hover)', borderRadius: 10, border: '1px solid var(--border-default)' }}>
+            {icon && (
+                <div style={{
+                    width: 38,
+                    height: 38,
+                    borderRadius: 9,
+                    flexShrink: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 18,
+                    color: accent,
+                    background: `color-mix(in srgb, ${accent} 14%, transparent)`,
+                }}>
+                    {icon}
+                </div>
+            )}
+            <div style={{ minWidth: 0 }}>
+                <Text style={{ fontSize: 10.5, letterSpacing: 0.6, textTransform: 'uppercase', color: 'var(--text-tertiary)', display: 'block' }}>{label}</Text>
+                <Text style={{ fontSize: 20, fontWeight: 700, color: color || 'var(--text-primary)', fontVariantNumeric: 'tabular-nums' }}>{value}</Text>
+            </div>
+        </div>
+    );
+};
 
 const ShieldOverview: React.FC<{ active?: boolean }> = ({ active = true }) => {
     const { project } = useProjectVariable();
@@ -150,10 +186,10 @@ const ShieldOverview: React.FC<{ active?: boolean }> = ({ active = true }) => {
             {/* Headline rate tiles (current values) */}
             <Col span={24}>
                 <Row gutter={[16, 16]}>
-                    <Col xs={12} md={6}><Stat label="Requests" value={fmtRate(latestScalar(d?.req ?? []))} color="var(--color-success)" /></Col>
-                    <Col xs={12} md={6}><Stat label="Blocked" value={fmtRate(latestScalar(d?.blk ?? []))} color="var(--color-error)" /></Col>
-                    <Col xs={12} md={6}><Stat label="Detected" value={fmtRate(latestScalar(d?.det ?? []))} color="var(--color-warning)" /></Col>
-                    <Col xs={12} md={6}><Stat label="Latency p95" value={fmtMs(latestScalar(d?.p95 ?? []))} /></Col>
+                    <Col xs={12} md={6}><Stat label="Requests" value={fmtRate(latestScalar(d?.req ?? []))} color="var(--color-success)" icon={<ThunderboltOutlined />} /></Col>
+                    <Col xs={12} md={6}><Stat label="Blocked" value={fmtRate(latestScalar(d?.blk ?? []))} color="var(--color-error)" icon={<StopOutlined />} /></Col>
+                    <Col xs={12} md={6}><Stat label="Detected" value={fmtRate(latestScalar(d?.det ?? []))} color="var(--color-warning)" icon={<EyeOutlined />} /></Col>
+                    <Col xs={12} md={6}><Stat label="Latency p95" value={fmtMs(latestScalar(d?.p95 ?? []))} icon={<ClockCircleOutlined />} /></Col>
                 </Row>
             </Col>
 
@@ -169,7 +205,7 @@ const ShieldOverview: React.FC<{ active?: boolean }> = ({ active = true }) => {
             </Col>
             <Col xs={24} lg={12}>
                 <Card size="small" title="Request processing latency (p50 / p95 / p99)" style={{ borderRadius: 12 }} loading={q.isLoading}>
-                    <MetricLineChart series={latency} height={240} yFormatter={(v) => `${(v * 1000).toFixed(0)} ms`} />
+                    <MetricLineChart series={latency} height={240} yFormatter={fmtLatency} />
                 </Card>
             </Col>
             <Col xs={24} lg={12}>
@@ -194,10 +230,10 @@ const ShieldOverview: React.FC<{ active?: boolean }> = ({ active = true }) => {
             </Col>
             <Col span={24}>
                 <Row gutter={[16, 16]}>
-                    <Col xs={12} md={6}><Stat label="Fail-open" value={fmtRate(sumLatest(d?.failOpen ?? []))} /></Col>
-                    <Col xs={12} md={6}><Stat label="Fail-close" value={fmtRate(sumLatest(d?.failClose ?? []))} color={sumLatest(d?.failClose ?? []) > 0 ? 'var(--color-error)' : undefined} /></Col>
-                    <Col xs={12} md={6}><Stat label="Timeouts" value={fmtRate(sumLatest(d?.timeouts ?? []))} color={sumLatest(d?.timeouts ?? []) > 0 ? 'var(--color-warning)' : undefined} /></Col>
-                    <Col xs={12} md={6}><Stat label="Reload failures (consec.)" value={String(Math.round(maxReloadFail))} color={maxReloadFail > 0 ? 'var(--color-error)' : undefined} /></Col>
+                    <Col xs={12} md={6}><Stat label="Fail-open" value={fmtRate(sumLatest(d?.failOpen ?? []))} icon={<UnlockOutlined />} /></Col>
+                    <Col xs={12} md={6}><Stat label="Fail-close" value={fmtRate(sumLatest(d?.failClose ?? []))} color={sumLatest(d?.failClose ?? []) > 0 ? 'var(--color-error)' : undefined} icon={<LockOutlined />} /></Col>
+                    <Col xs={12} md={6}><Stat label="Timeouts" value={fmtRate(sumLatest(d?.timeouts ?? []))} color={sumLatest(d?.timeouts ?? []) > 0 ? 'var(--color-warning)' : undefined} icon={<FieldTimeOutlined />} /></Col>
+                    <Col xs={12} md={6}><Stat label="Reload failures (consec.)" value={String(Math.round(maxReloadFail))} color={maxReloadFail > 0 ? 'var(--color-error)' : undefined} icon={<ReloadOutlined />} /></Col>
                 </Row>
             </Col>
             <Col xs={24} lg={12}>

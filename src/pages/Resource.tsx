@@ -42,7 +42,8 @@ const Resource: React.FC = () => {
         version: urlVersion as Version || null,
         generalName: 'resource',
         gtype: "",
-        managed: false,
+        // Listeners default to managed (enabled); other resources default to off.
+        managed: resource === 'listener',
     });
 
     // Enhanced component loader with timeout and retry

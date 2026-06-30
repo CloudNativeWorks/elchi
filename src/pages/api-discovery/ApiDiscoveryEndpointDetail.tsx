@@ -35,8 +35,10 @@ import {
     ExportOutlined,
     MoreOutlined,
     DeleteOutlined,
+    SafetyCertificateOutlined,
 } from '@ant-design/icons';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { useSuggestTargetModal } from '@/pages/shield/utils/useSuggestTargetModal';
 import ComponentLoadErrorBoundary from '@/components/ComponentLoadErrorBoundary';
 import ReactEChartsCore from 'echarts-for-react/lib/core';
 import * as echarts from 'echarts/core';
@@ -2749,6 +2751,7 @@ const ApiDiscoveryEndpointDetail: React.FC = () => {
     const isAdminOrOwner = ['owner', 'admin'].includes(userDetail?.role?.toLowerCase() || '');
     const deleteMut = useApiInventoryDeleteEndpoint();
     const resetMut = useApiInventoryResetEndpoint();
+    const { openModal: openSuggestModal, modal: suggestModal } = useSuggestTargetModal();
 
     const handleReset = () => {
         if (!id) return;
@@ -2999,6 +3002,16 @@ const ApiDiscoveryEndpointDetail: React.FC = () => {
                                 }
                             />
                         </Space>
+                        <Space>
+                        <Button
+                            type="primary"
+                            ghost
+                            icon={<SafetyCertificateOutlined />}
+                            onClick={() => id && openSuggestModal([id])}
+                            title="Generate a shield SecurityPolicy draft that mitigates this endpoint's findings"
+                        >
+                            Suggest Shield Policy
+                        </Button>
                         {isAdminOrOwner && (
                             <Dropdown
                                 trigger={['click']}
@@ -3023,6 +3036,7 @@ const ApiDiscoveryEndpointDetail: React.FC = () => {
                                 <Button icon={<MoreOutlined />}>Actions</Button>
                             </Dropdown>
                         )}
+                        </Space>
                     </div>
                 )}
             </div>
@@ -3105,6 +3119,7 @@ const ApiDiscoveryEndpointDetail: React.FC = () => {
                     ]}
                 />
             )}
+            {suggestModal}
         </div>
     );
 };

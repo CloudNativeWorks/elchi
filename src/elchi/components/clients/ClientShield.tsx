@@ -34,25 +34,51 @@ const actionColor = (a: string): string => {
     }
 };
 
+// systemd reports composite strings like "active (running)" / "inactive (dead)"
+// — match on keywords so the dot colour reflects the real state instead of
+// falling through to a misleading yellow "warning".
 const statusBadge = (status?: string) => {
-    switch (status) {
-        case 'active':
-            return <Badge status="success" text="active" />;
-        case 'inactive':
-            return <Badge status="default" text="inactive" />;
-        case 'failed':
-            return <Badge status="error" text="failed" />;
-        default:
-            return <Badge status="warning" text={status || 'unknown'} />;
-    }
+    if (!status) return <Badge status="warning" text="unknown" />;
+    const s = status.toLowerCase();
+    if (s.includes('fail') || s.includes('error')) return <Badge status="error" text={status} />;
+    if (s.includes('active') || s.includes('running')) return <Badge status="success" text={status} />;
+    if (s.includes('inactive') || s.includes('dead') || s.includes('stopped')) return <Badge status="default" text={status} />;
+    return <Badge status="warning" text={status} />;
 };
 
-const levelColor = (level?: string) => {
+// Slim count pill for card-title badges (replaces the bulky antd Tag which
+// inherits a global min-height: 30px).
+const CountPill: React.FC<{ count: React.ReactNode; tone?: 'primary' | 'danger' }> = ({ count, tone = 'primary' }) => {
+    const color = tone === 'danger' ? 'var(--color-error)' : 'var(--color-primary)';
+    return (
+        <span style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minWidth: 20,
+            height: 18,
+            padding: '0 6px',
+            borderRadius: 9,
+            fontSize: 11,
+            fontWeight: 600,
+            lineHeight: 1,
+            color,
+            background: `color-mix(in srgb, ${color} 14%, transparent)`,
+            border: `1px solid color-mix(in srgb, ${color} 35%, transparent)`,
+            fontVariantNumeric: 'tabular-nums',
+        }}>
+            {count}
+        </span>
+    );
+};
+
+// Tone (text + tint bg) for the slim log-level pill in Recent Logs.
+const levelTone = (level?: string): { color: string; bg: string } => {
     switch ((level || '').toLowerCase()) {
-        case 'error': return 'red';
-        case 'warn': case 'warning': return 'orange';
-        case 'info': return 'blue';
-        default: return 'default';
+        case 'error': return { color: 'var(--color-error)', bg: 'color-mix(in srgb, var(--color-error) 14%, transparent)' };
+        case 'warn': case 'warning': return { color: 'var(--color-warning)', bg: 'color-mix(in srgb, var(--color-warning) 14%, transparent)' };
+        case 'info': return { color: 'var(--color-primary)', bg: 'color-mix(in srgb, var(--color-primary) 12%, transparent)' };
+        default: return { color: 'var(--text-tertiary)', bg: 'var(--bg-elevated)' };
     }
 };
 
@@ -183,15 +209,32 @@ const ClientShield: React.FC<ClientShieldProps> = ({ clientId, hostname }) => {
                         {logs.length === 0 && (
                             <Text type="secondary">No logs available (the shield service may not be running on this edge).</Text>
                         )}
-                        {logs.map((l, i) => (
-                            <div key={i} style={{ marginBottom: 2, whiteSpace: 'pre-wrap' }}>
-                                <Tag className='auto-width-tag' color={levelColor(l.level)} style={{ marginRight: 6 }}>
-                                    {(l.level || 'log').toLowerCase()}
-                                </Tag>
-                                <Text type="secondary" style={{ marginRight: 6, fontSize: 11 }}>{l.timestamp}</Text>
-                                <span>{l.message}</span>
-                            </div>
-                        ))}
+                        {logs.map((l, i) => {
+                            const tone = levelTone(l.level);
+                            return (
+                                <div key={i} style={{ marginBottom: 2, whiteSpace: 'pre-wrap' }}>
+                                    <span style={{
+                                        display: 'inline-block',
+                                        height: 16,
+                                        lineHeight: '16px',
+                                        padding: '0 6px',
+                                        marginRight: 6,
+                                        borderRadius: 5,
+                                        fontSize: 10,
+                                        fontWeight: 600,
+                                        letterSpacing: 0.4,
+                                        textTransform: 'uppercase',
+                                        color: tone.color,
+                                        background: tone.bg,
+                                        verticalAlign: 'middle',
+                                    }}>
+                                        {(l.level || 'log').toLowerCase()}
+                                    </span>
+                                    <Text type="secondary" style={{ marginRight: 6, fontSize: 11 }}>{l.timestamp}</Text>
+                                    <span>{l.message}</span>
+                                </div>
+                            );
+                        })}
                     </div>
                 </Card>
             </Col>
@@ -204,7 +247,7 @@ const ClientShield: React.FC<ClientShieldProps> = ({ clientId, hostname }) => {
                         <Space>
                             <span>Live Config Files</span>
                             <Tooltip title="The shield config files actually on this edge's disk right now — compare against the project's policies to spot drift.">
-                                <Tag className='auto-width-tag' color="blue">{files.length}</Tag>
+                                <CountPill count={files.length} />
                             </Tooltip>
                         </Space>
                     }
@@ -280,7 +323,7 @@ const ClientShield: React.FC<ClientShieldProps> = ({ clientId, hostname }) => {
                         <Space>
                             <span>Recent Security Findings</span>
                             <Tooltip title="What shield blocked/detected on this edge in the last 7 days (from the central audit store).">
-                                <Tag className="auto-width-tag" color="red">{eventsQuery.data?.data?.length ?? 0}</Tag>
+                                <CountPill count={eventsQuery.data?.data?.length ?? 0} tone="danger" />
                             </Tooltip>
                         </Space>
                     }

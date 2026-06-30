@@ -40,6 +40,9 @@ const ClusterDetails: React.FC<ClusterDetailsProps> = ({ name, project, version,
     const [selectedClient, setSelectedClient] = useState<string>();
     const [metricChanges, setMetricChanges] = useState<MetricChanges>({});
     const previousMetrics = useRef<any>({});
+    // Guards React StrictMode's dev-only double-invoke of the mount effect so the
+    // initial cluster fetch fires once (the 15s poll below is unaffected).
+    const didInitFetch = useRef(false);
     const [searchText, setSearchText] = useState('');
     const [manualRefreshLoading, setManualRefreshLoading] = useState(false);
     const [initialLoading, setInitialLoading] = useState(true);
@@ -113,7 +116,10 @@ const ClusterDetails: React.FC<ClusterDetailsProps> = ({ name, project, version,
             setInitialLoading(false);
         };
 
-        fetchData();
+        if (!didInitFetch.current) {
+            didInitFetch.current = true;
+            fetchData();
+        }
         const interval = setInterval(fetchData, 15000);
         return () => clearInterval(interval);
     }, []);

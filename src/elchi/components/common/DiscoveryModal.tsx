@@ -48,8 +48,15 @@ const DiscoveryModal: React.FC<DiscoveryModalProps> = ({ open, onClose, onSave, 
     useEffect(() => {
         setSelectedClusters(initialData);
         setSelectedClusterName(undefined);
-        // Form will be reset by key prop change
-    }, [initialData, open]);
+        // Reset the Add-New-Cluster form on every open. Without this the Select keeps
+        // its previous cluster_name while selectedClusterName (which gates Protocol/
+        // Port/Address Type) is cleared above — so on reopen a cluster looks selected
+        // but the dependent fields stay disabled until you change the cluster. Mirrors
+        // the reset already done after a successful Add.
+        if (open) {
+            form.resetFields();
+        }
+    }, [initialData, open, form]);
 
     const handleAddCluster = () => {
         form.validateFields().then((values) => {

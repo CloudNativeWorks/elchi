@@ -55,17 +55,27 @@ export const ServiceDetails: React.FC<ServiceDetailsProps> = ({
                             const envoy = envoys?.find((e: any) => e.client_id === c.client_id);
                             const isConnected = envoy?.connected ?? false;
                             const clientName = envoy?.client_name || '';
+                            // The live envoy/connection list comes from the service payload's
+                            // `envoys.envoys`. When the backend returns it empty (zero-value)
+                            // we can't assert "disconnected" — show neutral instead of an
+                            // alarming red so a freshly deployed service isn't misreported.
+                            const hasEnvoyData = Array.isArray(envoys) && envoys.length > 0;
+                            const color = !hasEnvoyData ? 'default' : (isConnected ? 'success' : 'error');
+                            const tip = !hasEnvoyData
+                                ? 'Connection status unavailable'
+                                : (isConnected ? 'Connected' : 'Disconnected');
 
                             return (
-                                <Tag
-                                    className='auto-width-tag'
-                                    key={c.client_id + idx}
-                                    color={isConnected ? 'success' : 'error'}
-                                    style={{ fontSize: 12 }}
-                                >
-                                    <span style={{ fontWeight: 600 }}>{c.downstream_address}</span>
-                                    {clientName && <span style={{ fontWeight: 400, marginLeft: 4 }}>({clientName})</span>}
-                                </Tag>
+                                <Tooltip key={c.client_id + idx} title={tip}>
+                                    <Tag
+                                        className='auto-width-tag'
+                                        color={color}
+                                        style={{ fontSize: 12 }}
+                                    >
+                                        <span style={{ fontWeight: 600 }}>{c.downstream_address}</span>
+                                        {clientName && <span style={{ fontWeight: 400, marginLeft: 4 }}>({clientName})</span>}
+                                    </Tag>
+                                </Tooltip>
                             );
                         })}
                     </div>
