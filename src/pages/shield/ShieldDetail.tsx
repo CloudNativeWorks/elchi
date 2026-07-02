@@ -47,7 +47,15 @@ import DryRunTab from './components/DryRunTab';
 import ShieldExamplesDrawer from './components/ShieldExamplesDrawer';
 import SuggestionRationalePanel from './components/SuggestionRationalePanel';
 import ImportFromDiscoveryDrawer from './components/ImportFromDiscoveryDrawer';
-import { suggestPolicyFromEndpoints, mergeDiscoveryIntoModel, type DiscoveryDraft, type SuggestRationale } from './utils/suggestPolicy';
+import { suggestPolicyFromEndpoints, mergeDiscoveryIntoModel, popDiscoveryDraft, type DiscoveryDraft, type SuggestRationale } from './utils/suggestPolicy';
+
+// A discovery suggestion is handed over either as a sessionStorage key (large
+// drafts avoid the history.pushState size cap) or, as a fallback, inline in the
+// router state. Read whichever is present.
+const readDiscoveryDraft = (state: unknown): DiscoveryDraft | null => {
+    const s = state as { discoveryDraftKey?: string; discoveryDraft?: DiscoveryDraft } | null;
+    return popDiscoveryDraft(s?.discoveryDraftKey) ?? s?.discoveryDraft ?? null;
+};
 
 const { Title, Text } = Typography;
 const { confirm } = Modal;
@@ -68,18 +76,31 @@ const ShieldDetailInner: React.FC = () => {
     const location = useLocation();
     // A discovery draft (router state) is applied exactly once per navigation.
     const draftAppliedRef = useRef(false);
+    // Which policy id the editor has already hydrated, so a background refetch of
+    // `policy` does NOT re-HYDRATE and wipe unsaved (incl. just-merged) edits.
+    const hydratedIdRef = useRef<string | null>(null);
 
     // "Import from Discovery": suggest protections for the picked endpoints and
     // graft the resulting routes/engines onto the policy currently being edited.
+    // Throws on failure so the drawer keeps itself open for a retry.
     const handleImportFromDiscovery = async (endpointIds: string[]) => {
-        const draft = await suggestPolicyFromEndpoints(endpointIds, project);
-        const parsed = yamlToModel(draft.yaml);
-        if (parsed.model && parsed.errors.length === 0 && parsed.unsupportedPaths.length === 0) {
-            dispatch({ type: 'PATCH', update: (cur) => mergeDiscoveryIntoModel(cur, parsed.model!) });
-            setRationale(draft.rationale || []);
-            message.success(`Added protections for ${draft.rationale?.length ?? 0} endpoint(s)`);
-        } else {
-            message.error('Could not merge the suggested protections');
+        try {
+            const draft = await suggestPolicyFromEndpoints(endpointIds, project);
+            if (!draft?.yaml) {
+                message.error('No suggestion was returned for the selected endpoints');
+                return;
+            }
+            const parsed = yamlToModel(draft.yaml);
+            if (parsed.model && parsed.errors.length === 0 && parsed.unsupportedPaths.length === 0) {
+                dispatch({ type: 'PATCH', update: (cur) => mergeDiscoveryIntoModel(cur, parsed.model!) });
+                setRationale(draft.rationale || []);
+                message.success(`Added protections for ${draft.rationale?.length ?? 0} endpoint(s)`);
+            } else {
+                message.error('Could not merge the suggested protections (unsupported fields)');
+            }
+        } catch (e: any) {
+            message.error(e?.response?.data?.error || 'Failed to build a suggested policy');
+            throw e;
         }
     };
 
@@ -110,7 +131,10 @@ const ShieldDetailInner: React.FC = () => {
     // draft's routes/engines are merged onto the just-hydrated model (the PATCH
     // updater runs after HYDRATE, so it sees the loaded policy).
     useEffect(() => {
-        if (policy) {
+        // Hydrate ONCE per policy id. A later refetch of the same policy (query
+        // invalidation etc.) must not re-HYDRATE and discard unsaved Builder edits.
+        if (policy && hydratedIdRef.current !== id) {
+            hydratedIdRef.current = id ?? null;
             setName(policy.name);
             const hydrated = fromApi(policy);
             dispatch({
@@ -125,7 +149,7 @@ const ShieldDetailInner: React.FC = () => {
                 },
             });
 
-            const draft = (location.state as { discoveryDraft?: DiscoveryDraft } | null)?.discoveryDraft;
+            const draft = readDiscoveryDraft(location.state);
             if (draft && !draftAppliedRef.current) {
                 draftAppliedRef.current = true;
                 const parsed = yamlToModel(draft.yaml);
@@ -138,10 +162,12 @@ const ShieldDetailInner: React.FC = () => {
                 } else {
                     message.error('Could not merge the suggested protections');
                 }
-                window.history.replaceState({}, '');
+                // Clear the router state (window.history.replaceState does NOT update
+                // React Router's location.state) so a remount can't re-apply the draft.
+                navigate(location.pathname, { replace: true, state: null });
             }
         }
-    }, [policy, dispatch]);
+    }, [policy, id, dispatch, location.pathname, location.state, navigate]);
 
     // Hydrate from an API-Discovery suggestion handed over via router state
     // (create mode only). The draft is a normal policy YAML produced by the
@@ -150,7 +176,7 @@ const ShieldDetailInner: React.FC = () => {
     // so a refresh doesn't re-apply it.
     useEffect(() => {
         if (!isCreateMode) return;
-        const draft = (location.state as { discoveryDraft?: DiscoveryDraft } | null)?.discoveryDraft;
+        const draft = readDiscoveryDraft(location.state);
         if (!draft || draftAppliedRef.current) return;
         draftAppliedRef.current = true;
         setName(draft.policy_name || '');
@@ -161,8 +187,10 @@ const ShieldDetailInner: React.FC = () => {
         } else if (parsed.errors.length === 0) {
             dispatch({ type: 'ENTER_YAML_MODE', rawYaml: draft.yaml, reason: parsed.unsupportedPaths });
         }
-        window.history.replaceState({}, '');
-    }, [isCreateMode]);
+        // Clear router state through React Router (window.history.replaceState leaves
+        // location.state intact) so a remount can't re-apply the draft.
+        navigate(location.pathname, { replace: true, state: null });
+    }, [isCreateMode, location.pathname, location.state, dispatch, navigate]);
 
     const handleSave = async () => {
         setSaveError(null);

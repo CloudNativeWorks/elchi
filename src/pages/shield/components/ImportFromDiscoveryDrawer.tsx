@@ -54,6 +54,8 @@ const ImportFromDiscoveryDrawer: React.FC<ImportFromDiscoveryDrawerProps> = ({ o
             await onImport(selected);
             setSelected([]);
             onClose();
+        } catch {
+            // onImport surfaces its own error toast; keep the drawer open for a retry.
         } finally {
             setImporting(false);
         }

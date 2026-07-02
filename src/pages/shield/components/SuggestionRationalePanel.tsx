@@ -38,7 +38,10 @@ const SuggestionRationalePanel: React.FC<{
                         key: String(i),
                         label: (
                             <Space size={6} wrap>
-                                <Text code>{(r.methods?.join(', ') || 'ANY')}</Text>
+                                {/* The route protects ALL methods on the path (dropping the method
+                                    restriction avoids an unobserved-method bypass); observed methods
+                                    are shown as context below, not as the match. */}
+                                <Text code>ALL</Text>
                                 <Text strong>{r.host}{r.path}</Text>
                                 <Tag className="auto-width-tag" color={modeColor(r.mode)}>{r.mode}</Tag>
                                 <Text type="secondary" style={{ fontSize: 12 }}>{r.engines?.length || 0} engine(s)</Text>
@@ -46,6 +49,13 @@ const SuggestionRationalePanel: React.FC<{
                         ),
                         children: (
                             <div style={{ fontSize: 12.5 }}>
+                                {r.methods?.length > 0 && (
+                                    <div style={{ marginBottom: 6 }}>
+                                        <Text type="secondary" style={{ fontSize: 12 }}>Observed methods: </Text>
+                                        <Text code style={{ fontSize: 11 }}>{r.methods.join(', ')}</Text>
+                                        <Text type="secondary" style={{ fontSize: 11 }}> — protection applies to all methods on this path.</Text>
+                                    </div>
+                                )}
                                 {r.matched_flags?.length > 0 && (
                                     <div style={{ marginBottom: 8, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 4 }}>
                                         <Text type="secondary" style={{ fontSize: 12 }}>Findings:</Text>

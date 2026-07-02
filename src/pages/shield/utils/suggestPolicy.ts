@@ -47,6 +47,37 @@ export async function suggestPolicyFromEndpoints(
     return res?.data?.data as PolicySuggestion;
 }
 
+// A discovery draft can be large (up to ~500 routes ≈ hundreds of KB). Passing it
+// through React Router's location.state serializes into history.pushState, which
+// is size-capped in some browsers (Firefox ~640KB) and would throw, losing the
+// draft. Instead we stash it in sessionStorage and carry only a tiny key in the
+// router state. sessionStorage is per-tab and cleared on close — right for a
+// one-hop handoff.
+const DRAFT_STASH_PREFIX = 'shield-discovery-draft:';
+
+/** Stash a draft and return a key to pass via router state. */
+export function stashDiscoveryDraft(draft: DiscoveryDraft): string {
+    const key = DRAFT_STASH_PREFIX + String(Date.now()) + ':' + Math.random().toString(36).slice(2);
+    try {
+        sessionStorage.setItem(key, JSON.stringify(draft));
+        return key;
+    } catch {
+        return ''; // quota/unavailable — caller falls back to passing the draft inline
+    }
+}
+
+/** Retrieve and remove a stashed draft by key (one-shot). */
+export function popDiscoveryDraft(key: string | undefined | null): DiscoveryDraft | null {
+    if (!key || !key.startsWith(DRAFT_STASH_PREFIX)) return null;
+    try {
+        const raw = sessionStorage.getItem(key);
+        sessionStorage.removeItem(key);
+        return raw ? (JSON.parse(raw) as DiscoveryDraft) : null;
+    } catch {
+        return null;
+    }
+}
+
 /**
  * mergeDiscoveryIntoModel grafts a suggested policy's domains/routes into an
  * already-open policy (used by the Builder's "Import from Discovery" drawer). A
@@ -57,11 +88,22 @@ export function mergeDiscoveryIntoModel(current: PolicyFileModel, suggested: Pol
     const next: PolicyFileModel = JSON.parse(JSON.stringify(current));
     if (!next.spec) next.spec = {} as PolicyFileModel['spec'];
     if (!next.spec.domains) next.spec.domains = [];
+    // Identity of a route's selector, so importing the same endpoint twice (or an
+    // overlap with an existing route) doesn't append a duplicate.
+    const routeKey = (r: any) =>
+        `${r?.match?.path_exact ?? ''}|${r?.match?.path_prefix ?? ''}|${r?.match?.path_regex ?? ''}|${[...(r?.match?.methods ?? [])].sort().join(',')}`;
+    // Shield matches hosts case-insensitively, so compare that way when deciding
+    // whether a suggested domain merges into an existing one — otherwise
+    // "API.example.com" and "api.example.com" would become two domains shield
+    // treats as identical.
     for (const sd of suggested.spec?.domains ?? []) {
+        const sdLower = (sd.hosts ?? []).map(h => h.toLowerCase());
         const existing = next.spec.domains.find(d =>
-            (d.hosts ?? []).some(h => (sd.hosts ?? []).includes(h)));
+            (d.hosts ?? []).some(h => sdLower.includes(h.toLowerCase())));
         if (existing) {
-            existing.routes = [...(existing.routes ?? []), ...(sd.routes ?? [])];
+            const seen = new Set((existing.routes ?? []).map(routeKey));
+            const fresh = (sd.routes ?? []).filter(r => !seen.has(routeKey(r)));
+            existing.routes = [...(existing.routes ?? []), ...fresh];
         } else {
             next.spec.domains.push(sd);
         }

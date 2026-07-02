@@ -1233,6 +1233,7 @@ const ApiDiscoveryEndpoints: React.FC = () => {
                                         .flatMap(g => (g.operations || []).map(o => o._id))
                                         .filter(Boolean);
                                     if (ids.length) openSuggestModal(ids);
+                                    else message.warning('The selected paths have no linkable operations');
                                 }}
                                 title="Generate a shield SecurityPolicy draft covering the selected endpoints"
                             >
@@ -1706,7 +1707,15 @@ const ApiDiscoveryEndpoints: React.FC = () => {
                         rowKey={(g) => `${g.host}__${g.normalized_path}`}
                         rowSelection={{
                             selectedRowKeys: selectedGroups.map(g => `${g.host}__${g.normalized_path}`),
-                            onChange: (_keys, rows) => setSelectedGroups(rows),
+                            // Accumulate selection across pages: onChange only reports the
+                            // CURRENT page's selected rows, so merge them with the previously
+                            // selected groups and keep exactly the currently-checked keys.
+                            onChange: (keys, rows) => setSelectedGroups(prev => {
+                                const byKey = new Map<string, OperationGroup>();
+                                for (const g of prev) byKey.set(`${g.host}__${g.normalized_path}`, g);
+                                for (const r of rows) byKey.set(`${r.host}__${r.normalized_path}`, r);
+                                return (keys as string[]).map(k => byKey.get(k)).filter(Boolean) as OperationGroup[];
+                            }),
                             preserveSelectedRowKeys: true,
                         }}
                         columns={opsColumns}

@@ -13,7 +13,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import { shieldApi } from '../shieldApi';
-import { suggestPolicyFromEndpoints } from './suggestPolicy';
+import { suggestPolicyFromEndpoints, stashDiscoveryDraft } from './suggestPolicy';
 
 export function useSuggestTargetModal() {
     const navigate = useNavigate();
@@ -45,13 +45,18 @@ export function useSuggestTargetModal() {
         setBusy(true);
         try {
             const draft = await suggestPolicyFromEndpoints(ids, project);
-            // Same router-state payload either way; ShieldDetail REPLACES on create
-            // and MERGES on an existing policy.
-            if (mode === 'new') {
-                navigate('/shield/create', { state: { discoveryDraft: draft } });
-            } else {
-                navigate(`/shield/${policyId}`, { state: { discoveryDraft: draft } });
+            if (!draft?.yaml) {
+                message.error('No suggestion was returned for the selected endpoints');
+                setBusy(false);
+                return;
             }
+            // Carry the (potentially large) draft via sessionStorage, not router
+            // state, to avoid the history.pushState size cap; pass only a small key.
+            // If stashing fails (quota), fall back to the inline draft. ShieldDetail
+            // REPLACES on create and MERGES on an existing policy.
+            const key = stashDiscoveryDraft(draft);
+            const state = key ? { discoveryDraftKey: key } : { discoveryDraft: draft };
+            navigate(mode === 'new' ? '/shield/create' : `/shield/${policyId}`, { state });
             close();
         } catch (e: any) {
             message.error(e?.response?.data?.error || 'Failed to build a suggested policy');
