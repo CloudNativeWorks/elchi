@@ -20,7 +20,7 @@ import { useProjectVariable } from '@/hooks/useProjectVariable';
 import { isShieldAdmin } from './utils';
 import {
     rangeParams, queryRange, toLineSeries, latestScalar, sumLatest, sumByTime, projectSelector,
-    humanizeDur, topByLabel, ratioByTime, nonzeroTimestamps, VMSeries,
+    humanizeDur, topByLabel, ratioByTime, nonzeroTimestamps, withData, foldTopSeries, VMSeries,
 } from './shieldMetrics';
 import MetricLineChart, { MetricLineSeries, EventMarker, Sparkline } from '@/pages/api-discovery/components/MetricLineChart';
 
@@ -174,8 +174,11 @@ const ShieldOverview: React.FC<{ active?: boolean }> = ({ active = true }) => {
         ...toLineSeries(d?.det ?? [], () => 'Detections/s', { color: '#d46b08' }),
     ], [d]);
 
+    // Cap the stacked chart to the top-8 engines (rest folded into "other") so
+    // the legend stays legible no matter how many engines fire; the table below
+    // still lists the top blockers individually.
     const byEngine: MetricLineSeries[] = useMemo(
-        () => toLineSeries(d?.findingsBlock ?? [], (m) => m.engine || 'unknown', { stack: 'engines', area: true }),
+        () => foldTopSeries(d?.findingsBlock ?? [], 'engine', 8, 'engines'),
         [d]);
 
     const topEngines = useMemo(() => {
@@ -209,12 +212,12 @@ const ShieldOverview: React.FC<{ active?: boolean }> = ({ active = true }) => {
     // as a headline stat since it dwarfs the count series on a shared axis).
     const bodyChart: MetricLineSeries[] = useMemo(() => [
         { name: 'DLP redactions/s', data: sumByTime(d?.bodyMut ?? []), color: '#722ed1', area: true },
-        ...toLineSeries(d?.bodyRej ?? [], (m) => `reject:${m.reason || 'other'}`, {}),
+        ...toLineSeries(withData(d?.bodyRej ?? []), (m) => `reject:${m.reason || 'other'}`, {}),
     ], [d]);
 
     // Detect / shadow findings by engine (would-block in monitor/shadow mode).
     const detectShadow: MetricLineSeries[] = useMemo(
-        () => toLineSeries(d?.findingsDetect ?? [], (m) => `${m.engine || 'unknown'} (${m.action || 'detect'})`, { stack: 'ds', area: true }),
+        () => toLineSeries(withData(d?.findingsDetect ?? []), (m) => `${m.engine || 'unknown'} (${m.action || 'detect'})`, { stack: 'ds', area: true }),
         [d]);
 
     // Audit pipeline — dropped/export-error rates (queue depth is a gauge tile).

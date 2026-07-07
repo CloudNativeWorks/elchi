@@ -132,7 +132,7 @@ export const OpenApiForm: React.FC<EngineFormProps<OpenApiSpec>> = ({ value, onC
 
 const DLP_KINDS = [
     'credit_card', 'ssn', 'email', 'jwt', 'aws_access_key',
-    'private_key', 'google_api_key', 'slack_token', 'github_token',
+    'private_key', 'google_api_key', 'slack_token', 'github_token', 'stripe_key',
 ].map(k => ({ value: k }));
 
 export const DlpForm: React.FC<EngineFormProps<DlpSpec>> = ({ value, onChange, disabled }) => {

@@ -14,6 +14,7 @@ import { ReloadOutlined, ClearOutlined, SafetyOutlined, DownloadOutlined } from 
 import { useQuery } from '@tanstack/react-query';
 import dayjs, { Dayjs } from 'dayjs';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
+import { extractErrorMessage } from '@/common/notificationHandler';
 import { shieldApi } from './shieldApi';
 import { isShieldAdmin } from './utils';
 import { ShieldSecurityEvent, ShieldEventsParams } from './types';
@@ -508,7 +509,7 @@ const ShieldEvents: React.FC<{ active?: boolean }> = ({ active = true }) => {
                     {feedQuery.isError && (
                         <Alert type="warning" showIcon style={{ marginBottom: 12, borderRadius: 8 }}
                             message="Could not load shield events"
-                            description={(feedQuery.error as Error)?.message} />
+                            description={extractErrorMessage(feedQuery.error)} />
                     )}
                     <Table<ShieldSecurityEvent>
                         size="small"

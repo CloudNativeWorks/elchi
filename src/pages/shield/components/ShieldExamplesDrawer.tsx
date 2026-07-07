@@ -22,6 +22,158 @@ interface ShieldExample {
 
 export const EXAMPLES: ShieldExample[] = [
     {
+        key: 'general',
+        title: 'General API protection (recommended)',
+        description: 'A broad, production-shaped baseline mapped to the OWASP API Top 10 — per-IP rate limiting, scanner/bot blocking, the OWASP WAF, and secret/PII leak prevention in one policy. The best starting point for any API.',
+        tags: ['recommended', 'baseline', 'owasp'],
+        content: `apiVersion: sentinel.elchi.io/v1
+kind: SecurityPolicy
+metadata:
+  name: api-general-protection
+spec:
+  # Broad, production-shaped protection for a typical HTTP/JSON API, mapped to
+  # the OWASP API Security Top 10. Cheap checks first, the WAF last.
+  #
+  # ROLLOUT: ships in BLOCK. For a cautious start set mode: detect at
+  # spec.defaults, watch Security Events for a day, then switch back to block.
+  defaults:
+    mode: block
+    fail_mode: fail_open              # a shield outage must never blackhole traffic
+    inspect_request_body: true
+    max_request_body_bytes: 1048576   # 1 MiB - caps oversized-body abuse (API4)
+    inspect_response_body: true
+    max_response_body_bytes: 2097152  # 2 MiB
+    sampling_rate: 0.05               # audit 5% of ALLOWs (blocks/detects always audited)
+
+  # Probe / scrape endpoints bypass ALL inspection.
+  exclude:
+    - "/healthz"
+    - "/readyz"
+    - "/metrics"
+
+  domains:
+    - hosts: ["*"]                    # every host; narrow to your domain(s) in prod
+      routes:
+        - match:
+            path_prefix: "/"
+          policy:
+            mode: block
+            engines:
+              rate_limit:                  # 1) resource abuse / brute force (API4)
+                requests_per_second: 100
+                burst: 200
+                key: ip                    # needs Envoy use_remote_address: true
+              bot:                         # 2) scanners & recon tooling (API6)
+                score_threshold: 100
+                user_agent:
+                  block_empty: true        # no User-Agent is almost always a tool
+                  deny_substrings:         # hard-block known attack tooling
+                    - "sqlmap"
+                    - "nikto"
+                    - "nmap"
+                    - "masscan"
+                    - "nuclei"
+                    - "wpscan"
+                    - "acunetix"
+                    - "nessus"
+                    - "dirbuster"
+                    - "gobuster"
+                    - "ffuf"
+                    - "hydra"
+                    - "zgrab"
+                    - "sqlninja"
+                    - "commix"
+                    - "wfuzz"
+                  score_known_bot: 40      # generic library UAs add to the score
+                heuristics:                # real clients send these; missing = +score
+                  require_accept: true
+                  require_accept_encoding: true
+                  score_per_anomaly: 25
+              coraza:                      # 3) injection/XSS/traversal/RCE/SSRF (A03, API7/8)
+                include_owasp: true        # embedded OWASP Core Rule Set
+                paranoia_level: 1          # low false positives; raise once tuned
+            checks:
+              body:
+                dlp:                       # 4) block secret leaks, mask PII (API3)
+                  direction: response
+                  block:                   # leaked secrets => block the response
+                    - private_key
+                    - aws_access_key
+                    - google_api_key
+                    - slack_token
+                    - github_token
+                  redact:                  # PII => masked in-flight (not blocked)
+                    - credit_card
+                    - ssn
+                    - email
+`,
+    },
+    {
+        key: 'login',
+        title: 'Login protection (brute-force & credential stuffing)',
+        description: 'Tight per-IP rate limits + bot blocking + WAF on /login and token endpoints to stop brute-force, credential stuffing, and account takeover (OWASP API2). Scoped to the auth routes only.',
+        tags: ['auth', 'brute-force'],
+        content: `apiVersion: sentinel.elchi.io/v1
+kind: SecurityPolicy
+metadata:
+  name: api-login-protection
+spec:
+  # Protect credential endpoints from brute-force, credential stuffing and
+  # account takeover (OWASP API2). Tight per-IP limits + bot + WAF, auth-only.
+  defaults:
+    mode: block
+    fail_mode: fail_open
+    inspect_request_body: true
+    max_request_body_bytes: 65536      # login bodies are tiny; cap them hard
+
+  domains:
+    - hosts: ["accounts.example.com"]
+      routes:
+        # Login: a few tries/sec per IP is plenty for a human; more is
+        # brute force or credential stuffing.
+        - match:
+            path_prefix: "/login"
+            methods: [POST]
+          policy:
+            mode: block
+            engines:
+              rate_limit:
+                requests_per_second: 5
+                burst: 10
+                key: ip                  # needs Envoy use_remote_address: true
+              bot:
+                score_threshold: 60
+                user_agent:
+                  block_empty: true
+                  deny_substrings:       # automated login = attack on this route
+                    - "hydra"
+                    - "medusa"
+                    - "patator"
+                    - "sqlmap"
+                    - "python-requests"
+                    - "Go-http-client"
+                    - "curl"
+                heuristics:
+                  require_accept: true
+                  require_accept_language: true
+                  score_per_anomaly: 30
+              coraza:
+                include_owasp: true      # catches SQLi in the login form
+
+        # Token endpoint - same throttle.
+        - match:
+            path_prefix: "/oauth/token"
+            methods: [POST]
+          policy:
+            mode: block
+            engines:
+              rate_limit:
+                requests_per_second: 5
+                burst: 10
+                key: ip
+`,
+    },
+    {
         key: 'minimal',
         title: 'Minimal blocking policy',
         description: 'Block mode with the built-in header/body checks for one domain. The smallest useful config.',

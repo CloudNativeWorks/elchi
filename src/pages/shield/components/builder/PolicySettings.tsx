@@ -113,7 +113,7 @@ const PolicySettings: React.FC<PolicySettingsProps> = ({ policy, onChange, disab
                                     />
                                 </FieldShell>
                                 <TagsField label="Skip Checks" tooltip="Names of built-in checks to skip for this policy (false-positive escape hatch)." disabled={disabled} value={policy.skip_checks} onChange={v => set({ skip_checks: v })} />
-                                <FieldShell label="Pipeline Order (request)" tooltip="Reorder/disable inspector stages: fast_pre_checks, body_checks, waf_engine. Omission disables a stage." hint="Leave empty for the default order.">
+                                <FieldShell label="Pipeline Order (request)" tooltip="Reorder inspector stages: fast_pre_checks, body_checks, waf_engine. You must list every stage this policy uses — omitting a configured inspector (e.g. waf_engine when engines are set) is rejected at save, not silently disabled." hint="Leave empty for the default order.">
                                     <Select size="small" mode="multiple" style={{ width: '100%' }} allowClear placeholder="Default order" disabled={disabled}
                                         value={policy.pipeline?.request}
                                         options={['fast_pre_checks', 'body_checks', 'waf_engine'].map(sname => ({ value: sname, label: sname }))}

@@ -43,10 +43,19 @@ export const ENGINE_VALIDATORS: Record<string, Validator> = {
             : [],
     rate_limit: (v) =>
         !v.requests_per_second || v.requests_per_second <= 0 ? ['requests per second must be greater than 0'] : [],
-    coraza: (v) =>
-        !v.include_owasp && !text(v.directives) && !text(v.directives_file)
-            ? ['enable the OWASP CRS or add at least one rule']
-            : [],
+    coraza: (v) => {
+        const out: string[] = [];
+        if (!v.include_owasp && !text(v.directives) && !text(v.directives_file)) {
+            out.push('enable the OWASP CRS or add at least one rule');
+        }
+        // Each excluded rule id must be a bare number or id range — the backend
+        // concatenates them into SecLang and rejects anything else at load.
+        const badIds = (v.exclude_rule_ids ?? []).filter((id: unknown) => !/^\d+(-\d+)?$/.test(String(id)));
+        if (badIds.length) {
+            out.push(`disabled rule ids must be numeric ids or ranges (e.g. 942100 or 942100-942999): ${badIds.join(', ')}`);
+        }
+        return out;
+    },
     openapi: (v) => (text(v.spec_file) ? [] : ['an OpenAPI spec file is required']),
     dlp: (v) => (!list(v.block) && !list(v.redact) ? ['choose at least one detector to block or redact'] : []),
 };

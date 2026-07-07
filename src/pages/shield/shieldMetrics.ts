@@ -104,5 +104,51 @@ export const ratioByTime = (numer: VMSeries[], denom: VMSeries[]): Array<[number
 export const nonzeroTimestamps = (result: VMSeries[]): number[] =>
     (result?.[0]?.values ?? []).filter(([, v]) => (Number(v) || 0) > 0).map(([t]) => t * 1000);
 
+/**
+ * Drop series that are flat-zero across the whole window. The findings metric
+ * pre-registers every engine×action combo, so VM returns a zero series for every
+ * engine even when only a handful actually fired — filter those out so a chart
+ * legend lists the engines that did something, not all 18.
+ */
+export const withData = (result: VMSeries[]): VMSeries[] =>
+    (result ?? []).filter((s) => (s.values ?? []).some(([, v]) => (Number(v) || 0) > 0));
+
+/**
+ * Rank series by their latest value, keep the top `n` as their own stacked
+ * lines, and fold the rest into a single summed "other (k)" series — so a
+ * many-series stacked chart (e.g. ~18 engines) shows a legible legend while its
+ * total still adds up to the same height. Zero-across-window series are dropped
+ * first, so `other` only ever counts engines that actually fired.
+ */
+export const foldTopSeries = (
+    result: VMSeries[],
+    labelKey: string,
+    n: number,
+    stack: string,
+): MetricLineSeries[] => {
+    const latest = (s: VMSeries) => (s.values.length ? Number(s.values[s.values.length - 1][1]) || 0 : 0);
+    const ranked = [...withData(result)].sort((a, b) => latest(b) - latest(a));
+    const toData = (vals: VMSeries['values']) => vals.map(([t, v]) => [t * 1000, Number(v) || 0] as [number, number]);
+    const series: MetricLineSeries[] = ranked.slice(0, n).map((s) => ({
+        name: s.metric[labelKey] || 'unknown',
+        data: toData(s.values),
+        stack,
+        area: true,
+    }));
+    const rest = ranked.slice(n);
+    if (rest.length) {
+        const acc = new Map<number, number>();
+        for (const s of rest) for (const [t, v] of s.values) acc.set(t, (acc.get(t) || 0) + (Number(v) || 0));
+        series.push({
+            name: `other (${rest.length})`,
+            data: Array.from(acc.entries()).sort((a, b) => a[0] - b[0]).map(([t, v]) => [t * 1000, v] as [number, number]),
+            stack,
+            area: true,
+            color: '#8c8c8c',
+        });
+    }
+    return series;
+};
+
 /** Project scope selector on the listener node-id label. */
 export const projectSelector = (project: string): string => `{listener=~".*::${project}::.*"}`;

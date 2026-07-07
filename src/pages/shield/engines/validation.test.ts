@@ -27,6 +27,9 @@ describe('validateEngineValue', () => {
         expect(validateEngineValue('rate_limit', { requests_per_second: 50 })).toEqual([]);
         expect(validateEngineValue('coraza', {})).toHaveLength(1);
         expect(validateEngineValue('coraza', { include_owasp: true })).toEqual([]);
+        // exclude_rule_ids must be numeric ids/ranges (the backend rejects otherwise).
+        expect(validateEngineValue('coraza', { include_owasp: true, exclude_rule_ids: ['942100', '941000-941999'] })).toEqual([]);
+        expect(validateEngineValue('coraza', { include_owasp: true, exclude_rule_ids: ['SecRuleEngine Off'] })).toHaveLength(1);
         expect(validateEngineValue('dlp', {})).toHaveLength(1);
         expect(validateEngineValue('dlp', { redact: ['email'] })).toEqual([]);
         expect(validateEngineValue('ip_reputation', {})).toHaveLength(1);
