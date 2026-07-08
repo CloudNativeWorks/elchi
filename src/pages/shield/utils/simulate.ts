@@ -30,6 +30,13 @@ export interface SimEngine {
     phase: 'header' | 'body';
 }
 
+export interface BodyInspection {
+    /** Whether the edge buffers + inspects this body for the resolved policy. */
+    on: boolean;
+    /** Why it is on — e.g. "set in defaults", "required by Coraza WAF". Absent when off. */
+    reason?: string;
+}
+
 export interface SimResult {
     normalizedHost: string;
     normalizedPath: string;
@@ -44,8 +51,9 @@ export interface SimResult {
     /** Effective resolved values. */
     mode: string;
     failMode: string;
-    inspectRequestBody: boolean;
-    inspectResponseBody: boolean;
+    /** Whether/why the request & response bodies are buffered (incl. engine auto-enable). */
+    requestBody: BodyInspection;
+    responseBody: BodyInspection;
     engines: SimEngine[];
     /** Caveats (e.g. unevaluated header conditions) and explanatory notes. */
     caveats: string[];
@@ -131,6 +139,13 @@ const pick = <T>(chain: (T | undefined)[]): T | undefined => {
     return v;
 };
 
+/** Last-defined value across the chain, plus the scope label it came from. */
+const pickWithSource = <T>(chain: PolicySpec[], labels: string[], get: (p: PolicySpec) => T | undefined): { value?: T; source?: string } => {
+    let value: T | undefined; let source: string | undefined;
+    chain.forEach((c, i) => { const v = get(c); if (v !== undefined) { value = v; source = labels[i]; } });
+    return { value, source };
+};
+
 const effectiveEngines = (chain: PolicySpec[]): SimEngine[] => {
     // Engines and checks.body replace wholesale, so take the most-specific that
     // sets them — exactly what the edge does.
@@ -159,7 +174,7 @@ export const simulateRequest = (model: PolicyFileModel, input: SimInput): SimRes
     const defaults = spec.defaults ?? {};
     const caveats: string[] = [];
 
-    const base: Omit<SimResult, 'mode' | 'failMode' | 'inspectRequestBody' | 'inspectResponseBody' | 'engines' | 'caveats'> = {
+    const base: Omit<SimResult, 'mode' | 'failMode' | 'requestBody' | 'responseBody' | 'engines' | 'caveats'> = {
         normalizedHost: host,
         normalizedPath: np,
     };
@@ -169,7 +184,7 @@ export const simulateRequest = (model: PolicyFileModel, input: SimInput): SimRes
         if (normalizePath(ex) === np) {
             return {
                 ...base, excluded: ex, mode: 'off', failMode: '—',
-                inspectRequestBody: false, inspectResponseBody: false, engines: [], caveats,
+                requestBody: { on: false }, responseBody: { on: false }, engines: [], caveats,
             };
         }
     }
@@ -189,7 +204,7 @@ export const simulateRequest = (model: PolicyFileModel, input: SimInput): SimRes
     if (!best) {
         return {
             ...base, noDomainMatch: true, mode: '— (no policy)', failMode: '—',
-            inspectRequestBody: false, inspectResponseBody: false, engines: [],
+            requestBody: { on: false }, responseBody: { on: false }, engines: [],
             caveats: ['No domain matched this host — the no-policy default posture applies (allow/continue unless the instance default is deny).'],
         };
     }
@@ -213,9 +228,11 @@ export const simulateRequest = (model: PolicyFileModel, input: SimInput): SimRes
     }
 
     const chain: PolicySpec[] = [defaults];
-    if (best.domain.policy) chain.push(best.domain.policy);
+    const chainLabels: string[] = ['defaults'];
+    if (best.domain.policy) { chain.push(best.domain.policy); chainLabels.push('the domain policy'); }
     if (winner) {
         chain.push(winner.r.policy ?? {});
+        chainLabels.push('the route policy');
         base.route = { index: winner.index, label: routeLabel(winner.r.match ?? {}, winner.index) };
     } else {
         base.usedDomainDefault = true;
@@ -224,13 +241,40 @@ export const simulateRequest = (model: PolicyFileModel, input: SimInput): SimRes
 
     const mode = pick(chain.map(p => p.mode)) ?? 'block';
     const failMode = pick(chain.map(p => p.fail_mode)) ?? 'fail_open';
-    const inspectRequestBody = pick(chain.map(p => p.inspect_request_body)) ?? false;
-    const inspectResponseBody = pick(chain.map(p => p.inspect_response_body)) ?? false;
     const engines = effectiveEngines(chain);
+    const effEngines = pick(chain.map(p => p.engines));
+    const effBody = pick(chain.map(p => p.checks?.body));
+    const dlpDir = effBody?.dlp?.direction; // undefined ⇒ "response" on the edge
+
+    // Body inspection = the explicit inspect_* flag OR a body-phase engine / check that
+    // needs it. Mirrors the edge (Engines.RequiresBody / NeedsResponseInspection + the
+    // DLP / require_json / detect_sensitive_data auto-enable), so a header-only route
+    // shows body OFF once the inherited defaults flag is removed — and shows the REASON
+    // it is on when it is (a flag set upstream vs an engine that requires it).
+    const reqFlag = pickWithSource(chain, chainLabels, p => p.inspect_request_body);
+    const reqDriver =
+        effEngines?.coraza ? 'the Coraza WAF' :
+        effEngines?.graphql ? 'the GraphQL guard' :
+        effEngines?.openapi?.validate_request_body ? 'OpenAPI request-body validation' :
+        effEngines?.hmac_sign?.require_body_digest ? 'the HMAC body digest' :
+        (effBody?.dlp && (dlpDir === 'request' || dlpDir === 'both')) ? 'request-side DLP' :
+        effBody?.require_json ? 'the require_json check' :
+        effBody?.detect_sensitive_data ? 'the sensitive-data check' : undefined;
+    const requestBody: BodyInspection = reqFlag.value === true
+        ? { on: true, reason: `set in ${reqFlag.source}` }
+        : reqDriver ? { on: true, reason: `required by ${reqDriver}` } : { on: false };
+
+    const respFlag = pickWithSource(chain, chainLabels, p => p.inspect_response_body);
+    const respDriver =
+        effEngines?.coraza ? 'the Coraza WAF (response rules)' :
+        (effBody?.dlp && (dlpDir === 'response' || dlpDir === 'both' || dlpDir === undefined)) ? 'response-side DLP' : undefined;
+    const responseBody: BodyInspection = respFlag.value === true
+        ? { on: true, reason: `set in ${respFlag.source}` }
+        : respDriver ? { on: true, reason: `required by ${respDriver}` } : { on: false };
 
     if (mode === 'off') caveats.push('Mode is "off" — the request is passed through without inspection.');
 
-    return { ...base, mode, failMode, inspectRequestBody, inspectResponseBody, engines, caveats };
+    return { ...base, mode, failMode, requestBody, responseBody, engines, caveats };
 };
 
 /** Engine label for a key (for chips that reference an engine by key). */

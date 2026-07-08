@@ -8,32 +8,17 @@
  */
 
 import React, { useMemo, useState } from 'react';
-import { Alert, Card, Col, Input, Row, Select, Space, Tag, Typography } from 'antd';
+import { Alert, Card, Col, Input, Row, Select, Space, Typography } from 'antd';
 import { ExperimentOutlined } from '@ant-design/icons';
 import { usePolicyEditor } from '../state/policyStore';
 import { yamlToModel } from '../utils/policyYaml';
 import { SimResult, simulateRequest } from '../utils/simulate';
 import { FieldShell } from '../engines/fields';
+import ResolutionResultView from './ResolutionResultView';
 
 const { Text } = Typography;
 
 const METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'].map(m => ({ value: m, label: m }));
-
-const MODE_COLOR: Record<string, string> = { block: 'red', detect: 'gold', shadow: 'blue', off: 'default' };
-
-const PhaseChip: React.FC<{ phase: 'header' | 'body' }> = ({ phase }) => {
-    const body = phase === 'body';
-    return (
-        <span style={{
-            fontSize: 10, lineHeight: '14px', padding: '1px 6px', borderRadius: 6, marginLeft: 6,
-            color: body ? '#fa8c16' : '#52c41a',
-            border: `1px solid ${body ? 'rgba(250,140,22,0.55)' : 'rgba(82,196,26,0.55)'}`,
-            background: body ? 'rgba(250,140,22,0.12)' : 'rgba(82,196,26,0.12)',
-        }}>
-            {body ? 'body' : 'header'}
-        </span>
-    );
-};
 
 const ResultView: React.FC<{ r: SimResult }> = ({ r }) => (
     <Card size="small" style={{ borderRadius: 12, marginTop: 12 }}>
@@ -41,70 +26,7 @@ const ResultView: React.FC<{ r: SimResult }> = ({ r }) => (
             normalized: {r.normalizedHost || '∅'} {r.normalizedPath}
         </Text>
 
-        {r.excluded ? (
-            <Alert style={{ marginTop: 8, borderRadius: 8 }} type="info" showIcon
-                message={<span>Bypassed — the path matches an excluded path <Text code>{r.excluded}</Text>. No inspection runs.</span>} />
-        ) : r.noDomainMatch ? (
-            <Alert style={{ marginTop: 8, borderRadius: 8 }} type="warning" showIcon
-                message="No domain matched this host." description={r.caveats[0]} />
-        ) : (
-            <div style={{ marginTop: 8 }}>
-                <Space direction="vertical" size={6} style={{ width: '100%' }}>
-                    <div>
-                        <Text type="secondary" style={{ fontSize: 12 }}>Domain</Text>{'  '}
-                        <Text strong>{r.domain?.hosts.join(', ')}</Text>{' '}
-                        <Text type="secondary" style={{ fontSize: 12 }}>(via <Text code>{r.domain?.matchedEntry}</Text>)</Text>
-                    </div>
-                    <div>
-                        <Text type="secondary" style={{ fontSize: 12 }}>Route</Text>{'  '}
-                        {r.route
-                            ? <Text strong style={{ fontFamily: 'monospace' }}>{r.route.label}</Text>
-                            : <Text type="secondary">domain default (no route matched)</Text>}
-                    </div>
-                    <div>
-                        <Space size={8} wrap>
-                            <span><Text type="secondary" style={{ fontSize: 12 }}>Mode</Text>{' '}
-                                <Tag color={MODE_COLOR[r.mode] ?? 'default'} style={{ marginInlineEnd: 0 }}>{r.mode}</Tag></span>
-                            <span><Text type="secondary" style={{ fontSize: 12 }}>Fail</Text>{' '}<Tag>{r.failMode}</Tag></span>
-                            {r.inspectRequestBody && <Tag color="orange">inspects request body</Tag>}
-                            {r.inspectResponseBody && <Tag color="orange">inspects response body</Tag>}
-                        </Space>
-                    </div>
-                    <div>
-                        <Text type="secondary" style={{ fontSize: 12 }}>Engines that run (in order)</Text>
-                        <div style={{ marginTop: 4 }}>
-                            {r.engines.length === 0 ? (
-                                <Text type="secondary" style={{ fontSize: 12 }}>
-                                    None — only the built-in header/body checks apply.
-                                </Text>
-                            ) : (
-                                <Space size={[6, 6]} wrap>
-                                    {r.engines.map((e, i) => (
-                                        <span key={e.key} style={{
-                                            display: 'inline-flex', alignItems: 'center',
-                                            border: '1px solid var(--border-default)', borderRadius: 8, padding: '2px 8px',
-                                            background: 'var(--bg-elevated, transparent)',
-                                        }}>
-                                            <Text type="secondary" style={{ fontSize: 11, marginRight: 4 }}>{i + 1}.</Text>
-                                            <Text style={{ fontSize: 12 }}>{e.label}</Text>
-                                            <PhaseChip phase={e.phase} />
-                                        </span>
-                                    ))}
-                                </Space>
-                            )}
-                        </div>
-                    </div>
-                </Space>
-            </div>
-        )}
-
-        {!r.excluded && r.caveats.length > 0 && (
-            <ul style={{ margin: '10px 0 0 16px', padding: 0 }}>
-                {r.caveats.map((c, i) => (
-                    <li key={i}><Text type="secondary" style={{ fontSize: 12 }}>{c}</Text></li>
-                ))}
-            </ul>
-        )}
+        <ResolutionResultView r={r} />
     </Card>
 );
 

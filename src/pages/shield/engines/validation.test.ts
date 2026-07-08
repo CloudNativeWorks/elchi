@@ -63,4 +63,14 @@ describe('collectEngineProblems', () => {
         }];
         expect(collectEngineProblems(m)).toEqual([]);
     });
+
+    it('flags a host defined in more than one domain (Shield rejects duplicates)', () => {
+        const m = newPolicyFile('t');
+        m.spec.domains = [
+            { hosts: ['*'], routes: [{ match: { path_prefix: '/' }, policy: {} }] },
+            { hosts: ['API.example.com', '*'], routes: [{ match: { path_prefix: '/' }, policy: {} }] },
+        ];
+        const problems = collectEngineProblems(m);
+        expect(problems.some(p => p.includes('"*"') && p.includes('already defined'))).toBe(true);
+    });
 });

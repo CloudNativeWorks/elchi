@@ -12,6 +12,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, Button, Drawer, Space, Tag, Typography } from 'antd';
 import { CheckOutlined, SafetyCertificateOutlined, ThunderboltOutlined } from '@ant-design/icons';
+import { useQuery } from '@tanstack/react-query';
+import { useProjectVariable } from '@/hooks/useProjectVariable';
+import { shieldApi } from '../../../shieldApi';
 import { CorazaSpec, DataFileModel } from '../../../state/model';
 import { DataFilePathField } from '../../fields';
 import {
@@ -68,6 +71,27 @@ const WafStudioDrawer: React.FC<WafStudioDrawerProps> = ({ open, value, onApply,
     const [templateOpen, setTemplateOpen] = useState(false);
     const wasOpen = useRef(false);
 
+    // Shield's CRS is embedded per binary, so the library must match the version the
+    // project's edges actually run — not the WASM path's fixed 4.14.0. Fetch the fleet
+    // to auto-pin the library to its primary version and warn when the fleet is mixed.
+    const { project } = useProjectVariable();
+    const { data: crsFleet } = useQuery({
+        queryKey: ['shield-crs-fleet', project],
+        queryFn: () => shieldApi.getShieldCrsFleet(project),
+        enabled: open && !!project,
+    });
+    // Shares the CRS-library pane's query key so it's a single fetch. Used to detect the
+    // case where the fleet runs a version the backend has no generated library for yet.
+    const { data: crsVersions } = useQuery({
+        queryKey: ['crs-versions', 'shield'],
+        queryFn: () => shieldApi.getShieldCrsVersions(),
+        enabled: open,
+    });
+    const primaryLibraryMissing = useMemo(() => {
+        if (!crsFleet?.primary || !crsVersions?.versions) return false;
+        return !crsVersions.versions.some((v) => v.crs_version === crsFleet.primary);
+    }, [crsFleet, crsVersions]);
+
     // Re-seed the working copy on the open transition only — not on every parent
     // re-render (which would clobber in-progress edits).
     useEffect(() => {
@@ -87,6 +111,19 @@ const WafStudioDrawer: React.FC<WafStudioDrawerProps> = ({ open, value, onApply,
     );
     const toggleExclude = (id: number) =>
         setDraft((d) => ({ ...d, exclude_rule_ids: toggleExcludeId(d.exclude_rule_ids, String(id)) }));
+
+    // Flag excluded rule ids that don't exist in the CRS version the fleet runs — on
+    // that edge the exclusion is a silent SecRuleRemoveById no-op, so the rule stays on.
+    const { data: crsIds } = useQuery({
+        queryKey: ['shield-crs-ids', crsFleet?.primary],
+        queryFn: () => shieldApi.getShieldCrsRuleIds(crsFleet!.primary),
+        enabled: open && draft.include_owasp && !!crsFleet?.primary && excludedIdSet.size > 0 && !primaryLibraryMissing,
+    });
+    const unknownExcludedIds = useMemo(() => {
+        if (!crsIds?.ids) return [];
+        const known = new Set(crsIds.ids);
+        return [...excludedIdSet].filter((id) => !known.has(id));
+    }, [crsIds, excludedIdSet]);
 
     const addRules = (texts: string[]) => {
         setRules((prev) => {
@@ -218,7 +255,12 @@ const WafStudioDrawer: React.FC<WafStudioDrawerProps> = ({ open, value, onApply,
                     }}
                 >
                     <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border-default)' }}>
-                        <Text strong style={{ fontSize: 14 }}>CRS Rule Library</Text>
+                        <Space size={8} wrap>
+                            <Text strong style={{ fontSize: 14 }}>CRS Rule Library</Text>
+                            {crsFleet?.primary
+                                ? <Tag color="blue" style={{ margin: 0 }}>CRS {crsFleet.primary} — what your edges run</Tag>
+                                : <Tag style={{ margin: 0 }}>no deployed shield detected</Tag>}
+                        </Space>
                         <div>
                             <Text type="secondary" style={{ fontSize: 12 }}>
                                 {draft.include_owasp
@@ -226,6 +268,53 @@ const WafStudioDrawer: React.FC<WafStudioDrawerProps> = ({ open, value, onApply,
                                     : 'Browse the Core Rule Set and copy a rule into your custom rules as a starting point.'}
                             </Text>
                         </div>
+                        {crsFleet?.mixed && (
+                            <Alert
+                                type="warning" showIcon style={{ marginTop: 8 }}
+                                message="Your shield fleet runs multiple CRS versions"
+                                description={
+                                    <span style={{ fontSize: 12 }}>
+                                        {crsFleet.versions.map(v => `${v.version} (${v.nodes} node${v.nodes === 1 ? '' : 's'})`).join(', ')}
+                                        {' — tuning applies to every edge; the library below shows '}
+                                        <b>{crsFleet.primary}</b>. Rule IDs are stable across versions, but new/removed rules differ per edge.
+                                    </span>
+                                }
+                            />
+                        )}
+                        {!crsFleet?.primary && (
+                            <Alert
+                                type="info" showIcon style={{ marginTop: 8 }}
+                                message="No deployed shield detected for this project"
+                                description={<span style={{ fontSize: 12 }}>Showing the latest CRS library the backend has; it auto-pins to your fleet&apos;s version once an edge reports in.</span>}
+                            />
+                        )}
+                        {primaryLibraryMissing && (
+                            <Alert
+                                type="warning" showIcon style={{ marginTop: 8 }}
+                                message={`No CRS library for ${crsFleet?.primary} in this backend yet`}
+                                description={
+                                    <span style={{ fontSize: 12 }}>
+                                        Your edges run <b>{crsFleet?.primary}</b>, but its rule library hasn&apos;t been generated here — the browser below shows the nearest available version <b>for reference only</b>. Regenerate it (CRS version runbook) so tuning matches enforcement.
+                                    </span>
+                                }
+                            />
+                        )}
+                        {crsFleet?.primary && (crsFleet.unreported ?? 0) > 0 && (
+                            <Text type="secondary" style={{ fontSize: 11, display: 'block', marginTop: 6 }}>
+                                {crsFleet.unreported} node(s) in this project don&apos;t report a CRS version (not running shield, or an older build).
+                            </Text>
+                        )}
+                        {unknownExcludedIds.length > 0 && (
+                            <Alert
+                                type="warning" showIcon style={{ marginTop: 8 }}
+                                message={`${unknownExcludedIds.length} excluded rule id(s) are not in CRS ${crsFleet?.primary}`}
+                                description={
+                                    <span style={{ fontSize: 12 }}>
+                                        {unknownExcludedIds.join(', ')} — not present in this version, so the exclusion is a no-op on those edges. Remove them or verify the id.
+                                    </span>
+                                }
+                            />
+                        )}
                     </div>
                     <div style={{ flex: 1, minHeight: 0 }}>
                         <CrsLibraryPane
@@ -234,6 +323,7 @@ const WafStudioDrawer: React.FC<WafStudioDrawerProps> = ({ open, value, onApply,
                             disabled={disabled}
                             excludedIds={draft.include_owasp ? excludedIdSet : undefined}
                             onToggleExclude={draft.include_owasp ? toggleExclude : undefined}
+                            libraryOptions={{ source: 'shield', pinnedVersion: crsFleet?.primary || undefined }}
                         />
                     </div>
                 </div>

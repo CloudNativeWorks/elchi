@@ -4,6 +4,7 @@
  */
 
 import { api } from '@/common/api';
+import { CrsFilter, CrsRulesResponse } from '@/pages/waf/types';
 import {
     ShieldPolicy,
     ShieldPolicyRequest,
@@ -15,6 +16,28 @@ import {
     ShieldEventsSummary,
     ShieldEventsFacets,
 } from './types';
+
+/** One coreruleset version present across a project's shield fleet. */
+export interface ShieldCrsFleetVersion {
+    version: string;
+    nodes: number;
+    connected: number;
+}
+
+/** Which CRS versions a project's shield fleet compiled in — the ground truth the UI
+ *  auto-pins its CRS library to (shield's CRS is embedded per binary). */
+export interface ShieldCrsFleet {
+    project: string;
+    versions: ShieldCrsFleetVersion[];
+    primary: string;
+    mixed: boolean;
+    unreported: number;
+}
+
+/** Versions the backend has a shield CRS library for (same shape as the WASM list). */
+export interface ShieldCrsVersionsResponse {
+    versions: Array<{ coraza_version: string; crs_version: string; total_rules: number; generated_at: string }>;
+}
 
 const SHIELD_BASE_PATH = '/api/v3/shield';
 
@@ -151,6 +174,53 @@ class ShieldApiClient {
             `${SHIELD_BASE_PATH}/events/facets?${buildEventsQuery(project, params)}`, SKIP_GLOBAL_ERROR
         );
         return response.data?.data ?? { engines: [], actions: [], severities: [], hosts: [], nodes: [] };
+    }
+
+    // ─── CRS library (shield-embedded coreruleset; separate from the WASM path) ──
+
+    /** The CRS versions the project's shield fleet actually runs (embedded per binary),
+     *  with node counts + a `primary`. Drives the auto-pinned CRS library + mixed warning. */
+    async getShieldCrsFleet(project: string): Promise<ShieldCrsFleet> {
+        // Best-effort context: the drawer degrades gracefully when it's unavailable, so
+        // suppress the global toast (like the events reads).
+        const response = await api.get<ShieldCrsFleet>(
+            `${SHIELD_BASE_PATH}/crs/fleet?project=${encodeURIComponent(project)}`, SKIP_GLOBAL_ERROR
+        );
+        return response.data;
+    }
+
+    /** CRS versions the backend has a shield rule library for. */
+    async getShieldCrsVersions(): Promise<ShieldCrsVersionsResponse> {
+        const response = await api.get<ShieldCrsVersionsResponse>(`${SHIELD_BASE_PATH}/crs/versions`, SKIP_GLOBAL_ERROR);
+        return response.data;
+    }
+
+    /** Just the rule ids present in a coreruleset version (cheap) — to flag
+     *  exclude_rule_ids that don't exist in the version the fleet runs. A 404 (no library
+     *  for that version yet) is an expected condition, so suppress the global toast. */
+    async getShieldCrsRuleIds(crsVersion: string): Promise<{ crs_version: string; ids: number[] }> {
+        const response = await api.get<{ crs_version: string; ids: number[] }>(
+            `${SHIELD_BASE_PATH}/crs/ids?crs_version=${encodeURIComponent(crsVersion)}`, SKIP_GLOBAL_ERROR
+        );
+        return response.data;
+    }
+
+    /** Shield CRS rules for a coreruleset version — the exact ruleset a shield binary
+     *  embeds, filtered server-side (same params/shape as the WASM CRS endpoint). */
+    async getShieldCrsRules(filter?: CrsFilter): Promise<CrsRulesResponse> {
+        const params = new URLSearchParams();
+        if (filter) {
+            Object.entries(filter).forEach(([key, value]) => {
+                if (value !== undefined && value !== null && value !== '') {
+                    params.append(key, String(value));
+                }
+            });
+        }
+        const queryString = params.toString();
+        const response = await api.get<CrsRulesResponse>(
+            `${SHIELD_BASE_PATH}/crs${queryString ? `?${queryString}` : ''}`
+        );
+        return response.data;
     }
 }
 

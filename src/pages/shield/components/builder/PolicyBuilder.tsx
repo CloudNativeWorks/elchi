@@ -9,7 +9,7 @@
  */
 
 import React, { useMemo, useState } from 'react';
-import { Button, Col, Empty, Input, Row, Segmented, Select, Space, Tooltip, Typography } from 'antd';
+import { Alert, Button, Col, Empty, Input, Row, Segmented, Select, Space, Tooltip, Typography } from 'antd';
 import {
     DeleteOutlined,
     DownOutlined,
@@ -275,6 +275,31 @@ const PolicyBuilder: React.FC<{ disabled?: boolean }> = ({ disabled }) => {
                             value={domain.hosts ?? []} tokenSeparators={[',', ' ']} options={[]}
                             onChange={(v: string[]) => updateDomain(domain._uid!, { ...domain, hosts: v.length ? v : undefined })} />
                     </FieldShell>
+                    <Alert
+                        type="info"
+                        showIcon
+                        style={{ marginTop: 8, marginBottom: 8 }}
+                        message="How a request picks a domain"
+                        description={
+                            <div style={{ fontSize: 12, lineHeight: 1.6 }}>
+                                Matching is by <b>specificity, not creation order</b>. The most-specific
+                                matching host wins:
+                                <div style={{ margin: '4px 0' }}>
+                                    exact <code>api.example.com</code> &rsaquo; wildcard <code>*.example.com</code> &rsaquo; catch-all <code>*</code>
+                                </div>
+                                So a <code>*</code> policy catches everything until you add a more specific
+                                host, which then takes its own traffic (the <code>*</code> keeps the rest).
+                                Within the winning domain, routes match <b>exact path &rsaquo; regex &rsaquo; longest prefix</b>;
+                                if none match, that domain&rsquo;s default policy applies — it never falls back to
+                                another domain.
+                                <div style={{ marginTop: 4 }}>
+                                    ⚠️ Each host (and <code>*</code>) may appear <b>only once across all policies</b> in
+                                    the project. A duplicate host makes Shield reject the whole config and keep the
+                                    last valid one.
+                                </div>
+                            </div>
+                        }
+                    />
                     <Text type="secondary" style={{ fontSize: 12 }}>
                         {(domain.routes ?? []).length} route{(domain.routes ?? []).length === 1 ? '' : 's'} — pick one on the left to edit its match, mode and protections.
                     </Text>

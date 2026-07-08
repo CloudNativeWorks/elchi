@@ -35,6 +35,7 @@ import { useShieldMutations } from './hooks/useShieldMutations';
 import { isShieldAdmin } from './utils';
 import ShieldEvents from './ShieldEvents';
 import ShieldOverview from './ShieldOverview';
+import ProjectResolutionTools from './components/ProjectResolutionTools';
 
 const { Title, Text } = Typography;
 const { confirm } = Modal;
@@ -214,6 +215,11 @@ const ShieldList: React.FC = () => {
                     Manage elchi-shield (edge API security / WAF sidecar) config policies. A project&apos;s policies are
                     merged into one bundle and synced to every connected edge automatically; deploys run as background jobs.
                 </Text>
+            </div>
+
+            {/* Project-wide host-conflict banner + cross-policy resolution tester. */}
+            <div style={{ marginBottom: 16 }}>
+                <ProjectResolutionTools project={project} />
             </div>
 
             {/* Filter Bar */}

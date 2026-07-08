@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Alert, Empty, Spin, Typography } from 'antd';
 import { CrsRule } from '../../types';
-import { useCrsLibrary } from './useCrsLibrary';
+import { CrsLibraryOptions, useCrsLibrary } from './useCrsLibrary';
 import CrsLibraryFilters from './CrsLibraryFilters';
 import CrsRuleFileGroup from './CrsRuleFileGroup';
 import CrsBulkActionBar from './CrsBulkActionBar';
@@ -49,6 +49,10 @@ export interface CrsLibraryPaneProps {
     /** Toggle a CRS rule id in/out of the exclude list. Presence enables the
      *  per-rule Disable/Enable affordance. */
     onToggleExclude?: (ruleId: number) => void;
+    /** Which CRS store to browse. Omitted → the WASM library (default). Shield passes
+     *  `{ source: 'shield', pinnedVersion: <fleet primary> }` so the library matches
+     *  the coreruleset version its edges actually enforce. */
+    libraryOptions?: CrsLibraryOptions;
 }
 
 /**
@@ -67,9 +71,10 @@ const CrsLibraryPane: React.FC<CrsLibraryPaneProps> = ({
     disabled,
     excludedIds,
     onToggleExclude,
+    libraryOptions,
 }) => {
     const canAdd = !!activeTarget && !disabled;
-    const { state, data } = useCrsLibrary();
+    const { state, data } = useCrsLibrary(libraryOptions);
 
     const allTargets = useMemo<CrsAddTarget[]>(
         () => bulkTargets ?? (activeTarget ? [activeTarget] : []),

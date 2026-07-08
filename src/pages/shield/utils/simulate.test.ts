@@ -82,3 +82,34 @@ describe('simulateRequest', () => {
         expect(r.noDomainMatch).toBe(true);
     });
 });
+
+describe('body inspection (auto-derive + reason)', () => {
+    const userPolicy = model({
+        defaults: { mode: 'block', inspect_request_body: true, inspect_response_body: true },
+        domains: [
+            { hosts: ['*'], routes: [{ match: { path_prefix: '/' }, policy: { engines: { coraza: { include_owasp: true } }, checks: { body: { dlp: { direction: 'response', redact: ['email'] } } } } }] },
+            { hosts: ['abc.com'], routes: [{ match: { path_prefix: '/' }, policy: { engines: { rate_limit: { requests_per_second: 3 } }, mode: 'block' } }] },
+        ],
+    });
+
+    it('a header-only route shows body ON, attributed to the inherited defaults flag', () => {
+        const r = simulateRequest(userPolicy, { host: 'abc.com', method: 'GET', path: '/api/users' });
+        expect(r.requestBody).toEqual({ on: true, reason: 'set in defaults' });
+        expect(r.responseBody).toEqual({ on: true, reason: 'set in defaults' });
+    });
+
+    it('without the defaults flags, a header-only (rate_limit) route buffers NOTHING', () => {
+        const noDefaults = model({ ...userPolicy.spec, defaults: { mode: 'block' } });
+        const r = simulateRequest(noDefaults, { host: 'abc.com', method: 'GET', path: '/x' });
+        expect(r.requestBody.on).toBe(false);
+        expect(r.responseBody.on).toBe(false);
+    });
+
+    it('a body engine auto-enables inspection and is named as the reason', () => {
+        const noDefaults = model({ ...userPolicy.spec, defaults: { mode: 'block' } });
+        const r = simulateRequest(noDefaults, { host: 'other.com', method: 'POST', path: '/g' }); // hits *
+        expect(r.requestBody).toEqual({ on: true, reason: 'required by the Coraza WAF' });
+        expect(r.responseBody.on).toBe(true);
+        expect(r.responseBody.reason).toMatch(/Coraza|DLP/);
+    });
+});

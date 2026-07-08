@@ -7,10 +7,21 @@
  * Caller composes these into the visible UI.
  */
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { wafApi } from '../../wafApi';
 import { CrsFilter, CrsRule } from '../../types';
+import { shieldApi } from '@/pages/shield/shieldApi';
+
+// CrsLibraryOptions lets the SAME library hook back two independent CRS stores: the
+// default WASM path (/api/v3/waf/crs, fixed 4.14.0) and the shield path
+// (/api/v3/shield/crs, keyed by the coreruleset version each edge's binary embeds).
+// The WASM behavior is unchanged when no options are passed.
+export interface CrsLibraryOptions {
+    source?: 'wasm' | 'shield';
+    /** Auto-pin the version to this (the shield fleet's primary) once versions load. */
+    pinnedVersion?: string;
+}
 
 export interface CrsLibraryState {
     crsVersion: string;
@@ -52,8 +63,16 @@ const PHASE_NAMES: Record<number, string> = {
     5: 'Logging',
 };
 
-export const useCrsLibrary = (): { state: CrsLibraryState; data: CrsLibraryData } => {
-    const [crsVersion, setCrsVersion] = useState<string>('4.14.0');
+export const useCrsLibrary = (opts?: CrsLibraryOptions): { state: CrsLibraryState; data: CrsLibraryData } => {
+    const source = opts?.source ?? 'wasm';
+    const pinnedVersion = opts?.pinnedVersion;
+    // Shield starts empty (the version resolves from the fleet, and the rules query is
+    // gated on a non-empty version so we never fire a 404 for '4.14.0' against the shield
+    // store). WASM keeps its historical 4.14.0 default.
+    const [crsVersion, setCrsVersion] = useState<string>(pinnedVersion || (source === 'shield' ? '' : '4.14.0'));
+    // Tracks the pinnedVersion we've already auto-applied, so the pin is ONE-SHOT and a
+    // manual "browse another version" pick isn't snapped back on the next render.
+    const autoPinnedFor = useRef<string | undefined>(undefined);
     const [severity, setSeverity] = useState<string | undefined>();
     const [phase, setPhase] = useState<number | undefined>();
     const [paranoia, setParanoia] = useState<number | undefined>();
@@ -61,17 +80,24 @@ export const useCrsLibrary = (): { state: CrsLibraryState; data: CrsLibraryData 
     const [search, setSearch] = useState<string>('');
 
     const { data: versionsData } = useQuery({
-        queryKey: ['crs-versions'],
-        queryFn: () => wafApi.getCrsVersions(),
+        queryKey: ['crs-versions', source],
+        queryFn: () => (source === 'shield' ? shieldApi.getShieldCrsVersions() : wafApi.getCrsVersions()),
     });
 
-    // Auto-pin to first available version once versions load.
+    // Auto-pin (ONE-SHOT) to the caller's pinnedVersion when the backend has a library
+    // for it; otherwise ensure the current selection actually exists. The one-shot guard
+    // lets a manual browse-override stick instead of being forced back to the primary.
     useEffect(() => {
-        if (versionsData?.versions && versionsData.versions.length > 0) {
-            const known = versionsData.versions.find((v) => v.crs_version === crsVersion);
-            if (!known) setCrsVersion(versionsData.versions[0].crs_version);
+        const versions = versionsData?.versions;
+        if (!versions || versions.length === 0) return;
+        if (pinnedVersion && autoPinnedFor.current !== pinnedVersion && versions.some((v) => v.crs_version === pinnedVersion)) {
+            autoPinnedFor.current = pinnedVersion;
+            if (crsVersion !== pinnedVersion) setCrsVersion(pinnedVersion);
+            return;
         }
-    }, [versionsData, crsVersion]);
+        const known = versions.find((v) => v.crs_version === crsVersion);
+        if (!known) setCrsVersion(versions[0].crs_version);
+    }, [versionsData, crsVersion, pinnedVersion]);
 
     const filterPayload = useMemo<CrsFilter>(
         () => ({
@@ -85,8 +111,8 @@ export const useCrsLibrary = (): { state: CrsLibraryState; data: CrsLibraryData 
     );
 
     const { data: rulesData, isLoading, isError, error } = useQuery({
-        queryKey: ['crs-rules', filterPayload],
-        queryFn: () => wafApi.getCrsRules(filterPayload),
+        queryKey: ['crs-rules', source, filterPayload],
+        queryFn: () => (source === 'shield' ? shieldApi.getShieldCrsRules(filterPayload) : wafApi.getCrsRules(filterPayload)),
         enabled: !!crsVersion,
     });
 

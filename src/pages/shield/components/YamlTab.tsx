@@ -5,7 +5,7 @@
  * YAML mode: the raw text becomes the source of truth, with a banner.
  */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Alert, Button, Space, Typography } from 'antd';
 import MonacoEditor from '@monaco-editor/react';
 import { useTheme } from '@/contexts/ThemeContext';
@@ -23,6 +23,23 @@ const YamlTab: React.FC<{ disabled?: boolean }> = ({ disabled }) => {
     const debounceRef = useRef<ReturnType<typeof setTimeout>>();
     // Tracks whether the current text came from the user (vs. regenerated).
     const userEditRef = useRef(false);
+
+    // Grow the editor to fill from its top down to the viewport bottom, instead of a
+    // fixed height that leaves the lower half of the screen empty. Measured (not a magic
+    // calc) so it adapts to any banners above it and to the window size.
+    const editorWrapRef = useRef<HTMLDivElement>(null);
+    const [editorHeight, setEditorHeight] = useState(560);
+    useLayoutEffect(() => {
+        const recompute = () => {
+            const el = editorWrapRef.current;
+            if (!el) return;
+            const top = el.getBoundingClientRect().top;
+            setEditorHeight(Math.max(320, Math.floor(window.innerHeight - top - 16)));
+        };
+        recompute();
+        window.addEventListener('resize', recompute);
+        return () => window.removeEventListener('resize', recompute);
+    }, [state.yamlMode, parseError, valueWarnings.length]);
 
     // (Re)generate the document whenever the underlying state changes from
     // outside this tab (builder edits, hydrate, undo) — not while typing here.
@@ -142,8 +159,9 @@ const YamlTab: React.FC<{ disabled?: boolean }> = ({ disabled }) => {
                 />
             )}
 
-            <MonacoEditor
-                height="560px"
+            <div ref={editorWrapRef}>
+                <MonacoEditor
+                height={editorHeight}
                 language="yaml"
                 theme={isDark ? 'vs-dark' : 'light'}
                 value={text}
@@ -160,7 +178,8 @@ const YamlTab: React.FC<{ disabled?: boolean }> = ({ disabled }) => {
                     folding: true,
                     readOnly: !!disabled,
                 }}
-            />
+                />
+            </div>
         </>
     );
 };

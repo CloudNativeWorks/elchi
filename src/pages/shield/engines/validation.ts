@@ -85,8 +85,22 @@ export const collectEngineProblems = (model: PolicyFileModel): string[] => {
     const out: string[] = [];
     const spec = model.spec;
     if (spec.defaults) out.push(...policyProblems(spec.defaults, 'Defaults'));
+    // A host (including `*`) may appear only ONCE — Shield rejects the whole config
+    // if the same host is defined in two domains (and, across the project, in two
+    // policies). Catch the in-policy case here so Save is blocked with a clear reason.
+    const seenHost = new Map<string, number>();
     (spec.domains ?? []).forEach((d, di) => {
         const host = d.hosts?.length ? d.hosts.join(', ') : `Domain #${di + 1}`;
+        (d.hosts ?? []).forEach(h => {
+            const key = h.trim().toLowerCase();
+            if (!key) return;
+            const prev = seenHost.get(key);
+            if (prev !== undefined) {
+                out.push(`Domain #${di + 1}: host "${h}" is already defined in domain #${prev + 1} — each host may appear only once`);
+            } else {
+                seenHost.set(key, di);
+            }
+        });
         if (d.policy) out.push(...policyProblems(d.policy, host));
         (d.routes ?? []).forEach((r, ri) => {
             const m = r.match ?? {};
