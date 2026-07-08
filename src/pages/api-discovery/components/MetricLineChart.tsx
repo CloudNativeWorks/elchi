@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import ReactEChartsCore from 'echarts-for-react/lib/core';
 import * as echarts from 'echarts/core';
 import { LineChart, PieChart } from 'echarts/charts';
@@ -8,6 +8,8 @@ import {
     LegendComponent,
     TitleComponent,
     MarkLineComponent,
+    BrushComponent,
+    ToolboxComponent,
 } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import dayjs from 'dayjs';
@@ -21,6 +23,8 @@ echarts.use([
     LegendComponent,
     TitleComponent,
     MarkLineComponent,
+    BrushComponent,
+    ToolboxComponent,
     CanvasRenderer,
 ]);
 
@@ -67,6 +71,13 @@ interface Props {
     syncGroup?: string;
     /** Text shown when every series is empty. */
     emptyText?: string;
+    /**
+     * Enables drag-to-select on the x-axis (echarts brush). Called with the
+     * selected [from, to] in epoch ms once the drag ends; the selection overlay
+     * is cleared automatically. Only meaningful with timeAxis.
+     */
+    // eslint-disable-next-line no-unused-vars
+    onRangeSelect?: (from: number, to: number) => void;
 }
 
 const MetricLineChart: React.FC<Props> = ({
@@ -80,8 +91,18 @@ const MetricLineChart: React.FC<Props> = ({
     eventMarkers,
     syncGroup,
     emptyText = 'No data in this window',
+    onRangeSelect,
 }) => {
     const { options: themeOptions } = useChartTheme();
+    // Minimal instance surface we use — avoids the type clash between
+    // echarts-for-react's ECharts and echarts/core's EChartsType.
+    type ChartInstance = {
+        group?: string;
+        // eslint-disable-next-line no-unused-vars
+        dispatchAction: (payload: Record<string, unknown>) => void;
+        isDisposed: () => boolean;
+    };
+    const instRef = useRef<ChartInstance | null>(null);
 
     const option = useMemo(() => {
         // Charts with many series (e.g. findings-by-engine, ~18 engines) need the
@@ -109,6 +130,22 @@ const MetricLineChart: React.FC<Props> = ({
             : undefined;
         return {
             ...themeOptions,
+            // Brush needs the (hidden) toolbox component to be configured, and the
+            // brush itself is armed via takeGlobalCursor below so plain drag works.
+            ...(onRangeSelect ? {
+                toolbox: { show: false, feature: { brush: { type: ['lineX'] } } },
+                brush: {
+                    xAxisIndex: 0,
+                    brushType: 'lineX',
+                    brushMode: 'single',
+                    transformable: false,
+                    brushStyle: {
+                        borderWidth: 1,
+                        color: 'rgba(59, 158, 255, 0.12)',
+                        borderColor: 'rgba(59, 158, 255, 0.6)',
+                    },
+                },
+            } : {}),
             grid: { left: 56, right: 24, top: manySeries ? 56 : 36, bottom: 32 },
             legend: {
                 ...themeOptions.legend,
@@ -166,16 +203,53 @@ const MetricLineChart: React.FC<Props> = ({
                 };
             }),
         };
-    }, [series, themeOptions, unit, yFormatter, timeAxis, stackAll, refLines, eventMarkers]);
+    }, [series, themeOptions, unit, yFormatter, timeAxis, stackAll, refLines, eventMarkers, onRangeSelect]);
+
+    // Arm the brush cursor so a plain drag selects a range (no toolbox click
+    // needed). Must re-run after every option change: notMerge recreates the
+    // brush component, dropping the armed cursor.
+    const armBrush = useCallback((inst: ChartInstance) => {
+        inst.dispatchAction({
+            type: 'takeGlobalCursor',
+            key: 'brush',
+            brushOption: { brushType: 'lineX', brushMode: 'single' },
+        });
+    }, []);
+    useEffect(() => {
+        if (onRangeSelect && instRef.current && !instRef.current.isDisposed()) {
+            armBrush(instRef.current);
+        }
+    }, [option, onRangeSelect, armBrush]);
 
     // Connect this chart to others in the same group so hovering one moves the
     // crosshair on all of them (shared time cursor across the dashboard).
-    const onReady = useCallback((inst: { group?: string }) => {
+    const onReady = useCallback((inst: ChartInstance) => {
+        instRef.current = inst;
         if (syncGroup) {
             inst.group = syncGroup;
             echarts.connect(syncGroup);
         }
-    }, [syncGroup]);
+        if (onRangeSelect) armBrush(inst);
+    }, [syncGroup, onRangeSelect, armBrush]);
+
+    const onEvents = useMemo(() => {
+        if (!onRangeSelect) return undefined;
+        return {
+            brushEnd: (params: { areas?: Array<{ coordRange?: [number, number] }> }) => {
+                const range = params?.areas?.[0]?.coordRange;
+                // Clear the selection overlay after the drag; deferred so we don't
+                // dispatch inside echarts' own event flush.
+                setTimeout(() => {
+                    if (instRef.current && !instRef.current.isDisposed()) {
+                        instRef.current.dispatchAction({ type: 'brush', areas: [] });
+                    }
+                }, 0);
+                if (range && range.length === 2 && range[1] > range[0]) {
+                    onRangeSelect(Math.round(range[0]), Math.round(range[1]));
+                }
+            },
+        };
+    }, [onRangeSelect]);
 
     const isEmpty = series.every((s) => !s.data || s.data.length === 0);
     if (isEmpty) {
@@ -193,6 +267,7 @@ const MetricLineChart: React.FC<Props> = ({
             style={{ height, width: '100%' }}
             notMerge
             onChartReady={onReady}
+            onEvents={onEvents}
         />
     );
 };

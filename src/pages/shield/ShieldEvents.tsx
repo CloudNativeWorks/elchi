@@ -7,18 +7,22 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-    Alert, Badge, Button, Card, Col, DatePicker, Input, Row, Select, Space, Switch, Table, Tag, Tooltip, Typography,
+    Alert, Badge, Button, Card, Col, DatePicker, Dropdown, Input, Row, Select, Space, Switch, Table, Tag, Tooltip, Typography,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { ReloadOutlined, ClearOutlined, SafetyOutlined, DownloadOutlined } from '@ant-design/icons';
+import type { MenuProps } from 'antd';
+import { ReloadOutlined, ClearOutlined, SafetyOutlined, DownloadOutlined, FilterOutlined, SearchOutlined, CloseOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
 import dayjs, { Dayjs } from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
 import { extractErrorMessage } from '@/common/notificationHandler';
 import { shieldApi } from './shieldApi';
 import { isShieldAdmin } from './utils';
 import { ShieldSecurityEvent, ShieldEventsParams } from './types';
 import MetricLineChart, { MetricLineSeries } from '@/pages/api-discovery/components/MetricLineChart';
+
+dayjs.extend(relativeTime);
 
 const { Text, Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -93,7 +97,7 @@ const QUICK_RANGES: { label: string; ms: number }[] = [
     { label: 'Last 7 days', ms: 7 * DAY },
     { label: 'Last 30 days', ms: 30 * DAY },
 ];
-const DEFAULT_RANGE_MS = DAY;
+const DEFAULT_RANGE_MS = HOUR;
 
 const relativeWindow = (ms: number): [Dayjs, Dayjs] => {
     const to = dayjs();
@@ -200,6 +204,19 @@ const ShieldEvents: React.FC<{ active?: boolean }> = ({ active = true }) => {
 
     const applyFilters = () => { const r = resolveDraft(draft); setDraft(r); setFilters(r); setPage(1); };
     const clearFilters = () => { const d = defaultFilters(); setDraft(d); setFilters(d); setPage(1); };
+    // One-click filter changes (chart brush, context menus, card/engine clicks):
+    // apply on top of the *active* filters immediately, keeping the draft in sync
+    // so the picker/dropdowns reflect what is actually being queried.
+    const applyImmediate = useCallback((patch: Partial<Filters>) => {
+        const next = { ...filters, ...patch };
+        setDraft(next);
+        setFilters(next);
+        setPage(1);
+    }, [filters]);
+    // Chart drag-select → pin the brushed window as a custom range and query it.
+    const onChartRangeSelect = useCallback((from: number, to: number) => {
+        applyImmediate({ range: [dayjs(from), dayjs(to)], relativeMs: undefined });
+    }, [applyImmediate]);
     const applyQuickRange = (val: number | 'custom') => {
         if (val === 'custom') { setDraft(d => ({ ...d, relativeMs: undefined })); return; }
         setDraft(d => ({ ...d, relativeMs: val, range: relativeWindow(val) }));
@@ -216,7 +233,7 @@ const ShieldEvents: React.FC<{ active?: boolean }> = ({ active = true }) => {
     const topEngines = useMemo(() => {
         const m: Record<string, number> = {};
         (summary?.groups ?? []).forEach(g => { m[g.engine] = (m[g.engine] ?? 0) + g.count; });
-        return Object.entries(m).sort((a, b) => b[1] - a[1]).slice(0, 6);
+        return Object.entries(m).sort((a, b) => b[1] - a[1]).slice(0, 10);
     }, [summary]);
 
     // Time series → one stacked-area series per action.
@@ -272,6 +289,18 @@ const ShieldEvents: React.FC<{ active?: boolean }> = ({ active = true }) => {
         URL.revokeObjectURL(url);
     };
 
+    // Active server-side filters as removable chips — one glance shows what the
+    // feed is scoped to, one click removes a dimension without touching the rest.
+    const activeChips = useMemo(() => {
+        const chips: { key: string; label: string; onClear: () => void }[] = [];
+        if (filters.engine) chips.push({ key: 'engine', label: `engine = ${filters.engine}`, onClear: () => applyImmediate({ engine: undefined }) });
+        if (filters.action) chips.push({ key: 'action', label: `action = ${filters.action}`, onClear: () => applyImmediate({ action: undefined }) });
+        if (filters.severity) chips.push({ key: 'severity', label: `severity = ${filters.severity}`, onClear: () => applyImmediate({ severity: undefined }) });
+        if (filters.node) chips.push({ key: 'node', label: `edge = ${filters.node}`, onClear: () => applyImmediate({ node: undefined }) });
+        if (filters.search.trim()) chips.push({ key: 'search', label: `search: ${filters.search.trim()}`, onClear: () => applyImmediate({ search: '' }) });
+        return chips;
+    }, [filters, applyImmediate]);
+
     // Expanded-row detail: the full event (the columns the table omits).
     const expandedRow = (r: ShieldSecurityEvent) => (
         <Row gutter={[12, 6]} style={{ fontSize: 12, padding: '4px 8px' }}>
@@ -301,31 +330,61 @@ const ShieldEvents: React.FC<{ active?: boolean }> = ({ active = true }) => {
         );
     }
 
+    // Right-click "add filter" wrapper for filterable cells. The wrapper is a
+    // plain span so table layout is unchanged; the menu applies immediately.
+    const filterMenuCell = (items: MenuProps['items'], children: React.ReactNode) => (
+        <Dropdown menu={{ items }} trigger={['contextMenu']}>
+            <span style={{ cursor: 'context-menu' }}>{children}</span>
+        </Dropdown>
+    );
+
     const columns: ColumnsType<ShieldSecurityEvent> = [
         {
             title: 'Time', dataIndex: 'ts', key: 'ts', width: 170,
-            render: (ts: string) => <Text style={{ fontSize: 12 }}>{dayjs(ts).format('YYYY-MM-DD HH:mm:ss')}</Text>,
+            render: (ts: string) => (
+                <Tooltip title={dayjs(ts).fromNow()}>
+                    <Text style={{ fontSize: 12 }}>{dayjs(ts).format('YYYY-MM-DD HH:mm:ss')}</Text>
+                </Tooltip>
+            ),
         },
         {
             title: 'Action', dataIndex: 'action', key: 'action', width: 90,
-            render: (a: string) => <Tag className="auto-width-tag" color={actionColor(a)}>{a}</Tag>,
+            render: (a: string) => filterMenuCell([{
+                key: 'f', icon: <FilterOutlined />, label: <>Filter: action = <b>{a}</b></>,
+                onClick: () => applyImmediate({ action: a }),
+            }], <Tag className="auto-width-tag" color={actionColor(a)}>{a}</Tag>),
         },
         {
             title: 'Severity', dataIndex: 'severity', key: 'severity', width: 90,
-            render: (s: string) => <Tag className="auto-width-tag" color={severityColor(s)}>{s}</Tag>,
+            render: (s: string) => filterMenuCell([{
+                key: 'f', icon: <FilterOutlined />, label: <>Filter: severity = <b>{s}</b></>,
+                onClick: () => applyImmediate({ severity: s }),
+            }], <Tag className="auto-width-tag" color={severityColor(s)}>{s}</Tag>),
         },
         {
             title: 'Engine', dataIndex: 'engine', key: 'engine', width: 120,
-            render: (e: string) => <Tag className="auto-width-tag">{e || '-'}</Tag>,
+            render: (e: string) => e ? filterMenuCell([{
+                key: 'f', icon: <FilterOutlined />, label: <>Filter: engine = <b>{e}</b></>,
+                onClick: () => applyImmediate({ engine: e }),
+            }], <Tag className="auto-width-tag">{e}</Tag>) : <Tag className="auto-width-tag">-</Tag>,
         },
         {
             title: 'Request', key: 'request',
-            render: (_: unknown, r: ShieldSecurityEvent) => (
+            render: (_: unknown, r: ShieldSecurityEvent) => filterMenuCell([
+                {
+                    key: 'host', icon: <SearchOutlined />, label: <>Search host: <b>{r.host}</b></>,
+                    onClick: () => applyImmediate({ search: r.host }),
+                },
+                {
+                    key: 'path', icon: <SearchOutlined />, label: <>Search path: <b>{r.path}</b></>,
+                    onClick: () => applyImmediate({ search: r.path }),
+                },
+            ], (
                 <Space size={4} wrap>
                     <Tag className="auto-width-tag" color="blue">{r.method}</Tag>
                     <Text style={{ fontFamily: 'monospace', fontSize: 12 }}>{r.host}{r.path}</Text>
                 </Space>
-            ),
+            )),
         },
         {
             title: 'Status', dataIndex: 'status_code', key: 'status_code', width: 80,
@@ -341,11 +400,17 @@ const ShieldEvents: React.FC<{ active?: boolean }> = ({ active = true }) => {
         },
         {
             title: 'Edge', dataIndex: 'instance', key: 'instance', width: 150,
-            render: (inst: string, r: ShieldSecurityEvent) => (
-                <Tooltip title={r.node_id || inst}>
-                    <Text style={{ fontSize: 12 }}>{inst || r.listener || '—'}</Text>
-                </Tooltip>
-            ),
+            render: (inst: string, r: ShieldSecurityEvent) => {
+                const cell = (
+                    <Tooltip title={r.node_id || inst}>
+                        <Text style={{ fontSize: 12 }}>{inst || r.listener || '—'}</Text>
+                    </Tooltip>
+                );
+                return r.node_id ? filterMenuCell([{
+                    key: 'f', icon: <FilterOutlined />, label: <>Filter: edge = <b>{inst || r.node_id}</b></>,
+                    onClick: () => applyImmediate({ node: r.node_id }),
+                }], cell) : cell;
+            },
         },
     ];
 
@@ -456,46 +521,135 @@ const ShieldEvents: React.FC<{ active?: boolean }> = ({ active = true }) => {
                                 <Text style={{ fontSize: 12 }}>Findings only</Text>
                             </Space>
                         </div>
+
+                        {/* Applied-filter chips (server-side scope at a glance) */}
+                        {activeChips.length > 0 && (
+                            <Space size={6} wrap>
+                                <Text type="secondary" style={{ fontSize: 12 }}>Active filters:</Text>
+                                {activeChips.map(c => (
+                                    <Tag
+                                        key={c.key}
+                                        closable
+                                        closeIcon={<CloseOutlined style={{ fontSize: 10 }} />}
+                                        onClose={(e) => { e.preventDefault(); c.onClear(); }}
+                                        style={{ borderRadius: 12, fontFamily: 'monospace', fontSize: 11 }}
+                                    >
+                                        {c.label}
+                                    </Tag>
+                                ))}
+                            </Space>
+                        )}
                     </Space>
                 </Card>
             </Col>
 
-            {/* Summary cards */}
+            {/* Summary cards — the action cards toggle the corresponding filter. */}
             <Col span={24}>
                 <Row gutter={[16, 16]}>
                     {[
-                        { label: 'Total', value: summary?.total ?? 0, color: undefined },
-                        { label: 'Blocked', value: byAction['block'] ?? 0, color: ACTION_HEX.block },
-                        { label: 'Detected', value: byAction['detect'] ?? 0, color: ACTION_HEX.detect },
-                        { label: 'Shadow', value: byAction['shadow'] ?? 0, color: ACTION_HEX.shadow },
-                    ].map(c => (
-                        <Col xs={12} md={6} key={c.label}>
-                            <Card size="small" style={{ borderRadius: 12 }} loading={summaryQuery.isFetching}>
-                                <Text type="secondary" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>{c.label}</Text>
-                                <div style={{ fontSize: 26, fontWeight: 600, color: c.color }}>{c.value.toLocaleString()}</div>
-                            </Card>
-                        </Col>
-                    ))}
+                        { label: 'Total', value: summary?.total ?? 0, color: undefined, action: undefined },
+                        { label: 'Blocked', value: byAction['block'] ?? 0, color: ACTION_HEX.block, action: 'block' },
+                        { label: 'Detected', value: byAction['detect'] ?? 0, color: ACTION_HEX.detect, action: 'detect' },
+                        { label: 'Shadow', value: byAction['shadow'] ?? 0, color: ACTION_HEX.shadow, action: 'shadow' },
+                    ].map(c => {
+                        const selected = !!c.action && filters.action === c.action;
+                        return (
+                            <Col xs={12} md={6} key={c.label}>
+                                <Tooltip title={c.action ? (selected ? 'Click to clear this action filter' : `Click to filter: action = ${c.action}`) : undefined}>
+                                    <Card
+                                        size="small"
+                                        loading={summaryQuery.isFetching}
+                                        onClick={c.action ? () => applyImmediate({ action: selected ? undefined : c.action }) : undefined}
+                                        style={{
+                                            borderRadius: 12,
+                                            cursor: c.action ? 'pointer' : undefined,
+                                            borderColor: selected ? c.color : undefined,
+                                            boxShadow: selected ? `inset 0 0 0 1px ${c.color}` : undefined,
+                                        }}
+                                    >
+                                        <Text type="secondary" style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: 1 }}>{c.label}</Text>
+                                        <div style={{ fontSize: 26, fontWeight: 600, color: c.color }}>{c.value.toLocaleString()}</div>
+                                    </Card>
+                                </Tooltip>
+                            </Col>
+                        );
+                    })}
                 </Row>
             </Col>
 
-            {/* Activity chart + top engines */}
+            {/* Activity chart + top engines (equal-height row) */}
             <Col xs={24} lg={16}>
-                <Card size="small" title="Activity over time" style={{ borderRadius: 12 }} loading={summaryQuery.isFetching}>
+                <Card
+                    size="small"
+                    title="Activity over time"
+                    extra={<Text type="secondary" style={{ fontSize: 11 }}>Drag on the chart to zoom into a range</Text>}
+                    style={{ borderRadius: 12, height: '100%' }}
+                    loading={summaryQuery.isFetching}
+                >
                     {chartSeries.length > 0
-                        ? <MetricLineChart series={chartSeries} height={240} stackAll="actions" />
-                        : <Text type="secondary">No events in the selected window.</Text>}
+                        ? <MetricLineChart series={chartSeries} height={240} stackAll="actions" onRangeSelect={onChartRangeSelect} />
+                        : (
+                            <div style={{ height: 240, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <Text type="secondary">No events in the selected window.</Text>
+                            </div>
+                        )}
                 </Card>
             </Col>
             <Col xs={24} lg={8}>
-                <Card size="small" title="Top engines" style={{ borderRadius: 12 }} loading={summaryQuery.isFetching}>
-                    {topEngines.length === 0 && <Text type="secondary">No findings.</Text>}
-                    {topEngines.map(([engine, count]) => (
-                        <div key={engine} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                            <Tag className="auto-width-tag">{engine || 'unknown'}</Tag>
-                            <Text strong>{count.toLocaleString()}</Text>
-                        </div>
-                    ))}
+                <Card size="small" title="Top engines" style={{ borderRadius: 12, height: '100%' }} loading={summaryQuery.isFetching}>
+                    <div style={{ height: 240, overflowY: 'auto' }}>
+                        {topEngines.length === 0 && <Text type="secondary">No findings.</Text>}
+                        {topEngines.map(([engine, count]) => {
+                            const max = topEngines[0]?.[1] || 1;
+                            const pct = serverTotal > 0 ? (count / serverTotal) * 100 : 0;
+                            const selected = filters.engine === engine;
+                            return (
+                                <Dropdown
+                                    key={engine || 'unknown'}
+                                    trigger={['contextMenu']}
+                                    menu={{
+                                        items: [{
+                                            key: 'f', icon: <FilterOutlined />,
+                                            label: <>Filter: engine = <b>{engine || 'unknown'}</b></>,
+                                            onClick: () => applyImmediate({ engine: engine || undefined }),
+                                        },
+                                        ...(filters.engine ? [{
+                                            key: 'c', icon: <CloseOutlined />, label: 'Clear engine filter',
+                                            onClick: () => applyImmediate({ engine: undefined }),
+                                        }] : [])],
+                                    }}
+                                >
+                                    <div
+                                        onClick={() => applyImmediate({ engine: selected ? undefined : (engine || undefined) })}
+                                        title={selected ? 'Click to clear this engine filter' : `Click to filter: engine = ${engine || 'unknown'}`}
+                                        style={{
+                                            cursor: 'pointer',
+                                            padding: '5px 8px',
+                                            borderRadius: 8,
+                                            marginBottom: 2,
+                                            background: selected ? 'rgba(59, 158, 255, 0.12)' : undefined,
+                                        }}
+                                    >
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                                            <Tag className="auto-width-tag">{engine || 'unknown'}</Tag>
+                                            <Space size={6}>
+                                                <Text type="secondary" style={{ fontSize: 11 }}>{pct.toFixed(1)}%</Text>
+                                                <Text strong>{count.toLocaleString()}</Text>
+                                            </Space>
+                                        </div>
+                                        <div style={{ height: 4, borderRadius: 2, background: 'rgba(128, 128, 128, 0.15)', overflow: 'hidden' }}>
+                                            <div style={{
+                                                width: `${(count / max) * 100}%`,
+                                                height: '100%',
+                                                borderRadius: 2,
+                                                background: 'var(--color-primary)',
+                                            }} />
+                                        </div>
+                                    </div>
+                                </Dropdown>
+                            );
+                        })}
+                    </div>
                 </Card>
             </Col>
 
