@@ -36,6 +36,32 @@ export const queryRange = async (query: string, start: number, end: number, step
     return res?.data?.data?.result ?? [];
 };
 
+/**
+ * Await a named batch of range queries, tolerating individual failures: a
+ * transiently failing query yields an empty series (its panel shows "no data")
+ * instead of failing the whole dashboard. Only when EVERY query in the batch
+ * fails (VM/gateway down) does the batch throw, so the page-level error state
+ * still fires when nothing at all could be loaded.
+ */
+export async function settleQueries<T extends Record<string, Promise<VMSeries[]>>>(
+    qs: T,
+    // eslint-disable-next-line no-unused-vars
+): Promise<{ [K in keyof T]: VMSeries[] }> {
+    const keys = Object.keys(qs) as (keyof T)[];
+    const settled = await Promise.allSettled(keys.map((k) => qs[k]));
+    // eslint-disable-next-line no-unused-vars
+    const out = {} as { [K in keyof T]: VMSeries[] };
+    let failed = 0;
+    settled.forEach((r, i) => {
+        if (r.status === 'fulfilled') out[keys[i]] = r.value;
+        else { out[keys[i]] = []; failed++; }
+    });
+    if (keys.length > 0 && failed === keys.length) {
+        throw new Error('all metric queries failed');
+    }
+    return out;
+}
+
 /** Map VM series → MetricLineChart series; nameFn derives the legend from labels. */
 export const toLineSeries = (
     result: VMSeries[],
@@ -114,17 +140,18 @@ export const withData = (result: VMSeries[]): VMSeries[] =>
     (result ?? []).filter((s) => (s.values ?? []).some(([, v]) => (Number(v) || 0) > 0));
 
 /**
- * Rank series by their latest value, keep the top `n` as their own stacked
- * lines, and fold the rest into a single summed "other (k)" series — so a
- * many-series stacked chart (e.g. ~18 engines) shows a legible legend while its
- * total still adds up to the same height. Zero-across-window series are dropped
- * first, so `other` only ever counts engines that actually fired.
+ * Rank series by their latest value, keep the top `n` as their own lines, and
+ * fold the rest into a single summed "other (k)" series — so a many-series
+ * chart (e.g. ~18 engines) shows a legible legend. Zero-across-window series
+ * are dropped first, so `other` only ever counts engines that actually fired.
+ * Pass `stack` to stack the result; omit it to draw each line at its own value
+ * (matching what the tooltip reports).
  */
 export const foldTopSeries = (
     result: VMSeries[],
     labelKey: string,
     n: number,
-    stack: string,
+    stack?: string,
 ): MetricLineSeries[] => {
     const latest = (s: VMSeries) => (s.values.length ? Number(s.values[s.values.length - 1][1]) || 0 : 0);
     const ranked = [...withData(result)].sort((a, b) => latest(b) - latest(a));
@@ -150,5 +177,13 @@ export const foldTopSeries = (
     return series;
 };
 
+// Escape a value for embedding in a PromQL double-quoted regex matcher: regex
+// metacharacters are escaped, and the backslashes doubled again because PromQL
+// string literals process Go-style escapes (a lone `\.` is a parse error).
+const escapeRegexInPromQL = (s: string): string => s.replace(/[.*+?^${}()|[\]\\]/g, '\\\\$&');
+
+/** The listener-label regex scoping to one project (embed in a `=~` matcher). */
+export const projectListenerRegex = (project: string): string => `.*::${escapeRegexInPromQL(project)}::.*`;
+
 /** Project scope selector on the listener node-id label. */
-export const projectSelector = (project: string): string => `{listener=~".*::${project}::.*"}`;
+export const projectSelector = (project: string): string => `{listener=~"${projectListenerRegex(project)}"}`;

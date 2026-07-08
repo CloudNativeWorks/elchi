@@ -118,6 +118,8 @@ export interface ShieldEventsParams {
     host?: string;
     method?: string;
     path?: string;
+    /** Case-insensitive substring matched server-side against host/path/request_id. */
+    search?: string;
     findings_only?: boolean;
     from?: string;
     to?: string;

@@ -293,7 +293,13 @@ const ShieldList: React.FC = () => {
     return (
         <Tabs
             activeKey={activeTab}
-            onChange={(key) => setSearchParams(key === 'policies' ? {} : { tab: key })}
+            // Preserve the other query params (the events tab keeps its filters in
+            // the URL) — only the `tab` key changes here.
+            onChange={(key) => setSearchParams(prev => {
+                const next = new URLSearchParams(prev);
+                if (key === 'policies') next.delete('tab'); else next.set('tab', key);
+                return next;
+            })}
             items={[
                 {
                     key: 'policies',

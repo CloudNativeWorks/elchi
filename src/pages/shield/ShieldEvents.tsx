@@ -13,6 +13,7 @@ import type { ColumnsType } from 'antd/es/table';
 import type { MenuProps } from 'antd';
 import { ReloadOutlined, ClearOutlined, SafetyOutlined, DownloadOutlined, FilterOutlined, SearchOutlined, CloseOutlined } from '@ant-design/icons';
 import { useQuery } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router-dom';
 import dayjs, { Dayjs } from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { useProjectVariable } from '@/hooks/useProjectVariable';
@@ -69,7 +70,9 @@ interface Filters {
     severity?: string;
     node?: string; // node_id (edge) filter
     findingsOnly: boolean;
-    search: string; // matched against host/path/request_id client-side
+    // Free-text search, matched server-side (substring, case-insensitive) against
+    // host/path/request_id — scopes the feed AND the summary/chart/top-engines.
+    search: string;
 }
 
 // CSV-escape a value for export. Besides quoting, neutralise spreadsheet formula
@@ -111,16 +114,88 @@ const defaultFilters = (): Filters => ({
     search: '',
 });
 
+// action=allow + findings-only is a contradiction (findings-only drops the
+// allow stream → always zero results, with no hint why). Whenever the two
+// meet, the action wins and findings-only turns off.
+const normalizeFilters = (f: Filters): Filters =>
+    f.action === 'allow' && f.findingsOnly ? { ...f, findingsOnly: false } : f;
+
+// --- URL persistence --------------------------------------------------------
+// The server-side filters serialize into the query string so a filtered view
+// survives a reload and can be shared as a link. A relative window persists as
+// `win` (it re-slides from "now" on load); a pinned custom range persists as
+// absolute `from`/`to` (epoch ms). Defaults are omitted to keep URLs clean.
+const EVENT_PARAM_KEYS = ['eng', 'act', 'sev', 'node', 'q', 'fo', 'win', 'from', 'to'];
+
+const filtersToParams = (f: Filters): Record<string, string> => {
+    const p: Record<string, string> = {};
+    if (f.engine) p.eng = f.engine;
+    if (f.action) p.act = f.action;
+    if (f.severity) p.sev = f.severity;
+    if (f.node) p.node = f.node;
+    if (f.search.trim()) p.q = f.search.trim();
+    if (!f.findingsOnly) p.fo = '0';
+    if (f.relativeMs) {
+        if (f.relativeMs !== DEFAULT_RANGE_MS) p.win = String(f.relativeMs);
+    } else {
+        p.from = String(f.range[0].valueOf());
+        p.to = String(f.range[1].valueOf());
+    }
+    return p;
+};
+
+const filtersFromParams = (sp: URLSearchParams): Filters => {
+    const f = defaultFilters();
+    f.engine = sp.get('eng') || undefined;
+    f.action = sp.get('act') || undefined;
+    f.severity = sp.get('sev') || undefined;
+    f.node = sp.get('node') || undefined;
+    f.search = sp.get('q') || '';
+    if (sp.get('fo') === '0') f.findingsOnly = false;
+    const win = Number(sp.get('win'));
+    const from = Number(sp.get('from'));
+    const to = Number(sp.get('to'));
+    if (win > 0) {
+        f.relativeMs = win;
+        f.range = relativeWindow(win);
+    } else if (from > 0 && to > from) {
+        f.relativeMs = undefined;
+        f.range = [dayjs(from), dayjs(to)];
+    }
+    return normalizeFilters(f);
+};
+
 const PAGE_SIZE = 50;
 
 const ShieldEvents: React.FC<{ active?: boolean }> = ({ active = true }) => {
     const { project } = useProjectVariable();
     const admin = isShieldAdmin();
 
-    const [draft, setDraft] = useState<Filters>(defaultFilters);
-    const [filters, setFilters] = useState<Filters>(defaultFilters);
+    // Initial filters come from the URL (deep-link / reload restores the view).
+    const [initialFilters] = useState<Filters>(() => filtersFromParams(new URLSearchParams(window.location.search)));
+    const [draft, setDraft] = useState<Filters>(initialFilters);
+    const [filters, setFilters] = useState<Filters>(initialFilters);
     const [page, setPage] = useState(1);
     const [autoRefresh, setAutoRefresh] = useState(false);
+
+    // Mirror the applied filters into the URL (replace, not push — filter tweaks
+    // shouldn't pollute browser history). The ref guard skips redundant writes:
+    // a Live tick slides `range` but the serialized params (relative `win`) don't
+    // change, so it must not trigger a navigation every 15s.
+    const [, setSearchParams] = useSearchParams();
+    const lastUrlRef = useRef('');
+    useEffect(() => {
+        const desired = filtersToParams(filters);
+        const key = JSON.stringify(desired);
+        if (lastUrlRef.current === key) return;
+        lastUrlRef.current = key;
+        setSearchParams(prev => {
+            const next = new URLSearchParams(prev);
+            EVENT_PARAM_KEYS.forEach(k => next.delete(k));
+            Object.entries(desired).forEach(([k, v]) => next.set(k, v));
+            return next;
+        }, { replace: true });
+    }, [filters, setSearchParams]);
 
     // Server-side filter params shared by the feed + summary queries.
     const serverParams: ShieldEventsParams = useMemo(() => ({
@@ -128,10 +203,16 @@ const ShieldEvents: React.FC<{ active?: boolean }> = ({ active = true }) => {
         action: filters.action,
         severity: filters.severity,
         node_id: filters.node,
+        search: filters.search.trim() || undefined,
         findings_only: filters.findingsOnly,
         from: filters.range[0].toISOString(),
         to: filters.range[1].toISOString(),
     }), [filters]);
+
+    // Live mode slides the window every 15s → a fresh queryKey per tick. Keep the
+    // previous data on screen while the new tick loads (no skeleton flash) and
+    // garbage-collect the abandoned per-tick cache entries quickly.
+    const eventsGcTime = 120_000;
 
     const summaryQuery = useQuery({
         queryKey: ['shield-events-summary', project, serverParams],
@@ -139,17 +220,26 @@ const ShieldEvents: React.FC<{ active?: boolean }> = ({ active = true }) => {
         enabled: admin && !!project,
         refetchOnWindowFocus: false,
         retry: false,
+        placeholderData: (prev) => prev,
+        gcTime: eventsGcTime,
     });
 
     // Distinct filter values (engines/nodes) so the dropdowns reflect real data.
+    // The window is rounded to the minute: dropdown options don't need 15s
+    // freshness, and without rounding every Live tick would re-run the facet
+    // scan (groupUniqArray over the window) for a marginally different window.
+    const facetsWindow = useMemo(() => ({
+        from: filters.range[0].startOf('minute').toISOString(),
+        to: filters.range[1].add(59, 'second').startOf('minute').toISOString(),
+    }), [filters.range]);
     const facetsQuery = useQuery({
-        queryKey: ['shield-events-facets', project, serverParams.from, serverParams.to],
-        queryFn: () => shieldApi.getSecurityEventsFacets(project, {
-            from: serverParams.from, to: serverParams.to,
-        }),
+        queryKey: ['shield-events-facets', project, facetsWindow.from, facetsWindow.to],
+        queryFn: () => shieldApi.getSecurityEventsFacets(project, facetsWindow),
         enabled: admin && !!project,
         refetchOnWindowFocus: false,
         retry: false,
+        placeholderData: (prev) => prev,
+        gcTime: eventsGcTime,
     });
 
     const feedQuery = useQuery({
@@ -166,6 +256,7 @@ const ShieldEvents: React.FC<{ active?: boolean }> = ({ active = true }) => {
         refetchOnWindowFocus: false,
         retry: false,
         placeholderData: (prev) => prev,
+        gcTime: eventsGcTime,
     });
 
     // Pull the time window forward to "now". For a relative quick-range this
@@ -202,13 +293,13 @@ const ShieldEvents: React.FC<{ active?: boolean }> = ({ active = true }) => {
     const resolveDraft = (f: Filters): Filters =>
         f.relativeMs ? { ...f, range: relativeWindow(f.relativeMs) } : f;
 
-    const applyFilters = () => { const r = resolveDraft(draft); setDraft(r); setFilters(r); setPage(1); };
+    const applyFilters = () => { const r = normalizeFilters(resolveDraft(draft)); setDraft(r); setFilters(r); setPage(1); };
     const clearFilters = () => { const d = defaultFilters(); setDraft(d); setFilters(d); setPage(1); };
     // One-click filter changes (chart brush, context menus, card/engine clicks):
     // apply on top of the *active* filters immediately, keeping the draft in sync
     // so the picker/dropdowns reflect what is actually being queried.
     const applyImmediate = useCallback((patch: Partial<Filters>) => {
-        const next = { ...filters, ...patch };
+        const next = normalizeFilters({ ...filters, ...patch });
         setDraft(next);
         setFilters(next);
         setPage(1);
@@ -236,35 +327,34 @@ const ShieldEvents: React.FC<{ active?: boolean }> = ({ active = true }) => {
         return Object.entries(m).sort((a, b) => b[1] - a[1]).slice(0, 10);
     }, [summary]);
 
-    // Time series → one stacked-area series per action.
+    // Time series → one area line per action, each at its ACTUAL value (not
+    // stacked: stacking drew the smaller series on top of the bigger one at a
+    // misleading cumulative height, and the on-top series varied with the
+    // arbitrary bucket order the query returned). Fixed order keeps the legend
+    // and draw order stable across refreshes.
     const chartSeries: MetricLineSeries[] = useMemo(() => {
         const byActionSeries: Record<string, Array<[string, number]>> = {};
         (summary?.series ?? []).forEach(b => {
             (byActionSeries[b.action] ??= []).push([b.bucket, b.count]);
         });
-        return Object.entries(byActionSeries).map(([action, data]) => ({
-            name: action,
-            data,
-            color: ACTION_HEX[action],
-        }));
+        const order = ['block', 'detect', 'shadow', 'allow'];
+        return Object.entries(byActionSeries)
+            .sort(([a], [b]) => {
+                const ia = order.indexOf(a), ib = order.indexOf(b);
+                return (ia === -1 ? order.length : ia) - (ib === -1 ? order.length : ib);
+            })
+            .map(([action, data]) => ({
+                name: action,
+                data,
+                color: ACTION_HEX[action],
+                area: true,
+            }));
     }, [summary]);
 
     const events = feedQuery.data?.data ?? [];
-    // The total comes from the summary (same filter), not a separate count().
+    // The total comes from the summary (same filter — including search), not a
+    // separate count().
     const serverTotal = summary?.total ?? 0;
-    const searching = filters.search.trim() !== '';
-    const filteredEvents = useMemo(() => {
-        const q = filters.search.trim().toLowerCase();
-        if (!q) return events;
-        return events.filter(e =>
-            e.host.toLowerCase().includes(q) ||
-            e.path.toLowerCase().includes(q) ||
-            e.request_id.toLowerCase().includes(q));
-    }, [events, filters.search]);
-    // When the client-side quick-search is active it only filters the loaded
-    // page, so reflect the filtered count (and collapse paging) instead of
-    // advertising the full server total against a handful of visible rows.
-    const displayTotal = searching ? filteredEvents.length : serverTotal;
 
     // Filter dropdown options from real data (fallback to the built-in engine list).
     const facets = facetsQuery.data;
@@ -272,11 +362,23 @@ const ShieldEvents: React.FC<{ active?: boolean }> = ({ active = true }) => {
         .map(e => ({ label: e, value: e }));
     const nodeOptions = [...(facets?.nodes ?? [])].sort().map(n => ({ label: n, value: n }));
 
-    // Export the currently-shown rows to CSV (client-side; redacted fields only).
-    const exportCsv = () => {
+    // Export the FILTERED result set to CSV (redacted fields only). The search/
+    // filters are server-side, so fetch up to the backend's 500-row cap in one
+    // request instead of exporting just the visible page; if that fetch fails,
+    // fall back to the rows already on screen (the CSV row count shows what you got).
+    const [exporting, setExporting] = useState(false);
+    const exportCsv = async () => {
+        setExporting(true);
+        let rowsSrc = events;
+        try {
+            const full = await shieldApi.getSecurityEvents(project, { ...serverParams, limit: 500, offset: 0 });
+            if (full.data?.length) rowsSrc = full.data;
+        } catch { /* keep the current page as fallback */ } finally {
+            setExporting(false);
+        }
         const header = ['ts', 'action', 'severity', 'engine', 'rule_id', 'method', 'host',
             'path', 'status_code', 'node_id', 'project_id', 'request_id', 'reason'];
-        const rows = filteredEvents.map(e => [
+        const rows = rowsSrc.map(e => [
             e.ts, e.action, e.severity, e.engine, e.rule_id, e.method, e.host, e.path,
             e.status_code, e.node_id, e.project_id, e.request_id, e.reason,
         ].map(csvCell).join(','));
@@ -459,8 +561,8 @@ const ShieldEvents: React.FC<{ active?: boolean }> = ({ active = true }) => {
                                         <Text style={{ fontSize: 12 }}>Live</Text>
                                     </Space>
                                 </Tooltip>
-                                <Tooltip title="Export the current page (≤50 rows) to CSV">
-                                    <Button icon={<DownloadOutlined />} disabled={filteredEvents.length === 0} onClick={exportCsv}>CSV</Button>
+                                <Tooltip title="Export the filtered events to CSV (up to 500 rows)">
+                                    <Button icon={<DownloadOutlined />} loading={exporting} disabled={events.length === 0} onClick={exportCsv}>CSV</Button>
                                 </Tooltip>
                                 <Button icon={<ReloadOutlined />} loading={feedQuery.isFetching || summaryQuery.isFetching}
                                     onClick={refreshNow}>
@@ -485,7 +587,9 @@ const ShieldEvents: React.FC<{ active?: boolean }> = ({ active = true }) => {
                                 <Select
                                     placeholder="Action" allowClear style={{ width: '100%' }}
                                     value={draft.action}
-                                    onChange={(v) => setDraft(d => ({ ...d, action: v }))}
+                                    // Picking "allow" turns findings-only off in the draft too, so
+                                    // the user sees the implied change before hitting Apply.
+                                    onChange={(v) => setDraft(d => ({ ...d, action: v, findingsOnly: v === 'allow' ? false : d.findingsOnly }))}
                                     options={['block', 'detect', 'shadow', 'allow'].map(a => ({ label: a, value: a }))}
                                 />
                             </Col>
@@ -507,17 +611,21 @@ const ShieldEvents: React.FC<{ active?: boolean }> = ({ active = true }) => {
                             </Col>
                         </Row>
 
-                        {/* Quick search (current page) + findings toggle */}
+                        {/* Free-text search (server-side, applies with the other filters) + findings toggle */}
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center' }}>
                             <Input
-                                placeholder="Filter host / path / request id (current page)"
+                                placeholder="Search host / path / request id"
                                 value={draft.search}
                                 onChange={(e) => setDraft(d => ({ ...d, search: e.target.value }))}
+                                onPressEnter={applyFilters}
                                 allowClear
                                 style={{ flex: 1, minWidth: 240 }}
                             />
                             <Space>
-                                <Switch checked={draft.findingsOnly} onChange={(v) => setDraft(d => ({ ...d, findingsOnly: v }))} />
+                                <Switch checked={draft.findingsOnly}
+                                    // Enabling findings-only while action=allow would guarantee zero
+                                    // results — drop the allow filter instead.
+                                    onChange={(v) => setDraft(d => ({ ...d, findingsOnly: v, action: v && d.action === 'allow' ? undefined : d.action }))} />
                                 <Text style={{ fontSize: 12 }}>Findings only</Text>
                             </Space>
                         </div>
@@ -543,6 +651,16 @@ const ShieldEvents: React.FC<{ active?: boolean }> = ({ active = true }) => {
                 </Card>
             </Col>
 
+            {/* Summary failure is loud: without this the cards silently show 0 while
+                the feed below still lists events — a contradictory, misleading view. */}
+            {summaryQuery.isError && (
+                <Col span={24}>
+                    <Alert type="warning" showIcon style={{ borderRadius: 8 }}
+                        message="Could not load the events summary — the counts and chart below may be stale or empty"
+                        description={extractErrorMessage(summaryQuery.error)} />
+                </Col>
+            )}
+
             {/* Summary cards — the action cards toggle the corresponding filter. */}
             <Col span={24}>
                 <Row gutter={[16, 16]}>
@@ -558,7 +676,7 @@ const ShieldEvents: React.FC<{ active?: boolean }> = ({ active = true }) => {
                                 <Tooltip title={c.action ? (selected ? 'Click to clear this action filter' : `Click to filter: action = ${c.action}`) : undefined}>
                                     <Card
                                         size="small"
-                                        loading={summaryQuery.isFetching}
+                                        loading={summaryQuery.isLoading}
                                         onClick={c.action ? () => applyImmediate({ action: selected ? undefined : c.action }) : undefined}
                                         style={{
                                             borderRadius: 12,
@@ -584,10 +702,10 @@ const ShieldEvents: React.FC<{ active?: boolean }> = ({ active = true }) => {
                     title="Activity over time"
                     extra={<Text type="secondary" style={{ fontSize: 11 }}>Drag on the chart to zoom into a range</Text>}
                     style={{ borderRadius: 12, height: '100%' }}
-                    loading={summaryQuery.isFetching}
+                    loading={summaryQuery.isLoading}
                 >
                     {chartSeries.length > 0
-                        ? <MetricLineChart series={chartSeries} height={240} stackAll="actions" onRangeSelect={onChartRangeSelect} />
+                        ? <MetricLineChart series={chartSeries} height={240} onRangeSelect={onChartRangeSelect} />
                         : (
                             <div style={{ height: 240, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                 <Text type="secondary">No events in the selected window.</Text>
@@ -596,7 +714,7 @@ const ShieldEvents: React.FC<{ active?: boolean }> = ({ active = true }) => {
                 </Card>
             </Col>
             <Col xs={24} lg={8}>
-                <Card size="small" title="Top engines" style={{ borderRadius: 12, height: '100%' }} loading={summaryQuery.isFetching}>
+                <Card size="small" title="Top engines" style={{ borderRadius: 12, height: '100%' }} loading={summaryQuery.isLoading}>
                     <div style={{ height: 240, overflowY: 'auto' }}>
                         {topEngines.length === 0 && <Text type="secondary">No findings.</Text>}
                         {topEngines.map(([engine, count]) => {
@@ -658,7 +776,7 @@ const ShieldEvents: React.FC<{ active?: boolean }> = ({ active = true }) => {
                 <Card
                     size="small"
                     style={{ borderRadius: 12 }}
-                    title={<Space><span>Events</span><Badge count={displayTotal} overflowCount={9999999} style={{ backgroundColor: 'var(--color-primary)' }} /></Space>}
+                    title={<Space><span>Events</span><Badge count={serverTotal} overflowCount={9999999} style={{ backgroundColor: 'var(--color-primary)' }} /></Space>}
                 >
                     {feedQuery.isError && (
                         <Alert type="warning" showIcon style={{ marginBottom: 12, borderRadius: 8 }}
@@ -668,20 +786,18 @@ const ShieldEvents: React.FC<{ active?: boolean }> = ({ active = true }) => {
                     <Table<ShieldSecurityEvent>
                         size="small"
                         rowKey={(r, i) => `${r.request_id}-${r.ts}-${r.engine}-${r.rule_id}-${i ?? 0}`}
-                        dataSource={filteredEvents}
+                        dataSource={events}
                         columns={columns}
-                        loading={feedQuery.isFetching}
+                        loading={feedQuery.isLoading}
                         expandable={{ expandedRowRender: expandedRow }}
                         scroll={{ x: 1100 }}
                         pagination={{
                             current: page,
                             pageSize: PAGE_SIZE,
-                            total: displayTotal,
+                            total: serverTotal,
                             showSizeChanger: false,
-                            // Client-side search filters only the loaded page, so
-                            // disable server paging while a search is active.
-                            onChange: searching ? undefined : setPage,
-                            showTotal: (t) => searching ? `${t.toLocaleString()} on this page` : `${t.toLocaleString()} events`,
+                            onChange: setPage,
+                            showTotal: (t) => `${t.toLocaleString()} events`,
                         }}
                     />
                 </Card>
