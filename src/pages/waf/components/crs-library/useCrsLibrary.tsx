@@ -66,6 +66,10 @@ const PHASE_NAMES: Record<number, string> = {
 export const useCrsLibrary = (opts?: CrsLibraryOptions): { state: CrsLibraryState; data: CrsLibraryData } => {
     const source = opts?.source ?? 'wasm';
     const pinnedVersion = opts?.pinnedVersion;
+    // Shield treats paranoia as CUMULATIVE (PL N = every rule active at that level, the
+    // real CRS semantics) and filters it CLIENT-SIDE, so the shared exact-match backend
+    // filter (used by the fixed WASM path) is left untouched.
+    const cumulativeParanoia = source === 'shield';
     // Shield starts empty (the version resolves from the fleet, and the rules query is
     // gated on a non-empty version so we never fire a 404 for '4.14.0' against the shield
     // store). WASM keeps its historical 4.14.0 default.
@@ -104,10 +108,12 @@ export const useCrsLibrary = (opts?: CrsLibraryOptions): { state: CrsLibraryStat
             crs_version: crsVersion,
             severity,
             phase,
-            paranoia_level: paranoia,
+            // Shield resolves paranoia cumulatively on the client (below); everyone else
+            // keeps the server-side exact-PL filter.
+            paranoia_level: cumulativeParanoia ? undefined : paranoia,
             tags: tags.length > 0 ? tags.join(',') : undefined,
         }),
-        [crsVersion, severity, phase, paranoia, tags],
+        [crsVersion, severity, phase, paranoia, tags, cumulativeParanoia],
     );
 
     const { data: rulesData, isLoading, isError, error } = useQuery({
@@ -119,17 +125,24 @@ export const useCrsLibrary = (opts?: CrsLibraryOptions): { state: CrsLibraryStat
     const rules = rulesData?.rules ?? [];
 
     const filteredRules = useMemo(() => {
-        if (!search.trim()) return rules;
-        const q = search.toLowerCase();
-        return rules.filter((r) => {
-            if (String(r.characteristics.id).toLowerCase().includes(q)) return true;
-            if (r.title?.toLowerCase().includes(q)) return true;
-            if (r.description?.short?.toLowerCase().includes(q)) return true;
-            if (r.description?.extended?.toLowerCase().includes(q)) return true;
-            if (r.characteristics.file?.toLowerCase().includes(q)) return true;
-            return false;
-        });
-    }, [rules, search]);
+        let out = rules;
+        // Shield: cumulative paranoia — PL N shows every rule active at that level.
+        if (cumulativeParanoia && paranoia != null) {
+            out = out.filter((r) => (r.characteristics.paranoia_level ?? 0) <= paranoia);
+        }
+        if (search.trim()) {
+            const q = search.toLowerCase();
+            out = out.filter((r) => {
+                if (String(r.characteristics.id).toLowerCase().includes(q)) return true;
+                if (r.title?.toLowerCase().includes(q)) return true;
+                if (r.description?.short?.toLowerCase().includes(q)) return true;
+                if (r.description?.extended?.toLowerCase().includes(q)) return true;
+                if (r.characteristics.file?.toLowerCase().includes(q)) return true;
+                return false;
+            });
+        }
+        return out;
+    }, [rules, search, paranoia, cumulativeParanoia]);
 
     const rulesByFile = useMemo(() => {
         const map = new Map<string, CrsRule[]>();
@@ -178,9 +191,17 @@ export const useCrsLibrary = (opts?: CrsLibraryOptions): { state: CrsLibraryStat
             if (r.characteristics.paranoia_level != null) s.add(r.characteristics.paranoia_level);
         });
         return Array.from(s)
-            .sort()
-            .map((p) => ({ label: `Level ${p}`, value: p }));
-    }, [rules]);
+            .sort((a, b) => a - b)
+            .map((p) => {
+                // Shield: label each level with how many rules are ACTIVE at it (cumulative),
+                // so the picker answers "what does PL N include?" at a glance.
+                if (cumulativeParanoia) {
+                    const active = rules.filter((r) => (r.characteristics.paranoia_level ?? 0) <= p).length;
+                    return { label: `PL${p} · ${active} active`, value: p };
+                }
+                return { label: `Level ${p}`, value: p };
+            });
+    }, [rules, cumulativeParanoia]);
 
     return {
         state: {
