@@ -721,15 +721,53 @@ const ShieldEvents: React.FC<{ active?: boolean }> = ({ active = true }) => {
                             const max = topEngines[0]?.[1] || 1;
                             const pct = serverTotal > 0 ? (count / serverTotal) * 100 : 0;
                             const selected = filters.engine === engine;
+                            // An empty engine is the sampled ALLOW stream: the request
+                            // passed with no finding, so no engine is on the record.
+                            // Label it honestly and don't offer an engine filter (the
+                            // backend can't filter on "no engine"); it only shows up
+                            // when the findings-only toggle is off.
+                            const label = engine || 'allowed (no engine)';
+                            const row = (
+                                <div
+                                    onClick={engine ? () => applyImmediate({ engine: selected ? undefined : engine }) : undefined}
+                                    title={engine
+                                        ? (selected ? 'Click to clear this engine filter' : `Click to filter: engine = ${engine}`)
+                                        : 'Sampled allowed traffic — no engine produced a finding'}
+                                    style={{
+                                        cursor: engine ? 'pointer' : 'default',
+                                        padding: '5px 8px',
+                                        borderRadius: 8,
+                                        marginBottom: 2,
+                                        background: selected ? 'rgba(59, 158, 255, 0.12)' : undefined,
+                                    }}
+                                >
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                                        <Tag className="auto-width-tag" style={engine ? undefined : { fontStyle: 'italic' }}>{label}</Tag>
+                                        <Space size={6}>
+                                            <Text type="secondary" style={{ fontSize: 11 }}>{pct.toFixed(1)}%</Text>
+                                            <Text strong>{count.toLocaleString()}</Text>
+                                        </Space>
+                                    </div>
+                                    <div style={{ height: 4, borderRadius: 2, background: 'rgba(128, 128, 128, 0.15)', overflow: 'hidden' }}>
+                                        <div style={{
+                                            width: `${(count / max) * 100}%`,
+                                            height: '100%',
+                                            borderRadius: 2,
+                                            background: 'var(--color-primary)',
+                                        }} />
+                                    </div>
+                                </div>
+                            );
+                            if (!engine) return <React.Fragment key="no-engine">{row}</React.Fragment>;
                             return (
                                 <Dropdown
-                                    key={engine || 'unknown'}
+                                    key={engine}
                                     trigger={['contextMenu']}
                                     menu={{
                                         items: [{
                                             key: 'f', icon: <FilterOutlined />,
-                                            label: <>Filter: engine = <b>{engine || 'unknown'}</b></>,
-                                            onClick: () => applyImmediate({ engine: engine || undefined }),
+                                            label: <>Filter: engine = <b>{engine}</b></>,
+                                            onClick: () => applyImmediate({ engine }),
                                         },
                                         ...(filters.engine ? [{
                                             key: 'c', icon: <CloseOutlined />, label: 'Clear engine filter',
@@ -737,33 +775,7 @@ const ShieldEvents: React.FC<{ active?: boolean }> = ({ active = true }) => {
                                         }] : [])],
                                     }}
                                 >
-                                    <div
-                                        onClick={() => applyImmediate({ engine: selected ? undefined : (engine || undefined) })}
-                                        title={selected ? 'Click to clear this engine filter' : `Click to filter: engine = ${engine || 'unknown'}`}
-                                        style={{
-                                            cursor: 'pointer',
-                                            padding: '5px 8px',
-                                            borderRadius: 8,
-                                            marginBottom: 2,
-                                            background: selected ? 'rgba(59, 158, 255, 0.12)' : undefined,
-                                        }}
-                                    >
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                                            <Tag className="auto-width-tag">{engine || 'unknown'}</Tag>
-                                            <Space size={6}>
-                                                <Text type="secondary" style={{ fontSize: 11 }}>{pct.toFixed(1)}%</Text>
-                                                <Text strong>{count.toLocaleString()}</Text>
-                                            </Space>
-                                        </div>
-                                        <div style={{ height: 4, borderRadius: 2, background: 'rgba(128, 128, 128, 0.15)', overflow: 'hidden' }}>
-                                            <div style={{
-                                                width: `${(count / max) * 100}%`,
-                                                height: '100%',
-                                                borderRadius: 2,
-                                                background: 'var(--color-primary)',
-                                            }} />
-                                        </div>
-                                    </div>
+                                    {row}
                                 </Dropdown>
                             );
                         })}
