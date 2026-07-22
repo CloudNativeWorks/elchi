@@ -162,7 +162,10 @@ function Header({ userDetail }: Readonly<HeaderProps>) {
 		}
 	] : [];
 
-	useEffect(() => window.scrollTo(0, 0));
+	// Braces matter: a concise arrow would return scrollTo's result, and React
+	// treats any non-undefined return as a cleanup fn (some environments patch
+	// scrollTo to return a Promise → "X is not a function" crash on re-render).
+	useEffect(() => { window.scrollTo(0, 0); }, []);
 
 	return (
 		<>
